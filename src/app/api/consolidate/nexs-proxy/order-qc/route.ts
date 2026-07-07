@@ -24,7 +24,7 @@ export async function POST(req: Request) {
     // copy misses them — and a server-to-server fetch omits them entirely, which
     // makes /details return 401 even with a valid session cookie.
     Origin: 'https://app.nexs.lenskart.com',
-    Referer: 'https://app.nexs.lenskart.com/',
+    Referer: 'https://app.nexs.lenskart.com/monitor',
   };
 
   for (const name of [
@@ -35,9 +35,12 @@ export async function POST(req: Request) {
     if (v) fwd[name] = v;
   }
 
-  // Forward the browser's NexS session cookie (scoped to .lenskart.com), exactly
-  // like the Tray Releaser fetch-trays proxy. No token stored or relayed by us.
-  const cookie = req.headers.get('cookie');
+  // Auth is the httpOnly `jwt-token` cookie (a ~24h JWT). On a lenskart-origin
+  // deployment the browser forwards it here automatically. On a non-lenskart
+  // origin (e.g. a Docker IP) it cannot — so fall back to a server-provided
+  // NEXS_COOKIE (the DevTools request "cookie:" value, or just "jwt-token=…").
+  // Env-only (.env* gitignored, not baked into the image); the JWT expires ~24h.
+  const cookie = req.headers.get('cookie') || process.env.NEXS_COOKIE;
   if (cookie) fwd['Cookie'] = cookie;
 
   let nexsRes: Response;
