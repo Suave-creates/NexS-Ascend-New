@@ -45,6 +45,8 @@ export default function ConsolidatePage() {
   const gridBusy = useRef(false);
   const stepRef = useRef<Step>('PICK');
   stepRef.current = step;
+  const currentRef = useRef<Current | null>(null);
+  currentRef.current = current;
 
   const color = (typeof window !== 'undefined' && localStorage.getItem('consolidate.color')) || 'BLUE';
   const facility = (typeof window !== 'undefined' && localStorage.getItem('consolidate.facility')) || 'NXS1';
@@ -106,52 +108,68 @@ export default function ConsolidatePage() {
     return () => clearInterval(id);
   }, [runDump]);
 
-  // ---- PICK ----
-  const onPick = async () => {
-    const barcode = itemVal.trim();
-    setItemVal('');
-    if (!barcode || busy.current) return;
-    busy.current = true;
+  // Resolve a scanned value as a dump ITEM (PICK). 'ok' | 'notfound' | 'error'.
+  const pick = async (barcode: string): Promise<'ok' | 'notfound' | 'error'> => {
     try {
       const res = await fetch('/api/consolidate/scan-barcode', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ barcode, operatorColor: color }),
       });
+      if (res.status === 404) return 'notfound';
       const d = await res.json();
-      if (!res.ok || !d.location) {
-        addLog(`PICK ${barcode}: ${d.error || 'failed'}`, 'err');
-      } else {
-        setCurrent({
-          pkg: d.shippingPackageId, item: barcode,
-          slotNumber: d.location.locationNumber, slotBarcode: d.location.barcode,
-          rackNumber: d.location.rackNumber, expected: d.expected, placed: d.placed,
-        });
-        setStep(d.complete ? 'ACK' : 'PUT');
-        addLog(`PICK ${barcode} → ${d.shippingPackageId} → slot #${d.location.locationNumber} (${d.placed}/${d.expected})`, 'ok');
-        refreshGrid();
+      if (!res.ok || !d.location) { addLog(`PICK ${barcode}: ${d.error || 'failed'}`, 'err'); return 'error'; }
+      const prev = currentRef.current;
+      if (prev && prev.pkg !== d.shippingPackageId && prev.placed < prev.expected) {
+        addLog(`Switched from ${prev.pkg} (${prev.placed}/${prev.expected}, NOT released)`, 'err');
       }
+      setCurrent({
+        pkg: d.shippingPackageId, item: barcode,
+        slotNumber: d.location.locationNumber, slotBarcode: d.location.barcode,
+        rackNumber: d.location.rackNumber, expected: d.expected, placed: d.placed,
+      });
+      setStep(d.complete ? 'ACK' : 'PUT');
+      addLog(`PICK ${barcode} → ${d.shippingPackageId} → slot #${d.location.locationNumber} (${d.placed}/${d.expected})`, 'ok');
+      refreshGrid();
+      return 'ok';
     } catch (e) {
       addLog(`PICK ${barcode}: ${(e as Error).message}`, 'err');
+      return 'error';
+    }
+  };
+
+  // ---- PICK field ----
+  const onPick = async () => {
+    const barcode = itemVal.trim();
+    setItemVal('');
+    if (!barcode || busy.current) return;
+    busy.current = true;
+    try {
+      const r = await pick(barcode);
+      if (r === 'notfound') addLog(`PICK ${barcode}: not in QC dump`, 'err');
     } finally {
       busy.current = false;
       focusActive();
     }
   };
 
-  // ---- PUT / ACK (location field) ----
+  // ---- LOCATION field (PUT / ACK, with scanner-only re-pick escape) ----
   const onLocation = async () => {
     const loc = locVal.trim();
     setLocVal('');
     if (!loc || busy.current) return;
-    if (!current) { addLog('Scan an item first', 'err'); focusActive(); return; }
-    if (loc !== current.slotBarcode) {
-      addLog(`WRONG LOCATION ${loc} — expected slot #${current.slotNumber} (${current.slotBarcode})`, 'err');
-      focusActive();
-      return;
-    }
+    const cur = currentRef.current;
+    if (!cur) { addLog('Scan an item first', 'err'); focusActive(); return; }
     busy.current = true;
     try {
+      // A scan that isn't the expected slot may be a different ITEM — re-pick it
+      // (scanner-only escape when the wrong item was picked / can't be placed).
+      if (loc !== cur.slotBarcode) {
+        const r = await pick(loc);
+        if (r !== 'ok') addLog(`WRONG LOCATION ${loc} — expected slot #${cur.slotNumber} (${cur.slotBarcode})`, 'err');
+        return;
+      }
+
       if (stepRef.current === 'ACK') {
         const res = await fetch('/api/consolidate/complete-location', {
           method: 'POST',
@@ -160,22 +178,30 @@ export default function ConsolidatePage() {
         });
         const d = await res.json();
         if (!res.ok) {
-          addLog(`ACK slot #${current.slotNumber}: ${d.error || 'failed'}`, 'err');
+          if (d.error === 'NOT_COMPLETE') {
+            // Dump changed after it went green — reopen so PICK is usable again.
+            setStep('PICK');
+            if (d.progress) setCurrent((c) => (c ? { ...c, placed: d.progress.accounted, expected: d.progress.expected } : c));
+            addLog(`No longer complete (${d.progress?.accounted ?? '?'}/${d.progress?.expected ?? '?'}) — PICK missing item(s)`, 'err');
+          } else {
+            addLog(`ACK slot #${cur.slotNumber}: ${d.error || 'failed'}`, 'err');
+          }
         } else {
-          addLog(`ACK slot #${current.slotNumber} — ${current.pkg} released, ready-to-ship`, 'ok');
+          addLog(`ACK slot #${cur.slotNumber} — ${cur.pkg} released, ready-to-ship`, 'ok');
           setCurrent(null);
           setStep('PICK');
+          refreshGrid();
         }
       } else {
         // PUT
         const res = await fetch('/api/consolidate/confirm-placement', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ barcode: current.item, locationBarcode: loc }),
+          body: JSON.stringify({ barcode: cur.item, locationBarcode: loc }),
         });
         const d = await res.json();
         if (!res.ok) {
-          addLog(`PUT ${current.item}: ${d.error || 'failed'}`, 'err');
+          addLog(`PUT ${cur.item}: ${d.error || 'failed'}`, 'err');
         } else {
           setCurrent((c) => (c ? { ...c, placed: d.placed, expected: d.expected } : c));
           if (d.complete) {
