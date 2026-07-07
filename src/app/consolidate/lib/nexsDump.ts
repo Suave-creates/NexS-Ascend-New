@@ -75,9 +75,9 @@ export interface DumpResult {
 export async function loadOrderQcDump(ctx: DumpContext): Promise<DumpResult> {
   const rows: Record<string, unknown>[] = [];
   let total = 0;
-  let page = 1;
+  let page = 0; // NexS pages are 0-indexed (first page is page 0)
 
-  for (; page <= MAX_PAGES; page++) {
+  for (; page < MAX_PAGES; page++) {
     let pageRes: { rows: Record<string, unknown>[]; total: number };
     try {
       pageRes = await fetchPage(ctx, page);
