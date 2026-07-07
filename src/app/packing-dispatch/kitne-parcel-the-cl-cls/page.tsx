@@ -91,7 +91,7 @@ export default function KitneParcelTheClClsPage() {
   }
 
   return (
-    <div className="mx-auto max-w-2xl">
+    <div className="mx-auto max-w-2xl space-y-6">
       <PageHeader
         title={
           <>

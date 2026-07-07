@@ -10,6 +10,7 @@ import {
   Button,
   Input,
   Textarea,
+  Label,
   Badge,
   StatCard,
   Table,
@@ -130,9 +131,9 @@ function ChunkVisualizer({ total, done }: { total: number; done: number }) {
           className={cn(
             "rounded border px-1.5 py-0.5 font-mono text-[10px] transition-colors",
             i < done
-              ? "border-green-300 bg-green-50 text-green-700"
+              ? "border-good-600/30 bg-good-50 text-good-600"
               : i === done
-              ? "border-amber-300 bg-amber-50 text-amber-700"
+              ? "border-notice-600/30 bg-notice-50 text-notice-600"
               : "border-gray-200 bg-gray-50 text-gray-400",
           )}
         >
@@ -235,38 +236,39 @@ export default function OrderSyncTimePage() {
     try { await exportXlsx(filtered); } finally { setXlsxBusy(false); }
   }
 
-  const dotColor =
-    status === "loading" ? "#e8b400"
-    : status === "success" ? "#1a7a4a"
-    : status === "error"   ? "#c0392b"
-    : "#d8dde8";
+  const dotClass =
+    status === "loading" ? "bg-notice-600"
+    : status === "success" ? "bg-good-600"
+    : status === "error"   ? "bg-danger-600"
+    : "bg-gray-300";
 
   return (
-    <div className="space-y-4">
+    <div className="mx-auto max-w-6xl space-y-6">
       {/* ── Header ── */}
       <PageHeader
-        title="Order Sync — Time &amp; Location"
+        title="Order Sync — Time & Location"
         subtitle="POST /api/order-info/sync-time-location — wms.orders"
         actions={<Badge tone="navy" className="font-mono">CHUNK_SIZE = {CHUNK_SIZE}</Badge>}
       />
 
       {/* ── Stats ── */}
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-        <StatCard label="Increment IDs"  value={parsedIds.length} sub="in request payload" />
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <StatCard label="Increment IDs"  value={parsedIds.length} sub="in request payload" tone="navy" />
         <StatCard label="Chunks"         value={parsedIds.length ? numChunks : 0} sub="sequential SQL queries" tone="gold" />
-        <StatCard label="Rows Returned"  value={totalRows} sub="from wms.orders" tone={totalRows > 0 ? 'good' : 'navy'} />
+        <StatCard label="Rows Returned"  value={totalRows} sub="from wms.orders" tone={totalRows > 0 ? "good" : "navy"} />
       </div>
 
       {/* ── Config Panel ── */}
       <Card>
         <CardHeader>
-          <span className="text-sm font-semibold text-gray-700">Request Configuration</span>
+          <span className="text-sm font-semibold text-brand-700">Request Configuration</span>
         </CardHeader>
         <CardBody className="space-y-3">
-          <label className="block text-xs font-medium text-gray-500">
+          <Label htmlFor="increment-ids">
             increment_ids — comma-separated or one per line
-          </label>
+          </Label>
           <Textarea
+            id="increment-ids"
             rows={4}
             className="font-mono text-xs"
             placeholder={"100041001, 100041002, 100041003\nor paste one per line…"}
@@ -274,7 +276,7 @@ export default function OrderSyncTimePage() {
             onChange={(e) => setIdsRaw(e.target.value)}
           />
           <div className="flex flex-wrap items-center gap-2">
-            <Button onClick={runQuery} disabled={status === "loading"}>
+            <Button onClick={runQuery} loading={status === "loading"} disabled={status === "loading"}>
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
                 stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
                 <polygon points="5 3 19 12 5 21 5 3"/>
@@ -293,7 +295,7 @@ export default function OrderSyncTimePage() {
               </div>
               <div className="h-1.5 overflow-hidden rounded-full bg-gray-100">
                 <div
-                  className="h-full rounded-full bg-brand-600 transition-all duration-300"
+                  className="h-full rounded-full bg-brand-700 transition-all duration-300"
                   style={{ width: `${progress}%` }}
                 />
               </div>
@@ -302,10 +304,7 @@ export default function OrderSyncTimePage() {
           )}
 
           <div className="flex items-center gap-2.5 border-t border-gray-100 pt-3">
-            <span
-              className="h-2 w-2 shrink-0 rounded-full"
-              style={{ background: dotColor }}
-            />
+            <span className={cn("h-2 w-2 shrink-0 rounded-full transition-colors", dotClass)} />
             <span className="text-xs text-gray-500">{statusMsg}</span>
           </div>
         </CardBody>
@@ -314,7 +313,7 @@ export default function OrderSyncTimePage() {
       {/* ── Results ── */}
       <Card>
         <CardHeader>
-          <div className="flex items-center gap-2 text-sm font-semibold text-gray-700">
+          <div className="flex items-center gap-2 text-sm font-semibold text-brand-700">
             Results
             <Badge tone="navy" className="font-mono">{filtered.length} rows</Badge>
           </div>
@@ -330,7 +329,7 @@ export default function OrderSyncTimePage() {
                   </svg>
                   CSV
                 </Button>
-                <Button variant="outline" size="sm" onClick={handleExcel} disabled={xlsxBusy}>
+                <Button variant="outline" size="sm" onClick={handleExcel} loading={xlsxBusy} disabled={xlsxBusy}>
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
                     stroke="currentColor" strokeWidth="2" strokeLinecap="round">
                     <rect x="3" y="3" width="18" height="18" rx="2"/>
@@ -364,11 +363,11 @@ export default function OrderSyncTimePage() {
           <div className="p-4">
             <Table>
               <THead>
-                <tr>
+                <TR>
                   <TH className="w-12">#</TH>
                   <TH>Increment ID</TH>
                   <TH>Order Created At</TH>
-                </tr>
+                </TR>
               </THead>
               <TBody>
                 {filtered.map((row, i) => (

@@ -1,7 +1,17 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { Card, PageHeader, Field, Input, Select, Button, Modal, StatCard, Alert } from '@/components/ui';
+import {
+  Card,
+  PageHeader,
+  Field,
+  Input,
+  Select,
+  Button,
+  Modal,
+  StatCard,
+  Alert,
+} from '@/components/ui';
 
 export default function bulkPage() {
   const [scanId, setScanId] = useState('');
@@ -91,7 +101,7 @@ export default function bulkPage() {
         backgroundPosition: 'center',
       }}
     >
-      {/* Main Content Wrapper */}
+      {/* Floating scan card */}
       <Card variant="floating" className="relative z-10 w-full max-w-md p-6">
         {/* Hourly Count */}
         {stationId && (
@@ -100,11 +110,12 @@ export default function bulkPage() {
             label="Last 1 hr scans"
             value={hourCount}
             sub={stationId}
+            tone="navy"
           />
         )}
 
         {/* Header */}
-        <PageHeader title="Bulk Scan" />
+        <PageHeader title="Bulk Scan" subtitle="Scan parcels into a bulk station" />
 
         {/* Message */}
         {message && (
@@ -155,16 +166,27 @@ export default function bulkPage() {
         </div>
 
         {/* Duplicate Modal */}
-        <Modal open={showDupModal} onClose={() => setShowDupModal(false)} size="sm" className="text-center">
+        <Modal
+          open={showDupModal}
+          onClose={() => setShowDupModal(false)}
+          size="sm"
+          className="text-center"
+        >
           <Alert tone="warning" className="mb-4 text-left">
-            ⚠️ Duplicate detected!<br />
+            ⚠️ Duplicate detected!
+            <br />
             Previously at station <strong>{prevStation}</strong>.
           </Alert>
           <Button onClick={() => setShowDupModal(false)}>OK</Button>
         </Modal>
 
         {/* City Modal */}
-        <Modal open={showCityModal && !!city} onClose={() => setShowCityModal(false)} size="sm" className="text-center">
+        <Modal
+          open={showCityModal && !!city}
+          onClose={() => setShowCityModal(false)}
+          size="sm"
+          className="text-center"
+        >
           <h3 className="text-lg font-bold text-brand-700">Destination City</h3>
           <p className="mt-2 text-xl">{city}</p>
         </Modal>

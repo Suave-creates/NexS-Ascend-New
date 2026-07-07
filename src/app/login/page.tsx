@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Card, Field, Input, Button, Alert } from '@/components/ui';
+import { Card, PageHeader, Field, Input, Button, Alert } from '@/components/ui';
 
 export default function LoginPage() {
   const [employeeCode, setEmployeeCode] = useState('');
@@ -31,16 +31,21 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-[70vh] items-center justify-center">
-      <Card className="w-full max-w-sm">
-        <form onSubmit={handleSubmit} className="space-y-6 p-8">
-          <h1 className="text-center text-2xl font-bold text-brand-700">NexS Login</h1>
+    <div
+      className="relative flex min-h-full items-center justify-center"
+      style={{
+        backgroundImage: "url('/images/home-bg.png')",
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+      }}
+    >
+      <div className="absolute inset-0 bg-brand-900/40" />
 
-          {error && (
-            <Alert tone="error" className="text-center">
-              {error}
-            </Alert>
-          )}
+      <Card variant="floating" className="relative z-10 w-full max-w-md p-6">
+        <PageHeader title="NexS Login" subtitle="Sign in to continue" />
+
+        <form onSubmit={handleSubmit} className="mt-6 space-y-6">
+          {error && <Alert tone="error">{error}</Alert>}
 
           <Field label="Employee Code">
             <Input

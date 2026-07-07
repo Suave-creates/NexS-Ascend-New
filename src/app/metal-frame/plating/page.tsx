@@ -13,7 +13,7 @@ import {
 
 const CATEGORY_OPTIONS = ["Fresh", "Rework"];
 
-const SIZE_OPTIONS = ["XN","N","M","W","XW","XL","L","LH","RH","NB"];
+const SIZE_OPTIONS = ["XN", "N", "M", "W", "XW", "XL", "L", "LH", "RH", "NB"];
 
 const FINISH_OPTIONS = [
   "Black Chrome",
@@ -134,7 +134,7 @@ export default function PlatingPage() {
 
   return (
     <div
-      className="relative min-h-screen flex items-center justify-center"
+      className="relative flex min-h-full items-center justify-center"
       style={{
         backgroundImage: "url('/images/plating-bg.png')",
         backgroundSize: "cover",
@@ -149,17 +149,16 @@ export default function PlatingPage() {
         {message && (
           <Alert
             tone={message.startsWith("✔️") ? "success" : "error"}
-            className="mb-4 text-center"
+            className="mb-4"
           >
             {message}
           </Alert>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
-
           {/* CATEGORY FIRST */}
-          <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
-            <Select
+          <div className="grid grid-cols-1 gap-4">
+            <SelectField
               label="Category of Work"
               name="categoryOfWork"
               value={form.categoryOfWork}
@@ -169,15 +168,16 @@ export default function PlatingPage() {
           </div>
 
           {/* Basic Info */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Input
-              label="Model ID"
-              name="modelId"
-              value={form.modelId}
-              onChange={handleChange}
-            />
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+            <Field label="Model ID">
+              <UIInput
+                name="modelId"
+                value={form.modelId}
+                onChange={handleChange}
+              />
+            </Field>
 
-            <Select
+            <SelectField
               label="Size"
               name="size"
               value={form.size}
@@ -185,7 +185,7 @@ export default function PlatingPage() {
               onChange={handleChange}
             />
 
-            <Select
+            <SelectField
               label="Finish"
               name="finish"
               value={form.finish}
@@ -195,20 +195,20 @@ export default function PlatingPage() {
           </div>
 
           {/* Quantities */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <NumberInput
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+            <NumberField
               label="Total Quantity"
               name="totalQuantity"
               value={form.totalQuantity}
               onChange={handleChange}
             />
-            <NumberInput
+            <NumberField
               label="QC Quantity"
               name="qcQuantity"
               value={form.qcQuantity}
               onChange={handleChange}
             />
-            <NumberInput
+            <NumberField
               label="NG Quantity (Auto)"
               name="ngQuantity"
               value={ngQuantity}
@@ -218,30 +218,30 @@ export default function PlatingPage() {
 
           {/* NG Breakup */}
           <div>
-            <h3 className="text-lg font-medium mb-4 text-gray-700">
+            <h3 className="mb-4 text-lg font-semibold text-brand-700">
               NG Breakup
             </h3>
 
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <NumberInput
+            <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+              <NumberField
                 label="Copper"
                 name="copperRejection"
                 value={form.copperRejection}
                 onChange={handleChange}
               />
-              <NumberInput
+              <NumberField
                 label="Nickel"
                 name="nickelRejection"
                 value={form.nickelRejection}
                 onChange={handleChange}
               />
-              <NumberInput
+              <NumberField
                 label="Line"
                 name="lineRejection"
                 value={form.lineRejection}
                 onChange={handleChange}
               />
-              <NumberInput
+              <NumberField
                 label="FQC"
                 name="fqcRejection"
                 value={form.fqcRejection}
@@ -264,18 +264,10 @@ export default function PlatingPage() {
 }
 
 /* ==========================
-   Reusable Components
+   Reusable field helpers (built on shared primitives)
 ========================== */
 
-function Input({ label, ...props }: any) {
-  return (
-    <Field label={label}>
-      <UIInput {...props} />
-    </Field>
-  );
-}
-
-function NumberInput({ label, ...props }: any) {
+function NumberField({ label, ...props }: any) {
   return (
     <Field label={label}>
       <UIInput type="number" min="0" {...props} />
@@ -283,7 +275,7 @@ function NumberInput({ label, ...props }: any) {
   );
 }
 
-function Select({ label, options, ...props }: any) {
+function SelectField({ label, options, ...props }: any) {
   return (
     <Field label={label}>
       <UISelect {...props}>

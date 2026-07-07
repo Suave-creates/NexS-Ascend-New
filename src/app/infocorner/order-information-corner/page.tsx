@@ -2,14 +2,18 @@
 
 import { useState } from 'react';
 import * as XLSX from 'xlsx';
+import { FiSearch, FiDownloadCloud } from 'react-icons/fi';
 import {
   Card,
+  CardBody,
   PageHeader,
+  Field,
   Input,
   Textarea,
   Button,
   Alert,
   Badge,
+  StatCard,
   Table,
   THead,
   TBody,
@@ -114,22 +118,22 @@ export default function OrderInformationCornerPage() {
   };
 
   const columns = singleResult && singleResult.length > 0 ? Object.keys(singleResult[0]) : [];
+  const latestStatus = singleResult && singleResult.length > 0
+    ? (singleResult[singleResult.length - 1]?.status ?? '—')
+    : '—';
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-
-      {/* Page heading */}
+    <div className="space-y-6">
       <PageHeader title="Order Information Corner" subtitle="Operations" />
 
       {/* Layout: left control panel + right results */}
-      <div className="flex gap-6 items-start">
+      <div className="flex flex-col gap-6 lg:flex-row lg:items-start">
 
         {/* ── Left panel ── */}
-        <div className="w-64 shrink-0 space-y-4">
+        <div className="w-full shrink-0 space-y-4 lg:w-72">
 
           {/* Input card */}
           <Card className="overflow-hidden">
-
             {/* Tab switcher */}
             <div className="bg-brand-700 p-2">
               <div className="flex gap-1">
@@ -137,10 +141,10 @@ export default function OrderInformationCornerPage() {
                   <button
                     key={m}
                     onClick={() => { setMode(m); setError(null); setSingleResult(null); }}
-                    className={`flex-1 py-2 text-[12px] font-semibold rounded-lg transition-all ${
+                    className={`flex-1 rounded-lg py-2 text-xs font-semibold transition-all ${
                       mode === m
                         ? 'bg-white text-brand-700'
-                        : 'text-white/50 hover:text-white/80 hover:bg-white/10'
+                        : 'text-white/60 hover:bg-white/10 hover:text-white/90'
                     }`}
                   >
                     {m === 'single' ? 'Single' : 'Bulk'}
@@ -149,13 +153,10 @@ export default function OrderInformationCornerPage() {
               </div>
             </div>
 
-            <div className="p-4 space-y-3">
+            <CardBody className="space-y-3">
               {mode === 'single' ? (
                 <>
-                  <div>
-                    <label className="block text-[10px] font-bold tracking-[0.14em] uppercase text-brand-700/40 mb-1.5">
-                      Fitting ID
-                    </label>
+                  <Field label="Fitting ID">
                     <Input
                       type="text"
                       placeholder="e.g. 882730722"
@@ -164,81 +165,58 @@ export default function OrderInformationCornerPage() {
                       onKeyDown={(e) => e.key === 'Enter' && handleSingle()}
                       className="font-mono placeholder:font-sans"
                     />
-                  </div>
+                  </Field>
                   <Button
                     onClick={handleSingle}
                     disabled={!singleInput.trim() || isPending}
                     loading={isPending}
                     className="w-full"
                   >
-                    {isPending ? (
-                      'Fetching…'
-                    ) : (
-                      <>
-                        <svg width="12" height="12" viewBox="0 0 14 14" fill="none">
-                          <circle cx="6" cy="6" r="4.5" stroke="white" strokeWidth="1.5" />
-                          <path d="M9.5 9.5L13 13" stroke="white" strokeWidth="1.5" strokeLinecap="round" />
-                        </svg>
-                        Fetch Journey
-                      </>
-                    )}
+                    {isPending ? 'Fetching…' : (<><FiSearch className="h-4 w-4" /> Fetch Journey</>)}
                   </Button>
                 </>
               ) : (
                 <>
-                  <div>
-                    <div className="flex items-center justify-between mb-1.5">
-                      <label className="text-[10px] font-bold tracking-[0.14em] uppercase text-brand-700/40">
-                        Fitting IDs
-                      </label>
-                      {bulkIds.length > 0 && (
-                        <Badge tone="navy">
-                          {bulkIds.length}
-                        </Badge>
-                      )}
-                    </div>
+                  <Field
+                    label={
+                      <span className="flex items-center justify-between gap-2">
+                        <span>Fitting IDs</span>
+                        {bulkIds.length > 0 && <Badge tone="navy">{bulkIds.length}</Badge>}
+                      </span>
+                    }
+                  >
                     <Textarea
                       placeholder={'882730722\n883590938\n884421656'}
                       value={bulkInput}
                       onChange={(e) => setBulkInput(e.target.value)}
                       rows={7}
-                      className="font-mono leading-relaxed resize-none placeholder:font-sans"
+                      className="resize-none font-mono leading-relaxed placeholder:font-sans"
                     />
-                  </div>
+                  </Field>
                   <Button
                     onClick={handleBulk}
                     disabled={bulkIds.length === 0 || isPending}
                     loading={isPending}
                     className="w-full"
                   >
-                    {isPending ? (
-                      progress
-                        ? `Chunk ${progress.current} / ${progress.total}…`
-                        : 'Preparing…'
-                    ) : (
-                      <>
-                        <svg width="12" height="12" viewBox="0 0 14 14" fill="none">
-                          <path d="M7 1v8M4 6l3 3 3-3" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                          <path d="M1 11h12" stroke="white" strokeWidth="1.5" strokeLinecap="round" />
-                        </svg>
-                        Export All
-                      </>
-                    )}
+                    {isPending
+                      ? (progress ? `Chunk ${progress.current} / ${progress.total}…` : 'Preparing…')
+                      : (<><FiDownloadCloud className="h-4 w-4" /> Export All</>)}
                   </Button>
 
                   {isPending && progress && (
                     <div className="space-y-1.5">
-                      <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                      <div className="h-1.5 w-full overflow-hidden rounded-full bg-gray-100">
                         <div
-                          className="h-full bg-brand-700 rounded-full transition-all duration-300"
+                          className="h-full rounded-full bg-brand-700 transition-all duration-300"
                           style={{ width: `${Math.round((progress.current / progress.total) * 100)}%` }}
                         />
                       </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-[10px] text-brand-700/50">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] text-brand-700/60">
                           {Math.round((progress.current / progress.total) * 100)}% complete
                         </span>
-                        <span className="text-[10px] font-mono text-brand-700/40">
+                        <span className="font-mono text-[10px] text-brand-700/50">
                           {Math.min(progress.current * CHUNK_SIZE, bulkIds.length).toLocaleString()} / {bulkIds.length.toLocaleString()} IDs
                         </span>
                       </div>
@@ -247,77 +225,54 @@ export default function OrderInformationCornerPage() {
                 </>
               )}
 
-              {error && (
-                <Alert tone="error">
-                  {error}
-                </Alert>
-              )}
-            </div>
+              {error && <Alert tone="error">{error}</Alert>}
+            </CardBody>
           </Card>
 
-          {/* Summary card — appears after single fetch */}
+          {/* Summary — appears after single fetch */}
           {singleResult && singleResult.length > 0 && (
-            <div className="bg-brand-700 rounded-2xl p-4 text-white space-y-3">
-              <p className="text-[10px] font-bold tracking-[0.15em] uppercase text-white/40">
-                Journey Summary
-              </p>
-              <div className="flex justify-between items-end">
-                <div>
-                  <p className="text-[10px] text-white/40 uppercase tracking-wide mb-0.5">Events</p>
-                  <p className="text-3xl font-bold leading-none">{singleResult.length}</p>
-                </div>
-                <div className="text-right">
-                  <p className="text-[10px] text-white/40 uppercase tracking-wide mb-1">Latest Status</p>
-                  <span className="text-[11px] font-semibold bg-white/15 px-2 py-1 rounded-md">
-                    {singleResult[singleResult.length - 1]?.status ?? '—'}
-                  </span>
-                </div>
-              </div>
-              <div className="h-px bg-white/10" />
-              <div>
-                <p className="text-[10px] text-white/40 uppercase tracking-wide mb-0.5">Fitting ID</p>
-                <p className="text-[12px] font-mono font-semibold truncate">{singleInput.trim()}</p>
-              </div>
-              <button
+            <div className="space-y-3">
+              <StatCard
+                label="Journey Events"
+                value={singleResult.length}
+                sub={`Latest status: ${latestStatus}`}
+                tone="navy"
+              />
+              <Button
+                variant="outline"
+                className="w-full"
                 onClick={() => exportToXlsx(singleResult!, `order-journey-${singleInput.trim()}.xlsx`)}
-                className="w-full h-8 text-[11px] font-bold border border-white/20 text-white rounded-lg hover:bg-white/10 active:scale-[0.98] transition-all flex items-center justify-center gap-1.5"
               >
-                <svg width="11" height="11" viewBox="0 0 14 14" fill="none">
-                  <path d="M7 1v8M4 6l3 3 3-3" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                  <path d="M1 11h12" stroke="white" strokeWidth="1.5" strokeLinecap="round" />
-                </svg>
-                Export as Excel
-              </button>
+                <FiDownloadCloud className="h-4 w-4" /> Export as Excel
+              </Button>
             </div>
           )}
         </div>
 
         {/* ── Right: Results panel ── */}
-        <div className="flex-1 min-w-0">
+        <div className="min-w-0 flex-1">
           {!singleResult ? (
             /* Empty state */
-            <Card className="border-dashed flex flex-col items-center justify-center text-center p-16" style={{ minHeight: 420 }}>
-              <div className="w-10 h-10 rounded-xl bg-brand-700/5 flex items-center justify-center mb-3">
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                  <rect x="2" y="2" width="16" height="16" rx="3" stroke="#1f295c" strokeWidth="1.4" strokeOpacity="0.25" />
-                  <path d="M6 7h8M6 10h8M6 13h4" stroke="#1f295c" strokeWidth="1.4" strokeLinecap="round" strokeOpacity="0.25" />
-                </svg>
+            <Card
+              className="flex flex-col items-center justify-center border-dashed p-16 text-center"
+              style={{ minHeight: 420 }}
+            >
+              <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-brand-50">
+                <FiSearch className="h-5 w-5 text-brand-700/40" />
               </div>
-              <p className="text-[13px] font-semibold text-brand-700/30">No results yet</p>
-              <p className="text-[12px] text-gray-400 mt-1">Enter a Fitting ID and hit Fetch Journey</p>
+              <p className="text-sm font-semibold text-brand-700/50">No results yet</p>
+              <p className="mt-1 text-xs text-gray-400">Enter a Fitting ID and hit Fetch Journey</p>
             </Card>
           ) : (
-            /* Results table — fixed header, scrollable body */
-            <Card className="overflow-hidden flex flex-col" style={{ height: 'calc(100vh - 180px)' }}>
-
-              {/* Table toolbar */}
-              <div className="flex items-center justify-between px-5 py-3 border-b border-gray-100 shrink-0">
+            /* Results table */
+            <div className="space-y-3">
+              <div className="flex flex-wrap items-center justify-between gap-2">
                 <div className="flex items-center gap-2.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-brand-700 shrink-0" />
-                  <span className="text-[11px] font-bold tracking-[0.12em] uppercase text-brand-700">
+                  <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-brand-700" />
+                  <span className="text-xs font-bold uppercase tracking-wide text-brand-700">
                     Order Journey
                   </span>
-                  <span className="text-[11px] font-mono text-brand-700/40">
+                  <span className="font-mono text-xs text-brand-700/50">
                     {singleInput.trim()}
                   </span>
                 </div>
@@ -326,50 +281,33 @@ export default function OrderInformationCornerPage() {
                 </Badge>
               </div>
 
-              {/* Scrollable table wrapper */}
-              <div className="overflow-auto flex-1">
-                <table className="min-w-full text-sm border-collapse">
-                  {/* Sticky header */}
-                  <thead className="sticky top-0 z-10">
-                    <tr className="bg-gray-50 border-b border-gray-200">
-                      <TH className="w-10">
-                        #
-                      </TH>
-                      {columns.map((col) => (
-                        <TH key={col}>
-                          {col.replace(/_/g, ' ')}
-                        </TH>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {singleResult.map((row, i) => (
-                      <tr
-                        key={i}
-                        className={`border-b border-gray-50 hover:bg-brand-700/[0.02] transition-colors ${
-                          i % 2 === 0 ? 'bg-white' : 'bg-gray-50/40'
-                        }`}
-                      >
-                        <TD className="text-[11px] font-mono text-gray-300">
-                          {i + 1}
-                        </TD>
-                        {columns.map((col, j) => (
-                          <TD key={j} className="text-[12px] text-gray-600 whitespace-nowrap font-mono">
-                            {col === 'status' ? (
-                              <Badge tone="navy" className="font-bold">
-                                {row[col]?.toString() ?? '—'}
-                              </Badge>
-                            ) : (
-                              row[col]?.toString() ?? '—'
-                            )}
-                          </TD>
-                        ))}
-                      </tr>
+              <Table>
+                <THead>
+                  <TR>
+                    <TH className="w-10">#</TH>
+                    {columns.map((col) => (
+                      <TH key={col}>{col.replace(/_/g, ' ')}</TH>
                     ))}
-                  </tbody>
-                </table>
-              </div>
-            </Card>
+                  </TR>
+                </THead>
+                <TBody>
+                  {singleResult.map((row, i) => (
+                    <TR key={i}>
+                      <TD className="font-mono text-xs text-gray-400">{i + 1}</TD>
+                      {columns.map((col, j) => (
+                        <TD key={j} className="whitespace-nowrap font-mono text-xs text-gray-600">
+                          {col === 'status' ? (
+                            <Badge tone="navy">{row[col]?.toString() ?? '—'}</Badge>
+                          ) : (
+                            row[col]?.toString() ?? '—'
+                          )}
+                        </TD>
+                      ))}
+                    </TR>
+                  ))}
+                </TBody>
+              </Table>
+            </div>
           )}
         </div>
 

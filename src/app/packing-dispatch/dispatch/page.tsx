@@ -103,6 +103,7 @@ export default function DispatchPage() {
             label="Last 1 hr dispatches"
             value={hourCount}
             sub={stationId}
+            tone="navy"
           />
         )}
 
@@ -124,6 +125,7 @@ export default function DispatchPage() {
               value={scanId}
               onChange={e => setScanId(e.target.value)}
               placeholder="Type or scan any code"
+              autoFocus
             />
           </Field>
 

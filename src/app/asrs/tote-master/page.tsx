@@ -6,8 +6,12 @@ import {
   CardHeader,
   CardBody,
   PageHeader,
+  Field,
   Input,
   Alert,
+  Badge,
+  StatCard,
+  Spinner,
   Table,
   THead,
   TBody,
@@ -15,6 +19,7 @@ import {
   TH,
   TD,
 } from '@/components/ui';
+import { cn } from '@/lib/cn';
 
 type InventoryItem = {
   pid: number;
@@ -123,133 +128,161 @@ export default function ToteMasterPage() {
   const isCompletelyEmpty =
     toteId && Object.keys(partitions).length === 0;
 
+  const occupiedCount = partitionKeys.filter(
+    pr => partitions[pr].length > 0
+  ).length;
+
+  const conflictCount = partitionKeys.filter(
+    pr => new Set(partitions[pr].map(i => i.pid)).size > 1
+  ).length;
+
+  const totalItems = partitionKeys.reduce(
+    (sum, pr) => sum + partitions[pr].length,
+    0
+  );
+
   return (
-    <div className="space-y-8 p-6">
-      <PageHeader title="TOTE MASTER VISUALISER v1" className="justify-center text-center" />
+    <div className="mx-auto max-w-6xl space-y-6">
+      <PageHeader
+        title="Tote Master Visualiser"
+        subtitle="Scan a tote to inspect its partition layout and inventory"
+      />
 
       {/* ===============================
          Scanner Input
       ================================ */}
-      <Card variant="floating" className="mx-auto max-w-4xl p-6">
-        <Input
-          type="text"
-          autoFocus
-          placeholder="Scan Tote ID"
-          value={scanValue}
-          onChange={(e) => setScanValue(e.target.value)}
-        />
+      <Card>
+        <CardBody className="space-y-3">
+          <Field label="Tote ID" hint="Scan a tote barcode (starts with TL or TS)">
+            <Input
+              type="text"
+              autoFocus
+              placeholder="Scan Tote ID"
+              value={scanValue}
+              onChange={(e) => setScanValue(e.target.value)}
+            />
+          </Field>
 
-        {isPending && (
-          <p className="mt-2 text-sm text-gray-500">
-            Processing scan…
-          </p>
-        )}
+          {isPending && (
+            <div className="flex items-center gap-2 text-sm text-gray-500">
+              <Spinner />
+              Processing scan…
+            </div>
+          )}
 
-        {error && (
-          <Alert tone="error" className="mt-4">
-            {error}
-          </Alert>
-        )}
+          {error && <Alert tone="error">{error}</Alert>}
+        </CardBody>
       </Card>
+
+      {/* ===============================
+         KPI Row
+      ================================ */}
+      {toteId && !isCompletelyEmpty && (
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+          <StatCard label="Total Partitions" value={totalPartitions} tone="navy" />
+          <StatCard label="Occupied" value={occupiedCount} tone="notice" />
+          <StatCard label="Total Items" value={totalItems} tone="navy" />
+          <StatCard
+            label="Conflicts"
+            value={conflictCount}
+            tone={conflictCount > 0 ? 'danger' : 'good'}
+          />
+        </div>
+      )}
 
       {/* ===============================
          Tote Map
       ================================ */}
-      <Card className="mx-auto min-h-[220px] max-w-5xl">
+      <Card className="min-h-[220px]">
         <CardHeader>
-          <h2 className="text-xl font-semibold text-brand-700">
-            Tote Map {toteId && <span className="font-mono">({toteId})</span>}
+          <h2 className="flex items-center gap-2 text-lg font-semibold text-brand-700">
+            Tote Map
+            {toteId && <Badge tone="navy">{toteId}</Badge>}
           </h2>
         </CardHeader>
         <CardBody>
-        {!toteId ? (
-          <div className="text-sm text-gray-500">
-            Scan a tote to view partitions
-          </div>
-        ) : isCompletelyEmpty ? (
-          <div className="h-32 rounded-xl bg-green-500 text-white flex items-center justify-center text-xl font-bold border">
-            READY FOR DECANT
-          </div>
-        ) : (
-          <div
-            className="grid gap-4"
-            style={{
-              gridTemplateColumns: `repeat(${Math.min(totalPartitions, 4)}, minmax(0, 1fr))`,
-            }}
-          >
-            {Array.from({ length: totalPartitions }).map((_, idx) => {
-              const pr = `PR${idx + 1}`;
-              const items = partitions[pr] || [];
+          {!toteId ? (
+            <p className="text-sm text-gray-500">Scan a tote to view partitions</p>
+          ) : isCompletelyEmpty ? (
+            <div className="flex h-32 items-center justify-center rounded-xl bg-good-600 text-xl font-bold text-white">
+              READY FOR DECANT
+            </div>
+          ) : (
+            <div
+              className="grid gap-4"
+              style={{
+                gridTemplateColumns: `repeat(${Math.min(totalPartitions, 4)}, minmax(0, 1fr))`,
+              }}
+            >
+              {Array.from({ length: totalPartitions }).map((_, idx) => {
+                const pr = `PR${idx + 1}`;
+                const items = partitions[pr] || [];
 
-              let bg = 'bg-gray-200 text-gray-600';
-              if (items.length > 0) bg = 'bg-red-500 text-white';
-              if (new Set(items.map(i => i.pid)).size > 1)
-                bg = 'bg-red-500 text-white';
+                let bg = 'border-gray-200 bg-gray-100 text-gray-500';
+                if (items.length > 0) bg = 'border-danger-600 bg-danger-600 text-white';
+                if (new Set(items.map(i => i.pid)).size > 1)
+                  bg = 'border-danger-600 bg-danger-600 text-white';
 
-              return (
-                <div
-                  key={pr}
-                  className={`h-24 rounded-lg flex flex-col items-center justify-center font-semibold border ${bg}`}
-                >
-                  <div>{pr}</div>
-                  <div className="text-xs mt-1">
-                    {items.length > 0
-                      ? `${items.length} item${items.length > 1 ? 's' : ''}`
-                      : 'Empty'}
+                return (
+                  <div
+                    key={pr}
+                    className={cn(
+                      'flex h-24 flex-col items-center justify-center rounded-lg border font-semibold',
+                      bg,
+                    )}
+                  >
+                    <div>{pr}</div>
+                    <div className="mt-1 text-xs">
+                      {items.length > 0
+                        ? `${items.length} item${items.length > 1 ? 's' : ''}`
+                        : 'Empty'}
+                    </div>
                   </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
+                );
+              })}
+            </div>
+          )}
         </CardBody>
       </Card>
 
       {/* ===============================
          Partition Inventory Table
       ================================ */}
-      <Card className="mx-auto min-h-[200px] max-w-7xl">
+      <Card className="min-h-[200px]">
         <CardHeader>
-          <h2 className="text-xl font-semibold text-brand-700">
+          <h2 className="text-lg font-semibold text-brand-700">
             Partition Inventory
           </h2>
         </CardHeader>
         <CardBody>
-        {partitionKeys.length === 0 ? (
-          <div className="text-sm text-gray-500">
-            No inventory to display
-          </div>
-        ) : (
-          <Table>
-            <THead>
-              <tr>
-                {partitionKeys.map(pr => (
-                  <TH key={pr}>
-                    {pr}
-                  </TH>
-                ))}
-              </tr>
-            </THead>
-
-            <TBody>
-              {Array.from({ length: maxRows }).map((_, rowIdx) => (
-                <TR key={rowIdx}>
-                  {partitionKeys.map(pr => {
-                    const item = partitions[pr][rowIdx];
-                    return (
-                      <TD
-                        key={pr}
-                        className="font-mono text-gray-700"
-                      >
-                        {item ? `${item.pid} — ${item.barcode}` : '-'}
-                      </TD>
-                    );
-                  })}
+          {partitionKeys.length === 0 ? (
+            <p className="text-sm text-gray-500">No inventory to display</p>
+          ) : (
+            <Table>
+              <THead>
+                <TR>
+                  {partitionKeys.map(pr => (
+                    <TH key={pr}>{pr}</TH>
+                  ))}
                 </TR>
-              ))}
-            </TBody>
-          </Table>
-        )}
+              </THead>
+
+              <TBody>
+                {Array.from({ length: maxRows }).map((_, rowIdx) => (
+                  <TR key={rowIdx}>
+                    {partitionKeys.map(pr => {
+                      const item = partitions[pr][rowIdx];
+                      return (
+                        <TD key={pr} className="font-mono">
+                          {item ? `${item.pid} — ${item.barcode}` : '-'}
+                        </TD>
+                      );
+                    })}
+                  </TR>
+                ))}
+              </TBody>
+            </Table>
+          )}
         </CardBody>
       </Card>
     </div>

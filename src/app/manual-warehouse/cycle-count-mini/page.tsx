@@ -6,8 +6,10 @@ import {
   CardHeader,
   CardBody,
   PageHeader,
+  Field,
   Input,
   Alert,
+  Spinner,
   Table,
   THead,
   TBody,
@@ -88,155 +90,146 @@ export default function LocationMasterPage() {
   const maxRows =
     pidKeys.length === 0
       ? 0
-      : Math.max(
-          ...pidKeys.map(pid => pidVisibility[pid].length)
-        );
+      : Math.max(...pidKeys.map(pid => pidVisibility[pid].length));
 
-  const isCompletelyEmpty =
-    location && pidKeys.length === 0;
+  const isCompletelyEmpty = location && pidKeys.length === 0;
 
   /* ===============================
      Render
   ================================ */
   return (
-    <div className="space-y-8 p-6">
-      <PageHeader title="LOCATION Cycle Count v1" className="justify-center text-center" />
+    <div className="mx-auto max-w-6xl space-y-6">
+      <PageHeader
+        title="Location Cycle Count v1"
+        subtitle="Scan a location to view PID visibility and inventory"
+      />
 
       {/* ===============================
          Scanner Input
       ================================ */}
-      <Card variant="floating" className="mx-auto max-w-4xl p-6">
-        <Input
-          type="text"
-          autoFocus
-          placeholder="Scan Location"
-          value={scanValue}
-          onChange={(e) => setScanValue(e.target.value)}
-        />
+      <Card>
+        <CardBody className="space-y-3">
+          <Field label="Scan Location">
+            <Input
+              type="text"
+              autoFocus
+              placeholder="Scan Location"
+              value={scanValue}
+              onChange={(e) => setScanValue(e.target.value)}
+            />
+          </Field>
 
-        {isPending && (
-          <p className="mt-2 text-sm text-gray-500">
-            Processing scan…
-          </p>
-        )}
+          {isPending && (
+            <div className="flex items-center gap-2 text-sm text-gray-500">
+              <Spinner />
+              Processing scan…
+            </div>
+          )}
 
-        {error && (
-          <Alert tone="error" className="mt-4">
-            {error}
-          </Alert>
-        )}
+          {error && <Alert tone="error">{error}</Alert>}
+        </CardBody>
       </Card>
 
       {/* ===============================
          PID Visibility Grid
       ================================ */}
-      <Card className="mx-auto min-h-[220px] max-w-5xl">
+      <Card>
         <CardHeader>
-          <h2 className="text-xl font-semibold text-brand-700">
+          <h2 className="text-lg font-semibold text-brand-700">
             Location Map{' '}
-            {location && (
-              <span className="font-mono">({location})</span>
-            )}
+            {location && <span className="font-mono">({location})</span>}
           </h2>
         </CardHeader>
-        <CardBody>
-        {!location ? (
-          <div className="text-sm text-gray-500">
-            Scan a location to view PID visibility
-          </div>
-        ) : isCompletelyEmpty ? (
-          <div className="h-32 rounded-xl bg-blue-500 text-white flex items-center justify-center text-xl font-bold border">
-            LOCATION EMPTY
-          </div>
-        ) : (
-          <div
-            className="grid gap-4"
-            style={{
-              gridTemplateColumns: `repeat(${Math.min(
-                pidKeys.length,
-                4
-              )}, minmax(0, 1fr))`,
-            }}
-          >
-            {pidKeys.map(pid => {
-              const items = pidVisibility[pid];
-              const count = items.length;
+        <CardBody className="min-h-[160px]">
+          {!location ? (
+            <div className="text-sm text-gray-500">
+              Scan a location to view PID visibility
+            </div>
+          ) : isCompletelyEmpty ? (
+            <div className="flex h-32 items-center justify-center rounded-xl bg-blue-500 text-xl font-bold text-white">
+              LOCATION EMPTY
+            </div>
+          ) : (
+            <div
+              className="grid gap-4"
+              style={{
+                gridTemplateColumns: `repeat(${Math.min(
+                  pidKeys.length,
+                  4
+                )}, minmax(0, 1fr))`,
+              }}
+            >
+              {pidKeys.map(pid => {
+                const items = pidVisibility[pid];
+                const count = items.length;
 
-              let bg = 'bg-blue-500 text-white'; // empty
+                let bg = 'bg-blue-500 text-white'; // empty / info
 
-              if (count > 0 && count < 5) {
-                bg = 'bg-red-500 text-white';
-              } else if (count >= 5 && count <= 15) {
-                bg = 'bg-orange-500 text-white';
-              } else if (count > 15) {
-                bg = 'bg-green-500 text-white';
-              }
+                if (count > 0 && count < 5) {
+                  bg = 'bg-danger-600 text-white';
+                } else if (count >= 5 && count <= 15) {
+                  bg = 'bg-notice-600 text-white';
+                } else if (count > 15) {
+                  bg = 'bg-good-600 text-white';
+                }
 
-              return (
-                <div
-                  key={pid}
-                  className={`h-24 rounded-lg flex flex-col items-center justify-center font-semibold border ${bg}`}
-                >
-                  <div>PID {pid}</div>
-                  <div className="text-xs mt-1">
-                    {count === 0 ? 'Empty' : `${count} items`}
+                return (
+                  <div
+                    key={pid}
+                    className={`flex h-24 flex-col items-center justify-center rounded-lg font-semibold ${bg}`}
+                  >
+                    <div>PID {pid}</div>
+                    <div className="mt-1 text-xs">
+                      {count === 0 ? 'Empty' : `${count} items`}
+                    </div>
                   </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
+                );
+              })}
+            </div>
+          )}
         </CardBody>
       </Card>
 
       {/* ===============================
          PID Inventory Table
       ================================ */}
-      <Card className="mx-auto min-h-[200px] max-w-7xl">
+      <Card>
         <CardHeader>
-          <h2 className="text-xl font-semibold text-brand-700">
+          <h2 className="text-lg font-semibold text-brand-700">
             PID Inventory
           </h2>
         </CardHeader>
-        <CardBody>
-        {pidKeys.length === 0 ? (
-          <div className="text-sm text-gray-500">
-            No inventory to display
-          </div>
-        ) : (
-          <Table>
-            <THead>
-              <tr>
-                {pidKeys.map(pid => (
-                  <TH key={pid}>
-                    PID {pid}
-                  </TH>
-                ))}
-              </tr>
-            </THead>
+        <CardBody className="min-h-[160px]">
+          {pidKeys.length === 0 ? (
+            <div className="text-sm text-gray-500">
+              No inventory to display
+            </div>
+          ) : (
+            <Table>
+              <THead>
+                <TR>
+                  {pidKeys.map(pid => (
+                    <TH key={pid}>PID {pid}</TH>
+                  ))}
+                </TR>
+              </THead>
 
-            <TBody>
-              {Array.from({ length: maxRows }).map(
-                (_, rowIdx) => (
+              <TBody>
+                {Array.from({ length: maxRows }).map((_, rowIdx) => (
                   <TR key={rowIdx}>
                     {pidKeys.map(pid => {
-                      const item =
-                        pidVisibility[pid][rowIdx];
+                      const item = pidVisibility[pid][rowIdx];
                       return (
-                        <TD
-                          key={pid}
-                          className="font-mono text-gray-700"
-                        >
+                        <TD key={pid} className="font-mono text-gray-700">
                           {item ? item.barcode : '-'}
                         </TD>
                       );
                     })}
                   </TR>
-                )
-              )}
-            </TBody>
-          </Table>
-        )}
+                ))}
+              </TBody>
+            </Table>
+          )}
         </CardBody>
       </Card>
     </div>

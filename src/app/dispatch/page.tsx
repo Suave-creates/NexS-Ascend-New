@@ -2,7 +2,18 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { Card, CardBody, PageHeader, Field, Input, Select, Button, Modal, StatCard, Alert } from '@/components/ui';
+import {
+  Button,
+  Input,
+  Select,
+  Field,
+  Card,
+  CardBody,
+  PageHeader,
+  Modal,
+  Alert,
+  StatCard,
+} from '@/components/ui';
 
 export default function DispatchPage() {
   const [scanId, setScanId]       = useState('');
@@ -87,79 +98,82 @@ export default function DispatchPage() {
   }, [scanId, stationId, nexsId]);
 
   return (
-    <Card className="relative max-w-md mx-auto mt-10">
-      <CardBody>
+    <div className="mx-auto max-w-md space-y-6">
+      <PageHeader title="Dispatch Scan" subtitle="Scan and record dispatched units by station" />
+
       {/* Last-hour stats */}
       {stationId && (
         <StatCard
-          className="absolute right-4 top-4"
           label="Last 1 hr dispatches"
           value={hourCount}
           sub={stationId}
+          tone="navy"
         />
       )}
 
-      <PageHeader title="Dispatch Scan" />
-
-      {/* Feedback message, green for ✔️, red otherwise */}
+      {/* Feedback message, success for ✔️, error otherwise */}
       {message && (
         <Alert
           tone={message.startsWith('✔️') ? 'success' : 'error'}
-          className="mb-4 text-center"
+          className="text-center"
         >
           {message}
         </Alert>
       )}
 
-      <div className="space-y-4">
-        {/* Rapid-scan field */}
-        <Field label="Scan ID">
-          <Input
-            type="text"
-            value={scanId}
-            onChange={e => setScanId(e.target.value.toUpperCase())}
-            placeholder="Type or scan any code"
-          />
-        </Field>
+      <Card>
+        <CardBody className="space-y-4">
+          {/* Rapid-scan field */}
+          <Field label="Scan ID">
+            <Input
+              type="text"
+              value={scanId}
+              onChange={e => setScanId(e.target.value.toUpperCase())}
+              placeholder="Type or scan any code"
+              autoFocus
+            />
+          </Field>
 
-        {/* Station selector */}
-        <Field label="Station ID">
-          <Select
-            value={stationId}
-            onChange={e => setStationId(e.target.value)}
-          >
-            <option value="">Select station</option>
-            {Array.from({ length: 20 }, (_, i) => {
-              const code = i + 1 < 10 ? `DS0${i + 1}` : `DS${i + 1}`;
-              return (
-                <option key={code} value={code}>
-                  {code}
-                </option>
-              );
-            })}
-          </Select>
-        </Field>
+          {/* Station selector */}
+          <Field label="Station ID">
+            <Select
+              value={stationId}
+              onChange={e => setStationId(e.target.value)}
+            >
+              <option value="">Select station</option>
+              {Array.from({ length: 20 }, (_, i) => {
+                const code = i + 1 < 10 ? `DS0${i + 1}` : `DS${i + 1}`;
+                return (
+                  <option key={code} value={code}>
+                    {code}
+                  </option>
+                );
+              })}
+            </Select>
+          </Field>
 
-        {/* NexS ID */}
-        <Field label="NexS ID">
-          <Input
-            type="text"
-            value={nexsId}
-            onChange={e => setNexsId(e.target.value)}
-            placeholder="Enter NexS ID"
-          />
-        </Field>
-      </div>
+          {/* NexS ID */}
+          <Field label="NexS ID">
+            <Input
+              type="text"
+              value={nexsId}
+              onChange={e => setNexsId(e.target.value)}
+              placeholder="Enter NexS ID"
+            />
+          </Field>
+        </CardBody>
+      </Card>
 
       {/* Duplicate modal */}
-      <Modal open={showDupModal} onClose={() => setShowDupModal(false)} size="sm" className="text-center">
-        <Alert tone="warning" className="mb-4 text-left">
+      <Modal open={showDupModal} onClose={() => setShowDupModal(false)} size="sm">
+        <Alert tone="warning" className="mb-4">
           ⚠️ Duplicate detected!<br />
           Previously at station <strong>{prevStation}</strong>.
         </Alert>
-        <Button onClick={() => setShowDupModal(false)}>OK</Button>
+        <div className="text-center">
+          <Button onClick={() => setShowDupModal(false)}>OK</Button>
+        </div>
       </Modal>
-      </CardBody>
-    </Card>
+    </div>
   );
 }

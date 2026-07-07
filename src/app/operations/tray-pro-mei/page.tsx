@@ -5,6 +5,7 @@ import * as XLSX from 'xlsx';
 import {
   Card,
   CardHeader,
+  CardBody,
   PageHeader,
   Input,
   Button,
@@ -86,13 +87,14 @@ function exportStyledExcel(rows: Row[], filename: string) {
 ═══════════════════════════════════════════════ */
 
 function TrayTable({ rows, onExcel, onClear }: { rows: Row[]; onExcel: () => void; onClear: () => void }) {
+  const alertCount = rows.filter(isAlert).length;
   return (
-    <Card className="mb-3.5 overflow-hidden">
+    <Card className="overflow-hidden">
       <CardHeader>
         <span className="flex items-center gap-2.5 text-sm font-semibold text-brand-700">
           {rows.length} tray{rows.length !== 1 ? 's' : ''} loaded
           <span className="font-mono text-xs font-medium text-gray-500">
-            {rows.filter(isAlert).length} alert{rows.filter(isAlert).length !== 1 ? 's' : ''}
+            {alertCount} alert{alertCount !== 1 ? 's' : ''}
           </span>
         </span>
         <div className="flex gap-2">
@@ -102,14 +104,14 @@ function TrayTable({ rows, onExcel, onClear }: { rows: Row[]; onExcel: () => voi
       </CardHeader>
       <Table>
         <THead>
-          <tr>
+          <TR>
             <TH>Tray ID</TH>
             <TH>Fitting</TH>
             <TH>Shipping</TH>
             <TH>Status</TH>
             <TH>Last Updated (IST)</TH>
             <TH>Aging</TH>
-          </tr>
+          </TR>
         </THead>
         <TBody>
           {rows.map((r, i) => (
@@ -187,16 +189,16 @@ export default function QCTrayPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="mx-auto max-w-2xl space-y-6">
       <audio ref={audioRef} src="/soundtrack/FAAHH.mp3" />
 
-      <div className="mx-auto max-w-[780px] px-4 pb-[60px] pt-6">
-        <PageHeader
-          title="Tray PRO MEI"
-          subtitle="Floor CONTROL · ORDER MANAGEMENT kar Atharva"
-        />
+      <PageHeader
+        title="Tray PRO MEI"
+        subtitle="Floor CONTROL · ORDER MANAGEMENT kar Atharva"
+      />
 
-        <Card className="mb-5 p-5">
+      <Card>
+        <CardBody>
           <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-gray-500">Scan or enter tray ID</p>
           <div className="relative">
             <Input
@@ -213,22 +215,22 @@ export default function QCTrayPage() {
             )}
           </div>
           <p className="mt-1.5 font-mono text-xs text-gray-500">Auto-submits after 7+ characters · Use barcode scanner or keyboard</p>
-        </Card>
+        </CardBody>
+      </Card>
 
-        {error && (
-          <Alert tone="error" className="mb-4 flex items-center gap-2">
-            <span>⚠</span> {error}
-          </Alert>
-        )}
+      {error && (
+        <Alert tone="error" className="flex items-center gap-2">
+          <span>⚠</span> {error}
+        </Alert>
+      )}
 
-        {rows.length > 0 && !isPending && (
-          <TrayTable
-            rows={rows}
-            onExcel={() => exportStyledExcel(rows, 'QC_TRAYS')}
-            onClear={() => setRows([])}
-          />
-        )}
-      </div>
+      {rows.length > 0 && !isPending && (
+        <TrayTable
+          rows={rows}
+          onExcel={() => exportStyledExcel(rows, 'QC_TRAYS')}
+          onClear={() => setRows([])}
+        />
+      )}
     </div>
   );
 }

@@ -7,8 +7,10 @@ import {
   CardHeader,
   CardBody,
   PageHeader,
+  Field,
   Input,
   Alert,
+  Spinner,
   Table,
   THead,
   TBody,
@@ -129,42 +131,47 @@ export default function TrayScannerPage() {
   ): boolean => {
     if (!pid || !comments) return false;
     const normalizedPid = String(pid).trim();
-    return comments.some(
-      (c) => String(c.pid).trim() === normalizedPid
-    );
+    return comments.some((c) => String(c.pid).trim() === normalizedPid);
   };
 
   const pidClass = (flagged: boolean) =>
     flagged ? 'text-danger-600 font-semibold' : 'text-gray-700';
 
   return (
-    <div className="space-y-8 p-6">
-      <PageHeader title="ORDER MASTER TRACER v1" className="justify-center text-center" />
+    <div className="mx-auto max-w-7xl space-y-6">
+      <PageHeader
+        title="Order Master Tracer"
+        subtitle="Scan a tray to trace its fitting, order status, and component PIDs"
+      />
 
       {/* Scanner input */}
-      <Card variant="floating" className="mx-auto max-w-4xl p-6">
-        <Input
-          type="text"
-          autoFocus
-          placeholder="Scan Tray ID"
-          value={scanValue}
-          onChange={(e) => setScanValue(e.target.value)}
-        />
+      <Card>
+        <CardBody className="space-y-4">
+          <Field label="Tray ID" htmlFor="tray-scan">
+            <Input
+              id="tray-scan"
+              type="text"
+              autoFocus
+              placeholder="Scan Tray ID"
+              value={scanValue}
+              onChange={(e) => setScanValue(e.target.value)}
+            />
+          </Field>
 
-        {isPending && (
-          <p className="mt-2 text-sm text-gray-500">Processing scan…</p>
-        )}
+          {isPending && (
+            <div className="flex items-center gap-2 text-sm text-gray-500">
+              <Spinner />
+              <span>Processing scan…</span>
+            </div>
+          )}
 
-        {error && (
-          <Alert tone="error" className="mt-4">
-            {error}
-          </Alert>
-        )}
+          {error && <Alert tone="error">{error}</Alert>}
+        </CardBody>
       </Card>
 
       {/* Results table */}
       {rows.length > 0 && (
-        <Card className="mx-auto max-w-7xl">
+        <Card>
           <CardHeader>
             <h2 className="text-xl font-semibold text-brand-700">
               Last {rows.length} Tray Scans
@@ -173,7 +180,7 @@ export default function TrayScannerPage() {
           <CardBody>
             <Table>
               <THead>
-                <tr>
+                <TR>
                   <TH>Tray</TH>
                   <TH>Fitting</TH>
                   <TH>Updated Fitting</TH>
@@ -187,7 +194,7 @@ export default function TrayScannerPage() {
 
                   <TH>Frame PID</TH>
                   <TH>Frame Order</TH>
-                </tr>
+                </TR>
               </THead>
 
               <TBody>
@@ -198,38 +205,26 @@ export default function TrayScannerPage() {
 
                   return (
                     <TR key={i} tone={r.is_highlighted ? 'danger' : undefined}>
-                      <TD className="font-medium">
-                        {r.tray_id}
-                      </TD>
+                      <TD className="font-medium">{r.tray_id}</TD>
 
                       <TD>{r.fitting_id}</TD>
-                      <TD>
-                        {r.updated_fitting_id || '-'}
-                      </TD>
-                      <TD>
-                        {cell(r.order_status || null)}
-                      </TD>
+                      <TD>{r.updated_fitting_id || '-'}</TD>
+                      <TD>{cell(r.order_status || null)}</TD>
 
                       <TD className={cn('font-mono', pidClass(llFlag))}>
                         {cell(r.leftlens_pid)}
                       </TD>
-                      <TD>
-                        {cell(r.leftlens_order_item_status)}
-                      </TD>
+                      <TD>{cell(r.leftlens_order_item_status)}</TD>
 
                       <TD className={cn('font-mono', pidClass(rlFlag))}>
                         {cell(r.rightlens_pid)}
                       </TD>
-                      <TD>
-                        {cell(r.rightlens_order_item_status)}
-                      </TD>
+                      <TD>{cell(r.rightlens_order_item_status)}</TD>
 
                       <TD className={cn('font-mono', pidClass(frFlag))}>
                         {cell(r.frame_pid)}
                       </TD>
-                      <TD>
-                        {cell(r.frame_order_item_status)}
-                      </TD>
+                      <TD>{cell(r.frame_order_item_status)}</TD>
                     </TR>
                   );
                 })}

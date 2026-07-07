@@ -1,7 +1,18 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Card, CardBody, PageHeader, Field, Input, Select, Button, Modal, Alert } from '@/components/ui';
+import {
+  Button,
+  Input,
+  Select,
+  Field,
+  Card,
+  CardBody,
+  PageHeader,
+  Modal,
+  Alert,
+  StatCard,
+} from '@/components/ui';
 
 export default function MetalFrameFittingPage() {
   const [scanId, setScanId] = useState('');
@@ -102,25 +113,38 @@ export default function MetalFrameFittingPage() {
       )}&search=true&searchType=custom`
     : null;
 
+  const messageTone = message?.startsWith('✔️') ? 'success' : 'error';
+
   return (
-    <div className="max-w-5xl mx-auto mt-10 text-black">
-      <div className="flex gap-6">
+    <div className="mx-auto max-w-6xl space-y-6">
+      <PageHeader
+        title="Metal Frame Fitting"
+        subtitle="Scan frames into a packing station and preview the product"
+      />
 
-        {/* LEFT – FORM (same card style) */}
-        <Card className="relative w-[40%]">
-          <CardBody>
-          <PageHeader title="Metal Frame Fitting" />
+      {stationId && (
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <StatCard label="Scans (last hour)" value={hourCount} tone="navy" />
+          <StatCard label="Station" value={stationId} tone="good" />
+        </div>
+      )}
 
-          <div className="space-y-4">
-            <Field label="Scan ID:">
+      {message && <Alert tone={messageTone}>{message}</Alert>}
+
+      <div className="flex flex-col gap-6 lg:flex-row">
+        {/* LEFT – FORM */}
+        <Card className="w-full lg:w-2/5">
+          <CardBody className="space-y-4">
+            <Field label="Scan ID">
               <Input
                 value={scanId}
                 onChange={e => setScanId(e.target.value.toUpperCase())}
                 placeholder="AAA + numeric"
+                autoFocus
               />
             </Field>
 
-            <Field label="Station ID:">
+            <Field label="Station ID">
               <Select
                 value={stationId}
                 onChange={e => setStationId(e.target.value)}
@@ -137,53 +161,53 @@ export default function MetalFrameFittingPage() {
               </Select>
             </Field>
 
-            <Field label="NexS ID:">
-              <Input
-                value={nexsId}
-                onChange={e => setNexsId(e.target.value)}
-              />
+            <Field label="NexS ID">
+              <Input value={nexsId} onChange={e => setNexsId(e.target.value)} />
             </Field>
 
-            <Field label="Tray ID:">
-              <Input
-                value={trayId}
-                onChange={e => setTrayId(e.target.value)}
-              />
+            <Field label="Tray ID">
+              <Input value={trayId} onChange={e => setTrayId(e.target.value)} />
             </Field>
 
-            <Field label="PID:">
+            <Field label="PID">
               <Input
                 value={pid}
                 onChange={e => setPid(e.target.value)}
                 placeholder="e.g. 236746"
               />
             </Field>
-          </div>
           </CardBody>
         </Card>
 
-        {/* RIGHT – PID EMBED (larger) */}
-        <div className="w-[60%] flex items-start">
-          <div className="bg-white rounded shadow p-2">
+        {/* RIGHT – PID EMBED */}
+        <Card className="w-full lg:w-3/5">
+          <CardBody className="p-2">
             {pidUrl ? (
               <iframe
                 src={pidUrl}
-                className="w-full h-[700px] border rounded"
+                className="h-[700px] w-full rounded border border-gray-200"
               />
             ) : (
-              <div className="h-[700px] flex items-center justify-center text-gray-400 text-sm">
+              <div className="flex h-[700px] items-center justify-center text-sm text-gray-400">
                 Enter PID to preview product
               </div>
             )}
-          </div>
-        </div>
+          </CardBody>
+        </Card>
       </div>
 
       {/* DUPLICATE MODAL */}
-      <Modal open={showDupModal} onClose={() => setShowDupModal(false)} size="sm" className="text-center">
+      <Modal
+        open={showDupModal}
+        onClose={() => setShowDupModal(false)}
+        size="sm"
+        className="text-center"
+      >
         <Alert tone="warning" className="mb-4 text-left">
-          ⚠️ Duplicate detected!<br />
-          Previously at station <strong className="text-brand-700">{prevStation || 'N/A'}</strong>.
+          ⚠️ Duplicate detected!
+          <br />
+          Previously at station{' '}
+          <strong className="text-brand-700">{prevStation || 'N/A'}</strong>.
         </Alert>
         <Button onClick={() => setShowDupModal(false)}>OK</Button>
       </Modal>

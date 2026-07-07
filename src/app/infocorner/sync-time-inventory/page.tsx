@@ -9,6 +9,7 @@ import {
   CardHeader,
   Button,
   Textarea,
+  Label,
   Badge,
   StatCard,
   Table,
@@ -244,7 +245,7 @@ function ProgressBar({ done, total, currentId, currentChunk, totalChunks }: Prog
   const pct = total > 0 ? Math.round((done / total) * 100) : 0;
   const complete = done >= total;
   return (
-    <Card className="mb-4">
+    <Card>
       <CardBody className="py-4">
         <div className="mb-2.5 flex items-center justify-between">
           <span className="font-mono text-xs text-gray-500">
@@ -256,20 +257,23 @@ function ProgressBar({ done, total, currentId, currentChunk, totalChunks }: Prog
         </div>
         <div className="h-1.5 overflow-hidden rounded-full bg-gray-100">
           <div
-            className={cn("h-full rounded-full transition-all duration-300", complete ? "bg-good-600" : "bg-gold-500")}
+            className={cn(
+              "h-full rounded-full transition-all duration-300",
+              complete ? "bg-good-600" : "bg-gold-500",
+            )}
             style={{ width: `${pct}%` }}
           />
         </div>
         <p className="mt-1.5 font-mono text-xs text-gray-500">
-        {currentChunk && totalChunks ? (
-          <>
-            ▶  Chunk {currentChunk} of {totalChunks}
-            {currentId && <> • {currentId}</>}
-          </>
-        ) : (
-          currentId ? `▶  ${currentId}` : "\u00a0"
-        )}
-      </p>
+          {currentChunk && totalChunks ? (
+            <>
+              ▶  Chunk {currentChunk} of {totalChunks}
+              {currentId && <> • {currentId}</>}
+            </>
+          ) : (
+            currentId ? `▶  ${currentId}` : " "
+          )}
+        </p>
       </CardBody>
     </Card>
   );
@@ -310,11 +314,10 @@ function ResultTable({
   ];
 
   return (
-    /* tableCard uses flex-column + flex:1 to fill remaining height */
     <Card>
       {/* ── Top bar: filters left, export right ── */}
-      <CardHeader>
-        <div className="flex items-center gap-4">
+      <CardHeader className="flex-wrap">
+        <div className="flex flex-wrap items-center gap-4">
           <span className="text-sm font-semibold text-gray-700">Results</span>
           <div className="flex flex-wrap gap-1.5">
             {filters.map((f) => (
@@ -354,25 +357,23 @@ function ResultTable({
         </div>
       </CardHeader>
 
-      {/* ── Table (scrolls within remaining space) ── */}
-      <div className="p-4">
+      {/* ── Table ── */}
+      <CardBody>
         <Table>
           <THead>
-            <tr>
+            <TR>
               {cols.map((c) => (
-                <TH key={c}>
-                  {c}
-                </TH>
+                <TH key={c}>{c}</TH>
               ))}
-            </tr>
+            </TR>
           </THead>
           <TBody>
             {displayed.length === 0 ? (
-              <tr>
+              <TR>
                 <TD colSpan={7} className="py-12 text-center text-gray-500">
                   No rows match this filter.
                 </TD>
-              </tr>
+              </TR>
             ) : (
               displayed.map((row, i) => {
                 const isBad = row.status === "messed_up";
@@ -382,7 +383,9 @@ function ResultTable({
                     tone={isBad ? "danger" : undefined}
                   >
                     <TD>
-                      <span className="block font-mono text-xs font-medium text-brand-700">{row.shipping_package_id}</span>
+                      <span className="block font-mono text-xs font-medium text-brand-700">
+                        {row.shipping_package_id}
+                      </span>
                       {isBad && (
                         <span className="mt-0.5 block text-[10px] font-medium text-danger-600">
                           Messed Up Order — Check or Reassignment and CANC
@@ -430,7 +433,7 @@ function ResultTable({
             )}
           </TBody>
         </Table>
-      </div>
+      </CardBody>
     </Card>
   );
 }
@@ -461,7 +464,7 @@ export default function ShipmentSyncPage() {
 
     const CHUNK_SIZE = 20;
     const chunks = chunkArray(idList, CHUNK_SIZE);
-    
+
     setProgress({
       done: 0,
       total: idList.length,
@@ -559,35 +562,26 @@ export default function ShipmentSyncPage() {
   };
 
   return (
-    <>
-      {/* Keyframe — remove if already in global CSS */}
-      <style>{`@keyframes nxs-spin { to { transform: rotate(360deg); } }`}</style>
+    <div className="mx-auto max-w-6xl space-y-6">
+      {/* ── Page heading ── */}
+      <PageHeader
+        title="Shipment Sync Time Inventory"
+        subtitle="NXS1 · optimadb · sync-time-inventory"
+        actions={
+          stats ? (
+            <Badge tone="good">{stats.total} rows processed</Badge>
+          ) : undefined
+        }
+      />
 
-      {/*
-        Full-height layout:
-        The page div uses display:flex + flex-direction:column + height:100%
-        so the table card (the last/bottom element) gets all remaining space.
-        Make sure the parent route wrapper also passes height:100% / min-h-full.
-      */}
-      <div className="space-y-4">
-
-        {/* ── Page heading ── */}
-        <PageHeader
-          title="SHIPMENT SYNC TIME INVENTORY"
-          subtitle="NXS1 · optimadb · sync-time-inventory"
-          actions={
-            stats ? (
-              <Badge tone="good">{stats.total} rows processed</Badge>
-            ) : undefined
-          }
-        />
-
-        {/* ── Input card ── */}
-        <Card>
-          <CardBody className="space-y-3">
-          <label className="block text-xs font-medium uppercase tracking-wide text-gray-500">Shipment / Package IDs</label>
+      {/* ── Input card ── */}
+      <Card>
+        <CardBody className="space-y-3">
+          <Label className="text-xs font-medium uppercase tracking-wide text-gray-500">
+            Shipment / Package IDs
+          </Label>
           <Textarea
-            className="font-mono text-xs"
+            className="min-h-[130px] font-mono text-xs"
             value={inputText}
             onChange={(e) => setInputText(e.target.value)}
             placeholder={
@@ -602,7 +596,7 @@ export default function ShipmentSyncPage() {
             </span>
             <div className="flex gap-2">
               {loading && (
-                <Button variant="outline" onClick={handleStop} className="border-danger-200 bg-danger-50 text-danger-600 hover:bg-danger-50">
+                <Button variant="danger" onClick={handleStop}>
                   ■ Stop
                 </Button>
               )}
@@ -611,47 +605,41 @@ export default function ShipmentSyncPage() {
                 disabled={loading || ids.length === 0}
                 loading={loading}
               >
-                {loading ? (
-                  "Processing…"
-                ) : (
-                  "▶  Run Query"
-                )}
+                {loading ? "Processing…" : "▶  Run Query"}
               </Button>
             </div>
           </div>
-          </CardBody>
-        </Card>
+        </CardBody>
+      </Card>
 
-        {/* ── Progress ── */}
-        {progress && (
-          <ProgressBar
-            done={progress.done}
-            total={progress.total}
-            currentId={progress.currentId}
-            currentChunk={progress.currentChunk}
-            totalChunks={progress.totalChunks}
-          />
-        )}
+      {/* ── Progress ── */}
+      {progress && (
+        <ProgressBar
+          done={progress.done}
+          total={progress.total}
+          currentId={progress.currentId}
+          currentChunk={progress.currentChunk}
+          totalChunks={progress.totalChunks}
+        />
+      )}
 
-        {/* ── Stat cards ── */}
-        {stats && (
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-            <StatCard label="Total Processed" value={stats.total} tone="navy" />
-            <StatCard label="Resolved OK" value={stats.ok} tone="good" />
-            <StatCard label="Messed Up" value={stats.bad} tone="danger" />
-          </div>
-        )}
+      {/* ── Stat cards ── */}
+      {stats && (
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <StatCard label="Total Processed" value={stats.total} tone="navy" />
+          <StatCard label="Resolved OK" value={stats.ok} tone="good" />
+          <StatCard label="Messed Up" value={stats.bad} tone="danger" />
+        </div>
+      )}
 
-        {/* ── Results table — flex:1 so it fills remaining height ── */}
-        {rows.length > 0 && (
-          <ResultTable
-            rows={rows}
-            filter={filter}
-            onFilterChange={setFilter}
-          />
-        )}
-      </div>
-    </>
+      {/* ── Results table ── */}
+      {rows.length > 0 && (
+        <ResultTable
+          rows={rows}
+          filter={filter}
+          onFilterChange={setFilter}
+        />
+      )}
+    </div>
   );
 }
-

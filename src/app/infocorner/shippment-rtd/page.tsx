@@ -269,7 +269,7 @@ function ProgressBar({ done, total, currentId }: ProgressState) {
   const pct = total > 0 ? Math.round((done / total) * 100) : 0;
   const complete = done >= total;
   return (
-    <Card className="mb-4">
+    <Card>
       <CardBody className="py-4">
         <div className="mb-2.5 flex items-center justify-between">
           <span className="font-mono text-xs text-gray-500">{complete ? "✓ Complete" : "Processing…"}</span>
@@ -351,17 +351,17 @@ function ResultTable({
       <div className="p-4">
         <Table>
           <THead>
-            <tr>
+            <TR>
               {["Shipping ID", "Fitting ID", "Left Lens", "Right Lens", "Frame", "LL PID", "RL PID", "Frame PID", "Status"].map((c) => (
                 <TH key={c}>{c}</TH>
               ))}
-            </tr>
+            </TR>
           </THead>
           <TBody>
             {displayed.length === 0 ? (
-              <tr>
+              <TR>
                 <TD colSpan={9} className="py-12 text-center text-gray-500">No rows match this filter.</TD>
-              </tr>
+              </TR>
             ) : (
               displayed.map((row, i) => {
                 const cls = classifyRow(row);
@@ -507,7 +507,7 @@ export default function ShipmentRTDPage() {
   const handleStop = () => { abortRef.current = true; };
 
   return (
-    <div className="space-y-4">
+    <div className="mx-auto max-w-6xl space-y-6">
         {/* ── Page heading ── */}
         <PageHeader
           title="SHIPMENT RTD DETAILS"
@@ -580,7 +580,7 @@ export default function ShipmentRTDPage() {
 
         {/* ── Stats ── */}
         {stats && (
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
             <StatCard label="Total Returned" value={stats.total} tone="navy" />
             <StatCard label="Complete" value={stats.complete} tone="good" />
             <StatCard label="Partial" value={stats.partial} tone="notice" />

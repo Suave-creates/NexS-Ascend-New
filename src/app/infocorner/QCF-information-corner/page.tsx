@@ -18,6 +18,7 @@ import {
   TH,
   TD,
 } from '@/components/ui';
+import { cn } from '@/lib/cn';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -138,174 +139,168 @@ export default function OrderInformationCornerPage() {
   // ─── Render ───────────────────────────────────────────────────────────────
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="mx-auto max-w-6xl space-y-6">
 
-      <div className="mx-auto flex max-w-[1200px] flex-col gap-5 px-7 py-6">
+      {/* ── Header ── */}
+      <PageHeader
+        title="QCF Information Corner"
+        subtitle="orderqc · qc_status_history · order journey"
+        actions={<Badge tone="navy" className="font-mono">NexS Ascend</Badge>}
+      />
 
-        {/* ── Header ── */}
-        <PageHeader
-          title="QCF Information Corner"
-          subtitle="orderqc · qc_status_history · order journey"
-          actions={<Badge tone="navy" className="font-mono">NexS Ascend</Badge>}
-        />
+      {/* ── Search card ── */}
+      <Card>
+        <CardHeader>
+          <span className="text-sm font-semibold text-gray-700">Lookup — Shipping Package ID</span>
+        </CardHeader>
+        <CardBody className="flex flex-col gap-4">
+          <div className="flex flex-wrap gap-3">
+            <Input
+              type="text"
+              placeholder="e.g. SP-20240601-00123"
+              value={inputValue}
+              onChange={(e: ChangeEvent<HTMLInputElement>) => setInputValue(e.target.value)}
+              onKeyDown={handleKey}
+              className="min-w-[260px] flex-1"
+            />
+            <Button
+              onClick={handleFetch}
+              disabled={!inputValue.trim() || isPending}
+              loading={isPending}
+            >
+              {isPending ? 'Fetching…' : 'Fetch Order Details'}
+            </Button>
+          </div>
+          {error && <Alert tone="error"><strong>Error:</strong> {error}</Alert>}
+        </CardBody>
+      </Card>
 
-        {/* ── Search card ── */}
+      {/* ── Stats + Status chips ── */}
+      {fetched && rows.length > 0 && (
+        <div className="space-y-4">
+
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-5">
+            <StatCard value={rows.length}        label="Total Events"     tone="gold" />
+            <StatCard value={filtered.length}    label="Shown"                   />
+            <StatCard value={dbQcFailMax}        label="QC Fail Count"    tone={dbQcFailMax > 0 ? 'danger' : 'navy'}  />
+            <StatCard value={qcFailCount}        label="Fail Occurrences" tone={qcFailCount > 0 ? 'danger' : 'navy'} />
+            <StatCard value={allStatuses.length} label="Unique Statuses"         />
+          </div>
+
+          {/* Status chips */}
+          <div className="flex flex-wrap items-center gap-2">
+            {['ALL', ...allStatuses].map((st) => {
+              const active = statusFilter === st;
+              return (
+                <button
+                  key={st}
+                  onClick={() => setStatusFilter(st)}
+                  className="rounded-full"
+                >
+                  {st === 'ALL' ? (
+                    <Badge
+                      tone={active ? 'navy' : 'gray'}
+                      className={cn(active && 'bg-brand-700 text-white')}
+                    >
+                      {st}
+                    </Badge>
+                  ) : (
+                    <Badge tone={active ? statusTone(st) : 'gray'}>
+                      {st}
+                      <span className="ml-1 opacity-65">
+                        {rows.filter((r) => r.status === st).length}
+                      </span>
+                    </Badge>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* ── Results table ── */}
+      {fetched && rows.length > 0 && (
         <Card>
           <CardHeader>
-            <span className="text-sm font-semibold text-gray-700">Lookup — Shipping Package ID</span>
+            <span className="text-sm font-semibold text-gray-700">
+              Order Journey — {rows[0]?.shipping_package_id}
+            </span>
+            {qcFailCount > 0 && (
+              <Badge tone="danger" className="font-mono font-bold">
+                {qcFailCount} QC fail{qcFailCount !== 1 ? 's' : ''}
+              </Badge>
+            )}
           </CardHeader>
-          <CardBody className="flex flex-col gap-3.5">
-            <div className="flex flex-wrap gap-2.5">
-              <Input
-                type="text"
-                placeholder="e.g. SP-20240601-00123"
-                value={inputValue}
-                onChange={(e: ChangeEvent<HTMLInputElement>) => setInputValue(e.target.value)}
-                onKeyDown={handleKey}
-                className="min-w-[260px] flex-1"
-              />
-              <Button
-                onClick={handleFetch}
-                disabled={!inputValue.trim() || isPending}
-                loading={isPending}
-              >
-                {isPending ? 'Fetching…' : 'Fetch Order Details'}
-              </Button>
-            </div>
-            {error && <Alert tone="error"><strong>Error:</strong> {error}</Alert>}
-          </CardBody>
-        </Card>
 
-        {/* ── Stats + Status chips ── */}
-        {fetched && rows.length > 0 && (
-          <div className="flex flex-wrap items-start gap-4">
+          {/* Toolbar */}
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-gray-100 bg-gray-50 px-6 py-3">
+            <span className="font-mono text-xs text-gray-500">
+              <strong className="text-brand-700">{filtered.length}</strong>
+              {filtered.length !== rows.length ? ` of ${rows.length}` : ''} events
+            </span>
+            <Input
+              type="text"
+              placeholder="Search…"
+              value={textFilter}
+              onChange={(e: ChangeEvent<HTMLInputElement>) => setTextFilter(e.target.value)}
+              className="w-[200px] font-mono"
+            />
+          </div>
 
-            <div className="grid flex-1 grid-cols-2 gap-2.5 sm:grid-cols-5">
-              <StatCard value={rows.length}        label="Total Events"     tone="gold" />
-              <StatCard value={filtered.length}    label="Shown"                   />
-              <StatCard value={dbQcFailMax}         label="QC Fail Count"   tone={dbQcFailMax > 0 ? 'danger' : 'navy'}  />
-              <StatCard value={qcFailCount}         label="Fail Occurrences" tone={qcFailCount > 0 ? 'danger' : 'navy'} />
-              <StatCard value={allStatuses.length}  label="Unique Statuses"         />
-            </div>
-
-            {/* Status chips */}
-            <div className="flex flex-wrap items-center gap-2 pt-1.5">
-              {['ALL', ...allStatuses].map((st) => {
-                const active = statusFilter === st;
+          {/* Table */}
+          <Table>
+            <THead>
+              <TR>
+                {['#','Shipping Package ID','Barcode','QC Fail Count','Reason','Status','Updated By','Updated At'].map((h) => (
+                  <TH key={h}>{h}</TH>
+                ))}
+              </TR>
+            </THead>
+            <TBody>
+              {filtered.length === 0 ? (
+                <TR>
+                  <TD colSpan={8} className="py-7 text-center text-gray-500">
+                    No rows match your filter.
+                  </TD>
+                </TR>
+              ) : filtered.map((row, i) => {
+                const isQcFail = row.status === 'QCFailed';
                 return (
-                  <button
-                    key={st}
-                    onClick={() => setStatusFilter(st)}
-                    className="rounded-full"
-                  >
-                    {st === 'ALL' ? (
-                      <Badge
-                        tone={active ? 'navy' : 'gray'}
-                        className={active ? 'bg-brand-700 text-white' : ''}
-                      >
-                        {st}
-                      </Badge>
-                    ) : (
-                      <Badge tone={active ? statusTone(st) : 'gray'}>
-                        {st}
-                        <span className="ml-1 opacity-65">
-                          {rows.filter((r) => r.status === st).length}
-                        </span>
-                      </Badge>
-                    )}
-                  </button>
+                  <TR key={i} tone={isQcFail ? 'danger' : undefined}>
+                    <TD className="font-mono text-gray-500">{i + 1}</TD>
+                    <TD className="font-mono font-semibold text-brand-700">
+                      {row.shipping_package_id ?? '—'}
+                    </TD>
+                    <TD className="font-mono">{row.barcode ?? '—'}</TD>
+                    <TD className="text-center font-mono">
+                      {Number(row.qc_fail_count) > 0
+                        ? <Badge tone="danger" className="font-bold">
+                            {row.qc_fail_count}
+                          </Badge>
+                        : <span className="text-gray-500">0</span>
+                      }
+                    </TD>
+                    <TD className="font-mono">{row.reason_name ?? '—'}</TD>
+                    <TD className="font-mono">
+                      {row.status
+                        ? <Badge tone={statusTone(row.status)} className="font-bold">{row.status}</Badge>
+                        : '—'}
+                    </TD>
+                    <TD className="font-mono">{row.updated_by ?? '—'}</TD>
+                    <TD className="font-mono text-gray-500">{formatDate(row.updated_at)}</TD>
+                  </TR>
                 );
               })}
-            </div>
-          </div>
-        )}
+            </TBody>
+          </Table>
+        </Card>
+      )}
 
-        {/* ── Results table ── */}
-        {fetched && rows.length > 0 && (
-          <Card className="overflow-hidden">
-            <CardHeader>
-              <span className="flex items-center gap-2 text-sm font-semibold text-gray-700">
-                Order Journey — {rows[0]?.shipping_package_id}
-              </span>
-              {qcFailCount > 0 && (
-                <Badge tone="danger" className="font-mono font-bold">
-                  {qcFailCount} QC fail{qcFailCount !== 1 ? 's' : ''}
-                </Badge>
-              )}
-            </CardHeader>
-
-            {/* Toolbar */}
-            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-gray-100 bg-gray-50 px-4 py-2.5">
-              <span className="font-mono text-xs text-gray-500">
-                <strong className="text-brand-700">{filtered.length}</strong>
-                {filtered.length !== rows.length ? ` of ${rows.length}` : ''} events
-              </span>
-              <Input
-                type="text"
-                placeholder="Search…"
-                value={textFilter}
-                onChange={(e: ChangeEvent<HTMLInputElement>) => setTextFilter(e.target.value)}
-                className="w-[200px] font-mono"
-              />
-            </div>
-
-            {/* Table */}
-            <div className="overflow-auto" style={{ maxHeight: 480 }}>
-              <Table>
-                <THead>
-                  <tr>
-                    {['#','Shipping Package ID','Barcode','QC Fail Count','Reason','Status','Updated By','Updated At'].map((h) => (
-                      <TH key={h}>{h}</TH>
-                    ))}
-                  </tr>
-                </THead>
-                <TBody>
-                  {filtered.length === 0 ? (
-                    <TR>
-                      <TD colSpan={8} className="py-7 text-center text-gray-500">
-                        No rows match your filter.
-                      </TD>
-                    </TR>
-                  ) : filtered.map((row, i) => {
-                    const isQcFail = row.status === 'QCFailed';
-                    return (
-                      <TR
-                        key={i}
-                        tone={isQcFail ? 'danger' : undefined}
-                      >
-                        <TD className="font-mono text-gray-500">{i + 1}</TD>
-                        <TD className="font-mono font-semibold text-brand-700">
-                          {row.shipping_package_id ?? '—'}
-                        </TD>
-                        <TD className="font-mono">{row.barcode ?? '—'}</TD>
-                        <TD className="text-center font-mono">
-                          {Number(row.qc_fail_count) > 0
-                            ? <Badge tone="danger" className="font-bold">
-                                {row.qc_fail_count}
-                              </Badge>
-                            : <span className="text-gray-500">0</span>
-                          }
-                        </TD>
-                        <TD className="font-mono">{row.reason_name ?? '—'}</TD>
-                        <TD className="font-mono">
-                          {row.status
-                            ? <Badge tone={statusTone(row.status)} className="font-bold">{row.status}</Badge>
-                            : '—'}
-                        </TD>
-                        <TD className="font-mono">{row.updated_by ?? '—'}</TD>
-                        <TD className="font-mono text-gray-500">{formatDate(row.updated_at)}</TD>
-                      </TR>
-                    );
-                  })}
-                </TBody>
-              </Table>
-            </div>
-          </Card>
-        )}
-
-        {/* ── Empty state ── */}
-        {fetched && rows.length === 0 && !isPending && (
-          <Card className="flex flex-col items-center gap-2.5 px-6 py-12 text-center">
+      {/* ── Empty state ── */}
+      {fetched && rows.length === 0 && !isPending && (
+        <Card>
+          <CardBody className="flex flex-col items-center gap-2.5 py-12 text-center">
             <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
               <circle cx="20" cy="20" r="18" stroke="#d8dde8" strokeWidth="2"/>
               <path d="M13 20h14" stroke="#d8dde8" strokeWidth="2" strokeLinecap="round"/>
@@ -314,10 +309,10 @@ export default function OrderInformationCornerPage() {
               No QC events found for{' '}
               <strong className="text-brand-700">{inputValue}</strong>.
             </div>
-          </Card>
-        )}
+          </CardBody>
+        </Card>
+      )}
 
-      </div>
     </div>
   );
 }

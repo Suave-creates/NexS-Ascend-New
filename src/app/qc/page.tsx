@@ -24,6 +24,19 @@ const BARCODE_REGEX = /^[A-Z]{3}\d{9}$/;
 const QC_PERSON_KEY = 'qc-person-v1';
 const QC_STATION_KEY = 'qc-station-v1';
 
+// A scan may be a plain barcode (3 letters + 9 digits) or a "link barcode" — a
+// longer string (e.g. a URL) that ends in the barcode. In that case pick the
+// trailing 12 chars. Returns the normalized barcode, or null if none is present.
+function pickBarcode(raw: string): string | null {
+  const s = raw.trim().toUpperCase();
+  if (BARCODE_REGEX.test(s)) return s;
+  if (s.length > 12) {
+    const tail = s.slice(-12);
+    if (BARCODE_REGEX.test(tail)) return tail;
+  }
+  return null;
+}
+
 type Toast = { text: string; tone: 'success' | 'error' | 'warning' } | null;
 type Prev = { status: string; reason: string | null; qcPerson: string; minutesSince: number } | null;
 
@@ -152,8 +165,8 @@ export default function QcPage() {
   );
 
   useEffect(() => {
-    if (!BARCODE_REGEX.test(scan)) return;
-    const barcode = scan;
+    const barcode = pickBarcode(scan);
+    if (!barcode) return;
     setScan('');
     loadBarcode(barcode);
   }, [scan, loadBarcode]);
@@ -162,6 +175,11 @@ export default function QcPage() {
   const record = useCallback(
     async (status: 'PASS' | 'FAIL', reason?: string) => {
       if (!current || busy) return;
+      // Do not allow a double QC pass — the piece was already passed.
+      if (status === 'PASS' && prev?.status === 'PASS') {
+        flash('❌ Already passed QC — double pass is not allowed.', 'error');
+        return;
+      }
       setBusy(true);
       try {
         const res = await fetch('/api/qc', {
@@ -186,7 +204,7 @@ export default function QcPage() {
         setBusy(false);
       }
     },
-    [current, busy, qcPerson, qcStation, flash, resetCurrent, fetchStats],
+    [current, busy, qcPerson, qcStation, flash, resetCurrent, fetchStats, prev],
   );
 
   /* ---------- keyboard hotkeys while a barcode is loaded ---------- */
@@ -285,7 +303,7 @@ export default function QcPage() {
   }, [stats]);
 
   return (
-    <div className="mx-auto w-full max-w-6xl p-6">
+    <div className="mx-auto w-full max-w-6xl space-y-6">
       <PageHeader
         title="QC Dashboard"
         subtitle="Scan a barcode, then pass it or pick a fail reason"
@@ -297,7 +315,7 @@ export default function QcPage() {
       />
 
       {/* Stats */}
-      <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
         <StatCard label="Pass (1 hr)" value={stats.pass} tone="good" />
         <StatCard label="Fail (1 hr)" value={stats.fail} tone="danger" />
         <StatCard label="Pass rate (1 hr)" value={passRate == null ? '—' : `${passRate}%`} />
@@ -305,7 +323,7 @@ export default function QcPage() {
       </div>
 
       {/* Top controls */}
-      <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <Card className="p-5">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <Field label="QC Person" hint="Stays set until you change it (this device).">
@@ -339,19 +357,13 @@ export default function QcPage() {
       </div>
 
       {!setupReady && (
-        <div className="mb-4">
-          <Alert tone="warning">Set the QC Person and QC Station / Line before scanning.</Alert>
-        </div>
+        <Alert tone="warning">Set the QC Person and QC Station / Line before scanning.</Alert>
       )}
 
-      {toast && (
-        <div className="mb-4">
-          <Alert tone={toast.tone}>{toast.text}</Alert>
-        </div>
-      )}
+      {toast && <Alert tone={toast.tone}>{toast.text}</Alert>}
 
       {/* Current barcode + verdict */}
-      <Card className="mb-6 p-6">
+      <Card className="p-6">
         {!current ? (
           <p className="text-center text-sm text-gray-400">
             Scan a barcode to begin. Then press <kbd className="rounded border px-1">Enter</kbd> to
@@ -370,17 +382,24 @@ export default function QcPage() {
                 <Button variant="outline" onClick={resetCurrent}>
                   Cancel (Esc)
                 </Button>
-                <Button variant="success" size="lg" loading={busy} onClick={() => record('PASS')}>
+                <Button
+                  variant="success"
+                  size="lg"
+                  loading={busy}
+                  disabled={prev?.status === 'PASS'}
+                  onClick={() => record('PASS')}
+                >
                   ✔ PASS (Enter)
                 </Button>
               </div>
             </div>
 
             {prev && (
-              <Alert tone={prev.status === 'FAIL' ? 'warning' : 'notice'} className="mb-2">
+              <Alert tone={prev.status === 'PASS' ? 'error' : 'warning'}>
                 Previously QC&apos;d {prev.minutesSince} min ago by{' '}
                 <strong>{prev.qcPerson}</strong>: <strong>{prev.status}</strong>
                 {prev.reason ? ` — ${prev.reason}` : ''}
+                {prev.status === 'PASS' && ' — already passed, double pass is not allowed.'}
               </Alert>
             )}
           </>

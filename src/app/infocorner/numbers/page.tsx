@@ -1,6 +1,23 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { FiRefreshCw } from "react-icons/fi";
+import {
+  Button,
+  Card,
+  CardHeader,
+  CardBody,
+  PageHeader,
+  Alert,
+  Badge,
+  StatCard,
+  Table,
+  THead,
+  TBody,
+  TR,
+  TH,
+  TD,
+} from "@/components/ui";
 
 /* ─────────────────────────────────────────
    Types
@@ -16,27 +33,6 @@ interface ApiResponse {
   generated_at: string;
   raw: unknown;
   error?: string;
-}
-
-/* ─────────────────────────────────────────
-   Spinner
-───────────────────────────────────────── */
-function Spinner() {
-  return (
-    <span
-      style={{
-        display: "inline-block",
-        width: 13,
-        height: 13,
-        border: "2px solid rgba(255,255,255,0.3)",
-        borderTopColor: "#fff",
-        borderRadius: "50%",
-        animation: "nxs-spin 0.7s linear infinite",
-        marginRight: 6,
-        verticalAlign: "middle",
-      }}
-    />
-  );
 }
 
 /* ─────────────────────────────────────────
@@ -73,269 +69,97 @@ export default function FittingVolumePage() {
   const columns = data?.columns ?? [];
 
   return (
-    <>
-      <style>{`@keyframes nxs-spin { to { transform: rotate(360deg); } }`}</style>
+    <div className="mx-auto max-w-6xl space-y-6">
+      <PageHeader
+        title="Fitting Shipment Volume"
+        subtitle="lenskart-datahub · wms · NXS1 / NXS2 · last 3 days"
+        actions={
+          <Button onClick={run} loading={loading}>
+            {!loading && <FiRefreshCw className="h-4 w-4" />}
+            {loading ? "Querying…" : "Refresh"}
+          </Button>
+        }
+      />
 
-      <div style={s.page}>
-        {/* ── Header ── */}
-        <div style={s.pageHeader}>
-          <div>
-            <h3 style={s.pageTitle}>FITTING SHIPMENT VOLUME</h3>
-            <p style={s.pageSubtitle}>
-              lenskart-datahub · wms · NXS1 / NXS2 · last 3 days
-            </p>
-          </div>
-          <button
-            onClick={run}
-            disabled={loading}
-            style={{
-              ...s.runBtn,
-              opacity: loading ? 0.55 : 1,
-              cursor: loading ? "not-allowed" : "pointer",
-            }}
-          >
-            {loading ? (
-              <>
-                <Spinner />
-                Querying…
-              </>
-            ) : (
-              "↻  Refresh"
-            )}
-          </button>
+      {/* ── Meta ── */}
+      {data && (
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+          <StatCard label="Project" value={data.project} tone="navy" />
+          <StatCard label="Rows" value={data.row_count} tone="good" />
+          <StatCard
+            label="Generated"
+            value={new Date(data.generated_at).toLocaleTimeString()}
+            sub={new Date(data.generated_at).toLocaleDateString()}
+            tone="gold"
+          />
         </div>
+      )}
 
-        {/* ── Meta ── */}
-        {data && (
-          <div style={s.metaRow}>
-            <span style={s.metaPill}>Project: {data.project}</span>
-            <span style={s.metaPill}>{data.row_count} rows</span>
-            <span style={s.metaPill}>
-              Generated {new Date(data.generated_at).toLocaleString()}
-            </span>
-          </div>
-        )}
+      {/* ── Error ── */}
+      {error && <Alert tone="error">{error}</Alert>}
 
-        {/* ── Error ── */}
-        {error && <div style={s.errorBox}>⚠ {error}</div>}
-
-        {/* ── Table ── */}
-        {data && !error && (
-          <div style={s.tableCard}>
-            <div style={s.tableTopBar}>
-              <span style={s.tableTitle}>Distinct Shipping Packages</span>
-            </div>
-            <div style={s.tableScrollWrap}>
-              <table style={s.table}>
-                <thead>
-                  <tr>
+      {/* ── Table ── */}
+      {data && !error && (
+        <Card>
+          <CardHeader>
+            <h2 className="text-base font-semibold text-brand-700">
+              Distinct Shipping Packages
+            </h2>
+            <Badge tone="navy">{data.row_count} rows</Badge>
+          </CardHeader>
+          <Table>
+            <THead>
+              <TR>
+                {columns.map((c) => (
+                  <TH key={c}>{c}</TH>
+                ))}
+              </TR>
+            </THead>
+            <TBody>
+              {data.rows.length === 0 ? (
+                <TR>
+                  <TD
+                    colSpan={Math.max(columns.length, 1)}
+                    className="py-10 text-center text-gray-500"
+                  >
+                    No rows returned.
+                  </TD>
+                </TR>
+              ) : (
+                data.rows.map((row, i) => (
+                  <TR key={i}>
                     {columns.map((c) => (
-                      <th key={c} style={s.th}>
-                        {c}
-                      </th>
+                      <TD key={c} className="whitespace-nowrap font-mono">
+                        {row[c] ?? "—"}
+                      </TD>
                     ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {data.rows.length === 0 ? (
-                    <tr>
-                      <td
-                        colSpan={Math.max(columns.length, 1)}
-                        style={s.emptyCell}
-                      >
-                        No rows returned.
-                      </td>
-                    </tr>
-                  ) : (
-                    data.rows.map((row, i) => (
-                      <tr key={i}>
-                        {columns.map((c) => (
-                          <td key={c} style={s.td}>
-                            {row[c] ?? "—"}
-                          </td>
-                        ))}
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
+                  </TR>
+                ))
+              )}
+            </TBody>
+          </Table>
+        </Card>
+      )}
 
-        {/* ── Raw JSON ── */}
-        {data && (
-          <div style={s.rawCard}>
-            <button
+      {/* ── Raw JSON ── */}
+      {data && (
+        <Card>
+          <CardBody className="space-y-3">
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={() => setShowRaw((v) => !v)}
-              style={s.rawToggle}
             >
               {showRaw ? "▾ Hide JSON output" : "▸ Show JSON output"}
-            </button>
+            </Button>
             {showRaw && (
-              <pre style={s.rawPre}>{JSON.stringify(data, null, 2)}</pre>
+              <pre className="max-h-[420px] overflow-x-auto rounded-lg bg-brand-900 p-4 font-mono text-xs leading-relaxed text-brand-50">
+                {JSON.stringify(data, null, 2)}
+              </pre>
             )}
-          </div>
-        )}
-      </div>
-    </>
+          </CardBody>
+        </Card>
+      )}
+    </div>
   );
 }
-
-/* ─────────────────────────────────────────
-   Styles
-───────────────────────────────────────── */
-const s: Record<string, React.CSSProperties> = {
-  page: {
-    display: "flex",
-    flexDirection: "column",
-    minHeight: "100%",
-    padding: "28px 32px",
-    maxWidth: 1100,
-    width: "100%",
-    fontFamily: "'DM Sans', sans-serif",
-    color: "#1a2040",
-    boxSizing: "border-box",
-  },
-  pageHeader: {
-    display: "flex",
-    alignItems: "flex-start",
-    justifyContent: "space-between",
-    marginBottom: 20,
-    gap: 16,
-  },
-  pageTitle: {
-    fontSize: 24,
-    fontWeight: 700,
-    color: "#1f295c",
-    letterSpacing: "-0.3px",
-    margin: 0,
-    fontFamily: "'Syne', sans-serif",
-  },
-  pageSubtitle: {
-    fontSize: 12,
-    color: "#7a85a8",
-    fontFamily: "'IBM Plex Mono', monospace",
-    marginTop: 4,
-    marginBottom: 0,
-  },
-  runBtn: {
-    display: "inline-flex",
-    alignItems: "center",
-    gap: 6,
-    background: "#1f295c",
-    color: "#ffffff",
-    border: "none",
-    borderRadius: 9,
-    padding: "11px 22px",
-    fontSize: 14,
-    fontWeight: 600,
-    fontFamily: "'DM Sans', sans-serif",
-  },
-  metaRow: {
-    display: "flex",
-    gap: 8,
-    flexWrap: "wrap",
-    marginBottom: 16,
-  },
-  metaPill: {
-    fontSize: 11,
-    fontFamily: "'IBM Plex Mono', monospace",
-    background: "#f0f2f7",
-    border: "1px solid #d8dde8",
-    borderRadius: 6,
-    padding: "4px 10px",
-    color: "#1f295c",
-  },
-  errorBox: {
-    background: "#fff0ee",
-    border: "1px solid #f5c0b3",
-    color: "#c0392b",
-    borderRadius: 10,
-    padding: "14px 18px",
-    fontSize: 13,
-    marginBottom: 16,
-    fontFamily: "'IBM Plex Mono', monospace",
-  },
-  tableCard: {
-    background: "#ffffff",
-    border: "1px solid #d8dde8",
-    borderRadius: 14,
-    overflow: "hidden",
-    display: "flex",
-    flexDirection: "column",
-    marginBottom: 16,
-  },
-  tableTopBar: {
-    background: "#1f295c",
-    padding: "14px 22px",
-  },
-  tableTitle: {
-    fontFamily: "'Syne', sans-serif",
-    fontSize: 16,
-    fontWeight: 700,
-    color: "#ffffff",
-  },
-  tableScrollWrap: {
-    overflowX: "auto",
-  },
-  table: {
-    width: "100%",
-    borderCollapse: "collapse",
-    fontSize: 13,
-  },
-  th: {
-    padding: "14px 16px",
-    textAlign: "left",
-    fontSize: 12,
-    fontWeight: 600,
-    letterSpacing: "0.06em",
-    textTransform: "uppercase",
-    color: "#ffffff",
-    borderBottom: "2px solid #2f3d7e",
-    background: "#1f295c",
-    whiteSpace: "nowrap",
-  },
-  td: {
-    padding: "13px 16px",
-    borderBottom: "1px solid #d8dde8",
-    color: "#1a2040",
-    fontSize: 13,
-    fontFamily: "'IBM Plex Mono', monospace",
-    whiteSpace: "nowrap",
-  },
-  emptyCell: {
-    padding: "40px 24px",
-    textAlign: "center",
-    color: "#7a85a8",
-    fontSize: 13,
-  },
-  rawCard: {
-    background: "#ffffff",
-    border: "1px solid #d8dde8",
-    borderRadius: 12,
-    padding: "14px 18px",
-  },
-  rawToggle: {
-    background: "transparent",
-    border: "none",
-    color: "#1f295c",
-    fontSize: 13,
-    fontWeight: 600,
-    cursor: "pointer",
-    fontFamily: "'DM Sans', sans-serif",
-    padding: 0,
-  },
-  rawPre: {
-    marginTop: 12,
-    background: "#0f1530",
-    color: "#c7d2fe",
-    borderRadius: 8,
-    padding: "14px 16px",
-    fontSize: 11.5,
-    fontFamily: "'IBM Plex Mono', monospace",
-    overflowX: "auto",
-    maxHeight: 420,
-    lineHeight: 1.5,
-  },
-};

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Card, PageHeader, Field, Button } from '@/components/ui';
+import { Card, CardBody, PageHeader, Field, Button, Alert } from '@/components/ui';
 
 export default function ManualWarehouseUploadPage() {
   const [file, setFile] = useState<File | null>(null);
@@ -43,11 +43,14 @@ export default function ManualWarehouseUploadPage() {
   };
 
   return (
-    <div className="flex justify-center items-start py-8">
-      <Card className="w-full max-w-md text-left">
-        <div className="p-6">
-          <PageHeader title="Manual Warehouse Setup Upload" />
+    <div className="mx-auto max-w-md space-y-6">
+      <PageHeader
+        title="Manual Warehouse Setup Upload"
+        subtitle="Import warehouse setup data from an Excel file"
+      />
 
+      <Card>
+        <CardBody className="space-y-4">
           <form onSubmit={handleSubmit} className="space-y-4">
             <Field label="Select Excel File">
               <input
@@ -65,9 +68,9 @@ export default function ManualWarehouseUploadPage() {
             </div>
           </form>
 
-          {message && <p className="mt-4 text-green-700">{message}</p>}
-          {error && <p className="mt-4 text-red-700">{error}</p>}
-        </div>
+          {message && <Alert tone="success">{message}</Alert>}
+          {error && <Alert tone="error">{error}</Alert>}
+        </CardBody>
       </Card>
     </div>
   );

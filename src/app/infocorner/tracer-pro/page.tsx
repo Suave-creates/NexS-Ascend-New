@@ -5,10 +5,16 @@ import * as XLSX from 'xlsx';
 import { cn } from '@/lib/cn';
 import {
   Button,
+  Input,
   Textarea,
+  Field as FormField,
+  Card,
+  CardBody,
+  PageHeader,
   Badge,
   StatusPill,
   Alert,
+  Spinner,
   Table,
   THead,
   TBody,
@@ -113,6 +119,8 @@ function exportStyledExcel(rows: Row[], filename: string) {
 
 /* ═══════════════════════════════════════════════
    JOB SHEET – single tray result card
+   (specialised print card — the print stylesheet targets
+    the `.job-sheet` / `.js-print-btn` / `.js-clear-btn` classes)
 ═══════════════════════════════════════════════ */
 
 function JobSheet({ row, onClear }: { row: Row; onClear: () => void }) {
@@ -123,7 +131,7 @@ function JobSheet({ row, onClear }: { row: Row; onClear: () => void }) {
   return (
     <div
       className={cn(
-        'job-sheet animate-[slideIn_0.25s_ease] overflow-hidden rounded-xl border-2 bg-white',
+        'job-sheet animate-[slideIn_0.25s_ease] overflow-hidden rounded-2xl border bg-white shadow-sm',
         alert ? 'border-danger-600/40' : 'border-gray-200',
       )}
       role="region"
@@ -147,10 +155,10 @@ function JobSheet({ row, onClear }: { row: Row; onClear: () => void }) {
             </StatusPill>
           )}
         </div>
-        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+        <div className="flex items-center gap-2">
           {showPrint && (
             <button
-              className="js-print-btn flex-shrink-0 whitespace-nowrap rounded-md border-[1.5px] border-gold-500 bg-gold-500 px-3 py-1.5 font-mono text-xs font-semibold text-[#3a2800] transition-all hover:bg-[#ffd84d]"
+              className="js-print-btn flex-shrink-0 whitespace-nowrap rounded-md border-[1.5px] border-gold-500 bg-gold-500 px-3 py-1.5 font-mono text-xs font-semibold text-[#3a2800] transition-all hover:bg-gold-500/90"
               onClick={() => window.print()}
               aria-label="Print job sheet"
             >
@@ -166,45 +174,45 @@ function JobSheet({ row, onClear }: { row: Row; onClear: () => void }) {
           </button>
         </div>
       </div>
+
       {/* ── Core fields grid ── */}
-            <div className="grid grid-cols-[repeat(auto-fill,minmax(180px,1fr))] gap-px border-b border-gray-200 bg-gray-200">
-              <Field label="Fitting ID" value={row.fitting_id} />
-              <Field label="Shipping Package" value={row.shipping_package_id} />
-              <Field label="Order Type" value={row.order_item_type} />
-              <Field
-                label="Parent Tray"
-                value={row.parent_tray_id}
-                muted={row.parent_tray_id === row.location_id}
-              />
-              <Field
-                label="Child Tray"
-                value={row.child_tray_id}
-                muted={row.child_tray_id === row.location_id}
-              />
-              <Field
-                label="Age (days)"
-                value={row.created_at_days}
-                highlight={row.aged_highlight === 'RED' ? 'red' : undefined}
-              />
-              <Field
-                label="QC Fail Events"
-                value={row.qc_failed_status_count}
-                highlight={row.qc_failed_highlight === 'RED' ? 'red' : undefined}
-              />
+      <div className="grid grid-cols-[repeat(auto-fill,minmax(180px,1fr))] gap-px border-b border-gray-200 bg-gray-200">
+        <SheetField label="Fitting ID" value={row.fitting_id} />
+        <SheetField label="Shipping Package" value={row.shipping_package_id} />
+        <SheetField label="Order Type" value={row.order_item_type} />
+        <SheetField
+          label="Parent Tray"
+          value={row.parent_tray_id}
+          muted={row.parent_tray_id === row.location_id}
+        />
+        <SheetField
+          label="Child Tray"
+          value={row.child_tray_id}
+          muted={row.child_tray_id === row.location_id}
+        />
+        <SheetField
+          label="Age (days)"
+          value={row.created_at_days}
+          highlight={row.aged_highlight === 'RED' ? 'red' : undefined}
+        />
+        <SheetField
+          label="QC Fail Events"
+          value={row.qc_failed_status_count}
+          highlight={row.qc_failed_highlight === 'RED' ? 'red' : undefined}
+        />
 
-              {/* ── ICU Critical Tray — custom grid cell ── */}
-              <div className="bg-white px-4 py-3.5">
-                <span className="mb-1 block text-[10px] font-semibold uppercase tracking-[0.08em] text-gray-500">ICU Critical Tray</span>
-                <span className="break-all font-mono text-[15px] font-semibold text-brand-700">
-                  Authorised by
-                  <br />
-                  <em style={{ fontStyle: 'italic', fontWeight: 400, fontSize: 13 }}>
-                    Mayank Gupta
-                  </em>
-                </span>
-              </div>
-
-            </div>
+        {/* ── ICU Critical Tray — custom grid cell ── */}
+        <div className="bg-white px-4 py-3.5">
+          <span className="mb-1 block text-[10px] font-semibold uppercase tracking-[0.08em] text-gray-500">
+            ICU Critical Tray
+          </span>
+          <span className="break-all font-mono text-[15px] font-semibold text-brand-700">
+            Authorised by
+            <br />
+            <em className="text-[13px] font-normal italic">Mayank Gupta</em>
+          </span>
+        </div>
+      </div>
 
       {/* ── Reasons section ── */}
       <div className="px-[18px] pb-5 pt-4">
@@ -253,7 +261,7 @@ function JobSheet({ row, onClear }: { row: Row; onClear: () => void }) {
   );
 }
 
-function Field({
+function SheetField({
   label,
   value,
   highlight,
@@ -266,7 +274,9 @@ function Field({
 }) {
   return (
     <div className={cn('bg-white px-4 py-3.5', highlight === 'red' && 'bg-danger-50')}>
-      <span className="mb-1 block text-[10px] font-semibold uppercase tracking-[0.08em] text-gray-500">{label}</span>
+      <span className="mb-1 block text-[10px] font-semibold uppercase tracking-[0.08em] text-gray-500">
+        {label}
+      </span>
       <span
         className={cn(
           'break-all font-mono text-[15px] font-semibold',
@@ -364,7 +374,6 @@ export default function QCTrayPage() {
     <>
       {/* ──── Scoped keyframes + print stylesheet ──── */}
       <style>{`
-        @keyframes spin { to { transform: translateY(-50%) rotate(360deg); } }
         @keyframes slideIn {
           from { opacity: 0; transform: translateY(8px); }
           to   { opacity: 1; transform: translateY(0); }
@@ -392,32 +401,31 @@ export default function QCTrayPage() {
         }
       `}</style>
 
-      <div className="mx-auto max-w-[880px] px-4 pb-[60px] pt-6">
-
-        {/* ── Top bar ── */}
-        <div className="mb-7 flex items-center gap-3">
-          <div className="flex h-[38px] w-[38px] flex-shrink-0 items-center justify-center rounded-lg bg-brand-700">
-            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" className="h-[22px] w-[22px] fill-gold-500">
-              <path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM17.5 14l4 7h-8l4-7z" />
-            </svg>
-          </div>
-          <div>
-            <div className="text-lg font-bold uppercase tracking-[0.02em] text-brand-700">OMT QC Tray Scanner</div>
-            <div className="mt-px font-mono text-[11px] text-gray-500">QUALITY CONTROL · ORDER MANAGEMENT</div>
-          </div>
-        </div>
+      <div className="mx-auto max-w-5xl space-y-6">
+        <PageHeader
+          title={
+            <span className="flex items-center gap-3">
+              <span className="flex h-[38px] w-[38px] flex-shrink-0 items-center justify-center rounded-lg bg-brand-700">
+                <svg
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-[22px] w-[22px] fill-gold-500"
+                >
+                  <path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM17.5 14l4 7h-8l4-7z" />
+                </svg>
+              </span>
+              OMT QC Tray Scanner
+            </span>
+          }
+          subtitle="Quality Control · Order Management"
+        />
 
         {/* ── Mode tabs ── */}
-        <div className="mb-5 flex w-fit overflow-hidden rounded-[10px] border-[1.5px] border-gray-200 bg-white">
+        <div className="flex gap-2">
           {(['SINGLE', 'BULK'] as const).map((m) => (
-            <button
+            <Button
               key={m}
-              className={cn(
-                'cursor-pointer border-none px-7 py-[9px] text-[13px] font-semibold uppercase tracking-[0.04em] transition-all',
-                mode === m
-                  ? 'bg-brand-700 text-white'
-                  : 'bg-transparent text-gray-500 hover:bg-gray-100 hover:text-brand-700',
-              )}
+              variant={mode === m ? 'primary' : 'outline'}
               onClick={() => {
                 setMode(m);
                 setSingleRow(null);
@@ -428,37 +436,39 @@ export default function QCTrayPage() {
               }}
             >
               {m === 'SINGLE' ? 'Single Scan' : 'Bulk Lookup'}
-            </button>
+            </Button>
           ))}
         </div>
 
         {/* ═══════════════════ SINGLE MODE ═══════════════════ */}
         {mode === 'SINGLE' && (
           <>
-            <div className="mb-5 rounded-[10px] border-[1.5px] border-gray-200 bg-white p-5">
-              <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-gray-500">Scan or enter tray ID</p>
-              <div className="relative">
-                <input
-                  ref={inputRef}
-                  type="text"
-                  className="w-full rounded-lg border-2 border-gray-200 bg-gray-100 px-4 py-3 pr-12 font-mono text-lg font-semibold text-brand-700 outline-none transition-colors placeholder:text-[15px] placeholder:font-normal placeholder:text-gray-500 focus:border-brand-700 focus:bg-white"
-                  value={scanValue}
-                  onChange={(e) => setScanValue(e.target.value)}
-                  placeholder="e.g. TRY-100234"
-                  autoFocus
-                />
-                <div
-                  className={cn(
-                    'absolute right-3.5 top-1/2 h-[18px] w-[18px] -translate-y-1/2 animate-[spin_0.7s_linear_infinite] rounded-full border-[2.5px] border-gray-200 border-t-brand-700',
-                    isPending ? 'block' : 'hidden',
-                  )}
-                />
-              </div>
-              <p className="mt-1.5 font-mono text-[11px] text-gray-500">Auto-submits after CT+5Digits  · Use barcode scanner or keyboard</p>
-            </div>
+            <Card>
+              <CardBody>
+                <FormField
+                  label="Scan or enter tray ID"
+                  hint="Auto-submits after CT+5Digits · Use barcode scanner or keyboard"
+                >
+                  <div className="relative">
+                    <Input
+                      ref={inputRef}
+                      type="text"
+                      className="bg-gray-50 pr-12 font-mono text-lg font-semibold text-brand-700"
+                      value={scanValue}
+                      onChange={(e) => setScanValue(e.target.value)}
+                      placeholder="e.g. TRY-100234"
+                      autoFocus
+                    />
+                    {isPending && (
+                      <Spinner className="absolute right-3.5 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-brand-700" />
+                    )}
+                  </div>
+                </FormField>
+              </CardBody>
+            </Card>
 
             {singleError && (
-              <Alert tone="error" className="mb-4 flex items-center gap-2">
+              <Alert tone="error" className="flex items-center gap-2">
                 <span>⚠</span> {singleError}
               </Alert>
             )}
@@ -472,96 +482,123 @@ export default function QCTrayPage() {
         {/* ═══════════════════ BULK MODE ═══════════════════ */}
         {mode === 'BULK' && (
           <>
-            <div className="mb-5 rounded-[10px] border-[1.5px] border-gray-200 bg-white p-5">
-              <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-gray-500">Paste up to 50 tray IDs (one per line, comma, or tab-separated)</p>
-              <Textarea
-                className="mb-2.5 min-h-0 font-mono text-[13px] text-brand-700"
-                rows={6}
-                value={bulkInput}
-                onChange={(e) => setBulkInput(e.target.value)}
-                placeholder="TRY-100001&#10;TRY-100002&#10;TRY-100003"
-              />
-              <div className="flex gap-2.5">
-                <Button
-                  disabled={bulkLoading}
-                  onClick={() => fetchBulk(parseTrayIds(bulkInput))}
-                >
-                  {bulkLoading ? 'Loading…' : '↓ Fetch Trays'}
-                </Button>
-                {bulkRows.length > 0 && (
-                  <>
-                    <Button
-                      variant="outline"
-                      onClick={() => exportStyledExcel(bulkRows, 'QC_TRAYS')}
-                    >
-                      ↓ Excel
-                    </Button>
-                    <Button
-                      variant="outline"
-                      onClick={() => { setBulkRows([]); setBulkInput(''); }}
-                    >
-                      Clear
-                    </Button>
-                  </>
-                )}
-              </div>
-            </div>
+            <Card>
+              <CardBody>
+                <FormField label="Paste up to 50 tray IDs (one per line, comma, or tab-separated)">
+                  <Textarea
+                    className="font-mono text-[13px] text-brand-700"
+                    rows={6}
+                    value={bulkInput}
+                    onChange={(e) => setBulkInput(e.target.value)}
+                    placeholder="TRY-100001&#10;TRY-100002&#10;TRY-100003"
+                  />
+                </FormField>
+                <div className="mt-3 flex gap-2.5">
+                  <Button
+                    loading={bulkLoading}
+                    onClick={() => fetchBulk(parseTrayIds(bulkInput))}
+                  >
+                    {bulkLoading ? 'Loading…' : '↓ Fetch Trays'}
+                  </Button>
+                  {bulkRows.length > 0 && (
+                    <>
+                      <Button
+                        variant="outline"
+                        onClick={() => exportStyledExcel(bulkRows, 'QC_TRAYS')}
+                      >
+                        ↓ Excel
+                      </Button>
+                      <Button
+                        variant="outline"
+                        onClick={() => {
+                          setBulkRows([]);
+                          setBulkInput('');
+                        }}
+                      >
+                        Clear
+                      </Button>
+                    </>
+                  )}
+                </div>
+              </CardBody>
+            </Card>
 
             {bulkError && (
-              <Alert tone="error" className="mb-4 flex items-center gap-2">
+              <Alert tone="error" className="flex items-center gap-2">
                 <span>⚠</span> {bulkError}
               </Alert>
             )}
 
             {bulkRows.length > 0 && (
-              <div className="mb-3.5 overflow-hidden rounded-[10px] border-[1.5px] border-gray-200 bg-white">
-                <div className="flex items-center justify-between border-b border-gray-200 px-4 py-3">
-                  <span className="text-[13px] font-semibold text-brand-700">{bulkRows.length} tray{bulkRows.length !== 1 ? 's' : ''} loaded</span>
-                  <span className="font-mono text-[11px] text-gray-500">
-                    {bulkRows.filter(isAlert).length} alert{bulkRows.filter(isAlert).length !== 1 ? 's' : ''}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between px-1">
+                  <span className="text-sm font-semibold text-brand-700">
+                    {bulkRows.length} tray{bulkRows.length !== 1 ? 's' : ''} loaded
+                  </span>
+                  <span className="font-mono text-xs text-gray-500">
+                    {bulkRows.filter(isAlert).length} alert
+                    {bulkRows.filter(isAlert).length !== 1 ? 's' : ''}
                   </span>
                 </div>
                 <Table className="text-xs">
                   <THead>
-                    <tr>
-                      <TH className="px-2.5 py-[9px] text-[10px] tracking-[0.07em]">Role</TH>
-                      <TH className="px-2.5 py-[9px] text-[10px] tracking-[0.07em]">Tray ID</TH>
-                      <TH className="px-2.5 py-[9px] text-[10px] tracking-[0.07em]">Parent</TH>
-                      <TH className="px-2.5 py-[9px] text-[10px] tracking-[0.07em]">Child</TH>
-                      <TH className="px-2.5 py-[9px] text-[10px] tracking-[0.07em]">Fitting</TH>
-                      <TH className="px-2.5 py-[9px] text-[10px] tracking-[0.07em]">Shipping</TH>
-                      <TH className="px-2.5 py-[9px] text-[10px] tracking-[0.07em]">Type</TH>
-                      <TH className="px-2.5 py-[9px] text-[10px] tracking-[0.07em]">Days</TH>
-                      <TH className="px-2.5 py-[9px] text-[10px] tracking-[0.07em]">QCF</TH>
-                      <TH className="px-2.5 py-[9px] text-[10px] tracking-[0.07em]">Reasons</TH>
-                    </tr>
+                    <TR>
+                      <TH>Role</TH>
+                      <TH>Tray ID</TH>
+                      <TH>Parent</TH>
+                      <TH>Child</TH>
+                      <TH>Fitting</TH>
+                      <TH>Shipping</TH>
+                      <TH>Type</TH>
+                      <TH>Days</TH>
+                      <TH>QCF</TH>
+                      <TH>Reasons</TH>
+                    </TR>
                   </THead>
                   <TBody>
                     {bulkRows.map((r, i) => (
                       <TR key={i} tone={isAlert(r) ? 'danger' : undefined}>
-                        <TD className="px-2.5 py-2 align-top">
-                          <Badge tone={r.tray_role === 'PARENT' ? 'navy' : 'gray'} className="rounded px-1.5 py-0.5 text-[9px] font-bold tracking-[0.06em]">
+                        <TD className="align-top">
+                          <Badge tone={r.tray_role === 'PARENT' ? 'navy' : 'gray'}>
                             {r.tray_role}
                           </Badge>
                         </TD>
-                        <TD className="px-2.5 py-2 align-top font-mono text-xs text-inherit">{r.location_id}</TD>
-                        <TD className="px-2.5 py-2 align-top font-mono text-xs text-inherit">{r.parent_tray_id}</TD>
-                        <TD className="px-2.5 py-2 align-top font-mono text-xs text-inherit">{r.child_tray_id}</TD>
-                        <TD className="px-2.5 py-2 align-top font-mono text-xs text-inherit">{r.fitting_id}</TD>
-                        <TD className="px-2.5 py-2 align-top font-mono text-xs text-inherit">{r.shipping_package_id}</TD>
-                        <TD className="px-2.5 py-2 align-top text-xs text-inherit">{r.order_item_type}</TD>
-                        <TD className={cn('px-2.5 py-2 align-top font-mono text-xs', r.aged_highlight === 'RED' ? 'font-bold text-danger-600' : 'text-inherit')}>
+                        <TD className="align-top font-mono text-inherit">{r.location_id}</TD>
+                        <TD className="align-top font-mono text-inherit">{r.parent_tray_id}</TD>
+                        <TD className="align-top font-mono text-inherit">{r.child_tray_id}</TD>
+                        <TD className="align-top font-mono text-inherit">{r.fitting_id}</TD>
+                        <TD className="align-top font-mono text-inherit">{r.shipping_package_id}</TD>
+                        <TD className="align-top text-inherit">{r.order_item_type}</TD>
+                        <TD
+                          className={cn(
+                            'align-top font-mono',
+                            r.aged_highlight === 'RED'
+                              ? 'font-bold text-danger-600'
+                              : 'text-inherit',
+                          )}
+                        >
                           {r.created_at_days}d
                         </TD>
-                        <TD className={cn('px-2.5 py-2 align-top font-mono text-xs', r.qc_failed_highlight === 'RED' ? 'font-bold text-danger-600' : 'text-inherit')}>
+                        <TD
+                          className={cn(
+                            'align-top font-mono',
+                            r.qc_failed_highlight === 'RED'
+                              ? 'font-bold text-danger-600'
+                              : 'text-inherit',
+                          )}
+                        >
                           {r.qc_failed_status_count}
                         </TD>
-                        <TD className="px-2.5 py-2 align-top text-xs">
+                        <TD className="align-top">
                           {r.reasons.length === 0 ? (
-                            <span className="text-[11px] text-gray-500">—</span>
+                            <span className="text-gray-500">—</span>
                           ) : (
                             r.reasons.map((x, idx) => (
-                              <Badge key={idx} tone={x.highlight === 'SKY_BLUE' ? 'notice' : 'gray'} className="my-px mr-0.5 rounded px-1.5 py-0.5 text-[10px]">
+                              <Badge
+                                key={idx}
+                                tone={x.highlight === 'SKY_BLUE' ? 'notice' : 'gray'}
+                                className="my-px mr-0.5"
+                              >
                                 {x.text}
                               </Badge>
                             ))

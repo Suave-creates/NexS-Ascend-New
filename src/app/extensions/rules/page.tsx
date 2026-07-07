@@ -8,6 +8,18 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import {
+  Button,
+  Input,
+  Textarea,
+  Select,
+  Card,
+  CardBody,
+  PageHeader,
+  Alert,
+  Badge,
+} from '@/components/ui';
+import { cn } from '@/lib/cn';
+import {
   Rule,
   Condition,
   Operator,
@@ -185,65 +197,47 @@ export default function FlashRulesPage() {
   if (loading) return <div className="p-6 text-gray-500">Loading rules…</div>;
 
   return (
-    <div className="flash-rules-page max-w-6xl mx-auto py-6">
-      {/* keep form-control text black regardless of OS dark mode */}
-      <style>{`
-        .flash-rules-page input,
-        .flash-rules-page textarea,
-        .flash-rules-page select {
-          color: #111827;
+    <div className="mx-auto max-w-6xl space-y-6">
+      <PageHeader
+        title="Flash Rules"
+        subtitle={
+          <>
+            Define which response fields to watch and the full-screen message to flash. The browser
+            extension live-fetches these rules.{' '}
+            {updatedAt && (
+              <span className="text-gray-400">
+                Published v{version} · {new Date(updatedAt).toLocaleString()}
+              </span>
+            )}
+          </>
         }
-        .flash-rules-page input::placeholder,
-        .flash-rules-page textarea::placeholder {
-          color: #9ca3af;
+        actions={
+          <>
+            <a
+              href="/extensions"
+              className="text-sm font-medium text-brand-700 hover:text-brand-800 hover:underline"
+            >
+              ← Extensions
+            </a>
+            <Button variant="outline" onClick={addRule}>
+              + Add rule
+            </Button>
+            <Button onClick={save} loading={saving}>
+              {saving ? 'Saving…' : 'Save & publish'}
+            </Button>
+          </>
         }
-      `}</style>
-      {/* header */}
-      <div className="flex items-center justify-between mb-1">
-        <h1 className="text-2xl font-bold text-gray-800">Flash Rules</h1>
-        <div className="flex items-center gap-3">
-          <a href="/extensions" className="text-sm text-blue-600 hover:underline">
-            ← Extensions
-          </a>
-          <button
-            onClick={addRule}
-            className="text-sm font-semibold bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-2 rounded-lg"
-          >
-            + Add rule
-          </button>
-          <button
-            onClick={save}
-            disabled={saving}
-            className="text-sm font-semibold bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white px-4 py-2 rounded-lg"
-          >
-            {saving ? 'Saving…' : 'Save & publish'}
-          </button>
-        </div>
-      </div>
-      <p className="text-gray-500 text-sm mb-4">
-        Define which response fields to watch and the full-screen message to flash. The browser
-        extension live-fetches these rules.{' '}
-        {updatedAt && (
-          <span className="text-gray-400">
-            Published v{version} · {new Date(updatedAt).toLocaleString()}
-          </span>
-        )}
-      </p>
+      />
+
       {status && (
-        <div
-          className={`mb-4 text-sm font-medium px-3 py-2 rounded-lg ${
-            status.ok ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'
-          }`}
-        >
-          {status.msg}
-        </div>
+        <Alert tone={status.ok ? 'success' : 'error'}>{status.msg}</Alert>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
         {/* ── LEFT: rules ─────────────────────────────────────────── */}
-        <div className="lg:col-span-2 flex flex-col gap-4">
+        <div className="flex flex-col gap-4 lg:col-span-2">
           {rules.length === 0 && (
-            <div className="text-gray-400 text-sm border border-dashed border-gray-300 rounded-xl p-8 text-center">
+            <div className="rounded-2xl border border-dashed border-gray-300 p-8 text-center text-sm text-gray-400">
               No rules yet. Click <strong>+ Add rule</strong> to create one.
             </div>
           )}
@@ -269,62 +263,73 @@ export default function FlashRulesPage() {
 
         {/* ── RIGHT: sample + field picker ────────────────────────── */}
         <div className="flex flex-col gap-3">
-          <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
-            <div className="font-semibold text-gray-800 mb-1 text-sm">Sample response</div>
-            <p className="text-xs text-gray-400 mb-2">
-              Paste a scan response to pick fields and live-test which rules fire.
-            </p>
-            <textarea
-              value={sampleText}
-              onChange={(e) => setSampleText(e.target.value)}
-              placeholder='{ "data": { … } }'
-              spellCheck={false}
-              className="w-full h-32 text-xs font-mono border border-gray-200 rounded-lg p-2 resize-y"
-            />
-            {parsedSample === undefined && (
-              <div className="text-xs text-red-600 mt-1">Not valid JSON</div>
-            )}
-            {parsedSample && (
-              <div className="text-xs mt-2">
-                {sampleMatches.length > 0 ? (
-                  <span className="text-green-700 font-medium">
-                    {sampleMatches.length} rule(s) would fire:{' '}
-                    {sampleMatches.map((m) => m.rule.name).join(', ')}
-                  </span>
-                ) : (
-                  <span className="text-gray-400">No rules fire on this sample.</span>
-                )}
-              </div>
-            )}
-          </div>
+          <Card>
+            <CardBody className="p-4">
+              <div className="mb-1 text-sm font-semibold text-brand-700">Sample response</div>
+              <p className="mb-2 text-xs text-gray-400">
+                Paste a scan response to pick fields and live-test which rules fire.
+              </p>
+              <Textarea
+                value={sampleText}
+                onChange={(e) => setSampleText(e.target.value)}
+                placeholder='{ "data": { … } }'
+                spellCheck={false}
+                className="h-32 min-h-[8rem] font-mono text-xs"
+              />
+              {parsedSample === undefined && (
+                <div className="mt-1 text-xs text-danger-600">Not valid JSON</div>
+              )}
+              {parsedSample && (
+                <div className="mt-2 text-xs">
+                  {sampleMatches.length > 0 ? (
+                    <span className="font-medium text-good-600">
+                      {sampleMatches.length} rule(s) would fire:{' '}
+                      {sampleMatches.map((m) => m.rule.name).join(', ')}
+                    </span>
+                  ) : (
+                    <span className="text-gray-400">No rules fire on this sample.</span>
+                  )}
+                </div>
+              )}
+            </CardBody>
+          </Card>
 
           {parsedSample && (
-            <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
-              <div className="font-semibold text-gray-800 mb-1 text-sm">
-                Fields {pickerTarget ? '(click to assign)' : '(click “pick” on a condition first)'}
-              </div>
-              <input
-                value={fieldFilter}
-                onChange={(e) => setFieldFilter(e.target.value)}
-                placeholder="filter by name or value…"
-                className="w-full text-xs border border-gray-200 rounded-lg px-2 py-1.5 mb-2"
-              />
-              <div className="max-h-96 overflow-auto flex flex-col gap-1">
-                {discovered.map((d) => (
-                  <button
-                    key={d.path}
-                    onClick={() => pickField(d)}
-                    disabled={!pickerTarget}
-                    className="text-left text-xs px-2 py-1.5 rounded-lg border border-gray-100 hover:border-blue-300 hover:bg-blue-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                    title={d.path}
-                  >
-                    <span className="font-mono font-semibold text-gray-700">{d.key}</span>
-                    <span className="text-gray-400"> = {String(d.sample).slice(0, 40)}</span>
-                    <div className="font-mono text-[10px] text-gray-300 truncate">{d.path}</div>
-                  </button>
-                ))}
-              </div>
-            </div>
+            <Card>
+              <CardBody className="p-4">
+                <div className="mb-1 text-sm font-semibold text-brand-700">
+                  Fields{' '}
+                  {pickerTarget ? '(click to assign)' : '(click “pick” on a condition first)'}
+                </div>
+                <Input
+                  value={fieldFilter}
+                  onChange={(e) => setFieldFilter(e.target.value)}
+                  placeholder="filter by name or value…"
+                  className="mb-2 text-xs"
+                />
+                <div className="flex max-h-96 flex-col gap-1 overflow-auto">
+                  {discovered.map((d) => (
+                    <Button
+                      key={d.path}
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => pickField(d)}
+                      disabled={!pickerTarget}
+                      className="h-auto w-full flex-col items-start rounded-lg border border-gray-100 px-2 py-1.5 text-left text-xs font-normal hover:border-brand-300 hover:bg-brand-50"
+                      title={d.path}
+                    >
+                      <span>
+                        <span className="font-mono font-semibold text-gray-700">{d.key}</span>
+                        <span className="text-gray-400"> = {String(d.sample).slice(0, 40)}</span>
+                      </span>
+                      <span className="w-full truncate font-mono text-[10px] text-gray-300">
+                        {d.path}
+                      </span>
+                    </Button>
+                  ))}
+                </div>
+              </CardBody>
+            </Card>
           )}
         </div>
       </div>
@@ -363,143 +368,149 @@ function RuleCard({
   hasSample: boolean;
 }) {
   return (
-    <div
-      className={`bg-white border rounded-xl p-4 shadow-sm ${
-        fired ? 'border-green-400 ring-1 ring-green-200' : 'border-gray-200'
-      }`}
-    >
-      <div className="flex items-center gap-2 mb-3">
-        <input
-          type="checkbox"
-          checked={rule.enabled}
-          onChange={(e) => onPatch({ enabled: e.target.checked })}
-          title="Enabled"
-        />
-        <input
-          value={rule.name}
-          onChange={(e) => onPatch({ name: e.target.value })}
-          className="font-semibold text-gray-800 border-b border-transparent hover:border-gray-200 focus:border-blue-400 outline-none flex-1"
-        />
-        {hasSample && fired && (
-          <span className="text-[10px] font-bold uppercase tracking-wide bg-green-100 text-green-700 px-2 py-0.5 rounded-full">
-            fires
-          </span>
-        )}
-        <button onClick={onPreview} className="text-xs text-blue-600 hover:underline">
-          Preview
-        </button>
-        <button onClick={onRemove} className="text-xs text-red-500 hover:underline">
-          Delete
-        </button>
-      </div>
-
-      {/* match mode + url filter */}
-      <div className="flex flex-wrap items-center gap-3 text-xs text-gray-600 mb-3">
-        <label className="flex items-center gap-1">
-          Match
-          <select
-            value={rule.match}
-            onChange={(e) => onPatch({ match: e.target.value as 'all' | 'any' })}
-            className="border border-gray-200 rounded px-1.5 py-1"
-          >
-            <option value="any">ANY condition (OR)</option>
-            <option value="all">ALL conditions (AND)</option>
-          </select>
-        </label>
-        <label className="flex items-center gap-1">
-          URL contains
-          <input
-            value={rule.urlContains ?? ''}
-            onChange={(e) => onPatch({ urlContains: e.target.value })}
-            placeholder="(any response)"
-            className="border border-gray-200 rounded px-1.5 py-1 font-mono w-40"
-          />
-        </label>
-      </div>
-
-      {/* conditions */}
-      <div className="flex flex-col gap-2">
-        {rule.conditions.map((c, i) => (
-          <ConditionRow
-            key={i}
-            c={c}
-            idx={i}
-            onPatch={(p) => onPatchCond(i, p)}
-            onRemove={() => onRemoveCond(i)}
-            onPick={() => onPickTarget(i)}
-            picking={pickerActive(i)}
-          />
-        ))}
-        <button
-          onClick={onAddCond}
-          className="self-start text-xs text-gray-500 hover:text-gray-700 mt-1"
-        >
-          + add condition
-        </button>
-      </div>
-
-      {/* flash config */}
-      <div className="mt-4 border-t border-gray-100 pt-3 grid grid-cols-2 gap-2 text-xs">
-        <label className="col-span-2 flex flex-col gap-1">
-          <span className="text-gray-500 font-medium">Flash title</span>
-          <input
-            value={rule.flash.title}
-            onChange={(e) => onPatch({ flash: { ...rule.flash, title: e.target.value } })}
-            className="border border-gray-200 rounded px-2 py-1.5 font-semibold"
-          />
-        </label>
-        <label className="col-span-2 flex flex-col gap-1">
-          <span className="text-gray-500 font-medium">Message</span>
-          <textarea
-            value={rule.flash.message}
-            onChange={(e) => onPatch({ flash: { ...rule.flash, message: e.target.value } })}
-            className="border border-gray-200 rounded px-2 py-1.5 resize-y h-14"
-          />
-        </label>
-        <label className="flex flex-col gap-1">
-          <span className="text-gray-500 font-medium">Theme</span>
-          <select
-            value={rule.flash.theme}
-            onChange={(e) => onPatch({ flash: { ...rule.flash, theme: e.target.value as FlashTheme } })}
-            className="border border-gray-200 rounded px-2 py-1.5"
-          >
-            {(Object.keys(THEME_LABELS) as FlashTheme[]).map((t) => (
-              <option key={t} value={t}>
-                {THEME_LABELS[t]}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label className="flex flex-col gap-1">
-          <span className="text-gray-500 font-medium">Auto-close (ms, 0 = manual)</span>
-          <input
-            type="number"
-            min={0}
-            value={rule.flash.durationMs}
-            onChange={(e) =>
-              onPatch({ flash: { ...rule.flash, durationMs: Number(e.target.value) } })
-            }
-            className="border border-gray-200 rounded px-2 py-1.5"
-          />
-        </label>
-        <label className="flex items-center gap-2">
+    <Card className={cn(fired && 'ring-2 ring-good-600/40')}>
+      <CardBody className="p-4">
+        <div className="mb-3 flex items-center gap-2">
           <input
             type="checkbox"
-            checked={rule.flash.sound}
-            onChange={(e) => onPatch({ flash: { ...rule.flash, sound: e.target.checked } })}
+            checked={rule.enabled}
+            onChange={(e) => onPatch({ enabled: e.target.checked })}
+            title="Enabled"
+            className="h-4 w-4 accent-brand-700"
           />
-          <span className="text-gray-600">Siren sound</span>
-        </label>
-        <label className="flex items-center gap-2">
           <input
-            type="checkbox"
-            checked={rule.flash.showMatches}
-            onChange={(e) => onPatch({ flash: { ...rule.flash, showMatches: e.target.checked } })}
+            value={rule.name}
+            onChange={(e) => onPatch({ name: e.target.value })}
+            className="flex-1 border-b border-transparent bg-transparent font-semibold text-gray-900 outline-none hover:border-gray-200 focus:border-brand-500"
           />
-          <span className="text-gray-600">Show matched values</span>
-        </label>
-      </div>
-    </div>
+          {hasSample && fired && <Badge tone="good">fires</Badge>}
+          <Button variant="ghost" size="sm" onClick={onPreview}>
+            Preview
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onRemove}
+            className="text-danger-600 hover:bg-danger-50"
+          >
+            Delete
+          </Button>
+        </div>
+
+        {/* match mode + url filter */}
+        <div className="mb-3 flex flex-wrap items-center gap-3 text-xs text-gray-600">
+          <label className="flex items-center gap-1.5">
+            Match
+            <Select
+              value={rule.match}
+              onChange={(e) => onPatch({ match: e.target.value as 'all' | 'any' })}
+              className="w-auto py-1 text-xs"
+            >
+              <option value="any">ANY condition (OR)</option>
+              <option value="all">ALL conditions (AND)</option>
+            </Select>
+          </label>
+          <label className="flex items-center gap-1.5">
+            URL contains
+            <Input
+              value={rule.urlContains ?? ''}
+              onChange={(e) => onPatch({ urlContains: e.target.value })}
+              placeholder="(any response)"
+              className="w-40 py-1 font-mono text-xs"
+            />
+          </label>
+        </div>
+
+        {/* conditions */}
+        <div className="flex flex-col gap-2">
+          {rule.conditions.map((c, i) => (
+            <ConditionRow
+              key={i}
+              c={c}
+              idx={i}
+              onPatch={(p) => onPatchCond(i, p)}
+              onRemove={() => onRemoveCond(i)}
+              onPick={() => onPickTarget(i)}
+              picking={pickerActive(i)}
+            />
+          ))}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onAddCond}
+            className="mt-1 self-start text-xs font-medium text-brand-700 hover:text-brand-800"
+          >
+            + add condition
+          </Button>
+        </div>
+
+        {/* flash config */}
+        <div className="mt-4 grid grid-cols-2 gap-2 border-t border-gray-100 pt-3 text-xs">
+          <label className="col-span-2 flex flex-col gap-1">
+            <span className="font-medium text-gray-500">Flash title</span>
+            <Input
+              value={rule.flash.title}
+              onChange={(e) => onPatch({ flash: { ...rule.flash, title: e.target.value } })}
+              className="py-1.5 font-semibold"
+            />
+          </label>
+          <label className="col-span-2 flex flex-col gap-1">
+            <span className="font-medium text-gray-500">Message</span>
+            <Textarea
+              value={rule.flash.message}
+              onChange={(e) => onPatch({ flash: { ...rule.flash, message: e.target.value } })}
+              className="h-14 min-h-[3.5rem] py-1.5"
+            />
+          </label>
+          <label className="flex flex-col gap-1">
+            <span className="font-medium text-gray-500">Theme</span>
+            <Select
+              value={rule.flash.theme}
+              onChange={(e) =>
+                onPatch({ flash: { ...rule.flash, theme: e.target.value as FlashTheme } })
+              }
+              className="py-1.5"
+            >
+              {(Object.keys(THEME_LABELS) as FlashTheme[]).map((t) => (
+                <option key={t} value={t}>
+                  {THEME_LABELS[t]}
+                </option>
+              ))}
+            </Select>
+          </label>
+          <label className="flex flex-col gap-1">
+            <span className="font-medium text-gray-500">Auto-close (ms, 0 = manual)</span>
+            <Input
+              type="number"
+              min={0}
+              value={rule.flash.durationMs}
+              onChange={(e) =>
+                onPatch({ flash: { ...rule.flash, durationMs: Number(e.target.value) } })
+              }
+              className="py-1.5"
+            />
+          </label>
+          <label className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={rule.flash.sound}
+              onChange={(e) => onPatch({ flash: { ...rule.flash, sound: e.target.checked } })}
+              className="h-4 w-4 accent-brand-700"
+            />
+            <span className="text-gray-600">Siren sound</span>
+          </label>
+          <label className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={rule.flash.showMatches}
+              onChange={(e) => onPatch({ flash: { ...rule.flash, showMatches: e.target.checked } })}
+              className="h-4 w-4 accent-brand-700"
+            />
+            <span className="text-gray-600">Show matched values</span>
+          </label>
+        </div>
+      </CardBody>
+    </Card>
   );
 }
 
@@ -524,78 +535,88 @@ function ConditionRow({
   const needsValue = OPERATORS_NEEDING_VALUE.includes(c.op);
   const isList = c.op === 'in' || c.op === 'notIn';
   return (
-    <div className="flex flex-wrap items-start gap-1.5 bg-gray-50 border border-gray-100 rounded-lg p-2">
-      <span className="text-[10px] text-gray-400 mt-2 w-4">{idx + 1}</span>
-      <select
+    <div className="flex flex-wrap items-start gap-1.5 rounded-lg border border-gray-100 bg-gray-50 p-2">
+      <span className="mt-2 w-4 text-[10px] text-gray-400">{idx + 1}</span>
+      <Select
         value={c.mode}
         onChange={(e) => onPatch({ mode: e.target.value as 'key' | 'path' })}
-        className="text-xs border border-gray-200 rounded px-1 py-1.5"
+        className="w-auto py-1.5 text-xs"
         title="key = match anywhere by field name; path = exact dotted path"
       >
         <option value="key">key</option>
         <option value="path">path</option>
-      </select>
-      <input
+      </Select>
+      <Input
         value={c.field}
         onChange={(e) => onPatch({ field: e.target.value })}
         placeholder={c.mode === 'key' ? 'FACILITY_CODE' : 'data.x.y'}
-        className="text-xs border border-gray-200 rounded px-2 py-1.5 font-mono flex-1 min-w-[8rem]"
+        className="min-w-[8rem] flex-1 py-1.5 font-mono text-xs"
       />
-      <button
+      <Button
+        variant={picking ? 'primary' : 'outline'}
+        size="sm"
         onClick={onPick}
-        className={`text-[10px] px-2 py-1.5 rounded border ${
-          picking
-            ? 'bg-blue-600 text-white border-blue-600'
-            : 'border-gray-200 text-gray-500 hover:bg-gray-100'
-        }`}
         title="Pick this condition's field from the sample response"
       >
         pick
-      </button>
-      <select
+      </Button>
+      <Select
         value={c.op}
         onChange={(e) => onPatch({ op: e.target.value as Operator })}
-        className="text-xs border border-gray-200 rounded px-1 py-1.5"
+        className="w-auto py-1.5 text-xs"
       >
         {OPS.map((op) => (
           <option key={op} value={op}>
             {OPERATOR_LABELS[op]}
           </option>
         ))}
-      </select>
+      </Select>
       {needsValue &&
         (isList ? (
-          <textarea
+          <Textarea
             value={c.value ?? ''}
             onChange={(e) => onPatch({ value: e.target.value })}
             placeholder="one per line or comma separated"
-            className="text-xs border border-gray-200 rounded px-2 py-1.5 font-mono w-full h-14 resize-y"
+            className="h-14 min-h-[3.5rem] w-full py-1.5 font-mono text-xs"
           />
         ) : (
-          <input
+          <Input
             value={c.value ?? ''}
             onChange={(e) => onPatch({ value: e.target.value })}
             placeholder="value"
-            className="text-xs border border-gray-200 rounded px-2 py-1.5 font-mono min-w-[6rem]"
+            className="min-w-[6rem] py-1.5 font-mono text-xs"
           />
         ))}
-      <label className="flex items-center gap-1 text-[10px] text-gray-500 mt-1.5" title="Case-insensitive">
+      <label
+        className="mt-1.5 flex items-center gap-1 text-[10px] text-gray-500"
+        title="Case-insensitive"
+      >
         <input
           type="checkbox"
           checked={c.caseInsensitive !== false}
           onChange={(e) => onPatch({ caseInsensitive: e.target.checked })}
+          className="h-3.5 w-3.5 accent-brand-700"
         />
         Aa
       </label>
-      <button onClick={onRemove} className="text-xs text-red-400 hover:text-red-600 mt-1.5">
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={onRemove}
+        className="mt-1.5 text-xs text-danger-600 hover:text-danger-700"
+        title="Remove condition"
+      >
         ✕
-      </button>
+      </Button>
     </div>
   );
 }
 
 /* ────────────────────────────────────────────────────────────────
    Flash preview (mirrors the extension overlay, roughly)
+   NOTE: the gradient/theme styling below intentionally mirrors the real
+   browser-extension overlay, so these colors are functional (a faithful
+   preview) rather than ad-hoc page chrome — kept as inline styles.
    ──────────────────────────────────────────────────────────────── */
 function FlashPreview({ rule, onClose }: { rule: Rule; onClose: () => void }) {
   useEffect(() => {

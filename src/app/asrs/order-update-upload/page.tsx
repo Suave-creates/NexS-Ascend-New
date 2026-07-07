@@ -3,7 +3,14 @@
 'use client';
 
 import { useState } from 'react';
-import { Card, PageHeader, Field, Button } from '@/components/ui';
+import {
+  Card,
+  CardBody,
+  PageHeader,
+  Field,
+  Button,
+  Alert,
+} from '@/components/ui';
 
 export default function OrderUpdateCsvUploadPage() {
   const [file, setFile] = useState<File | null>(null);
@@ -45,9 +52,7 @@ export default function OrderUpdateCsvUploadPage() {
 
       const data = await res.json();
 
-      setMessage(
-        `Successfully uploaded ${data.rowsInserted} rows.`
-      );
+      setMessage(`Successfully uploaded ${data.rowsInserted} rows.`);
     } catch (err: any) {
       console.error('CSV upload error:', err);
       setError(err.message || 'Upload error');
@@ -58,11 +63,14 @@ export default function OrderUpdateCsvUploadPage() {
   };
 
   return (
-    <div className="flex justify-center items-start py-8">
-      <Card className="w-full max-w-lg text-left">
-        <div className="p-6">
-          <PageHeader title="Order Update Dashboard – CSV Upload" />
+    <div className="mx-auto max-w-2xl space-y-6">
+      <PageHeader
+        title="Order Update Dashboard – CSV Upload"
+        subtitle="Upload a CSV file to update the order dashboard"
+      />
 
+      <Card>
+        <CardBody className="space-y-4">
           <form onSubmit={handleSubmit} className="space-y-4">
             <Field label="Select CSV File">
               <input
@@ -77,24 +85,15 @@ export default function OrderUpdateCsvUploadPage() {
             </Field>
 
             <div className="flex justify-end">
-              <Button type="submit" disabled={loading}>
-                {loading ? 'Uploading…' : 'Upload'}
+              <Button type="submit" loading={loading} disabled={loading}>
+                Upload
               </Button>
             </div>
           </form>
 
-          {message && (
-            <p className="mt-4 text-green-700 break-words">
-              {message}
-            </p>
-          )}
-
-          {error && (
-            <p className="mt-4 text-red-700 break-words">
-              {error}
-            </p>
-          )}
-        </div>
+          {message && <Alert tone="success">{message}</Alert>}
+          {error && <Alert tone="error">{error}</Alert>}
+        </CardBody>
       </Card>
     </div>
   );

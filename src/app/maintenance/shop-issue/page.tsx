@@ -1,6 +1,15 @@
 'use client';
 import React, { useState, useEffect } from 'react';
-import { Card, PageHeader, Field, Input, Select, Button, Alert } from '@/components/ui';
+import {
+  Card,
+  CardBody,
+  PageHeader,
+  Field,
+  Input,
+  Select,
+  Button,
+  Alert,
+} from '@/components/ui';
 
 const DEPARTMENTS = [
   'BH-M-ASRS - ASRS',
@@ -89,147 +98,150 @@ export default function MaintenanceShopIssuePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-start justify-center py-8">
-      <Card className="relative w-full max-w-md p-6 text-left">
-        <PageHeader title="Maintenance: Shop Issue" />
-        <form onSubmit={handleSubmit} className="space-y-4 text-gray-900">
+    <div className="mx-auto max-w-md space-y-6">
+      <PageHeader
+        title="Maintenance: Shop Issue"
+        subtitle="Log a spare part issue against a department and machine"
+      />
 
-          {/* PID */}
-          <Field label="PID" htmlFor="pid">
-            <Input
-              id="pid"
-              type="text"
-              value={pid}
-              onChange={e => setPid(e.target.value)}
-              required
-            />
-          </Field>
-
-          {/* Spare Part Name */}
-          <Field label="Spare Part Name" htmlFor="partName">
-            <Input
-              id="partName"
-              type="text"
-              value={partName}
-              onChange={e => setPartName(e.target.value)}
-              required
-            />
-          </Field>
-
-          {/* Quantity & Unit */}
-          <div className="flex space-x-4">
-            <Field label="Quantity" htmlFor="quantity" className="flex-1">
+      <Card>
+        <CardBody className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {/* PID */}
+            <Field label="PID" htmlFor="pid">
               <Input
-                id="quantity"
-                type="number"
-                min="0"
-                value={quantity}
-                onChange={e => setQuantity(Number(e.target.value))}
+                id="pid"
+                type="text"
+                value={pid}
+                onChange={e => setPid(e.target.value)}
                 required
               />
             </Field>
-            <Field label="Unit" htmlFor="unit" className="flex-1">
-              <Select
-                id="unit"
-                value={unit}
-                onChange={e => setUnit(e.target.value)}
-              >
-                <option value="nos">nos</option>
-                <option value="pcs">pcs</option>
-                <option value="ltr">ltr</option>
-                <option value="ea">ea</option>
-                <option value="set">set</option>
-                <option value="mtr">mtr</option>
-                <option value="roll">roll</option>
-                <option value="pack">pack</option>
-                <option value="kg">kg</option>
-              </Select>
-            </Field>
-          </div>
 
-          {/* Rate & Category */}
-          <div className="flex space-x-4">
-            <Field label="Rate" htmlFor="rate" className="flex-1">
+            {/* Spare Part Name */}
+            <Field label="Spare Part Name" htmlFor="partName">
               <Input
-                id="rate"
-                type="number"
-                min="0"
-                value={rate}
-                onChange={e => setRate(Number(e.target.value))}
+                id="partName"
+                type="text"
+                value={partName}
+                onChange={e => setPartName(e.target.value)}
                 required
               />
             </Field>
-            <Field label="Category" htmlFor="category" className="flex-1">
-              <Select
-                id="category"
-                value={category}
-                onChange={e => setCategory(e.target.value)}
-              >
-                <option value="R&M">R&M</option>
-                <option value="FOC">FOC</option>
-                <option value="Tool">Tool</option>
-                <option value="Consumable">Consumable</option>
-              </Select>
+
+            {/* Quantity & Unit */}
+            <div className="flex gap-4">
+              <Field label="Quantity" htmlFor="quantity" className="flex-1">
+                <Input
+                  id="quantity"
+                  type="number"
+                  min="0"
+                  value={quantity}
+                  onChange={e => setQuantity(Number(e.target.value))}
+                  required
+                />
+              </Field>
+              <Field label="Unit" htmlFor="unit" className="flex-1">
+                <Select
+                  id="unit"
+                  value={unit}
+                  onChange={e => setUnit(e.target.value)}
+                >
+                  <option value="nos">nos</option>
+                  <option value="pcs">pcs</option>
+                  <option value="ltr">ltr</option>
+                  <option value="ea">ea</option>
+                  <option value="set">set</option>
+                  <option value="mtr">mtr</option>
+                  <option value="roll">roll</option>
+                  <option value="pack">pack</option>
+                  <option value="kg">kg</option>
+                </Select>
+              </Field>
+            </div>
+
+            {/* Rate & Category */}
+            <div className="flex gap-4">
+              <Field label="Rate" htmlFor="rate" className="flex-1">
+                <Input
+                  id="rate"
+                  type="number"
+                  min="0"
+                  value={rate}
+                  onChange={e => setRate(Number(e.target.value))}
+                  required
+                />
+              </Field>
+              <Field label="Category" htmlFor="category" className="flex-1">
+                <Select
+                  id="category"
+                  value={category}
+                  onChange={e => setCategory(e.target.value)}
+                >
+                  <option value="R&M">R&M</option>
+                  <option value="FOC">FOC</option>
+                  <option value="Tool">Tool</option>
+                  <option value="Consumable">Consumable</option>
+                </Select>
+              </Field>
+            </div>
+
+            {/* Destination */}
+            <Field label="Destination of Use / Machine" htmlFor="destination">
+              <Input
+                id="destination"
+                type="text"
+                value={destination}
+                onChange={e => setDestination(e.target.value)}
+                required
+              />
             </Field>
-          </div>
 
-          {/* Destination */}
-          <Field label="Destination of Use / Machine" htmlFor="destination">
-            <Input
-              id="destination"
-              type="text"
-              value={destination}
-              onChange={e => setDestination(e.target.value)}
-              required
-            />
-          </Field>
-
-          {/* Department */}
-          <Field label="Department" htmlFor="department">
-            <Select
-              id="department"
-              value={department}
-              onChange={e => setDepartment(e.target.value)}
-            >
-              {DEPARTMENTS.map(d => (
-                <option key={d} value={d}>{d}</option>
-              ))}
-            </Select>
-          </Field>
-
-          {/* Currency & Total */}
-          <div className="flex space-x-4 items-end">
-            <Field label="Currency" htmlFor="currency" className="w-24">
+            {/* Department */}
+            <Field label="Department" htmlFor="department">
               <Select
-                id="currency"
-                value={currency}
-                onChange={e => setCurrency(e.target.value)}
+                id="department"
+                value={department}
+                onChange={e => setDepartment(e.target.value)}
               >
-                {CURRENCIES.map(c => (
-                  <option key={c.value} value={c.value}>
-                    {c.label}
+                {DEPARTMENTS.map(d => (
+                  <option key={d} value={d}>
+                    {d}
                   </option>
                 ))}
               </Select>
             </Field>
-            <Field label="Total" className="flex-1">
-              <div className="w-full border border-gray-300 rounded px-3 py-2 bg-gray-100">
-                {total.toFixed(2)}
-              </div>
-            </Field>
-          </div>
 
-          {/* Submit */}
-          <Button type="submit" className="w-full">
-            Log Issue
-          </Button>
-        </form>
+            {/* Currency & Total */}
+            <div className="flex items-end gap-4">
+              <Field label="Currency" htmlFor="currency" className="w-24">
+                <Select
+                  id="currency"
+                  value={currency}
+                  onChange={e => setCurrency(e.target.value)}
+                >
+                  {CURRENCIES.map(c => (
+                    <option key={c.value} value={c.value}>
+                      {c.label}
+                    </option>
+                  ))}
+                </Select>
+              </Field>
+              <Field label="Total" className="flex-1">
+                <div className="w-full rounded-md border border-gray-300 bg-gray-100 px-3 py-2 text-gray-900">
+                  {total.toFixed(2)}
+                </div>
+              </Field>
+            </div>
 
-        {message && (
-          <Alert tone="success" className="mt-4">
-            {message}
-          </Alert>
-        )}
+            {/* Submit */}
+            <Button type="submit" className="w-full">
+              Log Issue
+            </Button>
+          </form>
+
+          {message && <Alert tone="success">{message}</Alert>}
+        </CardBody>
       </Card>
     </div>
   );

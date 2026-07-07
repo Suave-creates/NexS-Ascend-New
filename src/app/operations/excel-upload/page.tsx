@@ -2,7 +2,14 @@
 'use client';
 
 import { useState } from 'react';
-import { Card, PageHeader, Field, Button } from '@/components/ui';
+import {
+  Card,
+  CardBody,
+  PageHeader,
+  Field,
+  Button,
+  Alert,
+} from '@/components/ui';
 
 export default function OperationsExcelUploadPage() {
   const [file, setFile] = useState<File | null>(null);
@@ -38,11 +45,14 @@ export default function OperationsExcelUploadPage() {
   };
 
   return (
-    <div className="flex justify-center items-start py-8">
-      <Card className="w-full max-w-lg text-left">
-        <div className="p-6">
-          <PageHeader title="Operations Excel Upload" />
+    <div className="mx-auto max-w-2xl space-y-6">
+      <PageHeader
+        title="Operations Excel Upload"
+        subtitle="Import operations data from an Excel workbook (.xlsx / .xls)."
+      />
 
+      <Card>
+        <CardBody className="space-y-4">
           <form onSubmit={handleSubmit} className="space-y-4">
             <Field label="Select Excel File" htmlFor="file">
               <input
@@ -61,13 +71,9 @@ export default function OperationsExcelUploadPage() {
             </div>
           </form>
 
-          {message && (
-            <p className="mt-4 text-green-700">{message}</p>
-          )}
-          {error && (
-            <p className="mt-4 text-red-700">{error}</p>
-          )}
-        </div>
+          {message && <Alert tone="success">{message}</Alert>}
+          {error && <Alert tone="error">{error}</Alert>}
+        </CardBody>
       </Card>
     </div>
   );

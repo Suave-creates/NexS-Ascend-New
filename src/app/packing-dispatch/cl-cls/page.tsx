@@ -108,6 +108,7 @@ export default function fr0Page() {
             label="Last 1 hr scans"
             value={hourCount}
             sub={stationId}
+            tone="navy"
           />
         )}
 
@@ -132,6 +133,7 @@ export default function fr0Page() {
               value={scanId}
               onChange={e => setScanId(e.target.value.toUpperCase())}
               placeholder="SNXS + 16 digits"
+              autoFocus
             />
           </Field>
 

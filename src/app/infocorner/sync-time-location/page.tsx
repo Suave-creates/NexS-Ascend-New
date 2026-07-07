@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import { FiPlay, FiDownload, FiGrid } from "react-icons/fi";
 import { cn } from "@/lib/cn";
 import {
   PageHeader,
@@ -10,6 +11,7 @@ import {
   Button,
   Input,
   Textarea,
+  Alert,
   Badge,
   StatCard,
   Table,
@@ -182,9 +184,9 @@ function ChunkVisualizer({ total, done }: { total: number; done: number }) {
           className={cn(
             "rounded border px-1.5 py-0.5 font-mono text-[10px] transition-colors",
             i < done
-              ? "border-green-300 bg-green-50 text-green-700"
+              ? "border-good-600/40 bg-good-50 text-good-600"
               : i === done
-              ? "border-amber-300 bg-amber-50 text-amber-700"
+              ? "border-gold-500/50 bg-gold-100 text-gold-700"
               : "border-gray-200 bg-gray-50 text-gray-400",
           )}
         >
@@ -285,33 +287,33 @@ export default function PicklistChunked() {
     try { await exportXlsx(filtered); } finally { setXlsxBusy(false); }
   }
 
-  const dotColor =
-    status === "loading" ? "#e8b400"
-    : status === "success" ? "#1a7a4a"
-    : status === "error"   ? "#c0392b"
-    : "#d8dde8";
+  const statusTone =
+    status === "success" ? "success"
+    : status === "error"   ? "error"
+    : status === "loading" ? "notice"
+    : "info";
 
   return (
-    <div className="space-y-4">
+    <div className="mx-auto max-w-6xl space-y-6">
 
       {/* Header */}
       <PageHeader
         title="Picklist Chunked Query"
-        subtitle="POST /api/picklist/chunked — picking.picklist_order_item"
+        subtitle="POST /api/order-info/sync-time-location — picking.picklist_order_item"
         actions={<Badge tone="navy" className="font-mono">CHUNK_SIZE = {CHUNK_SIZE}</Badge>}
       />
 
       {/* Stats */}
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-        <StatCard label="Shipment IDs"  value={parsedIds.length} sub="in request payload" />
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <StatCard label="Shipment IDs"  value={parsedIds.length} sub="in request payload" tone="navy" />
         <StatCard label="Chunks"        value={parsedIds.length ? numChunks : 0} sub="sequential SQL queries" tone="gold" />
-        <StatCard label="Rows Returned" value={totalRows} sub="from DB" tone={totalRows > 0 ? 'good' : 'navy'} />
+        <StatCard label="Rows Returned" value={totalRows} sub="from DB" tone={totalRows > 0 ? "good" : "navy"} />
       </div>
 
       {/* Config */}
       <Card>
         <CardHeader>
-          <span className="text-sm font-semibold text-gray-700">Request Configuration</span>
+          <span className="text-sm font-semibold text-brand-700">Request Configuration</span>
         </CardHeader>
         <CardBody className="space-y-3">
           <label className="block text-xs font-medium text-gray-500">shipment_ids — comma-separated or one per line</label>
@@ -323,11 +325,8 @@ export default function PicklistChunked() {
             onChange={(e) => setIdsRaw(e.target.value)}
           />
           <div className="flex flex-wrap items-center gap-2">
-            <Button onClick={runQuery} disabled={status === "loading"}>
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-                <polygon points="5 3 19 12 5 21 5 3"/>
-              </svg>
+            <Button onClick={runQuery} loading={status === "loading"} disabled={status === "loading"}>
+              <FiPlay className="h-3.5 w-3.5" />
               Run Query
             </Button>
             <Button variant="outline" onClick={loadSample}>Load Sample IDs</Button>
@@ -342,7 +341,7 @@ export default function PicklistChunked() {
               </div>
               <div className="h-1.5 overflow-hidden rounded-full bg-gray-100">
                 <div
-                  className="h-full rounded-full bg-brand-600 transition-all duration-300"
+                  className="h-full rounded-full bg-brand-700 transition-all duration-300"
                   style={{ width: `${progress}%` }}
                 />
               </div>
@@ -350,20 +349,14 @@ export default function PicklistChunked() {
             </div>
           )}
 
-          <div className="flex items-center gap-2.5 border-t border-gray-100 pt-3">
-            <span
-              className="h-2 w-2 shrink-0 rounded-full"
-              style={{ background: dotColor }}
-            />
-            <span className="text-xs text-gray-500">{statusMsg}</span>
-          </div>
+          <Alert tone={statusTone}>{statusMsg}</Alert>
         </CardBody>
       </Card>
 
       {/* Results */}
       <Card>
         <CardHeader>
-          <div className="flex items-center gap-2 text-sm font-semibold text-gray-700">
+          <div className="flex items-center gap-2 text-sm font-semibold text-brand-700">
             Results
             <Badge tone="navy" className="font-mono">{filtered.length} rows</Badge>
           </div>
@@ -371,25 +364,17 @@ export default function PicklistChunked() {
             {results.length > 0 && (
               <>
                 <Button variant="outline" size="sm" onClick={() => exportCsv(filtered)}>
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                    <polyline points="7 10 12 15 17 10"/>
-                    <line x1="12" y1="15" x2="12" y2="3"/>
-                  </svg>
+                  <FiDownload className="h-3 w-3" />
                   CSV
                 </Button>
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={handleExcel}
+                  loading={xlsxBusy}
                   disabled={xlsxBusy}
                 >
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                    <rect x="3" y="3" width="18" height="18" rx="2"/>
-                    <path d="M3 9h18M3 15h18M9 3v18"/>
-                  </svg>
+                  <FiGrid className="h-3 w-3" />
                   {xlsxBusy ? "Exporting…" : "Excel"}
                 </Button>
               </>
@@ -405,20 +390,16 @@ export default function PicklistChunked() {
 
         {results.length === 0 ? (
           <div className="flex flex-col items-center justify-center px-5 py-12">
-            <svg width="40" height="40" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" strokeWidth="1.5" className="mb-2.5 text-gray-300">
-              <rect x="3" y="3" width="18" height="18" rx="2"/>
-              <path d="M3 9h18M9 21V9"/>
-            </svg>
+            <FiGrid className="mb-2.5 h-10 w-10 text-gray-300" />
             <p className="text-sm text-gray-500">
               No results yet — run a query to see picklist data
             </p>
           </div>
         ) : (
-          <div className="p-4">
+          <CardBody>
             <Table>
               <THead>
-                <tr>
+                <TR>
                   {[
                     "#", "Increment ID", "Product ID", "Shipment ID",
                     "SCM Created At", "Updated At",
@@ -426,7 +407,7 @@ export default function PicklistChunked() {
                     "Item Type", "Loc Type", "Fulfill Type",
                     "Facility", "Order State", "JIT", "Repick Status", "Repick #",
                   ].map((h) => <TH key={h}>{h}</TH>)}
-                </tr>
+                </TR>
               </THead>
               <TBody>
                 {filtered.map((row, i) => (
@@ -461,10 +442,9 @@ export default function PicklistChunked() {
                 ))}
               </TBody>
             </Table>
-          </div>
+          </CardBody>
         )}
       </Card>
     </div>
   );
 }
-

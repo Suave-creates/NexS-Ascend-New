@@ -1,7 +1,15 @@
 'use client';
 
 import { useState, useEffect, useTransition } from 'react';
-import { Card, CardBody, PageHeader, Input, Alert } from '@/components/ui';
+import {
+  Card,
+  CardBody,
+  PageHeader,
+  Input,
+  Alert,
+  StatCard,
+  Spinner,
+} from '@/components/ui';
 import { cn } from '@/lib/cn';
 
 /* ================= TYPES ================= */
@@ -58,9 +66,7 @@ export default function BarcodeScannerPage() {
   /* ================= DERIVED VALUES ================= */
 
   const last3Pid =
-    currentScan?.pid !== undefined
-      ? String(currentScan.pid).slice(-3)
-      : '';
+    currentScan?.pid !== undefined ? String(currentScan.pid).slice(-3) : '';
 
   // Frontend only consumes backend decision
   const isGood = currentScan?.status_color === 'GREEN';
@@ -68,12 +74,15 @@ export default function BarcodeScannerPage() {
   /* ================= RENDER ================= */
 
   return (
-    <div className="flex min-h-screen flex-col space-y-6">
-      <PageHeader title="IMS BARCODE CONDITION SCANNER" />
+    <div className="mx-auto max-w-6xl space-y-6">
+      <PageHeader
+        title="IMS Barcode Condition Scanner"
+        subtitle="Scan a barcode or paste a link to check item condition and availability"
+      />
 
       {/* ================= SCANNER INPUT ================= */}
       <Card className="mx-auto w-full max-w-2xl">
-        <CardBody>
+        <CardBody className="space-y-3">
           <Input
             autoFocus
             type="text"
@@ -84,13 +93,14 @@ export default function BarcodeScannerPage() {
           />
 
           {isPending && (
-            <p className="mt-2 text-center text-sm text-gray-500">
+            <div className="flex items-center justify-center gap-2 text-sm text-gray-500">
+              <Spinner />
               Processing scan…
-            </p>
+            </div>
           )}
 
           {error && (
-            <Alert tone="error" className="mt-3 text-center" role="alert">
+            <Alert tone="error" role="alert">
               {error}
             </Alert>
           )}
@@ -99,9 +109,8 @@ export default function BarcodeScannerPage() {
 
       {/* ================= VISIBILITY PANEL ================= */}
       {currentScan && (
-        <div className="mt-8 flex flex-1 items-center justify-center">
-          <Card className="w-full max-w-5xl rounded-3xl p-10 text-center shadow-xl">
-
+        <Card className="mx-auto w-full max-w-5xl">
+          <CardBody className="space-y-8 p-6 text-center sm:p-10">
             {/* ===== HUGE PID (LAST 3 DIGITS) ===== */}
             <div
               className={cn(
@@ -112,54 +121,37 @@ export default function BarcodeScannerPage() {
               {last3Pid}
             </div>
 
-            {/* ===== METADATA GRID (4 BOXES) ===== */}
-            <div className="mt-8 grid grid-cols-1 gap-6 text-sm md:grid-cols-4">
-
-              {/* 1️⃣ Location */}
-              <div className="rounded-xl border border-gray-200 p-5">
-                <div className="mb-1 text-gray-500">Location</div>
-                <div className="text-xl font-semibold">
-                  {currentScan.location || '—'}
-                </div>
-              </div>
-
-              {/* 2️⃣ Barcode */}
-              <div className="rounded-xl border border-gray-200 p-5">
-                <div className="mb-1 text-gray-500">Barcode</div>
-                <div className="break-all font-mono text-xl">
-                  {currentScan.barcode}
-                </div>
-              </div>
-
-              {/* 3️⃣ PID */}
-              <div className="rounded-xl border border-gray-200 p-5">
-                <div className="mb-1 text-gray-500">PID</div>
-                <div className="text-xl font-semibold">
-                  {currentScan.pid}
-                </div>
-              </div>
-
-              {/* 4️⃣ Condition */}
-              <div className="rounded-xl border border-gray-200 p-5">
-                <div className="mb-1 text-gray-500">Condition</div>
-                <div
-                  className={cn(
-                    'text-xl font-bold',
-                    isGood ? 'text-good-600' : 'text-danger-600',
-                  )}
-                >
-                  {currentScan.condition}
-                </div>
-              </div>
+            {/* ===== METADATA GRID (4 TILES) ===== */}
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-4">
+              <StatCard
+                label="Location"
+                value={currentScan.location || '—'}
+                tone="navy"
+              />
+              <StatCard
+                label="Barcode"
+                value={
+                  <span className="break-all font-mono text-xl">
+                    {currentScan.barcode}
+                  </span>
+                }
+                tone="navy"
+              />
+              <StatCard label="PID" value={currentScan.pid} tone="navy" />
+              <StatCard
+                label="Condition"
+                value={currentScan.condition}
+                tone={isGood ? 'good' : 'danger'}
+              />
             </div>
 
-            {/* ===== STATUS / AVAILABILITY (FONT +10%) ===== */}
-            <div className="mt-6 text-sm text-gray-400">
-              Status: {currentScan.status} | Availability: {currentScan.availability}
+            {/* ===== STATUS / AVAILABILITY ===== */}
+            <div className="text-sm text-gray-400">
+              Status: {currentScan.status} | Availability:{' '}
+              {currentScan.availability}
             </div>
-
-          </Card>
-        </div>
+          </CardBody>
+        </Card>
       )}
     </div>
   );

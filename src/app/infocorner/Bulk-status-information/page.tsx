@@ -1,16 +1,18 @@
-//src/app/infocorner/Bulk-status-information/Page.tsx
+//src/app/infocorner/Bulk-status-information/page.tsx
 
 'use client';
 
 import { useState, useTransition, useMemo, useRef } from 'react';
 import {
   Card,
-  CardHeader,
   CardBody,
   PageHeader,
   Button,
   Input,
+  Field,
   Alert,
+  Badge,
+  StatCard,
   Table,
   THead,
   TBody,
@@ -56,6 +58,12 @@ export default function BulkStatusPage() {
   const scannedValidSet = useMemo(
     () => new Set(scans.filter((s) => s.valid).map((s) => s.barcode)),
     [scans]
+  );
+
+  const matchedCount = useMemo(
+    () =>
+      results.filter((r) => r.barcode && scannedValidSet.has(r.barcode)).length,
+    [results, scannedValidSet]
   );
 
   const handleFetch = () => {
@@ -122,50 +130,61 @@ export default function BulkStatusPage() {
   };
 
   return (
-    <div className="space-y-6">
-      <PageHeader title="BULK STATUS + PHYSICAL SCAN CHECK" />
+    <div className="mx-auto max-w-7xl space-y-6">
+      <PageHeader
+        title="Bulk Status + Physical Scan Check"
+        subtitle="Fetch all products at a tray / location and validate them against a live physical scan session."
+      />
 
       {/* Search Card */}
-      <Card className="mx-auto max-w-4xl">
-        <CardBody>
-          <div className="flex justify-center gap-4">
-            <Input
-              value={locationId}
-              onChange={(e) => setLocationId(e.target.value)}
-              placeholder="Scan Tray / Location ID"
-              className="max-w-md"
-            />
+      <Card>
+        <CardBody className="space-y-4">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
+            <Field label="Tray / Location ID" className="flex-1">
+              <Input
+                value={locationId}
+                onChange={(e) => setLocationId(e.target.value)}
+                placeholder="Scan Tray / Location ID"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') handleFetch();
+                }}
+                autoFocus
+              />
+            </Field>
 
-            <Button
-              onClick={handleFetch}
-              disabled={isPending}
-              className="px-6"
-            >
+            <Button onClick={handleFetch} loading={isPending}>
               {isPending ? 'Fetching…' : 'Fetch'}
             </Button>
           </div>
 
-          {error && (
-            <Alert tone="error" className="mt-4 text-center">
-              {error}
-            </Alert>
-          )}
+          {error && <Alert tone="error">{error}</Alert>}
         </CardBody>
       </Card>
 
       {/* Main Content */}
       {results.length > 0 && (
-        <div className="mx-auto grid max-w-7xl grid-cols-3 gap-6">
-          {/* Results Table */}
-          <Card className="col-span-2">
-            <div className="overflow-auto p-4">
+        <>
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+            <StatCard label="Products" value={results.length} tone="navy" />
+            <StatCard label="Scanned" value={scans.length} tone="gold" />
+            <StatCard label="Matched" value={matchedCount} tone="good" />
+            <StatCard
+              label="Remaining"
+              value={Math.max(results.length - matchedCount, 0)}
+              tone="notice"
+            />
+          </div>
+
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+            {/* Results Table */}
+            <Card className="lg:col-span-2">
               <Table>
                 <THead>
-                  <tr>
+                  <TR>
                     <TH>Product ID</TH>
                     <TH>Barcode</TH>
                     <TH>Status</TH>
-                  </tr>
+                  </TR>
                 </THead>
 
                 <TBody>
@@ -178,55 +197,56 @@ export default function BulkStatusPage() {
                           : undefined
                       }
                     >
-                      <TD>
-                        {r.product_id}
-                      </TD>
-                      <TD>
-                        {r.barcode ?? '-'}
-                      </TD>
-                      <TD>
-                        {r.status}
-                      </TD>
+                      <TD>{r.product_id}</TD>
+                      <TD>{r.barcode ?? '-'}</TD>
+                      <TD>{r.status}</TD>
                     </TR>
                   ))}
                 </TBody>
               </Table>
-            </div>
-          </Card>
+            </Card>
 
-          {/* Scan Session Panel */}
-          <Card>
-            <CardBody>
-              <h3 className="mb-3 font-semibold text-gray-700">
-                Scan Validation (Session)
-              </h3>
+            {/* Scan Session Panel */}
+            <Card>
+              <CardBody className="space-y-3">
+                <h3 className="font-semibold text-brand-700">
+                  Scan Validation (Session)
+                </h3>
 
-              <Input
-                value={scanInput}
-                onChange={(e) => handleScanChange(e.target.value)}
-                placeholder="Scan barcode / QR"
-                className="mb-3"
-                autoFocus
-              />
+                <Field label="Scan barcode / QR">
+                  <Input
+                    value={scanInput}
+                    onChange={(e) => handleScanChange(e.target.value)}
+                    placeholder="Scan barcode / QR"
+                    autoFocus
+                  />
+                </Field>
 
-              <div className="max-h-[400px] space-y-2 overflow-auto">
-                {scans.map((s, i) => (
-                  <div
-                    key={i}
-                    className={cn(
-                      'rounded px-3 py-2 text-sm font-medium',
-                      s.valid
-                        ? 'bg-good-50 text-good-600'
-                        : 'bg-danger-50 text-danger-600',
-                    )}
-                  >
-                    {s.barcode}
-                  </div>
-                ))}
-              </div>
-            </CardBody>
-          </Card>
-        </div>
+                <div className="max-h-[400px] space-y-2 overflow-auto">
+                  {scans.length === 0 && (
+                    <p className="text-sm text-gray-500">No scans yet.</p>
+                  )}
+                  {scans.map((s, i) => (
+                    <div
+                      key={i}
+                      className={cn(
+                        'flex items-center justify-between gap-2 rounded-lg px-3 py-2 text-sm font-medium',
+                        s.valid
+                          ? 'bg-good-50 text-good-600'
+                          : 'bg-danger-50 text-danger-600',
+                      )}
+                    >
+                      <span className="truncate">{s.barcode}</span>
+                      <Badge tone={s.valid ? 'good' : 'danger'}>
+                        {s.valid ? 'Valid' : 'Invalid'}
+                      </Badge>
+                    </div>
+                  ))}
+                </div>
+              </CardBody>
+            </Card>
+          </div>
+        </>
       )}
     </div>
   );

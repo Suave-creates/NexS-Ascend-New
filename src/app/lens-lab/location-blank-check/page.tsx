@@ -9,7 +9,10 @@ import {
   PageHeader,
   Button,
   Input,
+  Field,
   Alert,
+  Badge,
+  Spinner,
   Table,
   THead,
   TBody,
@@ -165,25 +168,26 @@ export default function LocationBlankCheckPage() {
 
   if (!operatorConfirmed) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
-        <Card className="w-full max-w-sm">
+      <div className="flex min-h-full items-center justify-center">
+        <Card variant="floating" className="w-full max-w-sm">
           <CardBody className="flex flex-col gap-4">
-            <h1 className="text-2xl font-bold text-center text-brand-700">
-              LOCATION BLANK CHECK
-            </h1>
-
-            <p className="text-center text-gray-500 text-sm">
-              Enter your Operator ID to begin
-            </p>
-
-            <Input
-              value={operatorId}
-              onChange={(e) => setOperatorId(e.target.value.toUpperCase())}
-              onKeyDown={(e) => e.key === 'Enter' && handleOperatorConfirm()}
-              placeholder="Operator ID"
-              className="py-3 text-lg text-center tracking-widest"
-              autoFocus
+            <PageHeader
+              title="Location Blank Check"
+              subtitle="Enter your Operator ID to begin"
+              className="text-center"
             />
+
+            <Field label="Operator ID" htmlFor="operatorId">
+              <Input
+                id="operatorId"
+                value={operatorId}
+                onChange={(e) => setOperatorId(e.target.value.toUpperCase())}
+                onKeyDown={(e) => e.key === 'Enter' && handleOperatorConfirm()}
+                placeholder="Operator ID"
+                className="py-3 text-center text-lg tracking-widest"
+                autoFocus
+              />
+            </Field>
 
             <Button
               onClick={handleOperatorConfirm}
@@ -203,117 +207,120 @@ export default function LocationBlankCheckPage() {
 
   return (
     <div
-      className="min-h-screen bg-gray-50 p-6"
+      className="mx-auto max-w-6xl space-y-6"
       onClick={() => scanInputRef.current?.focus()}
     >
-      <PageHeader title="LOCATION BLANK CHECK" className="justify-center text-center" />
+      <PageHeader
+        title="Location Blank Check"
+        subtitle="Scan a tray to validate its blanks"
+        actions={
+          <div className="flex items-center gap-3 rounded-full border border-gray-200 bg-white px-5 py-2 text-sm shadow-sm">
+            <span className="text-gray-500">Operator</span>
+            <span className="font-bold tracking-wide text-brand-700">
+              {operatorId}
+            </span>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-danger-600"
+              onClick={() => {
+                setOperatorConfirmed(false);
+                setOperatorId('');
+                setTrayLogs([]);
+                setError(null);
+              }}
+            >
+              Change
+            </Button>
+          </div>
+        }
+      />
 
-      <div className="flex justify-center mb-6">
-        <div className="flex items-center gap-3 bg-white border rounded-full px-5 py-2 shadow-sm text-sm">
-          <span className="text-gray-500">Operator</span>
-          <span className="font-bold tracking-wide text-brand-700">{operatorId}</span>
-
-          <button
-            onClick={() => {
-              setOperatorConfirmed(false);
-              setOperatorId('');
-              setTrayLogs([]);
-              setError(null);
-            }}
-            className="text-red-500 hover:underline text-xs"
-          >
-            Change
-          </button>
-        </div>
-      </div>
-
-      <Card className="max-w-3xl mx-auto mb-6">
-        <CardBody>
-          <Input
-            ref={scanInputRef}
-            value={locationId}
-            onChange={(e) => handleScanChange(e.target.value)}
-            placeholder="Scan Tray (CT12345)"
-            className="py-3 text-lg"
-            disabled={isPending}
-            autoFocus
-          />
+      <Card className="mx-auto max-w-3xl">
+        <CardBody className="space-y-4">
+          <Field label="Scan Tray" htmlFor="scanTray">
+            <Input
+              id="scanTray"
+              ref={scanInputRef}
+              value={locationId}
+              onChange={(e) => handleScanChange(e.target.value)}
+              placeholder="Scan Tray (CT12345)"
+              className="py-3 text-lg"
+              disabled={isPending}
+              autoFocus
+            />
+          </Field>
 
           {isPending && (
-            <p className="text-center text-gray-400 mt-3 text-sm animate-pulse">
-              Fetching...
-            </p>
+            <div className="flex items-center justify-center gap-2 text-sm text-gray-500">
+              <Spinner />
+              <span>Fetching…</span>
+            </div>
           )}
 
-          {error && (
-            <Alert tone="error" className="mt-4 text-center">{error}</Alert>
-          )}
+          {error && <Alert tone="error">{error}</Alert>}
         </CardBody>
       </Card>
 
       {trayLogs.length > 0 && (
-        <Card className="max-w-7xl mx-auto">
-          <CardBody>
-            <Table>
-              <THead>
-                <tr>
-                  <TH className="text-center">Location ID</TH>
-                  <TH className="text-center">Product - Barcode (1)</TH>
-                  <TH className="text-center">Product - Barcode (2)</TH>
-                  <TH className="text-center">Updated At (IST)</TH>
-                  <TH className="text-center">Status</TH>
-                </tr>
-              </THead>
+        <Card>
+          <Table>
+            <THead>
+              <TR>
+                <TH className="text-center">Location ID</TH>
+                <TH className="text-center">Product - Barcode (1)</TH>
+                <TH className="text-center">Product - Barcode (2)</TH>
+                <TH className="text-center">Updated At (IST)</TH>
+                <TH className="text-center">Status</TH>
+              </TR>
+            </THead>
 
-              <TBody>
-                {trayLogs.map((tray, i) => (
-                  <TR key={i}>
-                    <TD className="text-center">
-                      {tray.location_id}
-                    </TD>
+            <TBody>
+              {trayLogs.map((tray, i) => (
+                <TR key={i} tone={tray.allGreen ? undefined : 'danger'}>
+                  <TD className="text-center font-medium">
+                    {tray.location_id}
+                  </TD>
 
-                    <TD
-                      className={cn(
-                        'text-center font-semibold',
-                        tray.product1?.is_valid
-                          ? 'bg-good-50 text-good-600'
-                          : 'bg-danger-50 text-danger-600',
-                      )}
-                    >
-                      {tray.product1
-                        ? `${tray.product1.product_id} - ${tray.product1.barcode}`
-                        : '-'}
-                    </TD>
+                  <TD
+                    className={cn(
+                      'text-center font-semibold',
+                      tray.product1?.is_valid
+                        ? 'text-good-600'
+                        : 'text-danger-600',
+                    )}
+                  >
+                    {tray.product1
+                      ? `${tray.product1.product_id} - ${tray.product1.barcode}`
+                      : '-'}
+                  </TD>
 
-                    <TD
-                      className={cn(
-                        'text-center font-semibold',
-                        tray.product2?.is_valid
-                          ? 'bg-good-50 text-good-600'
-                          : 'bg-danger-50 text-danger-600',
-                      )}
-                    >
-                      {tray.product2
-                        ? `${tray.product2.product_id} - ${tray.product2.barcode}`
-                        : '-'}
-                    </TD>
+                  <TD
+                    className={cn(
+                      'text-center font-semibold',
+                      tray.product2?.is_valid
+                        ? 'text-good-600'
+                        : 'text-danger-600',
+                    )}
+                  >
+                    {tray.product2
+                      ? `${tray.product2.product_id} - ${tray.product2.barcode}`
+                      : '-'}
+                  </TD>
 
-                    <TD className="text-center">
-                      {tray.product1?.updated_at_ist || '-'}
-                    </TD>
+                  <TD className="text-center">
+                    {tray.product1?.updated_at_ist || '-'}
+                  </TD>
 
-                    <TD className="text-center font-bold">
-                      {tray.allGreen ? (
-                        <span className="text-good-600">VALID</span>
-                      ) : (
-                        <span className="text-danger-600">INVALID</span>
-                      )}
-                    </TD>
-                  </TR>
-                ))}
-              </TBody>
-            </Table>
-          </CardBody>
+                  <TD className="text-center">
+                    <Badge tone={tray.allGreen ? 'good' : 'danger'}>
+                      {tray.allGreen ? 'VALID' : 'INVALID'}
+                    </Badge>
+                  </TD>
+                </TR>
+              ))}
+            </TBody>
+          </Table>
         </Card>
       )}
     </div>

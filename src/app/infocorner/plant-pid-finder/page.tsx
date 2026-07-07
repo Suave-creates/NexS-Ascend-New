@@ -8,9 +8,10 @@ import {
   PageHeader,
   Button,
   Textarea,
-  Label,
+  Field,
   Alert,
   Badge,
+  Spinner,
   Table,
   THead,
   TBody,
@@ -79,9 +80,7 @@ export default function InventoryPage() {
   };
 
   return (
-    <div className="space-y-4">
-
-      {/* HEADER */}
+    <div className="mx-auto max-w-6xl space-y-6">
       <PageHeader
         title="Inventory Lookup"
         subtitle="Retrieve available inventory by PID (bulk supported)"
@@ -89,55 +88,42 @@ export default function InventoryPage() {
 
       {/* INPUT CARD */}
       <Card>
-        <CardBody className="space-y-2">
+        <CardBody className="space-y-4">
+          <Field label="PID Input">
+            <Textarea
+              rows={5}
+              placeholder="Enter PID(s) — one per line"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+            />
+          </Field>
 
-          <Label>PID Input</Label>
-
-          <Textarea
-            rows={5}
-            placeholder="Enter PID(s) — one per line"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-          />
-
-          {/* ACTIONS */}
-          <div className="flex items-center justify-between pt-2">
-
+          <div className="flex items-center justify-between">
             <div className="flex gap-3">
-              <Button onClick={() => handleFetch(false)}>
+              <Button onClick={() => handleFetch(false)} loading={loading}>
                 Fetch Data
               </Button>
 
-              <Button
-                onClick={() => handleFetch(true)}
-                className="bg-gold-500 text-brand-700 hover:bg-gold-500/90 focus-visible:ring-gold-500"
-              >
+              <Button variant="outline" onClick={() => handleFetch(true)} loading={loading}>
                 Download CSV
               </Button>
             </div>
 
             {loading && (
-              <span className="text-sm text-gray-500">
-                Fetching...
+              <span className="flex items-center gap-2 text-sm text-gray-500">
+                <Spinner /> Fetching...
               </span>
             )}
           </div>
 
-          {/* ERROR */}
-          {error && (
-            <Alert tone="error" className="mt-4">
-              {error}
-            </Alert>
-          )}
+          {error && <Alert tone="error">{error}</Alert>}
         </CardBody>
       </Card>
 
       {/* TABLE CARD */}
       <Card>
-
-        {/* TABLE HEADER */}
         <CardHeader>
-          <h2 className="text-sm font-semibold text-gray-700">
+          <h2 className="text-sm font-semibold text-brand-700">
             Inventory Records
           </h2>
 
@@ -146,50 +132,31 @@ export default function InventoryPage() {
           </Badge>
         </CardHeader>
 
-        {/* TABLE */}
-        <div className="p-4">
-          <Table>
+        <Table>
+          <THead>
+            <TR>
+              <TH>PID</TH>
+              <TH>Location</TH>
+              <TH>Barcode</TH>
+            </TR>
+          </THead>
+          <TBody>
+            {rows.map((r, i) => (
+              <TR key={i}>
+                <TD className="font-medium text-gray-900">{r.pid}</TD>
+                <TD>{r.location}</TD>
+                <TD className="font-mono text-xs">{r.barcode}</TD>
+              </TR>
+            ))}
+          </TBody>
+        </Table>
 
-            <THead>
-              <tr>
-                <TH>
-                  PID
-                </TH>
-                <TH>
-                  Location
-                </TH>
-                <TH>
-                  Barcode
-                </TH>
-              </tr>
-            </THead>
-
-            <TBody>
-              {rows.map((r, i) => (
-                <TR key={i}>
-                  <TD className="font-medium text-gray-900">
-                    {r.pid}
-                  </TD>
-                  <TD>
-                    {r.location}
-                  </TD>
-                  <TD className="font-mono text-xs">
-                    {r.barcode}
-                  </TD>
-                </TR>
-              ))}
-            </TBody>
-          </Table>
-
-          {/* EMPTY STATE */}
-          {!loading && rows.length === 0 && (
-            <div className="py-10 text-center text-sm text-gray-500">
-              No inventory data available
-            </div>
-          )}
-        </div>
+        {!loading && rows.length === 0 && (
+          <div className="py-10 text-center text-sm text-gray-500">
+            No inventory data available
+          </div>
+        )}
       </Card>
-
     </div>
   );
 }

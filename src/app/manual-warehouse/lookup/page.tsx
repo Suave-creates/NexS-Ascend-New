@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Card, PageHeader, Input, Alert } from '@/components/ui';
+import { Card, PageHeader, Field, Input, Alert } from '@/components/ui';
 
 export default function ManualWarehouseValidatePage() {
   const [pid, setPid] = useState('');
@@ -50,9 +50,7 @@ export default function ManualWarehouseValidatePage() {
   useEffect(() => {
     if (!expectedLocation || !scanLocation) return;
 
-    setStatus(
-      scanLocation === expectedLocation ? 'correct' : 'wrong'
-    );
+    setStatus(scanLocation === expectedLocation ? 'correct' : 'wrong');
 
     const timer = setTimeout(() => {
       setScanLocation('');
@@ -76,19 +74,23 @@ export default function ManualWarehouseValidatePage() {
         <PageHeader title="PID Location Validator" />
 
         {/* PID Input */}
-        <Input
-          type="text"
-          value={pid}
-          onChange={e => setPid(e.target.value.toUpperCase())}
-          placeholder="Scan / Enter PID"
-          autoFocus
-        />
+        <div className="mt-4">
+          <Field label="PID">
+            <Input
+              type="text"
+              value={pid}
+              onChange={e => setPid(e.target.value.toUpperCase())}
+              placeholder="Scan / Enter PID"
+              autoFocus
+            />
+          </Field>
+        </div>
 
         {/* Error */}
         {error && (
-          <p className="mt-3 text-sm text-gray-900">
+          <Alert tone="error" className="mt-3">
             {error}
-          </p>
+          </Alert>
         )}
 
         {/* Visibility Section */}
@@ -96,7 +98,7 @@ export default function ManualWarehouseValidatePage() {
           <div className="mt-6 space-y-2 text-gray-900">
             <div className="text-base">
               <strong>Expected Location:</strong>{' '}
-              <span className="ml-1 text-lg font-bold text-red-600">
+              <span className="ml-1 text-lg font-bold text-danger-600">
                 {expectedLocation}
               </span>
             </div>
@@ -112,15 +114,15 @@ export default function ManualWarehouseValidatePage() {
         {/* Location Scan */}
         {expectedLocation && (
           <div className="mt-6">
-            <Input
-              type="text"
-              value={scanLocation}
-              onChange={e =>
-                setScanLocation(e.target.value.toUpperCase())
-              }
-              placeholder="Scan Location Barcode"
-              autoFocus
-            />
+            <Field label="Location">
+              <Input
+                type="text"
+                value={scanLocation}
+                onChange={e => setScanLocation(e.target.value.toUpperCase())}
+                placeholder="Scan Location Barcode"
+                autoFocus
+              />
+            </Field>
           </div>
         )}
 

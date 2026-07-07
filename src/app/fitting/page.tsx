@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import {
   Card,
+  CardBody,
   PageHeader,
   Field,
   Input,
@@ -16,6 +17,19 @@ import { cn } from '@/lib/cn';
 
 const BARCODE_REGEX = /^[A-Z]{3}\d{9}$/;
 const SETUP_STORAGE_KEY = 'fitting-setup-v1';
+
+// A scan may be a plain barcode (3 letters + 9 digits) or a "link barcode" — a
+// longer string (e.g. a URL) that ends in the barcode. In that case pick the
+// trailing 12 chars. Returns the normalized barcode, or null if none is present.
+function pickBarcode(raw: string): string | null {
+  const s = raw.trim().toUpperCase();
+  if (BARCODE_REGEX.test(s)) return s;
+  if (s.length > 12) {
+    const tail = s.slice(-12);
+    if (BARCODE_REGEX.test(tail)) return tail;
+  }
+  return null;
+}
 
 // The six fitting operations — each holds a Person ID (set once, persists).
 const OPERATIONS = [
@@ -169,8 +183,8 @@ export default function FittingPage() {
 
   /* ---------- auto-submit when a valid barcode is scanned ---------- */
   useEffect(() => {
-    if (!BARCODE_REGEX.test(scan)) return;
-    const barcode = scan;
+    const barcode = pickBarcode(scan);
+    if (!barcode) return;
     setScan('');
 
     if (!setupComplete) {
@@ -202,20 +216,15 @@ export default function FittingPage() {
   };
 
   return (
-    <div className="mx-auto w-full max-w-6xl p-6">
+    <div className="mx-auto w-full max-w-6xl space-y-6">
       <PageHeader
         title="Fitting Dashboard"
         subtitle="Continuous barcode scanning across the fitting line"
         actions={
-          <button
+          <Button
             type="button"
+            variant={reworkMode ? 'secondary' : 'outline'}
             onClick={() => setReworkMode((v) => !v)}
-            className={cn(
-              'inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-sm font-medium transition',
-              reworkMode
-                ? 'border-gold-500 bg-gold-100 text-gold-700'
-                : 'border-gray-300 bg-white text-gray-600 hover:bg-gray-50',
-            )}
           >
             <span
               className={cn(
@@ -224,12 +233,12 @@ export default function FittingPage() {
               )}
             />
             Rework mode {reworkMode ? 'ON' : 'OFF'}
-          </button>
+          </Button>
         }
       />
 
       {/* Stats */}
-      <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-3">
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
         <StatCard label="Last 1 hr scans" value={stats.count} sub={lineNumber || '—'} />
         <StatCard label="Rework (1 hr)" value={stats.reworkCount} tone="gold" />
         <StatCard
@@ -241,88 +250,92 @@ export default function FittingPage() {
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         {/* Scan area */}
-        <Card className="lg:col-span-2 p-6">
-          {reworkMode && (
-            <Alert tone="warning" className="mb-4">
-              ↻ Rework mode is ON — every scan is recorded as a <strong>rework</strong>.
-            </Alert>
-          )}
-
-          <Field label="Scan barcode" hint="Format: 3 letters + 9 digits (e.g. ABC123456789)">
-            <Input
-              ref={scanRef}
-              autoFocus
-              value={scan}
-              disabled={busy}
-              onChange={(e) => setScan(e.target.value.toUpperCase().replace(/\s/g, ''))}
-              placeholder="Scan or type barcode…"
-              className="text-lg tracking-wider"
-            />
-          </Field>
-
-          {toast && (
-            <div className="mt-4">
-              <Alert tone={toast.tone}>{toast.text}</Alert>
-            </div>
-          )}
-
-          {!setupComplete && (
-            <p className="mt-4 text-sm text-danger-600">
-              Set all six operation Person IDs and the Line Number on the right to start scanning.
-            </p>
-          )}
-
-          {/* Recent scans */}
-          <div className="mt-6">
-            <h3 className="mb-2 text-sm font-semibold text-gray-700">Recent scans</h3>
-            {recent.length === 0 ? (
-              <p className="text-sm text-gray-400">No scans yet this session.</p>
-            ) : (
-              <ul className="divide-y divide-gray-100 rounded-lg border border-gray-200">
-                {recent.map((r, i) => (
-                  <li key={i} className="flex items-center justify-between px-3 py-2 text-sm">
-                    <span className="font-mono tracking-wide text-gray-800">{r.barcode}</span>
-                    <span className="flex items-center gap-3">
-                      {r.kind === 'rework' && <Badge tone="gold">Rework</Badge>}
-                      {r.kind === 'normal' && <Badge tone="notice">Repeat</Badge>}
-                      {r.kind === 'fresh' && <Badge tone="good">New</Badge>}
-                      <span className="text-gray-400">{r.at}</span>
-                    </span>
-                  </li>
-                ))}
-              </ul>
+        <Card className="lg:col-span-2">
+          <CardBody>
+            {reworkMode && (
+              <Alert tone="warning" className="mb-4">
+                ↻ Rework mode is ON — every scan is recorded as a <strong>rework</strong>.
+              </Alert>
             )}
-          </div>
+
+            <Field label="Scan barcode" hint="Format: 3 letters + 9 digits (e.g. ABC123456789)">
+              <Input
+                ref={scanRef}
+                autoFocus
+                value={scan}
+                disabled={busy}
+                onChange={(e) => setScan(e.target.value.toUpperCase().replace(/\s/g, ''))}
+                placeholder="Scan or type barcode…"
+                className="text-lg tracking-wider"
+              />
+            </Field>
+
+            {toast && (
+              <div className="mt-4">
+                <Alert tone={toast.tone}>{toast.text}</Alert>
+              </div>
+            )}
+
+            {!setupComplete && (
+              <p className="mt-4 text-sm text-danger-600">
+                Set all six operation Person IDs and the Line Number on the right to start scanning.
+              </p>
+            )}
+
+            {/* Recent scans */}
+            <div className="mt-6">
+              <h3 className="mb-2 text-sm font-semibold text-gray-700">Recent scans</h3>
+              {recent.length === 0 ? (
+                <p className="text-sm text-gray-400">No scans yet this session.</p>
+              ) : (
+                <ul className="divide-y divide-gray-100 rounded-lg border border-gray-200">
+                  {recent.map((r, i) => (
+                    <li key={i} className="flex items-center justify-between px-3 py-2 text-sm">
+                      <span className="font-mono tracking-wide text-gray-800">{r.barcode}</span>
+                      <span className="flex items-center gap-3">
+                        {r.kind === 'rework' && <Badge tone="gold">Rework</Badge>}
+                        {r.kind === 'normal' && <Badge tone="notice">Repeat</Badge>}
+                        {r.kind === 'fresh' && <Badge tone="good">New</Badge>}
+                        <span className="text-gray-400">{r.at}</span>
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </CardBody>
         </Card>
 
         {/* Setup */}
-        <Card className="p-6">
-          <h3 className="mb-1 text-base font-semibold text-gray-800">Line setup</h3>
-          <p className="mb-4 text-xs text-gray-500">
-            Static — stays until you change it. Saved on this device.
-          </p>
+        <Card>
+          <CardBody>
+            <h3 className="mb-1 text-base font-semibold text-gray-800">Line setup</h3>
+            <p className="mb-4 text-xs text-gray-500">
+              Static — stays until you change it. Saved on this device.
+            </p>
 
-          <Field label="Line Number" className="mb-4">
-            <Input
-              value={lineNumber}
-              onChange={(e) => setLineNumber(e.target.value)}
-              placeholder="e.g. L1"
-            />
-          </Field>
+            <Field label="Line Number" className="mb-4">
+              <Input
+                value={lineNumber}
+                onChange={(e) => setLineNumber(e.target.value)}
+                placeholder="e.g. L1"
+              />
+            </Field>
 
-          <div className="space-y-3">
-            {OPERATIONS.map((op, i) => (
-              <Field key={op.key} label={`${i + 1}. ${op.label} — Person ID`}>
-                <Input
-                  value={persons[op.key]}
-                  onChange={(e) =>
-                    setPersons((p) => ({ ...p, [op.key]: e.target.value }))
-                  }
-                  placeholder="Person ID"
-                />
-              </Field>
-            ))}
-          </div>
+            <div className="space-y-3">
+              {OPERATIONS.map((op, i) => (
+                <Field key={op.key} label={`${i + 1}. ${op.label} — Person ID`}>
+                  <Input
+                    value={persons[op.key]}
+                    onChange={(e) =>
+                      setPersons((p) => ({ ...p, [op.key]: e.target.value }))
+                    }
+                    placeholder="Person ID"
+                  />
+                </Field>
+              ))}
+            </div>
+          </CardBody>
         </Card>
       </div>
 

@@ -8,6 +8,7 @@ import React, {
   ChangeEvent,
 } from 'react';
 import {
+  PageHeader,
   Card,
   CardHeader,
   CardBody,
@@ -15,6 +16,7 @@ import {
   Input,
   Textarea,
   Badge,
+  Alert,
   StatCard,
   Table,
   THead,
@@ -45,11 +47,11 @@ type RunStatus = 'idle' | 'running' | 'done' | 'error';
 
 const MAX_ROWS = 10_000;
 
-const STATUS_CONFIG: Record<RunStatus, { label: string; color: string }> = {
-  idle:    { label: 'Idle',       color: '#7a85a8' },
-  running: { label: 'Processing', color: '#e8b400' },
-  done:    { label: 'Complete',   color: '#1a7a4a' },
-  error:   { label: 'Error',      color: '#c0392b' },
+const STATUS_CONFIG: Record<RunStatus, { label: string; dot: string }> = {
+  idle:    { label: 'Idle',       dot: 'bg-gray-400' },
+  running: { label: 'Processing', dot: 'bg-gold-500' },
+  done:    { label: 'Complete',   dot: 'bg-good-600' },
+  error:   { label: 'Error',      dot: 'bg-danger-600' },
 };
 
 const STATUS_TONE: Record<RunStatus, 'gray' | 'gold' | 'good' | 'danger'> = {
@@ -105,9 +107,9 @@ function StatusPill({ status }: StatusPillProps) {
       <span
         className={cn(
           'h-2 w-2 rounded-full',
+          cfg.dot,
           status === 'running' && 'animate-pulse',
         )}
-        style={{ background: cfg.color }}
       />
       <Badge tone={STATUS_TONE[status]} className="font-mono">{cfg.label}</Badge>
     </div>
@@ -147,7 +149,7 @@ function ResultsTable({ rows }: ResultsTableProps) {
   return (
     <div className="flex flex-col">
       {/* Toolbar */}
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-gray-200 bg-gray-50 px-4 py-2.5">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-gray-100 px-6 py-3">
         <span className="font-mono text-xs text-gray-500">
           <strong className="text-brand-700">{filtered.length}</strong>
           {filtered.length !== rows.length ? ` / ${rows.length}` : ''} results
@@ -160,15 +162,15 @@ function ResultsTable({ rows }: ResultsTableProps) {
         />
       </div>
 
-      {/* Table */}
-      <div className="max-h-80 overflow-auto">
+      {/* Table (vertical-scroll region) */}
+      <div className="max-h-80 overflow-auto p-4">
         <Table>
           <THead>
-            <tr>
+            <TR>
               {['Fitting ID', 'Max Updated At', 'Rx Status', 'Lk Status'].map((h) => (
                 <TH key={h}>{h}</TH>
               ))}
-            </tr>
+            </TR>
           </THead>
           <TBody>
             {filtered.length === 0 ? (
@@ -342,117 +344,94 @@ export default function BulkFittingLookup() {
   // ─── Render ───────────────────────────────────────────────────────────────
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="mx-auto max-w-6xl space-y-6">
+      <PageHeader
+        title="Fitting Lookup"
+        subtitle="jitdb · jit_order_status_details_aud · PRODUCTION_DONE"
+        actions={<Badge tone="navy" className="font-mono tracking-wide">SONI-G</Badge>}
+      />
 
-      {/* ── Header ── */}
-      <header className="flex items-center gap-3.5 border-b-[3px] border-gold-500 bg-brand-800 px-7 py-4">
-        <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-md bg-gold-500">
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-            <rect x="2" y="9" width="7" height="9" rx="1.5" fill="#151d42"/>
-            <rect x="11" y="4" width="7" height="14" rx="1.5" fill="#151d42"/>
-            <rect x="2" y="2" width="7" height="5" rx="1.5" fill="#151d42"/>
-          </svg>
-        </div>
-        <div>
-          <div className="text-base font-semibold tracking-wide text-white">NexS Ascend — Fitting Lookup</div>
-          <div className="mt-0.5 font-mono text-xs text-brand-200">jitdb · jit_order_status_details_aud · PRODUCTION_DONE</div>
-        </div>
-        <Badge tone="navy" className="ml-auto flex-shrink-0 font-mono tracking-wide">SONI-G</Badge>
-      </header>
+      {/* ── Input Card ── */}
+      <Card>
+        <CardHeader>
+          <span className="text-sm font-semibold text-brand-700">
+            Input — Fitting IDs &amp; Cutoff Datetimes
+          </span>
+        </CardHeader>
+        <CardBody className="flex flex-col gap-4">
 
-      {/* ── Body ── */}
-      <div className="mx-auto flex max-w-[1100px] flex-col gap-5 px-7 py-6">
-
-        {/* ── Input Card ── */}
-        <Card className="overflow-hidden">
-          <CardHeader className="border-b-0 bg-brand-700 px-4 py-3">
-            <div className="flex items-center gap-2">
-              <span className="h-[7px] w-[7px] flex-shrink-0 rounded-full bg-gold-500" />
-              <span className="text-[13px] font-semibold tracking-wide text-white">Input — Fitting IDs &amp; Cutoff Datetimes</span>
+          <div>
+            <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500">TSV Paste Input</div>
+            <Textarea
+              value={tsvInput}
+              onChange={(e: ChangeEvent<HTMLTextAreaElement>) => setTsvInput(e.target.value)}
+              placeholder={`FITID-001\t2024-06-01 10:00:00\nFITID-002\t2024-06-02 09:30:00`}
+              className="h-32 resize-y font-mono text-[12.5px] leading-relaxed"
+              spellCheck={false}
+            />
+            <div className="mt-1.5 font-mono text-xs text-gray-500">
+              Format: <span className="font-semibold text-gold-700">fitting_id</span>
+              {' [TAB] '}
+              <span className="font-semibold text-gold-700">cutoff_datetime</span>
+              {' · one row per line · max 10,000 rows'}
             </div>
-          </CardHeader>
-          <CardBody className="flex flex-col gap-3.5">
+          </div>
 
-            <div>
-              <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500">TSV Paste Input</div>
-              <Textarea
-                value={tsvInput}
-                onChange={(e: ChangeEvent<HTMLTextAreaElement>) => setTsvInput(e.target.value)}
-                placeholder={`FITID-001\t2024-06-01 10:00:00\nFITID-002\t2024-06-02 09:30:00`}
-                className="h-32 resize-y bg-gray-50 font-mono text-[12.5px] leading-relaxed"
-                spellCheck={false}
-              />
-              <div className="mt-1.5 font-mono text-xs text-gray-500">
-                Format: <span className="font-semibold text-gold-700">fitting_id</span>
-                {' [TAB] '}
-                <span className="font-semibold text-gold-700">cutoff_datetime</span>
-                {' · one row per line · max 10,000 rows'}
-              </div>
-            </div>
+          {/* Stats */}
+          <div className="grid grid-cols-3 gap-4">
+            <StatCard value={rowCount.toLocaleString()} label="Rows Parsed" tone="navy" />
+            <StatCard value={results.length > 0 ? results.length.toLocaleString() : '—'} label="Matches Found" tone="good" />
+            <StatCard value={isRunning ? `${progress}%` : status === 'done' ? '100%' : '—'} label="Progress" tone="gold" />
+          </div>
 
-            {/* Stats */}
-            <div className="grid grid-cols-3 gap-2.5">
-              <StatCard value={rowCount.toLocaleString()} label="Rows Parsed" />
-              <StatCard value={results.length > 0 ? results.length.toLocaleString() : '—'} label="Matches Found" />
-              <StatCard value={isRunning ? `${progress}%` : status === 'done' ? '100%' : '—'} label="Progress" />
-            </div>
+          {/* Progress bar */}
+          {isRunning && (
+            <ProgressBar percent={progress} chunkInfo={chunkInfo} />
+          )}
 
-            {/* Progress bar */}
-            {isRunning && (
-              <ProgressBar percent={progress} chunkInfo={chunkInfo} />
-            )}
+          {/* Error */}
+          {errorMsg && (
+            <Alert tone="error">
+              <strong>Error:</strong> {errorMsg}
+            </Alert>
+          )}
 
-            {/* Error */}
-            {errorMsg && (
-              <div className="rounded-lg border border-danger-600/30 bg-danger-50 px-3.5 py-2.5 text-sm text-danger-600">
-                <strong>Error:</strong> {errorMsg}
-              </div>
-            )}
-
-            {/* Actions */}
-            <div className="flex flex-wrap items-center justify-between gap-2.5">
-              <div className="flex gap-2.5">
-                {!isRunning ? (
-                  <Button
-                    onClick={runLookup}
-                    disabled={rowCount === 0}
-                  >
-                    Run Lookup
-                  </Button>
-                ) : (
-                  <Button variant="danger" onClick={cancelLookup}>
-                    Cancel
-                  </Button>
-                )}
-                <Button variant="outline" onClick={clearAll}>
-                  Clear
+          {/* Actions */}
+          <div className="flex flex-wrap items-center justify-between gap-2.5">
+            <div className="flex gap-2.5">
+              {!isRunning ? (
+                <Button onClick={runLookup} disabled={rowCount === 0}>
+                  Run Lookup
                 </Button>
-                {results.length > 0 && (
-                  <Button onClick={exportCSV} className="bg-gold-500 text-brand-800 hover:bg-gold-700 focus-visible:ring-gold-500">
-                    Export CSV ↓
-                  </Button>
-                )}
-              </div>
-              <StatusPill status={status} />
+              ) : (
+                <Button variant="danger" onClick={cancelLookup}>
+                  Cancel
+                </Button>
+              )}
+              <Button variant="outline" onClick={clearAll}>
+                Clear
+              </Button>
+              {results.length > 0 && (
+                <Button variant="secondary" onClick={exportCSV}>
+                  Export CSV ↓
+                </Button>
+              )}
             </div>
+            <StatusPill status={status} />
+          </div>
 
-          </CardBody>
+        </CardBody>
+      </Card>
+
+      {/* ── Results Card ── */}
+      {results.length > 0 && (
+        <Card>
+          <CardHeader>
+            <span className="text-sm font-semibold text-brand-700">Results</span>
+          </CardHeader>
+          <ResultsTable rows={results} />
         </Card>
-
-        {/* ── Results Card ── */}
-        {results.length > 0 && (
-          <Card className="overflow-hidden">
-            <CardHeader className="border-b-0 bg-brand-700 px-4 py-3">
-              <div className="flex items-center gap-2">
-                <span className="h-[7px] w-[7px] flex-shrink-0 rounded-full bg-gold-500" />
-                <span className="text-[13px] font-semibold tracking-wide text-white">Results</span>
-              </div>
-            </CardHeader>
-            <ResultsTable rows={results} />
-          </Card>
-        )}
-
-      </div>
+      )}
     </div>
   );
 }

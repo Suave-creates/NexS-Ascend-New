@@ -1,20 +1,20 @@
 // src/app/upload/page.tsx
 'use client';
 
-import { Card, PageHeader } from '@/components/ui';
+import { Card, CardBody, PageHeader } from '@/components/ui';
 import ExcelUploadForm from '@/components/ExcelUploadForm';
 
 export default function UploadPage() {
   return (
-    <div className="mx-auto max-w-md">
+    <div className="mx-auto max-w-md space-y-6">
+      <PageHeader title="Excel Upload" />
       <Card>
-        <div className="p-6">
-          <PageHeader title="Excel Upload" />
-          <p className="text-black-600 text-sm mb-4">
+        <CardBody className="space-y-4">
+          <p className="text-sm text-gray-600">
             Expected columns: <strong>ShippingID</strong> and <strong>City</strong>
           </p>
           <ExcelUploadForm />
-        </div>
+        </CardBody>
       </Card>
     </div>
   );

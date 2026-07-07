@@ -2,8 +2,23 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import * as XLSX from 'xlsx';
-import { Card, PageHeader, Input, Button, Alert, Table, THead, TBody, TR, TH, TD } from '@/components/ui';
-import { cn } from '@/lib/cn';
+import {
+  Button,
+  Input,
+  Card,
+  CardHeader,
+  CardBody,
+  PageHeader,
+  Alert,
+  StatCard,
+  Table,
+  THead,
+  TBody,
+  TR,
+  TH,
+  TD,
+} from '@/components/ui';
+import { FiChevronDown, FiChevronUp, FiDownload } from 'react-icons/fi';
 
 type HistoryItem = {
   location: number;
@@ -20,37 +35,32 @@ export default function TrayFinderPage() {
   const [mode, setMode] = useState<'single' | 'bulk'>('single');
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <PageHeader title="TRAY FINDER" className="justify-center text-center" />
+    <div className="mx-auto max-w-4xl space-y-6">
+      <PageHeader
+        title="Tray Finder"
+        subtitle="Look up recent tray locations, one tray or in bulk"
+      />
 
-      <Card className="max-w-4xl mx-auto p-4">
-        {/* Mode toggle */}
-        <div className="flex gap-2 justify-center mb-4">
-          <button
-            className={cn(
-              'px-4 py-2 rounded-lg border transition-colors',
-              mode === 'single'
-                ? 'bg-brand-700 text-white border-brand-700'
-                : 'bg-white text-brand-700 border-gray-300',
-            )}
-            onClick={() => setMode('single')}
-          >
-            Single Tray
-          </button>
-          <button
-            className={cn(
-              'px-4 py-2 rounded-lg border transition-colors',
-              mode === 'bulk'
-                ? 'bg-brand-700 text-white border-brand-700'
-                : 'bg-white text-brand-700 border-gray-300',
-            )}
-            onClick={() => setMode('bulk')}
-          >
-            Bulk (Excel/CSV)
-          </button>
-        </div>
+      <Card>
+        <CardBody className="space-y-4">
+          {/* Mode toggle */}
+          <div className="flex justify-center gap-2">
+            <Button
+              variant={mode === 'single' ? 'primary' : 'outline'}
+              onClick={() => setMode('single')}
+            >
+              Single Tray
+            </Button>
+            <Button
+              variant={mode === 'bulk' ? 'primary' : 'outline'}
+              onClick={() => setMode('bulk')}
+            >
+              Bulk (Excel/CSV)
+            </Button>
+          </div>
 
-        {mode === 'single' ? <SingleTray /> : <BulkTray />}
+          {mode === 'single' ? <SingleTray /> : <BulkTray />}
+        </CardBody>
       </Card>
     </div>
   );
@@ -96,37 +106,49 @@ function SingleTray() {
   };
 
   return (
-    <>
-      <div className="max-w-xl mx-auto">
-        <Input
-          type="text"
-          placeholder="Scan or enter Tray ID (CT00000)..."
-          value={trayId}
-          onChange={(e) => setTrayId(e.target.value.toUpperCase())}
-        />
-      </div>
+    <div className="mx-auto max-w-xl space-y-6">
+      <Input
+        type="text"
+        placeholder="Scan or enter Tray ID (CT00000)..."
+        value={trayId}
+        onChange={(e) => setTrayId(e.target.value.toUpperCase())}
+        autoFocus
+      />
 
-      {error && (
-        <Alert tone="error" className="max-w-xl mx-auto mt-6">
-          {error}
-        </Alert>
-      )}
+      {error && <Alert tone="error">{error}</Alert>}
 
       {!error && history.length > 0 && (
-        <Card variant="floating" className="max-w-xl mx-auto mt-6 p-6">
-          <h2 className="text-xl font-semibold mb-4 text-gray-900">Last 5 Locations</h2>
-          <ul className="list-disc list-inside text-gray-900 space-y-2">
-            {history.map((item, idx) => (
-              <li key={idx}>
-                <strong>Location:</strong> {item.locationName} ({item.location}) &nbsp;|&nbsp;
-                <strong>At:</strong>{' '}
-                {new Date(item.timestamp).toLocaleString()}
-              </li>
-            ))}
-          </ul>
+        <Card>
+          <CardHeader>
+            <h2 className="text-base font-semibold text-brand-700">
+              Last 5 Locations
+            </h2>
+          </CardHeader>
+          <CardBody>
+            <Table>
+              <THead>
+                <TR>
+                  <TH>#</TH>
+                  <TH>Location</TH>
+                  <TH>Timestamp</TH>
+                </TR>
+              </THead>
+              <TBody>
+                {history.map((item, idx) => (
+                  <TR key={idx}>
+                    <TD>{idx + 1}</TD>
+                    <TD>
+                      {item.locationName} ({item.location})
+                    </TD>
+                    <TD>{new Date(item.timestamp).toLocaleString()}</TD>
+                  </TR>
+                ))}
+              </TBody>
+            </Table>
+          </CardBody>
         </Card>
       )}
-    </>
+    </div>
   );
 }
 
@@ -306,16 +328,13 @@ function BulkTray() {
           onChange={(e) => onFileChange(e.target.files?.[0] ?? null)}
           className="block rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm text-gray-900 shadow-sm file:mr-3 file:rounded file:border-0 file:bg-brand-50 file:px-3 file:py-1 file:text-brand-700"
         />
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            onClick={parseFile}
-            disabled={!file}
-          >
+        <div className="flex flex-wrap gap-2">
+          <Button variant="outline" onClick={parseFile} disabled={!file}>
             Parse File
           </Button>
           <Button
             onClick={fetchAll}
+            loading={busy}
             disabled={busy || trayIds.length === 0}
           >
             {busy ? 'Fetching…' : `Fetch last 20 per tray (${trayIds.length})`}
@@ -333,9 +352,12 @@ function BulkTray() {
       {/* Parsing summary */}
       {file && (
         <div className="text-sm text-gray-600">
-          <div><strong>File:</strong> {file.name}</div>
           <div>
-            <strong>Parsed Tray IDs:</strong> {trayIds.length > 0 ? trayIds.length : 0}
+            <strong>File:</strong> {file.name}
+          </div>
+          <div>
+            <strong>Parsed Tray IDs:</strong>{' '}
+            {trayIds.length > 0 ? trayIds.length : 0}
             {trayIds.length > 0 && (
               <span className="ml-2 text-gray-500">
                 (showing first 10): {trayIds.slice(0, 10).join(', ')}
@@ -349,7 +371,7 @@ function BulkTray() {
       {/* Errors */}
       {errors.length > 0 && (
         <Alert tone="error">
-          <ul className="list-disc list-inside">
+          <ul className="list-inside list-disc">
             {errors.map((e, i) => (
               <li key={i}>{e}</li>
             ))}
@@ -360,22 +382,29 @@ function BulkTray() {
       {/* Results */}
       {Object.keys(results).length > 0 && (
         <div className="space-y-4">
-          <div className="text-sm text-gray-700">
-            <strong>Trays with data:</strong> {Object.keys(results).length} &nbsp;|&nbsp;
-            <strong>Total rows:</strong> {totalRows}
+          <div className="grid grid-cols-2 gap-4">
+            <StatCard
+              label="Trays with data"
+              value={Object.keys(results).length}
+              tone="navy"
+            />
+            <StatCard label="Total rows" value={totalRows} tone="good" />
           </div>
 
           <div className="space-y-3">
             {Object.entries(results)
               .sort(([a], [b]) => a.localeCompare(b))
               .map(([id, rows]) => (
-                <div key={id} className="border border-gray-200 rounded-lg overflow-hidden">
-                  {/* outer clickable area changed from <button> to a div acting as a button */}
+                <div
+                  key={id}
+                  className="overflow-hidden rounded-lg border border-gray-200"
+                >
+                  {/* outer clickable area acts as a button */}
                   <div
                     role="button"
                     tabIndex={0}
                     aria-expanded={!!expanded[id]}
-                    className="w-full text-left bg-gray-100 px-4 py-3 flex justify-between items-center cursor-pointer"
+                    className="flex w-full cursor-pointer items-center justify-between bg-gray-50 px-4 py-3 text-left"
                     onClick={() => toggleExpand(id)}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter' || e.key === ' ') {
@@ -385,7 +414,10 @@ function BulkTray() {
                     }}
                   >
                     <span className="font-semibold text-brand-700">
-                      {id} <span className="text-gray-600 font-normal">({rows.length})</span>
+                      {id}{' '}
+                      <span className="font-normal text-gray-600">
+                        ({rows.length})
+                      </span>
                     </span>
 
                     <div className="flex items-center gap-3">
@@ -393,27 +425,35 @@ function BulkTray() {
                         type="button"
                         variant="outline"
                         size="sm"
-                        onClick={(e) => { e.stopPropagation(); exportTray(id); }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          exportTray(id);
+                        }}
                       >
+                        <FiDownload className="mr-1.5" aria-hidden />
                         Export CSV
                       </Button>
-                      <span className="text-gray-500">{expanded[id] ? '▲' : '▼'}</span>
+                      <span className="text-gray-500" aria-hidden>
+                        {expanded[id] ? <FiChevronUp /> : <FiChevronDown />}
+                      </span>
                     </div>
                   </div>
 
                   {expanded[id] && (
-                    <div className="p-4 overflow-x-auto">
+                    <div className="p-4">
                       {rows.length === 0 ? (
-                        <div className="text-gray-600 italic">No locations found.</div>
+                        <div className="italic text-gray-600">
+                          No locations found.
+                        </div>
                       ) : (
                         <Table>
                           <THead>
-                            <tr>
+                            <TR>
                               <TH>#</TH>
                               <TH>Location</TH>
                               <TH>Station</TH>
                               <TH>Timestamp</TH>
-                            </tr>
+                            </TR>
                           </THead>
                           <TBody>
                             {rows.map((r, i) => (

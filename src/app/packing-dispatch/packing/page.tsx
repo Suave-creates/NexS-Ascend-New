@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { Card, PageHeader, Field, Input, Select, Button, Modal, StatCard, Alert } from '@/components/ui';
-import { cn } from '@/lib/cn';
 
 export default function PackingPage() {
   const [scanId, setScanId] = useState('');
@@ -101,6 +100,7 @@ export default function PackingPage() {
             label="Last 1 hr scans"
             value={hourCount}
             sub={stationId}
+            tone="navy"
           />
         )}
 
@@ -109,14 +109,9 @@ export default function PackingPage() {
 
         {/* Message */}
         {message && (
-          <div
-            className={cn(
-              'mb-4 text-center text-sm',
-              message.startsWith('✔️') ? 'text-green-700' : 'text-red-600',
-            )}
-          >
+          <Alert tone={message.startsWith('✔️') ? 'success' : 'error'} className="mb-4">
             {message}
-          </div>
+          </Alert>
         )}
 
         {/* Form Fields */}

@@ -45,6 +45,7 @@ interface ResultRow {
 }
 
 type RunStatus = 'idle' | 'running' | 'done' | 'error';
+type ValueTone = 'good' | 'danger' | 'notice' | 'gray' | 'navy';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -63,6 +64,15 @@ const COLUMNS: { key: keyof ResultRow; label: string }[] = [
   { key: 'availability', label: 'Availability'     },
 ];
 
+// Active-chip styling per semantic tone (uses brand/semantic tokens only).
+const CHIP_ACTIVE: Record<ValueTone, string> = {
+  good:   'border-good-600 bg-good-50 text-good-600',
+  danger: 'border-danger-600 bg-danger-50 text-danger-600',
+  notice: 'border-notice-600 bg-notice-50 text-notice-600',
+  gray:   'border-gray-400 bg-gray-100 text-gray-600',
+  navy:   'border-brand-700 bg-brand-50 text-brand-700',
+};
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function parseBarcodes(raw: string): string[] {
@@ -80,17 +90,18 @@ function formatDate(raw: string | null | undefined): string {
   return `${pad(d.getDate())}-${pad(d.getMonth() + 1)}-${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
 }
 
-function statusStyle(val: string): React.CSSProperties {
+// Map a free-text status/condition/availability value to a semantic tone.
+function valueTone(val: string): ValueTone {
   const v = (val ?? '').toLowerCase();
   if (v.includes('fail') || v.includes('damage') || v.includes('lost'))
-    return { background: '#fff0ee', color: '#c0392b' };
+    return 'danger';
   if (v.includes('available') || v.includes('good') || v.includes('active'))
-    return { background: '#edfaf3', color: '#1a7a4a' };
+    return 'good';
   if (v.includes('pending') || v.includes('hold') || v.includes('transit'))
-    return { background: '#fff3e8', color: '#e8650a' };
+    return 'notice';
   if (v.includes('inactive') || v.includes('retire') || v.includes('discard'))
-    return { background: '#f5f5f5', color: '#7a85a8' };
-  return { background: '#f0f2f7', color: '#1f295c' };
+    return 'gray';
+  return 'navy';
 }
 
 function rowsToCSV(rows: ResultRow[]): string {
@@ -131,6 +142,43 @@ function ProgressBar({ percent, chunkInfo }: ProgressBarProps) {
         <span>{chunkInfo}</span>
         <span className="font-semibold text-brand-700">{percent}%</span>
       </div>
+    </div>
+  );
+}
+
+interface ChipRowProps {
+  label:    string;
+  values:   string[];
+  active:   string;
+  onSelect: (v: string) => void;
+  count:    (v: string) => number;
+}
+function ChipRow({ label, values, active, onSelect, count }: ChipRowProps) {
+  return (
+    <div className="flex flex-wrap items-center gap-1.5">
+      <span className="whitespace-nowrap text-[10.5px] font-bold uppercase tracking-wide text-gray-500">
+        {label}
+      </span>
+      {['ALL', ...values].map((v) => {
+        const isActive = active === v;
+        return (
+          <button
+            key={v}
+            onClick={() => onSelect(v)}
+            className={cn(
+              'cursor-pointer whitespace-nowrap rounded-full border px-2.5 py-0.5 text-xs font-semibold tracking-wide transition-all active:scale-[0.98]',
+              isActive
+                ? v === 'ALL'
+                  ? 'border-brand-700 bg-brand-700 text-white'
+                  : CHIP_ACTIVE[valueTone(v)]
+                : 'border-gray-200 bg-white text-gray-500 hover:border-gray-300',
+            )}
+          >
+            {v}
+            {v !== 'ALL' && <span className="ml-1 opacity-60">{count(v)}</span>}
+          </button>
+        );
+      })}
     </div>
   );
 }
@@ -320,8 +368,10 @@ export default function BulkBarcodeLookupPage() {
     idle: 'Idle', running: 'Processing', done: 'Complete', error: 'Error',
   };
 
+  const notFound = barcodes.length - results.length;
+
   return (
-    <div className="space-y-5">
+    <div className="mx-auto max-w-7xl space-y-6">
 
       {/* ── Header ── */}
       <PageHeader
@@ -329,7 +379,6 @@ export default function BulkBarcodeLookupPage() {
         subtitle="nexs_ims · barcode_item_history · top-4 locations"
         actions={
           <>
-            {/* Status pill */}
             <StatusPill tone={statusPillTone[status]}>
               {statusLabel[status]}
             </StatusPill>
@@ -404,93 +453,45 @@ export default function BulkBarcodeLookupPage() {
         <div className="flex flex-wrap items-start gap-4">
 
           {/* Stat cards */}
-          <div className="flex flex-wrap gap-2.5">
-            <StatCard value={barcodes.length.toLocaleString()} label="Queried"  tone="navy" />
-            <StatCard value={results.length.toLocaleString()}  label="Matched"          />
-            <StatCard value={filtered.length.toLocaleString()} label="Shown"            />
+          <div className="grid flex-1 grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+            <StatCard value={barcodes.length.toLocaleString()} label="Queried"    tone="navy" />
+            <StatCard value={results.length.toLocaleString()}  label="Matched"    tone="good" />
+            <StatCard value={filtered.length.toLocaleString()} label="Shown"      tone="navy" />
             <StatCard
-              value={(barcodes.length - results.length).toLocaleString()}
+              value={notFound.toLocaleString()}
               label="Not Found"
-              tone={(barcodes.length - results.length) > 0 ? 'danger' : 'navy'}
+              tone={notFound > 0 ? 'danger' : 'navy'}
             />
-            <StatCard value={allStatuses.length}  label="Statuses"    />
-            <StatCard value={allConds.length}     label="Conditions"  />
+            <StatCard value={allStatuses.length} label="Statuses"   tone="navy" />
+            <StatCard value={allConds.length}    label="Conditions" tone="navy" />
           </div>
 
-          {/* Filter chips row */}
+          {/* Filter chips */}
           <div className="flex flex-col gap-2">
-
-            {/* Status */}
-            <div className="flex flex-wrap items-center gap-1.5">
-              <span className="whitespace-nowrap text-[10.5px] font-bold uppercase tracking-wide text-gray-500">Status</span>
-              {['ALL', ...allStatuses].map((v) => {
-                const active = statusFilter === v;
-                const bs = v !== 'ALL' ? statusStyle(v) : {};
-                return (
-                  <button
-                    key={v}
-                    onClick={() => setStatusFilter(v)}
-                    className="cursor-pointer whitespace-nowrap rounded-full px-2.5 py-0.5 text-xs font-semibold tracking-wide transition-all active:scale-[0.98]"
-                    style={{
-                      borderWidth: active ? 2 : 1.5,
-                      borderStyle: 'solid',
-                      borderColor: active ? '#1f295c' : '#d8dde8',
-                      background:  active ? (v === 'ALL' ? '#1f295c' : bs.background) : '#fff',
-                      color:       active ? (v === 'ALL' ? '#fff'    : bs.color)      : '#7a85a8',
-                    }}
-                  >{v}{v !== 'ALL' && <span style={{ marginLeft: 4, opacity: .6 }}>{results.filter((r) => r.status === v).length}</span>}</button>
-                );
-              })}
-            </div>
-
-            {/* Condition */}
+            <ChipRow
+              label="Status"
+              values={allStatuses}
+              active={statusFilter}
+              onSelect={setStatusFilter}
+              count={(v) => results.filter((r) => r.status === v).length}
+            />
             {allConds.length > 0 && (
-              <div className="flex flex-wrap items-center gap-1.5">
-                <span className="whitespace-nowrap text-[10.5px] font-bold uppercase tracking-wide text-gray-500">Condition</span>
-                {['ALL', ...allConds].map((v) => {
-                  const active = condFilter === v;
-                  const bs = v !== 'ALL' ? statusStyle(v) : {};
-                  return (
-                    <button
-                      key={v}
-                      onClick={() => setCondFilter(v)}
-                      className="cursor-pointer whitespace-nowrap rounded-full px-2.5 py-0.5 text-xs font-semibold tracking-wide transition-all active:scale-[0.98]"
-                      style={{
-                        borderWidth: active ? 2 : 1.5,
-                        borderStyle: 'solid',
-                        borderColor: active ? '#1f295c' : '#d8dde8',
-                        background:  active ? (v === 'ALL' ? '#1f295c' : bs.background) : '#fff',
-                        color:       active ? (v === 'ALL' ? '#fff'    : bs.color)      : '#7a85a8',
-                      }}
-                    >{v}{v !== 'ALL' && <span style={{ marginLeft: 4, opacity: .6 }}>{results.filter((r) => r.condition === v).length}</span>}</button>
-                  );
-                })}
-              </div>
+              <ChipRow
+                label="Condition"
+                values={allConds}
+                active={condFilter}
+                onSelect={setCondFilter}
+                count={(v) => results.filter((r) => r.condition === v).length}
+              />
             )}
-
-            {/* Availability */}
             {allAvails.length > 0 && (
-              <div className="flex flex-wrap items-center gap-1.5">
-                <span className="whitespace-nowrap text-[10.5px] font-bold uppercase tracking-wide text-gray-500">Availability</span>
-                {['ALL', ...allAvails].map((v) => {
-                  const active = availFilter === v;
-                  const bs = v !== 'ALL' ? statusStyle(v) : {};
-                  return (
-                    <button
-                      key={v}
-                      onClick={() => setAvailFilter(v)}
-                      className="cursor-pointer whitespace-nowrap rounded-full px-2.5 py-0.5 text-xs font-semibold tracking-wide transition-all active:scale-[0.98]"
-                      style={{
-                        borderWidth: active ? 2 : 1.5,
-                        borderStyle: 'solid',
-                        borderColor: active ? '#1f295c' : '#d8dde8',
-                        background:  active ? (v === 'ALL' ? '#1f295c' : bs.background) : '#fff',
-                        color:       active ? (v === 'ALL' ? '#fff'    : bs.color)      : '#7a85a8',
-                      }}
-                    >{v}{v !== 'ALL' && <span style={{ marginLeft: 4, opacity: .6 }}>{results.filter((r) => r.availability === v).length}</span>}</button>
-                  );
-                })}
-              </div>
+              <ChipRow
+                label="Availability"
+                values={allAvails}
+                active={availFilter}
+                onSelect={setAvailFilter}
+                count={(v) => results.filter((r) => r.availability === v).length}
+              />
             )}
           </div>
         </div>
@@ -596,21 +597,21 @@ export default function BulkBarcodeLookupPage() {
                       {/* Status badge */}
                       <TD>
                         {row.status
-                          ? <span className="inline-block rounded px-2 py-0.5 text-xs font-bold" style={statusStyle(row.status)}>{row.status}</span>
+                          ? <Badge tone={valueTone(row.status)}>{row.status}</Badge>
                           : '—'}
                       </TD>
 
                       {/* Condition badge */}
                       <TD>
                         {row.condition
-                          ? <span className="inline-block rounded px-2 py-0.5 text-xs font-bold" style={statusStyle(row.condition)}>{row.condition}</span>
+                          ? <Badge tone={valueTone(row.condition)}>{row.condition}</Badge>
                           : '—'}
                       </TD>
 
                       {/* Availability badge */}
                       <TD>
                         {row.availability
-                          ? <span className="inline-block rounded px-2 py-0.5 text-xs font-bold" style={statusStyle(row.availability)}>{row.availability}</span>
+                          ? <Badge tone={valueTone(row.availability)}>{row.availability}</Badge>
                           : '—'}
                       </TD>
                     </TR>
@@ -625,9 +626,9 @@ export default function BulkBarcodeLookupPage() {
       {/* ── Done / empty state ── */}
       {status === 'done' && results.length === 0 && (
         <Card className="flex flex-col items-center gap-2.5 px-6 py-12 text-center">
-          <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
-            <circle cx="20" cy="20" r="18" stroke="#d8dde8" strokeWidth="2"/>
-            <path d="M13 20h14" stroke="#d8dde8" strokeWidth="2" strokeLinecap="round"/>
+          <svg width="40" height="40" viewBox="0 0 40 40" fill="none" className="text-gray-300">
+            <circle cx="20" cy="20" r="18" stroke="currentColor" strokeWidth="2"/>
+            <path d="M13 20h14" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
           </svg>
           <div className="text-sm font-medium text-gray-500">
             No matching barcodes found in <strong className="text-brand-700">barcode_item_history</strong>.

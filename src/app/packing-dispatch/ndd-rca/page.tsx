@@ -7,8 +7,16 @@
 // the Drive folder.
 
 import { useState, useRef, useEffect, useCallback } from "react";
-import { cn } from "@/lib/cn";
-import { Button } from "@/components/ui";
+import {
+  Button,
+  Input,
+  Field,
+  Card,
+  CardBody,
+  PageHeader,
+  StatusPill,
+  Badge,
+} from "@/components/ui";
 
 const API = "/api/packing-dispatch/ndd-rca";
 const DRIVE_FOLDER = "1Kygr8PWqaZ8t0GAZDnB3nBJIgriAeC9U";
@@ -24,13 +32,14 @@ const LINE: Record<string, string> = {
   dim: "#6c79aa", // brand-400
 };
 
-type Step = { key: string; label: string; sub: string; tone: string };
+type Variant = "primary" | "success" | "outline";
+type Step = { key: string; label: string; sub: string; variant: Variant };
 
 const STEPS: Step[] = [
-  { key: "fetch", label: "FETCH", sub: "Power BI → CSV", tone: "border-brand-600 text-brand-600 hover:bg-brand-50 focus-visible:ring-brand-300" },
-  { key: "push", label: "PUSH", sub: "CSV + DB → Sheets", tone: "border-good-600 text-good-600 hover:bg-good-50 focus-visible:ring-good-600/40" },
-  { key: "qcf", label: "QCF", sub: "QC-fail → QCF tab", tone: "border-notice-600 text-notice-600 hover:bg-notice-50 focus-visible:ring-notice-600/40" },
-  { key: "excel", label: "EXPORT", sub: "Tabs → Drive .xlsx", tone: "border-gold-700 text-gold-700 hover:bg-gold-100 focus-visible:ring-gold-500/40" },
+  { key: "fetch", label: "FETCH", sub: "Power BI → CSV", variant: "primary" },
+  { key: "push", label: "PUSH", sub: "CSV + DB → Sheets", variant: "success" },
+  { key: "qcf", label: "QCF", sub: "QC-fail → QCF tab", variant: "outline" },
+  { key: "excel", label: "EXPORT", sub: "Tabs → Drive .xlsx", variant: "outline" },
 ];
 
 interface LogLine {
@@ -167,132 +176,112 @@ export default function NddRcaPage() {
 
   // ── render ──────────────────────────────────────────────────────────────
   return (
-    <div className="space-y-5">
-      {/* Header */}
-      <header className="flex h-16 items-center justify-between rounded-2xl bg-gradient-to-br from-brand-800 to-brand-500 px-6 shadow-sm">
-        <div className="flex items-center gap-3.5">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gold-500 text-[17px] font-black text-brand-900">
-            ▸
-          </div>
-          <div>
-            <div className="text-lg font-extrabold tracking-tight text-white">
-              NDD RCA — Control Panel
-            </div>
-            <div className="mt-0.5 text-[11px] text-white/40">Packing · Dispatch</div>
-          </div>
-        </div>
-        <span className={cn("text-[13px] font-bold tracking-wide", busy ? "text-gold-500" : "text-white/50")}>
-          ● {status}
-        </span>
-      </header>
-
-      <div className="mx-auto max-w-4xl space-y-4">
-        {/* RCA date */}
-        <div className="flex flex-wrap items-center gap-3">
-          <label className="text-[11px] font-bold uppercase tracking-wider text-gray-500">
-            RCA Date
-          </label>
-          <input
-            type="date"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-            disabled={busy}
-            className="rounded-lg border border-gray-300 bg-white px-3.5 py-2 text-sm font-bold tracking-wide text-gray-900 shadow-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/30 disabled:bg-gray-50"
-          />
-          <span className="text-xs text-gray-500">drives Fetch, Push, QCF &amp; Export</span>
-        </div>
-
-        {/* Step buttons */}
-        <div className="grid grid-cols-4 gap-3.5">
-          {STEPS.map((s) => (
-            <div key={s.key} className="flex flex-col gap-1.5">
-              <button
-                onClick={() => run(s.key, s.label)}
-                disabled={busy}
-                className={cn(
-                  "rounded-lg border bg-white py-3 text-sm font-extrabold tracking-wide shadow-sm transition focus-visible:outline-none focus-visible:ring-2 disabled:cursor-not-allowed disabled:opacity-45",
-                  s.tone,
-                )}
-              >
-                {s.label}
-              </button>
-              <span className="text-center text-[11px] text-gray-500">{s.sub}</span>
-            </div>
-          ))}
-        </div>
-
-        {/* RUN ALL */}
-        <Button
-          onClick={() => run("all", "RUN ALL")}
-          disabled={busy}
-          size="lg"
-          className="w-full text-base font-black tracking-[0.15em]"
-        >
-          ▶ RUN ALL
-        </Button>
-
-        {/* Action row */}
-        <div className="flex flex-wrap gap-2.5">
-          <ActionBtn label="⤓ OPEN .XLSX" tone="border-gold-500 text-gold-700 hover:bg-gold-100" onClick={openXlsx} disabled={busy} />
-          <ActionBtn label="⤓ DISPATCH (DAC)" tone="border-danger-600 text-danger-600 hover:bg-danger-50" onClick={exportDac} disabled={busy} />
-          <ActionBtn label="▣ DRIVE FOLDER" tone="border-gray-300 text-gray-600 hover:bg-gray-50" onClick={openFolder} disabled={false} />
-          <div className="flex-1" />
-          <ActionBtn label="⌫ CLEAR LOG" tone="border-gray-300 text-gray-600 hover:bg-gray-50" onClick={() => setLog([])} disabled={false} />
-        </div>
-
-        {/* Console */}
-        <div
-          ref={consoleRef}
-          className="overflow-y-auto whitespace-pre-wrap break-words rounded-xl border border-brand-800 bg-[#05050a] px-4 py-3.5 font-mono text-[13px] leading-relaxed"
-          style={{ minHeight: 320, maxHeight: "55vh" }}
-        >
-          {log.length === 0 ? (
-            <span style={{ color: LINE.dim }}>
-              Ready. Set the RCA date and pick a step.{"\n"}
-              FETCH may open a browser the first time for Power BI sign-in.{"\n"}
-              EXPORT uploads the DRCA workbook to Google Drive (Year/Month).
-            </span>
+    <div className="mx-auto max-w-4xl space-y-6">
+      <PageHeader
+        title="NDD RCA — Control Panel"
+        subtitle="Packing · Dispatch — one RCA date drives every step"
+        actions={
+          busy ? (
+            <StatusPill tone="gold">● {status}</StatusPill>
           ) : (
-            log.map((l, i) => (
-              <span
-                key={i}
-                style={{
-                  display: "block",
-                  color: (l.tag && LINE[l.tag]) || LINE.ok,
-                  fontWeight: l.tag === "head" ? 700 : 400,
-                }}
-              >
-                {l.text || " "}
-              </span>
-            ))
-          )}
-        </div>
+            <Badge tone="navy">● {status}</Badge>
+          )
+        }
+      />
+
+      {/* Controls */}
+      <Card>
+        <CardBody className="space-y-5">
+          {/* RCA date */}
+          <Field
+            label="RCA Date"
+            htmlFor="rca-date"
+            hint="drives Fetch, Push, QCF & Export"
+            className="max-w-xs"
+          >
+            <Input
+              id="rca-date"
+              type="date"
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+              disabled={busy}
+            />
+          </Field>
+
+          {/* Step buttons */}
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            {STEPS.map((s) => (
+              <div key={s.key} className="flex flex-col gap-1.5">
+                <Button
+                  variant={s.variant}
+                  onClick={() => run(s.key, s.label)}
+                  disabled={busy}
+                  className="w-full font-bold tracking-wide"
+                >
+                  {s.label}
+                </Button>
+                <span className="text-center text-[11px] text-gray-500">{s.sub}</span>
+              </div>
+            ))}
+          </div>
+
+          {/* RUN ALL */}
+          <Button
+            onClick={() => run("all", "RUN ALL")}
+            loading={busy}
+            disabled={busy}
+            size="lg"
+            className="w-full font-black tracking-[0.15em]"
+          >
+            ▶ RUN ALL
+          </Button>
+
+          {/* Action row */}
+          <div className="flex flex-wrap gap-2.5">
+            <Button variant="outline" size="sm" onClick={openXlsx} disabled={busy}>
+              ⤓ OPEN .XLSX
+            </Button>
+            <Button variant="danger" size="sm" onClick={exportDac} disabled={busy}>
+              ⤓ DISPATCH (DAC)
+            </Button>
+            <Button variant="outline" size="sm" onClick={openFolder}>
+              ▣ DRIVE FOLDER
+            </Button>
+            <div className="flex-1" />
+            <Button variant="ghost" size="sm" onClick={() => setLog([])}>
+              ⌫ CLEAR LOG
+            </Button>
+          </div>
+        </CardBody>
+      </Card>
+
+      {/* Console */}
+      <div
+        ref={consoleRef}
+        className="overflow-y-auto whitespace-pre-wrap break-words rounded-xl border border-brand-800 bg-[#05050a] px-4 py-3.5 font-mono text-[13px] leading-relaxed"
+        style={{ minHeight: 320, maxHeight: "55vh" }}
+      >
+        {log.length === 0 ? (
+          <span style={{ color: LINE.dim }}>
+            Ready. Set the RCA date and pick a step.{"\n"}
+            FETCH may open a browser the first time for Power BI sign-in.{"\n"}
+            EXPORT uploads the DRCA workbook to Google Drive (Year/Month).
+          </span>
+        ) : (
+          log.map((l, i) => (
+            <span
+              key={i}
+              style={{
+                display: "block",
+                color: (l.tag && LINE[l.tag]) || LINE.ok,
+                fontWeight: l.tag === "head" ? 700 : 400,
+              }}
+            >
+              {l.text || " "}
+            </span>
+          ))
+        )}
       </div>
     </div>
-  );
-}
-
-function ActionBtn({
-  label,
-  tone,
-  onClick,
-  disabled,
-}: {
-  label: string;
-  tone: string;
-  onClick: () => void;
-  disabled: boolean;
-}) {
-  return (
-    <button
-      onClick={onClick}
-      disabled={disabled}
-      className={cn(
-        "rounded-lg border bg-white px-4 py-2 text-[13px] font-bold tracking-wide transition disabled:cursor-not-allowed disabled:opacity-45",
-        tone,
-      )}
-    >
-      {label}
-    </button>
   );
 }

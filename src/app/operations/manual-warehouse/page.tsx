@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { Card, PageHeader, Field, Input, Modal } from '@/components/ui';
+import { Card, PageHeader, Field, Input, Modal, Alert } from '@/components/ui';
 
 export default function PackingPage() {
   const [scanId, setScanId] = useState('');
@@ -68,17 +68,16 @@ export default function PackingPage() {
 
   return (
     <div
-      className="min-h-screen flex items-center justify-center bg-cover bg-center"
+      className="relative flex min-h-full items-center justify-center bg-cover bg-center"
       style={{ backgroundImage: "url('/images/manual-warehouse-bg.png')" }}
     >
-      <Card variant="floating" className="w-full max-w-md p-6">
-
+      <Card variant="floating" className="relative z-10 w-full max-w-md p-6">
         <PageHeader title="Manual Warehouse Scan" />
 
         {message && (
-          <div className="mb-3 text-center text-sm text-gray-900">
+          <Alert tone={message.startsWith('✔️') ? 'success' : 'error'} className="mb-4">
             {message}
-          </div>
+          </Alert>
         )}
 
         <div className="space-y-4">
@@ -99,14 +98,17 @@ export default function PackingPage() {
         </div>
 
         <div className="mt-4 text-sm text-gray-600">
-          Last 1 hr scans: <strong>{hourCount}</strong>
+          Last 1 hr scans: <strong className="text-brand-700">{hourCount}</strong>
         </div>
 
-        <Modal open={showCityModal && !!city} onClose={() => setShowCityModal(false)} size="sm" className="text-center">
-          <h3 className="text-lg font-bold text-brand-700">
-            Destination City
-          </h3>
-          <p className="text-xl mt-2 text-gray-900">{city}</p>
+        <Modal
+          open={showCityModal && !!city}
+          onClose={() => setShowCityModal(false)}
+          size="sm"
+          className="text-center"
+        >
+          <h3 className="text-lg font-bold text-brand-700">Destination City</h3>
+          <p className="mt-2 text-xl text-gray-900">{city}</p>
         </Modal>
       </Card>
     </div>

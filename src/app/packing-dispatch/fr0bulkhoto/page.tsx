@@ -91,6 +91,7 @@ export default function fr0Page() {
               value={scanId}
               onChange={e => setScanId(e.target.value.toUpperCase())}
               placeholder="SNXS + 16 digits"
+              autoFocus
             />
           </Field>
 
