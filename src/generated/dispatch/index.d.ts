@@ -43,6 +43,21 @@ export type Placement = $Result.DefaultSelection<Prisma.$PlacementPayload>
  * 
  */
 export type LocationEvent = $Result.DefaultSelection<Prisma.$LocationEventPayload>
+/**
+ * Model QcDumpEntry
+ * 
+ */
+export type QcDumpEntry = $Result.DefaultSelection<Prisma.$QcDumpEntryPayload>
+/**
+ * Model PackageConsolidation
+ * 
+ */
+export type PackageConsolidation = $Result.DefaultSelection<Prisma.$PackageConsolidationPayload>
+/**
+ * Model ConsolidationScan
+ * 
+ */
+export type ConsolidationScan = $Result.DefaultSelection<Prisma.$ConsolidationScanPayload>
 
 /**
  * Enums
@@ -84,6 +99,16 @@ export const LocationEventType: {
 
 export type LocationEventType = (typeof LocationEventType)[keyof typeof LocationEventType]
 
+
+export const ConsolidationStatus: {
+  PENDING: 'PENDING',
+  CONSOLIDATING: 'CONSOLIDATING',
+  COMPLETE: 'COMPLETE',
+  RELEASED: 'RELEASED'
+};
+
+export type ConsolidationStatus = (typeof ConsolidationStatus)[keyof typeof ConsolidationStatus]
+
 }
 
 export type OperatorColor = $Enums.OperatorColor
@@ -101,6 +126,10 @@ export const AwbStatus: typeof $Enums.AwbStatus
 export type LocationEventType = $Enums.LocationEventType
 
 export const LocationEventType: typeof $Enums.LocationEventType
+
+export type ConsolidationStatus = $Enums.ConsolidationStatus
+
+export const ConsolidationStatus: typeof $Enums.ConsolidationStatus
 
 /**
  * ##  Prisma Client ʲˢ
@@ -286,6 +315,36 @@ export class PrismaClient<
     * ```
     */
   get locationEvent(): Prisma.LocationEventDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.qcDumpEntry`: Exposes CRUD operations for the **QcDumpEntry** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more QcDumpEntries
+    * const qcDumpEntries = await prisma.qcDumpEntry.findMany()
+    * ```
+    */
+  get qcDumpEntry(): Prisma.QcDumpEntryDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.packageConsolidation`: Exposes CRUD operations for the **PackageConsolidation** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more PackageConsolidations
+    * const packageConsolidations = await prisma.packageConsolidation.findMany()
+    * ```
+    */
+  get packageConsolidation(): Prisma.PackageConsolidationDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.consolidationScan`: Exposes CRUD operations for the **ConsolidationScan** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more ConsolidationScans
+    * const consolidationScans = await prisma.consolidationScan.findMany()
+    * ```
+    */
+  get consolidationScan(): Prisma.ConsolidationScanDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -731,7 +790,10 @@ export namespace Prisma {
     RoutingAssignment: 'RoutingAssignment',
     Awb: 'Awb',
     Placement: 'Placement',
-    LocationEvent: 'LocationEvent'
+    LocationEvent: 'LocationEvent',
+    QcDumpEntry: 'QcDumpEntry',
+    PackageConsolidation: 'PackageConsolidation',
+    ConsolidationScan: 'ConsolidationScan'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -750,7 +812,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "rack" | "location" | "routingAssignment" | "awb" | "placement" | "locationEvent"
+      modelProps: "rack" | "location" | "routingAssignment" | "awb" | "placement" | "locationEvent" | "qcDumpEntry" | "packageConsolidation" | "consolidationScan"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1150,6 +1212,204 @@ export namespace Prisma {
           }
         }
       }
+      QcDumpEntry: {
+        payload: Prisma.$QcDumpEntryPayload<ExtArgs>
+        fields: Prisma.QcDumpEntryFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.QcDumpEntryFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$QcDumpEntryPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.QcDumpEntryFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$QcDumpEntryPayload>
+          }
+          findFirst: {
+            args: Prisma.QcDumpEntryFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$QcDumpEntryPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.QcDumpEntryFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$QcDumpEntryPayload>
+          }
+          findMany: {
+            args: Prisma.QcDumpEntryFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$QcDumpEntryPayload>[]
+          }
+          create: {
+            args: Prisma.QcDumpEntryCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$QcDumpEntryPayload>
+          }
+          createMany: {
+            args: Prisma.QcDumpEntryCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          delete: {
+            args: Prisma.QcDumpEntryDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$QcDumpEntryPayload>
+          }
+          update: {
+            args: Prisma.QcDumpEntryUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$QcDumpEntryPayload>
+          }
+          deleteMany: {
+            args: Prisma.QcDumpEntryDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.QcDumpEntryUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.QcDumpEntryUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$QcDumpEntryPayload>
+          }
+          aggregate: {
+            args: Prisma.QcDumpEntryAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateQcDumpEntry>
+          }
+          groupBy: {
+            args: Prisma.QcDumpEntryGroupByArgs<ExtArgs>
+            result: $Utils.Optional<QcDumpEntryGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.QcDumpEntryCountArgs<ExtArgs>
+            result: $Utils.Optional<QcDumpEntryCountAggregateOutputType> | number
+          }
+        }
+      }
+      PackageConsolidation: {
+        payload: Prisma.$PackageConsolidationPayload<ExtArgs>
+        fields: Prisma.PackageConsolidationFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.PackageConsolidationFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PackageConsolidationPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.PackageConsolidationFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PackageConsolidationPayload>
+          }
+          findFirst: {
+            args: Prisma.PackageConsolidationFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PackageConsolidationPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.PackageConsolidationFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PackageConsolidationPayload>
+          }
+          findMany: {
+            args: Prisma.PackageConsolidationFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PackageConsolidationPayload>[]
+          }
+          create: {
+            args: Prisma.PackageConsolidationCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PackageConsolidationPayload>
+          }
+          createMany: {
+            args: Prisma.PackageConsolidationCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          delete: {
+            args: Prisma.PackageConsolidationDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PackageConsolidationPayload>
+          }
+          update: {
+            args: Prisma.PackageConsolidationUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PackageConsolidationPayload>
+          }
+          deleteMany: {
+            args: Prisma.PackageConsolidationDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.PackageConsolidationUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.PackageConsolidationUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PackageConsolidationPayload>
+          }
+          aggregate: {
+            args: Prisma.PackageConsolidationAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregatePackageConsolidation>
+          }
+          groupBy: {
+            args: Prisma.PackageConsolidationGroupByArgs<ExtArgs>
+            result: $Utils.Optional<PackageConsolidationGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.PackageConsolidationCountArgs<ExtArgs>
+            result: $Utils.Optional<PackageConsolidationCountAggregateOutputType> | number
+          }
+        }
+      }
+      ConsolidationScan: {
+        payload: Prisma.$ConsolidationScanPayload<ExtArgs>
+        fields: Prisma.ConsolidationScanFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.ConsolidationScanFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConsolidationScanPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.ConsolidationScanFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConsolidationScanPayload>
+          }
+          findFirst: {
+            args: Prisma.ConsolidationScanFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConsolidationScanPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.ConsolidationScanFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConsolidationScanPayload>
+          }
+          findMany: {
+            args: Prisma.ConsolidationScanFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConsolidationScanPayload>[]
+          }
+          create: {
+            args: Prisma.ConsolidationScanCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConsolidationScanPayload>
+          }
+          createMany: {
+            args: Prisma.ConsolidationScanCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          delete: {
+            args: Prisma.ConsolidationScanDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConsolidationScanPayload>
+          }
+          update: {
+            args: Prisma.ConsolidationScanUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConsolidationScanPayload>
+          }
+          deleteMany: {
+            args: Prisma.ConsolidationScanDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.ConsolidationScanUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.ConsolidationScanUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConsolidationScanPayload>
+          }
+          aggregate: {
+            args: Prisma.ConsolidationScanAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateConsolidationScan>
+          }
+          groupBy: {
+            args: Prisma.ConsolidationScanGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ConsolidationScanGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.ConsolidationScanCountArgs<ExtArgs>
+            result: $Utils.Optional<ConsolidationScanCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -1240,6 +1500,9 @@ export namespace Prisma {
     awb?: AwbOmit
     placement?: PlacementOmit
     locationEvent?: LocationEventOmit
+    qcDumpEntry?: QcDumpEntryOmit
+    packageConsolidation?: PackageConsolidationOmit
+    consolidationScan?: ConsolidationScanOmit
   }
 
   /* Types for Logging */
@@ -1369,6 +1632,8 @@ export namespace Prisma {
     awbs: number
     placements: number
     events: number
+    consolidations: number
+    consolidationScans: number
   }
 
   export type LocationCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -1376,6 +1641,8 @@ export namespace Prisma {
     awbs?: boolean | LocationCountOutputTypeCountAwbsArgs
     placements?: boolean | LocationCountOutputTypeCountPlacementsArgs
     events?: boolean | LocationCountOutputTypeCountEventsArgs
+    consolidations?: boolean | LocationCountOutputTypeCountConsolidationsArgs
+    consolidationScans?: boolean | LocationCountOutputTypeCountConsolidationScansArgs
   }
 
   // Custom InputTypes
@@ -1415,6 +1682,51 @@ export namespace Prisma {
    */
   export type LocationCountOutputTypeCountEventsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: LocationEventWhereInput
+  }
+
+  /**
+   * LocationCountOutputType without action
+   */
+  export type LocationCountOutputTypeCountConsolidationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: PackageConsolidationWhereInput
+  }
+
+  /**
+   * LocationCountOutputType without action
+   */
+  export type LocationCountOutputTypeCountConsolidationScansArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ConsolidationScanWhereInput
+  }
+
+
+  /**
+   * Count Type PackageConsolidationCountOutputType
+   */
+
+  export type PackageConsolidationCountOutputType = {
+    scans: number
+  }
+
+  export type PackageConsolidationCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    scans?: boolean | PackageConsolidationCountOutputTypeCountScansArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * PackageConsolidationCountOutputType without action
+   */
+  export type PackageConsolidationCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PackageConsolidationCountOutputType
+     */
+    select?: PackageConsolidationCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * PackageConsolidationCountOutputType without action
+   */
+  export type PackageConsolidationCountOutputTypeCountScansArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ConsolidationScanWhereInput
   }
 
 
@@ -2460,6 +2772,7 @@ export namespace Prisma {
     barcode: string | null
     lightState: $Enums.LightState | null
     currentRoutingCode: string | null
+    currentPackageId: string | null
     assignmentTimestamp: Date | null
     isActive: boolean | null
     createdAt: Date | null
@@ -2474,6 +2787,7 @@ export namespace Prisma {
     barcode: string | null
     lightState: $Enums.LightState | null
     currentRoutingCode: string | null
+    currentPackageId: string | null
     assignmentTimestamp: Date | null
     isActive: boolean | null
     createdAt: Date | null
@@ -2488,6 +2802,7 @@ export namespace Prisma {
     barcode: number
     lightState: number
     currentRoutingCode: number
+    currentPackageId: number
     assignmentTimestamp: number
     isActive: number
     createdAt: number
@@ -2520,6 +2835,7 @@ export namespace Prisma {
     barcode?: true
     lightState?: true
     currentRoutingCode?: true
+    currentPackageId?: true
     assignmentTimestamp?: true
     isActive?: true
     createdAt?: true
@@ -2534,6 +2850,7 @@ export namespace Prisma {
     barcode?: true
     lightState?: true
     currentRoutingCode?: true
+    currentPackageId?: true
     assignmentTimestamp?: true
     isActive?: true
     createdAt?: true
@@ -2548,6 +2865,7 @@ export namespace Prisma {
     barcode?: true
     lightState?: true
     currentRoutingCode?: true
+    currentPackageId?: true
     assignmentTimestamp?: true
     isActive?: true
     createdAt?: true
@@ -2649,6 +2967,7 @@ export namespace Prisma {
     barcode: string
     lightState: $Enums.LightState
     currentRoutingCode: string | null
+    currentPackageId: string | null
     assignmentTimestamp: Date | null
     isActive: boolean | null
     createdAt: Date | null
@@ -2682,6 +3001,7 @@ export namespace Prisma {
     barcode?: boolean
     lightState?: boolean
     currentRoutingCode?: boolean
+    currentPackageId?: boolean
     assignmentTimestamp?: boolean
     isActive?: boolean
     createdAt?: boolean
@@ -2690,6 +3010,8 @@ export namespace Prisma {
     awbs?: boolean | Location$awbsArgs<ExtArgs>
     placements?: boolean | Location$placementsArgs<ExtArgs>
     events?: boolean | Location$eventsArgs<ExtArgs>
+    consolidations?: boolean | Location$consolidationsArgs<ExtArgs>
+    consolidationScans?: boolean | Location$consolidationScansArgs<ExtArgs>
     _count?: boolean | LocationCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["location"]>
 
@@ -2704,18 +3026,21 @@ export namespace Prisma {
     barcode?: boolean
     lightState?: boolean
     currentRoutingCode?: boolean
+    currentPackageId?: boolean
     assignmentTimestamp?: boolean
     isActive?: boolean
     createdAt?: boolean
   }
 
-  export type LocationOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "rackId" | "level" | "position" | "locationNumber" | "barcode" | "lightState" | "currentRoutingCode" | "assignmentTimestamp" | "isActive" | "createdAt", ExtArgs["result"]["location"]>
+  export type LocationOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "rackId" | "level" | "position" | "locationNumber" | "barcode" | "lightState" | "currentRoutingCode" | "currentPackageId" | "assignmentTimestamp" | "isActive" | "createdAt", ExtArgs["result"]["location"]>
   export type LocationInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     rack?: boolean | RackDefaultArgs<ExtArgs>
     routingAssignments?: boolean | Location$routingAssignmentsArgs<ExtArgs>
     awbs?: boolean | Location$awbsArgs<ExtArgs>
     placements?: boolean | Location$placementsArgs<ExtArgs>
     events?: boolean | Location$eventsArgs<ExtArgs>
+    consolidations?: boolean | Location$consolidationsArgs<ExtArgs>
+    consolidationScans?: boolean | Location$consolidationScansArgs<ExtArgs>
     _count?: boolean | LocationCountOutputTypeDefaultArgs<ExtArgs>
   }
 
@@ -2727,6 +3052,8 @@ export namespace Prisma {
       awbs: Prisma.$AwbPayload<ExtArgs>[]
       placements: Prisma.$PlacementPayload<ExtArgs>[]
       events: Prisma.$LocationEventPayload<ExtArgs>[]
+      consolidations: Prisma.$PackageConsolidationPayload<ExtArgs>[]
+      consolidationScans: Prisma.$ConsolidationScanPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: number
@@ -2737,6 +3064,7 @@ export namespace Prisma {
       barcode: string
       lightState: $Enums.LightState
       currentRoutingCode: string | null
+      currentPackageId: string | null
       assignmentTimestamp: Date | null
       isActive: boolean | null
       createdAt: Date | null
@@ -3085,6 +3413,8 @@ export namespace Prisma {
     awbs<T extends Location$awbsArgs<ExtArgs> = {}>(args?: Subset<T, Location$awbsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AwbPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     placements<T extends Location$placementsArgs<ExtArgs> = {}>(args?: Subset<T, Location$placementsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PlacementPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     events<T extends Location$eventsArgs<ExtArgs> = {}>(args?: Subset<T, Location$eventsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LocationEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    consolidations<T extends Location$consolidationsArgs<ExtArgs> = {}>(args?: Subset<T, Location$consolidationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PackageConsolidationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    consolidationScans<T extends Location$consolidationScansArgs<ExtArgs> = {}>(args?: Subset<T, Location$consolidationScansArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ConsolidationScanPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -3122,6 +3452,7 @@ export namespace Prisma {
     readonly barcode: FieldRef<"Location", 'String'>
     readonly lightState: FieldRef<"Location", 'LightState'>
     readonly currentRoutingCode: FieldRef<"Location", 'String'>
+    readonly currentPackageId: FieldRef<"Location", 'String'>
     readonly assignmentTimestamp: FieldRef<"Location", 'DateTime'>
     readonly isActive: FieldRef<"Location", 'Boolean'>
     readonly createdAt: FieldRef<"Location", 'DateTime'>
@@ -3561,6 +3892,54 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: LocationEventScalarFieldEnum | LocationEventScalarFieldEnum[]
+  }
+
+  /**
+   * Location.consolidations
+   */
+  export type Location$consolidationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PackageConsolidation
+     */
+    select?: PackageConsolidationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PackageConsolidation
+     */
+    omit?: PackageConsolidationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PackageConsolidationInclude<ExtArgs> | null
+    where?: PackageConsolidationWhereInput
+    orderBy?: PackageConsolidationOrderByWithRelationInput | PackageConsolidationOrderByWithRelationInput[]
+    cursor?: PackageConsolidationWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: PackageConsolidationScalarFieldEnum | PackageConsolidationScalarFieldEnum[]
+  }
+
+  /**
+   * Location.consolidationScans
+   */
+  export type Location$consolidationScansArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConsolidationScan
+     */
+    select?: ConsolidationScanSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ConsolidationScan
+     */
+    omit?: ConsolidationScanOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ConsolidationScanInclude<ExtArgs> | null
+    where?: ConsolidationScanWhereInput
+    orderBy?: ConsolidationScanOrderByWithRelationInput | ConsolidationScanOrderByWithRelationInput[]
+    cursor?: ConsolidationScanWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ConsolidationScanScalarFieldEnum | ConsolidationScanScalarFieldEnum[]
   }
 
   /**
@@ -7548,6 +7927,3104 @@ export namespace Prisma {
 
 
   /**
+   * Model QcDumpEntry
+   */
+
+  export type AggregateQcDumpEntry = {
+    _count: QcDumpEntryCountAggregateOutputType | null
+    _avg: QcDumpEntryAvgAggregateOutputType | null
+    _sum: QcDumpEntrySumAggregateOutputType | null
+    _min: QcDumpEntryMinAggregateOutputType | null
+    _max: QcDumpEntryMaxAggregateOutputType | null
+  }
+
+  export type QcDumpEntryAvgAggregateOutputType = {
+    id: number | null
+  }
+
+  export type QcDumpEntrySumAggregateOutputType = {
+    id: number | null
+  }
+
+  export type QcDumpEntryMinAggregateOutputType = {
+    id: number | null
+    barcode: string | null
+    shippingPackageId: string | null
+    incrementId: string | null
+    itemType: string | null
+    trayNo: string | null
+    currentStatus: string | null
+    orderCreatedAt: Date | null
+    orderUpdatedAt: Date | null
+    firstSeenAt: Date | null
+    lastSeenAt: Date | null
+    inDump: boolean | null
+    scanned: boolean | null
+    scannedAt: Date | null
+  }
+
+  export type QcDumpEntryMaxAggregateOutputType = {
+    id: number | null
+    barcode: string | null
+    shippingPackageId: string | null
+    incrementId: string | null
+    itemType: string | null
+    trayNo: string | null
+    currentStatus: string | null
+    orderCreatedAt: Date | null
+    orderUpdatedAt: Date | null
+    firstSeenAt: Date | null
+    lastSeenAt: Date | null
+    inDump: boolean | null
+    scanned: boolean | null
+    scannedAt: Date | null
+  }
+
+  export type QcDumpEntryCountAggregateOutputType = {
+    id: number
+    barcode: number
+    shippingPackageId: number
+    incrementId: number
+    itemType: number
+    trayNo: number
+    currentStatus: number
+    orderCreatedAt: number
+    orderUpdatedAt: number
+    firstSeenAt: number
+    lastSeenAt: number
+    inDump: number
+    scanned: number
+    scannedAt: number
+    _all: number
+  }
+
+
+  export type QcDumpEntryAvgAggregateInputType = {
+    id?: true
+  }
+
+  export type QcDumpEntrySumAggregateInputType = {
+    id?: true
+  }
+
+  export type QcDumpEntryMinAggregateInputType = {
+    id?: true
+    barcode?: true
+    shippingPackageId?: true
+    incrementId?: true
+    itemType?: true
+    trayNo?: true
+    currentStatus?: true
+    orderCreatedAt?: true
+    orderUpdatedAt?: true
+    firstSeenAt?: true
+    lastSeenAt?: true
+    inDump?: true
+    scanned?: true
+    scannedAt?: true
+  }
+
+  export type QcDumpEntryMaxAggregateInputType = {
+    id?: true
+    barcode?: true
+    shippingPackageId?: true
+    incrementId?: true
+    itemType?: true
+    trayNo?: true
+    currentStatus?: true
+    orderCreatedAt?: true
+    orderUpdatedAt?: true
+    firstSeenAt?: true
+    lastSeenAt?: true
+    inDump?: true
+    scanned?: true
+    scannedAt?: true
+  }
+
+  export type QcDumpEntryCountAggregateInputType = {
+    id?: true
+    barcode?: true
+    shippingPackageId?: true
+    incrementId?: true
+    itemType?: true
+    trayNo?: true
+    currentStatus?: true
+    orderCreatedAt?: true
+    orderUpdatedAt?: true
+    firstSeenAt?: true
+    lastSeenAt?: true
+    inDump?: true
+    scanned?: true
+    scannedAt?: true
+    _all?: true
+  }
+
+  export type QcDumpEntryAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which QcDumpEntry to aggregate.
+     */
+    where?: QcDumpEntryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of QcDumpEntries to fetch.
+     */
+    orderBy?: QcDumpEntryOrderByWithRelationInput | QcDumpEntryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: QcDumpEntryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` QcDumpEntries from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` QcDumpEntries.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned QcDumpEntries
+    **/
+    _count?: true | QcDumpEntryCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: QcDumpEntryAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: QcDumpEntrySumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: QcDumpEntryMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: QcDumpEntryMaxAggregateInputType
+  }
+
+  export type GetQcDumpEntryAggregateType<T extends QcDumpEntryAggregateArgs> = {
+        [P in keyof T & keyof AggregateQcDumpEntry]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateQcDumpEntry[P]>
+      : GetScalarType<T[P], AggregateQcDumpEntry[P]>
+  }
+
+
+
+
+  export type QcDumpEntryGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: QcDumpEntryWhereInput
+    orderBy?: QcDumpEntryOrderByWithAggregationInput | QcDumpEntryOrderByWithAggregationInput[]
+    by: QcDumpEntryScalarFieldEnum[] | QcDumpEntryScalarFieldEnum
+    having?: QcDumpEntryScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: QcDumpEntryCountAggregateInputType | true
+    _avg?: QcDumpEntryAvgAggregateInputType
+    _sum?: QcDumpEntrySumAggregateInputType
+    _min?: QcDumpEntryMinAggregateInputType
+    _max?: QcDumpEntryMaxAggregateInputType
+  }
+
+  export type QcDumpEntryGroupByOutputType = {
+    id: number
+    barcode: string
+    shippingPackageId: string
+    incrementId: string | null
+    itemType: string | null
+    trayNo: string | null
+    currentStatus: string | null
+    orderCreatedAt: Date | null
+    orderUpdatedAt: Date | null
+    firstSeenAt: Date
+    lastSeenAt: Date
+    inDump: boolean
+    scanned: boolean
+    scannedAt: Date | null
+    _count: QcDumpEntryCountAggregateOutputType | null
+    _avg: QcDumpEntryAvgAggregateOutputType | null
+    _sum: QcDumpEntrySumAggregateOutputType | null
+    _min: QcDumpEntryMinAggregateOutputType | null
+    _max: QcDumpEntryMaxAggregateOutputType | null
+  }
+
+  type GetQcDumpEntryGroupByPayload<T extends QcDumpEntryGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<QcDumpEntryGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof QcDumpEntryGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], QcDumpEntryGroupByOutputType[P]>
+            : GetScalarType<T[P], QcDumpEntryGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type QcDumpEntrySelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    barcode?: boolean
+    shippingPackageId?: boolean
+    incrementId?: boolean
+    itemType?: boolean
+    trayNo?: boolean
+    currentStatus?: boolean
+    orderCreatedAt?: boolean
+    orderUpdatedAt?: boolean
+    firstSeenAt?: boolean
+    lastSeenAt?: boolean
+    inDump?: boolean
+    scanned?: boolean
+    scannedAt?: boolean
+  }, ExtArgs["result"]["qcDumpEntry"]>
+
+
+
+  export type QcDumpEntrySelectScalar = {
+    id?: boolean
+    barcode?: boolean
+    shippingPackageId?: boolean
+    incrementId?: boolean
+    itemType?: boolean
+    trayNo?: boolean
+    currentStatus?: boolean
+    orderCreatedAt?: boolean
+    orderUpdatedAt?: boolean
+    firstSeenAt?: boolean
+    lastSeenAt?: boolean
+    inDump?: boolean
+    scanned?: boolean
+    scannedAt?: boolean
+  }
+
+  export type QcDumpEntryOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "barcode" | "shippingPackageId" | "incrementId" | "itemType" | "trayNo" | "currentStatus" | "orderCreatedAt" | "orderUpdatedAt" | "firstSeenAt" | "lastSeenAt" | "inDump" | "scanned" | "scannedAt", ExtArgs["result"]["qcDumpEntry"]>
+
+  export type $QcDumpEntryPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "QcDumpEntry"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: number
+      barcode: string
+      shippingPackageId: string
+      incrementId: string | null
+      itemType: string | null
+      trayNo: string | null
+      currentStatus: string | null
+      orderCreatedAt: Date | null
+      orderUpdatedAt: Date | null
+      firstSeenAt: Date
+      lastSeenAt: Date
+      inDump: boolean
+      scanned: boolean
+      scannedAt: Date | null
+    }, ExtArgs["result"]["qcDumpEntry"]>
+    composites: {}
+  }
+
+  type QcDumpEntryGetPayload<S extends boolean | null | undefined | QcDumpEntryDefaultArgs> = $Result.GetResult<Prisma.$QcDumpEntryPayload, S>
+
+  type QcDumpEntryCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<QcDumpEntryFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: QcDumpEntryCountAggregateInputType | true
+    }
+
+  export interface QcDumpEntryDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['QcDumpEntry'], meta: { name: 'QcDumpEntry' } }
+    /**
+     * Find zero or one QcDumpEntry that matches the filter.
+     * @param {QcDumpEntryFindUniqueArgs} args - Arguments to find a QcDumpEntry
+     * @example
+     * // Get one QcDumpEntry
+     * const qcDumpEntry = await prisma.qcDumpEntry.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends QcDumpEntryFindUniqueArgs>(args: SelectSubset<T, QcDumpEntryFindUniqueArgs<ExtArgs>>): Prisma__QcDumpEntryClient<$Result.GetResult<Prisma.$QcDumpEntryPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one QcDumpEntry that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {QcDumpEntryFindUniqueOrThrowArgs} args - Arguments to find a QcDumpEntry
+     * @example
+     * // Get one QcDumpEntry
+     * const qcDumpEntry = await prisma.qcDumpEntry.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends QcDumpEntryFindUniqueOrThrowArgs>(args: SelectSubset<T, QcDumpEntryFindUniqueOrThrowArgs<ExtArgs>>): Prisma__QcDumpEntryClient<$Result.GetResult<Prisma.$QcDumpEntryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first QcDumpEntry that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {QcDumpEntryFindFirstArgs} args - Arguments to find a QcDumpEntry
+     * @example
+     * // Get one QcDumpEntry
+     * const qcDumpEntry = await prisma.qcDumpEntry.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends QcDumpEntryFindFirstArgs>(args?: SelectSubset<T, QcDumpEntryFindFirstArgs<ExtArgs>>): Prisma__QcDumpEntryClient<$Result.GetResult<Prisma.$QcDumpEntryPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first QcDumpEntry that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {QcDumpEntryFindFirstOrThrowArgs} args - Arguments to find a QcDumpEntry
+     * @example
+     * // Get one QcDumpEntry
+     * const qcDumpEntry = await prisma.qcDumpEntry.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends QcDumpEntryFindFirstOrThrowArgs>(args?: SelectSubset<T, QcDumpEntryFindFirstOrThrowArgs<ExtArgs>>): Prisma__QcDumpEntryClient<$Result.GetResult<Prisma.$QcDumpEntryPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more QcDumpEntries that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {QcDumpEntryFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all QcDumpEntries
+     * const qcDumpEntries = await prisma.qcDumpEntry.findMany()
+     * 
+     * // Get first 10 QcDumpEntries
+     * const qcDumpEntries = await prisma.qcDumpEntry.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const qcDumpEntryWithIdOnly = await prisma.qcDumpEntry.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends QcDumpEntryFindManyArgs>(args?: SelectSubset<T, QcDumpEntryFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$QcDumpEntryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a QcDumpEntry.
+     * @param {QcDumpEntryCreateArgs} args - Arguments to create a QcDumpEntry.
+     * @example
+     * // Create one QcDumpEntry
+     * const QcDumpEntry = await prisma.qcDumpEntry.create({
+     *   data: {
+     *     // ... data to create a QcDumpEntry
+     *   }
+     * })
+     * 
+     */
+    create<T extends QcDumpEntryCreateArgs>(args: SelectSubset<T, QcDumpEntryCreateArgs<ExtArgs>>): Prisma__QcDumpEntryClient<$Result.GetResult<Prisma.$QcDumpEntryPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many QcDumpEntries.
+     * @param {QcDumpEntryCreateManyArgs} args - Arguments to create many QcDumpEntries.
+     * @example
+     * // Create many QcDumpEntries
+     * const qcDumpEntry = await prisma.qcDumpEntry.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends QcDumpEntryCreateManyArgs>(args?: SelectSubset<T, QcDumpEntryCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a QcDumpEntry.
+     * @param {QcDumpEntryDeleteArgs} args - Arguments to delete one QcDumpEntry.
+     * @example
+     * // Delete one QcDumpEntry
+     * const QcDumpEntry = await prisma.qcDumpEntry.delete({
+     *   where: {
+     *     // ... filter to delete one QcDumpEntry
+     *   }
+     * })
+     * 
+     */
+    delete<T extends QcDumpEntryDeleteArgs>(args: SelectSubset<T, QcDumpEntryDeleteArgs<ExtArgs>>): Prisma__QcDumpEntryClient<$Result.GetResult<Prisma.$QcDumpEntryPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one QcDumpEntry.
+     * @param {QcDumpEntryUpdateArgs} args - Arguments to update one QcDumpEntry.
+     * @example
+     * // Update one QcDumpEntry
+     * const qcDumpEntry = await prisma.qcDumpEntry.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends QcDumpEntryUpdateArgs>(args: SelectSubset<T, QcDumpEntryUpdateArgs<ExtArgs>>): Prisma__QcDumpEntryClient<$Result.GetResult<Prisma.$QcDumpEntryPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more QcDumpEntries.
+     * @param {QcDumpEntryDeleteManyArgs} args - Arguments to filter QcDumpEntries to delete.
+     * @example
+     * // Delete a few QcDumpEntries
+     * const { count } = await prisma.qcDumpEntry.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends QcDumpEntryDeleteManyArgs>(args?: SelectSubset<T, QcDumpEntryDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more QcDumpEntries.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {QcDumpEntryUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many QcDumpEntries
+     * const qcDumpEntry = await prisma.qcDumpEntry.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends QcDumpEntryUpdateManyArgs>(args: SelectSubset<T, QcDumpEntryUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one QcDumpEntry.
+     * @param {QcDumpEntryUpsertArgs} args - Arguments to update or create a QcDumpEntry.
+     * @example
+     * // Update or create a QcDumpEntry
+     * const qcDumpEntry = await prisma.qcDumpEntry.upsert({
+     *   create: {
+     *     // ... data to create a QcDumpEntry
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the QcDumpEntry we want to update
+     *   }
+     * })
+     */
+    upsert<T extends QcDumpEntryUpsertArgs>(args: SelectSubset<T, QcDumpEntryUpsertArgs<ExtArgs>>): Prisma__QcDumpEntryClient<$Result.GetResult<Prisma.$QcDumpEntryPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of QcDumpEntries.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {QcDumpEntryCountArgs} args - Arguments to filter QcDumpEntries to count.
+     * @example
+     * // Count the number of QcDumpEntries
+     * const count = await prisma.qcDumpEntry.count({
+     *   where: {
+     *     // ... the filter for the QcDumpEntries we want to count
+     *   }
+     * })
+    **/
+    count<T extends QcDumpEntryCountArgs>(
+      args?: Subset<T, QcDumpEntryCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], QcDumpEntryCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a QcDumpEntry.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {QcDumpEntryAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends QcDumpEntryAggregateArgs>(args: Subset<T, QcDumpEntryAggregateArgs>): Prisma.PrismaPromise<GetQcDumpEntryAggregateType<T>>
+
+    /**
+     * Group by QcDumpEntry.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {QcDumpEntryGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends QcDumpEntryGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: QcDumpEntryGroupByArgs['orderBy'] }
+        : { orderBy?: QcDumpEntryGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, QcDumpEntryGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetQcDumpEntryGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the QcDumpEntry model
+   */
+  readonly fields: QcDumpEntryFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for QcDumpEntry.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__QcDumpEntryClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the QcDumpEntry model
+   */
+  interface QcDumpEntryFieldRefs {
+    readonly id: FieldRef<"QcDumpEntry", 'Int'>
+    readonly barcode: FieldRef<"QcDumpEntry", 'String'>
+    readonly shippingPackageId: FieldRef<"QcDumpEntry", 'String'>
+    readonly incrementId: FieldRef<"QcDumpEntry", 'String'>
+    readonly itemType: FieldRef<"QcDumpEntry", 'String'>
+    readonly trayNo: FieldRef<"QcDumpEntry", 'String'>
+    readonly currentStatus: FieldRef<"QcDumpEntry", 'String'>
+    readonly orderCreatedAt: FieldRef<"QcDumpEntry", 'DateTime'>
+    readonly orderUpdatedAt: FieldRef<"QcDumpEntry", 'DateTime'>
+    readonly firstSeenAt: FieldRef<"QcDumpEntry", 'DateTime'>
+    readonly lastSeenAt: FieldRef<"QcDumpEntry", 'DateTime'>
+    readonly inDump: FieldRef<"QcDumpEntry", 'Boolean'>
+    readonly scanned: FieldRef<"QcDumpEntry", 'Boolean'>
+    readonly scannedAt: FieldRef<"QcDumpEntry", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * QcDumpEntry findUnique
+   */
+  export type QcDumpEntryFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the QcDumpEntry
+     */
+    select?: QcDumpEntrySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the QcDumpEntry
+     */
+    omit?: QcDumpEntryOmit<ExtArgs> | null
+    /**
+     * Filter, which QcDumpEntry to fetch.
+     */
+    where: QcDumpEntryWhereUniqueInput
+  }
+
+  /**
+   * QcDumpEntry findUniqueOrThrow
+   */
+  export type QcDumpEntryFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the QcDumpEntry
+     */
+    select?: QcDumpEntrySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the QcDumpEntry
+     */
+    omit?: QcDumpEntryOmit<ExtArgs> | null
+    /**
+     * Filter, which QcDumpEntry to fetch.
+     */
+    where: QcDumpEntryWhereUniqueInput
+  }
+
+  /**
+   * QcDumpEntry findFirst
+   */
+  export type QcDumpEntryFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the QcDumpEntry
+     */
+    select?: QcDumpEntrySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the QcDumpEntry
+     */
+    omit?: QcDumpEntryOmit<ExtArgs> | null
+    /**
+     * Filter, which QcDumpEntry to fetch.
+     */
+    where?: QcDumpEntryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of QcDumpEntries to fetch.
+     */
+    orderBy?: QcDumpEntryOrderByWithRelationInput | QcDumpEntryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for QcDumpEntries.
+     */
+    cursor?: QcDumpEntryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` QcDumpEntries from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` QcDumpEntries.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of QcDumpEntries.
+     */
+    distinct?: QcDumpEntryScalarFieldEnum | QcDumpEntryScalarFieldEnum[]
+  }
+
+  /**
+   * QcDumpEntry findFirstOrThrow
+   */
+  export type QcDumpEntryFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the QcDumpEntry
+     */
+    select?: QcDumpEntrySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the QcDumpEntry
+     */
+    omit?: QcDumpEntryOmit<ExtArgs> | null
+    /**
+     * Filter, which QcDumpEntry to fetch.
+     */
+    where?: QcDumpEntryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of QcDumpEntries to fetch.
+     */
+    orderBy?: QcDumpEntryOrderByWithRelationInput | QcDumpEntryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for QcDumpEntries.
+     */
+    cursor?: QcDumpEntryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` QcDumpEntries from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` QcDumpEntries.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of QcDumpEntries.
+     */
+    distinct?: QcDumpEntryScalarFieldEnum | QcDumpEntryScalarFieldEnum[]
+  }
+
+  /**
+   * QcDumpEntry findMany
+   */
+  export type QcDumpEntryFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the QcDumpEntry
+     */
+    select?: QcDumpEntrySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the QcDumpEntry
+     */
+    omit?: QcDumpEntryOmit<ExtArgs> | null
+    /**
+     * Filter, which QcDumpEntries to fetch.
+     */
+    where?: QcDumpEntryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of QcDumpEntries to fetch.
+     */
+    orderBy?: QcDumpEntryOrderByWithRelationInput | QcDumpEntryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing QcDumpEntries.
+     */
+    cursor?: QcDumpEntryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` QcDumpEntries from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` QcDumpEntries.
+     */
+    skip?: number
+    distinct?: QcDumpEntryScalarFieldEnum | QcDumpEntryScalarFieldEnum[]
+  }
+
+  /**
+   * QcDumpEntry create
+   */
+  export type QcDumpEntryCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the QcDumpEntry
+     */
+    select?: QcDumpEntrySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the QcDumpEntry
+     */
+    omit?: QcDumpEntryOmit<ExtArgs> | null
+    /**
+     * The data needed to create a QcDumpEntry.
+     */
+    data: XOR<QcDumpEntryCreateInput, QcDumpEntryUncheckedCreateInput>
+  }
+
+  /**
+   * QcDumpEntry createMany
+   */
+  export type QcDumpEntryCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many QcDumpEntries.
+     */
+    data: QcDumpEntryCreateManyInput | QcDumpEntryCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * QcDumpEntry update
+   */
+  export type QcDumpEntryUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the QcDumpEntry
+     */
+    select?: QcDumpEntrySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the QcDumpEntry
+     */
+    omit?: QcDumpEntryOmit<ExtArgs> | null
+    /**
+     * The data needed to update a QcDumpEntry.
+     */
+    data: XOR<QcDumpEntryUpdateInput, QcDumpEntryUncheckedUpdateInput>
+    /**
+     * Choose, which QcDumpEntry to update.
+     */
+    where: QcDumpEntryWhereUniqueInput
+  }
+
+  /**
+   * QcDumpEntry updateMany
+   */
+  export type QcDumpEntryUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update QcDumpEntries.
+     */
+    data: XOR<QcDumpEntryUpdateManyMutationInput, QcDumpEntryUncheckedUpdateManyInput>
+    /**
+     * Filter which QcDumpEntries to update
+     */
+    where?: QcDumpEntryWhereInput
+    /**
+     * Limit how many QcDumpEntries to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * QcDumpEntry upsert
+   */
+  export type QcDumpEntryUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the QcDumpEntry
+     */
+    select?: QcDumpEntrySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the QcDumpEntry
+     */
+    omit?: QcDumpEntryOmit<ExtArgs> | null
+    /**
+     * The filter to search for the QcDumpEntry to update in case it exists.
+     */
+    where: QcDumpEntryWhereUniqueInput
+    /**
+     * In case the QcDumpEntry found by the `where` argument doesn't exist, create a new QcDumpEntry with this data.
+     */
+    create: XOR<QcDumpEntryCreateInput, QcDumpEntryUncheckedCreateInput>
+    /**
+     * In case the QcDumpEntry was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<QcDumpEntryUpdateInput, QcDumpEntryUncheckedUpdateInput>
+  }
+
+  /**
+   * QcDumpEntry delete
+   */
+  export type QcDumpEntryDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the QcDumpEntry
+     */
+    select?: QcDumpEntrySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the QcDumpEntry
+     */
+    omit?: QcDumpEntryOmit<ExtArgs> | null
+    /**
+     * Filter which QcDumpEntry to delete.
+     */
+    where: QcDumpEntryWhereUniqueInput
+  }
+
+  /**
+   * QcDumpEntry deleteMany
+   */
+  export type QcDumpEntryDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which QcDumpEntries to delete
+     */
+    where?: QcDumpEntryWhereInput
+    /**
+     * Limit how many QcDumpEntries to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * QcDumpEntry without action
+   */
+  export type QcDumpEntryDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the QcDumpEntry
+     */
+    select?: QcDumpEntrySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the QcDumpEntry
+     */
+    omit?: QcDumpEntryOmit<ExtArgs> | null
+  }
+
+
+  /**
+   * Model PackageConsolidation
+   */
+
+  export type AggregatePackageConsolidation = {
+    _count: PackageConsolidationCountAggregateOutputType | null
+    _avg: PackageConsolidationAvgAggregateOutputType | null
+    _sum: PackageConsolidationSumAggregateOutputType | null
+    _min: PackageConsolidationMinAggregateOutputType | null
+    _max: PackageConsolidationMaxAggregateOutputType | null
+  }
+
+  export type PackageConsolidationAvgAggregateOutputType = {
+    id: number | null
+    locationId: number | null
+    expectedCount: number | null
+    accountedCount: number | null
+  }
+
+  export type PackageConsolidationSumAggregateOutputType = {
+    id: number | null
+    locationId: number | null
+    expectedCount: number | null
+    accountedCount: number | null
+  }
+
+  export type PackageConsolidationMinAggregateOutputType = {
+    id: number | null
+    shippingPackageId: string | null
+    locationId: number | null
+    operatorColor: $Enums.OperatorColor | null
+    status: $Enums.ConsolidationStatus | null
+    expectedCount: number | null
+    accountedCount: number | null
+    createdAt: Date | null
+    updatedAt: Date | null
+    completedAt: Date | null
+    releasedAt: Date | null
+  }
+
+  export type PackageConsolidationMaxAggregateOutputType = {
+    id: number | null
+    shippingPackageId: string | null
+    locationId: number | null
+    operatorColor: $Enums.OperatorColor | null
+    status: $Enums.ConsolidationStatus | null
+    expectedCount: number | null
+    accountedCount: number | null
+    createdAt: Date | null
+    updatedAt: Date | null
+    completedAt: Date | null
+    releasedAt: Date | null
+  }
+
+  export type PackageConsolidationCountAggregateOutputType = {
+    id: number
+    shippingPackageId: number
+    locationId: number
+    operatorColor: number
+    status: number
+    expectedCount: number
+    accountedCount: number
+    createdAt: number
+    updatedAt: number
+    completedAt: number
+    releasedAt: number
+    _all: number
+  }
+
+
+  export type PackageConsolidationAvgAggregateInputType = {
+    id?: true
+    locationId?: true
+    expectedCount?: true
+    accountedCount?: true
+  }
+
+  export type PackageConsolidationSumAggregateInputType = {
+    id?: true
+    locationId?: true
+    expectedCount?: true
+    accountedCount?: true
+  }
+
+  export type PackageConsolidationMinAggregateInputType = {
+    id?: true
+    shippingPackageId?: true
+    locationId?: true
+    operatorColor?: true
+    status?: true
+    expectedCount?: true
+    accountedCount?: true
+    createdAt?: true
+    updatedAt?: true
+    completedAt?: true
+    releasedAt?: true
+  }
+
+  export type PackageConsolidationMaxAggregateInputType = {
+    id?: true
+    shippingPackageId?: true
+    locationId?: true
+    operatorColor?: true
+    status?: true
+    expectedCount?: true
+    accountedCount?: true
+    createdAt?: true
+    updatedAt?: true
+    completedAt?: true
+    releasedAt?: true
+  }
+
+  export type PackageConsolidationCountAggregateInputType = {
+    id?: true
+    shippingPackageId?: true
+    locationId?: true
+    operatorColor?: true
+    status?: true
+    expectedCount?: true
+    accountedCount?: true
+    createdAt?: true
+    updatedAt?: true
+    completedAt?: true
+    releasedAt?: true
+    _all?: true
+  }
+
+  export type PackageConsolidationAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which PackageConsolidation to aggregate.
+     */
+    where?: PackageConsolidationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PackageConsolidations to fetch.
+     */
+    orderBy?: PackageConsolidationOrderByWithRelationInput | PackageConsolidationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: PackageConsolidationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PackageConsolidations from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PackageConsolidations.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned PackageConsolidations
+    **/
+    _count?: true | PackageConsolidationCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: PackageConsolidationAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: PackageConsolidationSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: PackageConsolidationMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: PackageConsolidationMaxAggregateInputType
+  }
+
+  export type GetPackageConsolidationAggregateType<T extends PackageConsolidationAggregateArgs> = {
+        [P in keyof T & keyof AggregatePackageConsolidation]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregatePackageConsolidation[P]>
+      : GetScalarType<T[P], AggregatePackageConsolidation[P]>
+  }
+
+
+
+
+  export type PackageConsolidationGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: PackageConsolidationWhereInput
+    orderBy?: PackageConsolidationOrderByWithAggregationInput | PackageConsolidationOrderByWithAggregationInput[]
+    by: PackageConsolidationScalarFieldEnum[] | PackageConsolidationScalarFieldEnum
+    having?: PackageConsolidationScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: PackageConsolidationCountAggregateInputType | true
+    _avg?: PackageConsolidationAvgAggregateInputType
+    _sum?: PackageConsolidationSumAggregateInputType
+    _min?: PackageConsolidationMinAggregateInputType
+    _max?: PackageConsolidationMaxAggregateInputType
+  }
+
+  export type PackageConsolidationGroupByOutputType = {
+    id: number
+    shippingPackageId: string
+    locationId: number | null
+    operatorColor: $Enums.OperatorColor | null
+    status: $Enums.ConsolidationStatus
+    expectedCount: number
+    accountedCount: number
+    createdAt: Date
+    updatedAt: Date
+    completedAt: Date | null
+    releasedAt: Date | null
+    _count: PackageConsolidationCountAggregateOutputType | null
+    _avg: PackageConsolidationAvgAggregateOutputType | null
+    _sum: PackageConsolidationSumAggregateOutputType | null
+    _min: PackageConsolidationMinAggregateOutputType | null
+    _max: PackageConsolidationMaxAggregateOutputType | null
+  }
+
+  type GetPackageConsolidationGroupByPayload<T extends PackageConsolidationGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<PackageConsolidationGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof PackageConsolidationGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], PackageConsolidationGroupByOutputType[P]>
+            : GetScalarType<T[P], PackageConsolidationGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type PackageConsolidationSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    shippingPackageId?: boolean
+    locationId?: boolean
+    operatorColor?: boolean
+    status?: boolean
+    expectedCount?: boolean
+    accountedCount?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    completedAt?: boolean
+    releasedAt?: boolean
+    location?: boolean | PackageConsolidation$locationArgs<ExtArgs>
+    scans?: boolean | PackageConsolidation$scansArgs<ExtArgs>
+    _count?: boolean | PackageConsolidationCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["packageConsolidation"]>
+
+
+
+  export type PackageConsolidationSelectScalar = {
+    id?: boolean
+    shippingPackageId?: boolean
+    locationId?: boolean
+    operatorColor?: boolean
+    status?: boolean
+    expectedCount?: boolean
+    accountedCount?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    completedAt?: boolean
+    releasedAt?: boolean
+  }
+
+  export type PackageConsolidationOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "shippingPackageId" | "locationId" | "operatorColor" | "status" | "expectedCount" | "accountedCount" | "createdAt" | "updatedAt" | "completedAt" | "releasedAt", ExtArgs["result"]["packageConsolidation"]>
+  export type PackageConsolidationInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    location?: boolean | PackageConsolidation$locationArgs<ExtArgs>
+    scans?: boolean | PackageConsolidation$scansArgs<ExtArgs>
+    _count?: boolean | PackageConsolidationCountOutputTypeDefaultArgs<ExtArgs>
+  }
+
+  export type $PackageConsolidationPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "PackageConsolidation"
+    objects: {
+      location: Prisma.$LocationPayload<ExtArgs> | null
+      scans: Prisma.$ConsolidationScanPayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: number
+      shippingPackageId: string
+      locationId: number | null
+      operatorColor: $Enums.OperatorColor | null
+      status: $Enums.ConsolidationStatus
+      expectedCount: number
+      accountedCount: number
+      createdAt: Date
+      updatedAt: Date
+      completedAt: Date | null
+      releasedAt: Date | null
+    }, ExtArgs["result"]["packageConsolidation"]>
+    composites: {}
+  }
+
+  type PackageConsolidationGetPayload<S extends boolean | null | undefined | PackageConsolidationDefaultArgs> = $Result.GetResult<Prisma.$PackageConsolidationPayload, S>
+
+  type PackageConsolidationCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<PackageConsolidationFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: PackageConsolidationCountAggregateInputType | true
+    }
+
+  export interface PackageConsolidationDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['PackageConsolidation'], meta: { name: 'PackageConsolidation' } }
+    /**
+     * Find zero or one PackageConsolidation that matches the filter.
+     * @param {PackageConsolidationFindUniqueArgs} args - Arguments to find a PackageConsolidation
+     * @example
+     * // Get one PackageConsolidation
+     * const packageConsolidation = await prisma.packageConsolidation.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends PackageConsolidationFindUniqueArgs>(args: SelectSubset<T, PackageConsolidationFindUniqueArgs<ExtArgs>>): Prisma__PackageConsolidationClient<$Result.GetResult<Prisma.$PackageConsolidationPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one PackageConsolidation that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {PackageConsolidationFindUniqueOrThrowArgs} args - Arguments to find a PackageConsolidation
+     * @example
+     * // Get one PackageConsolidation
+     * const packageConsolidation = await prisma.packageConsolidation.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends PackageConsolidationFindUniqueOrThrowArgs>(args: SelectSubset<T, PackageConsolidationFindUniqueOrThrowArgs<ExtArgs>>): Prisma__PackageConsolidationClient<$Result.GetResult<Prisma.$PackageConsolidationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first PackageConsolidation that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PackageConsolidationFindFirstArgs} args - Arguments to find a PackageConsolidation
+     * @example
+     * // Get one PackageConsolidation
+     * const packageConsolidation = await prisma.packageConsolidation.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends PackageConsolidationFindFirstArgs>(args?: SelectSubset<T, PackageConsolidationFindFirstArgs<ExtArgs>>): Prisma__PackageConsolidationClient<$Result.GetResult<Prisma.$PackageConsolidationPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first PackageConsolidation that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PackageConsolidationFindFirstOrThrowArgs} args - Arguments to find a PackageConsolidation
+     * @example
+     * // Get one PackageConsolidation
+     * const packageConsolidation = await prisma.packageConsolidation.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends PackageConsolidationFindFirstOrThrowArgs>(args?: SelectSubset<T, PackageConsolidationFindFirstOrThrowArgs<ExtArgs>>): Prisma__PackageConsolidationClient<$Result.GetResult<Prisma.$PackageConsolidationPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more PackageConsolidations that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PackageConsolidationFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all PackageConsolidations
+     * const packageConsolidations = await prisma.packageConsolidation.findMany()
+     * 
+     * // Get first 10 PackageConsolidations
+     * const packageConsolidations = await prisma.packageConsolidation.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const packageConsolidationWithIdOnly = await prisma.packageConsolidation.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends PackageConsolidationFindManyArgs>(args?: SelectSubset<T, PackageConsolidationFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PackageConsolidationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a PackageConsolidation.
+     * @param {PackageConsolidationCreateArgs} args - Arguments to create a PackageConsolidation.
+     * @example
+     * // Create one PackageConsolidation
+     * const PackageConsolidation = await prisma.packageConsolidation.create({
+     *   data: {
+     *     // ... data to create a PackageConsolidation
+     *   }
+     * })
+     * 
+     */
+    create<T extends PackageConsolidationCreateArgs>(args: SelectSubset<T, PackageConsolidationCreateArgs<ExtArgs>>): Prisma__PackageConsolidationClient<$Result.GetResult<Prisma.$PackageConsolidationPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many PackageConsolidations.
+     * @param {PackageConsolidationCreateManyArgs} args - Arguments to create many PackageConsolidations.
+     * @example
+     * // Create many PackageConsolidations
+     * const packageConsolidation = await prisma.packageConsolidation.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends PackageConsolidationCreateManyArgs>(args?: SelectSubset<T, PackageConsolidationCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a PackageConsolidation.
+     * @param {PackageConsolidationDeleteArgs} args - Arguments to delete one PackageConsolidation.
+     * @example
+     * // Delete one PackageConsolidation
+     * const PackageConsolidation = await prisma.packageConsolidation.delete({
+     *   where: {
+     *     // ... filter to delete one PackageConsolidation
+     *   }
+     * })
+     * 
+     */
+    delete<T extends PackageConsolidationDeleteArgs>(args: SelectSubset<T, PackageConsolidationDeleteArgs<ExtArgs>>): Prisma__PackageConsolidationClient<$Result.GetResult<Prisma.$PackageConsolidationPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one PackageConsolidation.
+     * @param {PackageConsolidationUpdateArgs} args - Arguments to update one PackageConsolidation.
+     * @example
+     * // Update one PackageConsolidation
+     * const packageConsolidation = await prisma.packageConsolidation.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends PackageConsolidationUpdateArgs>(args: SelectSubset<T, PackageConsolidationUpdateArgs<ExtArgs>>): Prisma__PackageConsolidationClient<$Result.GetResult<Prisma.$PackageConsolidationPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more PackageConsolidations.
+     * @param {PackageConsolidationDeleteManyArgs} args - Arguments to filter PackageConsolidations to delete.
+     * @example
+     * // Delete a few PackageConsolidations
+     * const { count } = await prisma.packageConsolidation.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends PackageConsolidationDeleteManyArgs>(args?: SelectSubset<T, PackageConsolidationDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more PackageConsolidations.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PackageConsolidationUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many PackageConsolidations
+     * const packageConsolidation = await prisma.packageConsolidation.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends PackageConsolidationUpdateManyArgs>(args: SelectSubset<T, PackageConsolidationUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one PackageConsolidation.
+     * @param {PackageConsolidationUpsertArgs} args - Arguments to update or create a PackageConsolidation.
+     * @example
+     * // Update or create a PackageConsolidation
+     * const packageConsolidation = await prisma.packageConsolidation.upsert({
+     *   create: {
+     *     // ... data to create a PackageConsolidation
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the PackageConsolidation we want to update
+     *   }
+     * })
+     */
+    upsert<T extends PackageConsolidationUpsertArgs>(args: SelectSubset<T, PackageConsolidationUpsertArgs<ExtArgs>>): Prisma__PackageConsolidationClient<$Result.GetResult<Prisma.$PackageConsolidationPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of PackageConsolidations.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PackageConsolidationCountArgs} args - Arguments to filter PackageConsolidations to count.
+     * @example
+     * // Count the number of PackageConsolidations
+     * const count = await prisma.packageConsolidation.count({
+     *   where: {
+     *     // ... the filter for the PackageConsolidations we want to count
+     *   }
+     * })
+    **/
+    count<T extends PackageConsolidationCountArgs>(
+      args?: Subset<T, PackageConsolidationCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], PackageConsolidationCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a PackageConsolidation.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PackageConsolidationAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends PackageConsolidationAggregateArgs>(args: Subset<T, PackageConsolidationAggregateArgs>): Prisma.PrismaPromise<GetPackageConsolidationAggregateType<T>>
+
+    /**
+     * Group by PackageConsolidation.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PackageConsolidationGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends PackageConsolidationGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: PackageConsolidationGroupByArgs['orderBy'] }
+        : { orderBy?: PackageConsolidationGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, PackageConsolidationGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetPackageConsolidationGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the PackageConsolidation model
+   */
+  readonly fields: PackageConsolidationFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for PackageConsolidation.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__PackageConsolidationClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    location<T extends PackageConsolidation$locationArgs<ExtArgs> = {}>(args?: Subset<T, PackageConsolidation$locationArgs<ExtArgs>>): Prisma__LocationClient<$Result.GetResult<Prisma.$LocationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    scans<T extends PackageConsolidation$scansArgs<ExtArgs> = {}>(args?: Subset<T, PackageConsolidation$scansArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ConsolidationScanPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the PackageConsolidation model
+   */
+  interface PackageConsolidationFieldRefs {
+    readonly id: FieldRef<"PackageConsolidation", 'Int'>
+    readonly shippingPackageId: FieldRef<"PackageConsolidation", 'String'>
+    readonly locationId: FieldRef<"PackageConsolidation", 'Int'>
+    readonly operatorColor: FieldRef<"PackageConsolidation", 'OperatorColor'>
+    readonly status: FieldRef<"PackageConsolidation", 'ConsolidationStatus'>
+    readonly expectedCount: FieldRef<"PackageConsolidation", 'Int'>
+    readonly accountedCount: FieldRef<"PackageConsolidation", 'Int'>
+    readonly createdAt: FieldRef<"PackageConsolidation", 'DateTime'>
+    readonly updatedAt: FieldRef<"PackageConsolidation", 'DateTime'>
+    readonly completedAt: FieldRef<"PackageConsolidation", 'DateTime'>
+    readonly releasedAt: FieldRef<"PackageConsolidation", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * PackageConsolidation findUnique
+   */
+  export type PackageConsolidationFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PackageConsolidation
+     */
+    select?: PackageConsolidationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PackageConsolidation
+     */
+    omit?: PackageConsolidationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PackageConsolidationInclude<ExtArgs> | null
+    /**
+     * Filter, which PackageConsolidation to fetch.
+     */
+    where: PackageConsolidationWhereUniqueInput
+  }
+
+  /**
+   * PackageConsolidation findUniqueOrThrow
+   */
+  export type PackageConsolidationFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PackageConsolidation
+     */
+    select?: PackageConsolidationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PackageConsolidation
+     */
+    omit?: PackageConsolidationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PackageConsolidationInclude<ExtArgs> | null
+    /**
+     * Filter, which PackageConsolidation to fetch.
+     */
+    where: PackageConsolidationWhereUniqueInput
+  }
+
+  /**
+   * PackageConsolidation findFirst
+   */
+  export type PackageConsolidationFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PackageConsolidation
+     */
+    select?: PackageConsolidationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PackageConsolidation
+     */
+    omit?: PackageConsolidationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PackageConsolidationInclude<ExtArgs> | null
+    /**
+     * Filter, which PackageConsolidation to fetch.
+     */
+    where?: PackageConsolidationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PackageConsolidations to fetch.
+     */
+    orderBy?: PackageConsolidationOrderByWithRelationInput | PackageConsolidationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for PackageConsolidations.
+     */
+    cursor?: PackageConsolidationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PackageConsolidations from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PackageConsolidations.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of PackageConsolidations.
+     */
+    distinct?: PackageConsolidationScalarFieldEnum | PackageConsolidationScalarFieldEnum[]
+  }
+
+  /**
+   * PackageConsolidation findFirstOrThrow
+   */
+  export type PackageConsolidationFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PackageConsolidation
+     */
+    select?: PackageConsolidationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PackageConsolidation
+     */
+    omit?: PackageConsolidationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PackageConsolidationInclude<ExtArgs> | null
+    /**
+     * Filter, which PackageConsolidation to fetch.
+     */
+    where?: PackageConsolidationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PackageConsolidations to fetch.
+     */
+    orderBy?: PackageConsolidationOrderByWithRelationInput | PackageConsolidationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for PackageConsolidations.
+     */
+    cursor?: PackageConsolidationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PackageConsolidations from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PackageConsolidations.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of PackageConsolidations.
+     */
+    distinct?: PackageConsolidationScalarFieldEnum | PackageConsolidationScalarFieldEnum[]
+  }
+
+  /**
+   * PackageConsolidation findMany
+   */
+  export type PackageConsolidationFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PackageConsolidation
+     */
+    select?: PackageConsolidationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PackageConsolidation
+     */
+    omit?: PackageConsolidationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PackageConsolidationInclude<ExtArgs> | null
+    /**
+     * Filter, which PackageConsolidations to fetch.
+     */
+    where?: PackageConsolidationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PackageConsolidations to fetch.
+     */
+    orderBy?: PackageConsolidationOrderByWithRelationInput | PackageConsolidationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing PackageConsolidations.
+     */
+    cursor?: PackageConsolidationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PackageConsolidations from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PackageConsolidations.
+     */
+    skip?: number
+    distinct?: PackageConsolidationScalarFieldEnum | PackageConsolidationScalarFieldEnum[]
+  }
+
+  /**
+   * PackageConsolidation create
+   */
+  export type PackageConsolidationCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PackageConsolidation
+     */
+    select?: PackageConsolidationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PackageConsolidation
+     */
+    omit?: PackageConsolidationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PackageConsolidationInclude<ExtArgs> | null
+    /**
+     * The data needed to create a PackageConsolidation.
+     */
+    data: XOR<PackageConsolidationCreateInput, PackageConsolidationUncheckedCreateInput>
+  }
+
+  /**
+   * PackageConsolidation createMany
+   */
+  export type PackageConsolidationCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many PackageConsolidations.
+     */
+    data: PackageConsolidationCreateManyInput | PackageConsolidationCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * PackageConsolidation update
+   */
+  export type PackageConsolidationUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PackageConsolidation
+     */
+    select?: PackageConsolidationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PackageConsolidation
+     */
+    omit?: PackageConsolidationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PackageConsolidationInclude<ExtArgs> | null
+    /**
+     * The data needed to update a PackageConsolidation.
+     */
+    data: XOR<PackageConsolidationUpdateInput, PackageConsolidationUncheckedUpdateInput>
+    /**
+     * Choose, which PackageConsolidation to update.
+     */
+    where: PackageConsolidationWhereUniqueInput
+  }
+
+  /**
+   * PackageConsolidation updateMany
+   */
+  export type PackageConsolidationUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update PackageConsolidations.
+     */
+    data: XOR<PackageConsolidationUpdateManyMutationInput, PackageConsolidationUncheckedUpdateManyInput>
+    /**
+     * Filter which PackageConsolidations to update
+     */
+    where?: PackageConsolidationWhereInput
+    /**
+     * Limit how many PackageConsolidations to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * PackageConsolidation upsert
+   */
+  export type PackageConsolidationUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PackageConsolidation
+     */
+    select?: PackageConsolidationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PackageConsolidation
+     */
+    omit?: PackageConsolidationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PackageConsolidationInclude<ExtArgs> | null
+    /**
+     * The filter to search for the PackageConsolidation to update in case it exists.
+     */
+    where: PackageConsolidationWhereUniqueInput
+    /**
+     * In case the PackageConsolidation found by the `where` argument doesn't exist, create a new PackageConsolidation with this data.
+     */
+    create: XOR<PackageConsolidationCreateInput, PackageConsolidationUncheckedCreateInput>
+    /**
+     * In case the PackageConsolidation was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<PackageConsolidationUpdateInput, PackageConsolidationUncheckedUpdateInput>
+  }
+
+  /**
+   * PackageConsolidation delete
+   */
+  export type PackageConsolidationDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PackageConsolidation
+     */
+    select?: PackageConsolidationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PackageConsolidation
+     */
+    omit?: PackageConsolidationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PackageConsolidationInclude<ExtArgs> | null
+    /**
+     * Filter which PackageConsolidation to delete.
+     */
+    where: PackageConsolidationWhereUniqueInput
+  }
+
+  /**
+   * PackageConsolidation deleteMany
+   */
+  export type PackageConsolidationDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which PackageConsolidations to delete
+     */
+    where?: PackageConsolidationWhereInput
+    /**
+     * Limit how many PackageConsolidations to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * PackageConsolidation.location
+   */
+  export type PackageConsolidation$locationArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Location
+     */
+    select?: LocationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Location
+     */
+    omit?: LocationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LocationInclude<ExtArgs> | null
+    where?: LocationWhereInput
+  }
+
+  /**
+   * PackageConsolidation.scans
+   */
+  export type PackageConsolidation$scansArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConsolidationScan
+     */
+    select?: ConsolidationScanSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ConsolidationScan
+     */
+    omit?: ConsolidationScanOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ConsolidationScanInclude<ExtArgs> | null
+    where?: ConsolidationScanWhereInput
+    orderBy?: ConsolidationScanOrderByWithRelationInput | ConsolidationScanOrderByWithRelationInput[]
+    cursor?: ConsolidationScanWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ConsolidationScanScalarFieldEnum | ConsolidationScanScalarFieldEnum[]
+  }
+
+  /**
+   * PackageConsolidation without action
+   */
+  export type PackageConsolidationDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PackageConsolidation
+     */
+    select?: PackageConsolidationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PackageConsolidation
+     */
+    omit?: PackageConsolidationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PackageConsolidationInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model ConsolidationScan
+   */
+
+  export type AggregateConsolidationScan = {
+    _count: ConsolidationScanCountAggregateOutputType | null
+    _avg: ConsolidationScanAvgAggregateOutputType | null
+    _sum: ConsolidationScanSumAggregateOutputType | null
+    _min: ConsolidationScanMinAggregateOutputType | null
+    _max: ConsolidationScanMaxAggregateOutputType | null
+  }
+
+  export type ConsolidationScanAvgAggregateOutputType = {
+    id: number | null
+    locationId: number | null
+  }
+
+  export type ConsolidationScanSumAggregateOutputType = {
+    id: number | null
+    locationId: number | null
+  }
+
+  export type ConsolidationScanMinAggregateOutputType = {
+    id: number | null
+    shippingPackageId: string | null
+    barcode: string | null
+    locationId: number | null
+    placed: boolean | null
+    scannedAt: Date | null
+    placedAt: Date | null
+  }
+
+  export type ConsolidationScanMaxAggregateOutputType = {
+    id: number | null
+    shippingPackageId: string | null
+    barcode: string | null
+    locationId: number | null
+    placed: boolean | null
+    scannedAt: Date | null
+    placedAt: Date | null
+  }
+
+  export type ConsolidationScanCountAggregateOutputType = {
+    id: number
+    shippingPackageId: number
+    barcode: number
+    locationId: number
+    placed: number
+    scannedAt: number
+    placedAt: number
+    _all: number
+  }
+
+
+  export type ConsolidationScanAvgAggregateInputType = {
+    id?: true
+    locationId?: true
+  }
+
+  export type ConsolidationScanSumAggregateInputType = {
+    id?: true
+    locationId?: true
+  }
+
+  export type ConsolidationScanMinAggregateInputType = {
+    id?: true
+    shippingPackageId?: true
+    barcode?: true
+    locationId?: true
+    placed?: true
+    scannedAt?: true
+    placedAt?: true
+  }
+
+  export type ConsolidationScanMaxAggregateInputType = {
+    id?: true
+    shippingPackageId?: true
+    barcode?: true
+    locationId?: true
+    placed?: true
+    scannedAt?: true
+    placedAt?: true
+  }
+
+  export type ConsolidationScanCountAggregateInputType = {
+    id?: true
+    shippingPackageId?: true
+    barcode?: true
+    locationId?: true
+    placed?: true
+    scannedAt?: true
+    placedAt?: true
+    _all?: true
+  }
+
+  export type ConsolidationScanAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ConsolidationScan to aggregate.
+     */
+    where?: ConsolidationScanWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ConsolidationScans to fetch.
+     */
+    orderBy?: ConsolidationScanOrderByWithRelationInput | ConsolidationScanOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: ConsolidationScanWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ConsolidationScans from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ConsolidationScans.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned ConsolidationScans
+    **/
+    _count?: true | ConsolidationScanCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: ConsolidationScanAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: ConsolidationScanSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: ConsolidationScanMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: ConsolidationScanMaxAggregateInputType
+  }
+
+  export type GetConsolidationScanAggregateType<T extends ConsolidationScanAggregateArgs> = {
+        [P in keyof T & keyof AggregateConsolidationScan]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateConsolidationScan[P]>
+      : GetScalarType<T[P], AggregateConsolidationScan[P]>
+  }
+
+
+
+
+  export type ConsolidationScanGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ConsolidationScanWhereInput
+    orderBy?: ConsolidationScanOrderByWithAggregationInput | ConsolidationScanOrderByWithAggregationInput[]
+    by: ConsolidationScanScalarFieldEnum[] | ConsolidationScanScalarFieldEnum
+    having?: ConsolidationScanScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: ConsolidationScanCountAggregateInputType | true
+    _avg?: ConsolidationScanAvgAggregateInputType
+    _sum?: ConsolidationScanSumAggregateInputType
+    _min?: ConsolidationScanMinAggregateInputType
+    _max?: ConsolidationScanMaxAggregateInputType
+  }
+
+  export type ConsolidationScanGroupByOutputType = {
+    id: number
+    shippingPackageId: string
+    barcode: string
+    locationId: number
+    placed: boolean
+    scannedAt: Date
+    placedAt: Date | null
+    _count: ConsolidationScanCountAggregateOutputType | null
+    _avg: ConsolidationScanAvgAggregateOutputType | null
+    _sum: ConsolidationScanSumAggregateOutputType | null
+    _min: ConsolidationScanMinAggregateOutputType | null
+    _max: ConsolidationScanMaxAggregateOutputType | null
+  }
+
+  type GetConsolidationScanGroupByPayload<T extends ConsolidationScanGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<ConsolidationScanGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof ConsolidationScanGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], ConsolidationScanGroupByOutputType[P]>
+            : GetScalarType<T[P], ConsolidationScanGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type ConsolidationScanSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    shippingPackageId?: boolean
+    barcode?: boolean
+    locationId?: boolean
+    placed?: boolean
+    scannedAt?: boolean
+    placedAt?: boolean
+    consolidation?: boolean | PackageConsolidationDefaultArgs<ExtArgs>
+    location?: boolean | LocationDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["consolidationScan"]>
+
+
+
+  export type ConsolidationScanSelectScalar = {
+    id?: boolean
+    shippingPackageId?: boolean
+    barcode?: boolean
+    locationId?: boolean
+    placed?: boolean
+    scannedAt?: boolean
+    placedAt?: boolean
+  }
+
+  export type ConsolidationScanOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "shippingPackageId" | "barcode" | "locationId" | "placed" | "scannedAt" | "placedAt", ExtArgs["result"]["consolidationScan"]>
+  export type ConsolidationScanInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    consolidation?: boolean | PackageConsolidationDefaultArgs<ExtArgs>
+    location?: boolean | LocationDefaultArgs<ExtArgs>
+  }
+
+  export type $ConsolidationScanPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "ConsolidationScan"
+    objects: {
+      consolidation: Prisma.$PackageConsolidationPayload<ExtArgs>
+      location: Prisma.$LocationPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: number
+      shippingPackageId: string
+      barcode: string
+      locationId: number
+      placed: boolean
+      scannedAt: Date
+      placedAt: Date | null
+    }, ExtArgs["result"]["consolidationScan"]>
+    composites: {}
+  }
+
+  type ConsolidationScanGetPayload<S extends boolean | null | undefined | ConsolidationScanDefaultArgs> = $Result.GetResult<Prisma.$ConsolidationScanPayload, S>
+
+  type ConsolidationScanCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<ConsolidationScanFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: ConsolidationScanCountAggregateInputType | true
+    }
+
+  export interface ConsolidationScanDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ConsolidationScan'], meta: { name: 'ConsolidationScan' } }
+    /**
+     * Find zero or one ConsolidationScan that matches the filter.
+     * @param {ConsolidationScanFindUniqueArgs} args - Arguments to find a ConsolidationScan
+     * @example
+     * // Get one ConsolidationScan
+     * const consolidationScan = await prisma.consolidationScan.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends ConsolidationScanFindUniqueArgs>(args: SelectSubset<T, ConsolidationScanFindUniqueArgs<ExtArgs>>): Prisma__ConsolidationScanClient<$Result.GetResult<Prisma.$ConsolidationScanPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one ConsolidationScan that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {ConsolidationScanFindUniqueOrThrowArgs} args - Arguments to find a ConsolidationScan
+     * @example
+     * // Get one ConsolidationScan
+     * const consolidationScan = await prisma.consolidationScan.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends ConsolidationScanFindUniqueOrThrowArgs>(args: SelectSubset<T, ConsolidationScanFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ConsolidationScanClient<$Result.GetResult<Prisma.$ConsolidationScanPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ConsolidationScan that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ConsolidationScanFindFirstArgs} args - Arguments to find a ConsolidationScan
+     * @example
+     * // Get one ConsolidationScan
+     * const consolidationScan = await prisma.consolidationScan.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends ConsolidationScanFindFirstArgs>(args?: SelectSubset<T, ConsolidationScanFindFirstArgs<ExtArgs>>): Prisma__ConsolidationScanClient<$Result.GetResult<Prisma.$ConsolidationScanPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ConsolidationScan that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ConsolidationScanFindFirstOrThrowArgs} args - Arguments to find a ConsolidationScan
+     * @example
+     * // Get one ConsolidationScan
+     * const consolidationScan = await prisma.consolidationScan.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends ConsolidationScanFindFirstOrThrowArgs>(args?: SelectSubset<T, ConsolidationScanFindFirstOrThrowArgs<ExtArgs>>): Prisma__ConsolidationScanClient<$Result.GetResult<Prisma.$ConsolidationScanPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more ConsolidationScans that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ConsolidationScanFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all ConsolidationScans
+     * const consolidationScans = await prisma.consolidationScan.findMany()
+     * 
+     * // Get first 10 ConsolidationScans
+     * const consolidationScans = await prisma.consolidationScan.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const consolidationScanWithIdOnly = await prisma.consolidationScan.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends ConsolidationScanFindManyArgs>(args?: SelectSubset<T, ConsolidationScanFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ConsolidationScanPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a ConsolidationScan.
+     * @param {ConsolidationScanCreateArgs} args - Arguments to create a ConsolidationScan.
+     * @example
+     * // Create one ConsolidationScan
+     * const ConsolidationScan = await prisma.consolidationScan.create({
+     *   data: {
+     *     // ... data to create a ConsolidationScan
+     *   }
+     * })
+     * 
+     */
+    create<T extends ConsolidationScanCreateArgs>(args: SelectSubset<T, ConsolidationScanCreateArgs<ExtArgs>>): Prisma__ConsolidationScanClient<$Result.GetResult<Prisma.$ConsolidationScanPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many ConsolidationScans.
+     * @param {ConsolidationScanCreateManyArgs} args - Arguments to create many ConsolidationScans.
+     * @example
+     * // Create many ConsolidationScans
+     * const consolidationScan = await prisma.consolidationScan.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends ConsolidationScanCreateManyArgs>(args?: SelectSubset<T, ConsolidationScanCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a ConsolidationScan.
+     * @param {ConsolidationScanDeleteArgs} args - Arguments to delete one ConsolidationScan.
+     * @example
+     * // Delete one ConsolidationScan
+     * const ConsolidationScan = await prisma.consolidationScan.delete({
+     *   where: {
+     *     // ... filter to delete one ConsolidationScan
+     *   }
+     * })
+     * 
+     */
+    delete<T extends ConsolidationScanDeleteArgs>(args: SelectSubset<T, ConsolidationScanDeleteArgs<ExtArgs>>): Prisma__ConsolidationScanClient<$Result.GetResult<Prisma.$ConsolidationScanPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one ConsolidationScan.
+     * @param {ConsolidationScanUpdateArgs} args - Arguments to update one ConsolidationScan.
+     * @example
+     * // Update one ConsolidationScan
+     * const consolidationScan = await prisma.consolidationScan.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends ConsolidationScanUpdateArgs>(args: SelectSubset<T, ConsolidationScanUpdateArgs<ExtArgs>>): Prisma__ConsolidationScanClient<$Result.GetResult<Prisma.$ConsolidationScanPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more ConsolidationScans.
+     * @param {ConsolidationScanDeleteManyArgs} args - Arguments to filter ConsolidationScans to delete.
+     * @example
+     * // Delete a few ConsolidationScans
+     * const { count } = await prisma.consolidationScan.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends ConsolidationScanDeleteManyArgs>(args?: SelectSubset<T, ConsolidationScanDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ConsolidationScans.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ConsolidationScanUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many ConsolidationScans
+     * const consolidationScan = await prisma.consolidationScan.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends ConsolidationScanUpdateManyArgs>(args: SelectSubset<T, ConsolidationScanUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one ConsolidationScan.
+     * @param {ConsolidationScanUpsertArgs} args - Arguments to update or create a ConsolidationScan.
+     * @example
+     * // Update or create a ConsolidationScan
+     * const consolidationScan = await prisma.consolidationScan.upsert({
+     *   create: {
+     *     // ... data to create a ConsolidationScan
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the ConsolidationScan we want to update
+     *   }
+     * })
+     */
+    upsert<T extends ConsolidationScanUpsertArgs>(args: SelectSubset<T, ConsolidationScanUpsertArgs<ExtArgs>>): Prisma__ConsolidationScanClient<$Result.GetResult<Prisma.$ConsolidationScanPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of ConsolidationScans.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ConsolidationScanCountArgs} args - Arguments to filter ConsolidationScans to count.
+     * @example
+     * // Count the number of ConsolidationScans
+     * const count = await prisma.consolidationScan.count({
+     *   where: {
+     *     // ... the filter for the ConsolidationScans we want to count
+     *   }
+     * })
+    **/
+    count<T extends ConsolidationScanCountArgs>(
+      args?: Subset<T, ConsolidationScanCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], ConsolidationScanCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a ConsolidationScan.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ConsolidationScanAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends ConsolidationScanAggregateArgs>(args: Subset<T, ConsolidationScanAggregateArgs>): Prisma.PrismaPromise<GetConsolidationScanAggregateType<T>>
+
+    /**
+     * Group by ConsolidationScan.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ConsolidationScanGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends ConsolidationScanGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: ConsolidationScanGroupByArgs['orderBy'] }
+        : { orderBy?: ConsolidationScanGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, ConsolidationScanGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetConsolidationScanGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the ConsolidationScan model
+   */
+  readonly fields: ConsolidationScanFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for ConsolidationScan.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__ConsolidationScanClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    consolidation<T extends PackageConsolidationDefaultArgs<ExtArgs> = {}>(args?: Subset<T, PackageConsolidationDefaultArgs<ExtArgs>>): Prisma__PackageConsolidationClient<$Result.GetResult<Prisma.$PackageConsolidationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    location<T extends LocationDefaultArgs<ExtArgs> = {}>(args?: Subset<T, LocationDefaultArgs<ExtArgs>>): Prisma__LocationClient<$Result.GetResult<Prisma.$LocationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the ConsolidationScan model
+   */
+  interface ConsolidationScanFieldRefs {
+    readonly id: FieldRef<"ConsolidationScan", 'Int'>
+    readonly shippingPackageId: FieldRef<"ConsolidationScan", 'String'>
+    readonly barcode: FieldRef<"ConsolidationScan", 'String'>
+    readonly locationId: FieldRef<"ConsolidationScan", 'Int'>
+    readonly placed: FieldRef<"ConsolidationScan", 'Boolean'>
+    readonly scannedAt: FieldRef<"ConsolidationScan", 'DateTime'>
+    readonly placedAt: FieldRef<"ConsolidationScan", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * ConsolidationScan findUnique
+   */
+  export type ConsolidationScanFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConsolidationScan
+     */
+    select?: ConsolidationScanSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ConsolidationScan
+     */
+    omit?: ConsolidationScanOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ConsolidationScanInclude<ExtArgs> | null
+    /**
+     * Filter, which ConsolidationScan to fetch.
+     */
+    where: ConsolidationScanWhereUniqueInput
+  }
+
+  /**
+   * ConsolidationScan findUniqueOrThrow
+   */
+  export type ConsolidationScanFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConsolidationScan
+     */
+    select?: ConsolidationScanSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ConsolidationScan
+     */
+    omit?: ConsolidationScanOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ConsolidationScanInclude<ExtArgs> | null
+    /**
+     * Filter, which ConsolidationScan to fetch.
+     */
+    where: ConsolidationScanWhereUniqueInput
+  }
+
+  /**
+   * ConsolidationScan findFirst
+   */
+  export type ConsolidationScanFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConsolidationScan
+     */
+    select?: ConsolidationScanSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ConsolidationScan
+     */
+    omit?: ConsolidationScanOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ConsolidationScanInclude<ExtArgs> | null
+    /**
+     * Filter, which ConsolidationScan to fetch.
+     */
+    where?: ConsolidationScanWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ConsolidationScans to fetch.
+     */
+    orderBy?: ConsolidationScanOrderByWithRelationInput | ConsolidationScanOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ConsolidationScans.
+     */
+    cursor?: ConsolidationScanWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ConsolidationScans from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ConsolidationScans.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ConsolidationScans.
+     */
+    distinct?: ConsolidationScanScalarFieldEnum | ConsolidationScanScalarFieldEnum[]
+  }
+
+  /**
+   * ConsolidationScan findFirstOrThrow
+   */
+  export type ConsolidationScanFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConsolidationScan
+     */
+    select?: ConsolidationScanSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ConsolidationScan
+     */
+    omit?: ConsolidationScanOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ConsolidationScanInclude<ExtArgs> | null
+    /**
+     * Filter, which ConsolidationScan to fetch.
+     */
+    where?: ConsolidationScanWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ConsolidationScans to fetch.
+     */
+    orderBy?: ConsolidationScanOrderByWithRelationInput | ConsolidationScanOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ConsolidationScans.
+     */
+    cursor?: ConsolidationScanWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ConsolidationScans from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ConsolidationScans.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ConsolidationScans.
+     */
+    distinct?: ConsolidationScanScalarFieldEnum | ConsolidationScanScalarFieldEnum[]
+  }
+
+  /**
+   * ConsolidationScan findMany
+   */
+  export type ConsolidationScanFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConsolidationScan
+     */
+    select?: ConsolidationScanSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ConsolidationScan
+     */
+    omit?: ConsolidationScanOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ConsolidationScanInclude<ExtArgs> | null
+    /**
+     * Filter, which ConsolidationScans to fetch.
+     */
+    where?: ConsolidationScanWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ConsolidationScans to fetch.
+     */
+    orderBy?: ConsolidationScanOrderByWithRelationInput | ConsolidationScanOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing ConsolidationScans.
+     */
+    cursor?: ConsolidationScanWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ConsolidationScans from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ConsolidationScans.
+     */
+    skip?: number
+    distinct?: ConsolidationScanScalarFieldEnum | ConsolidationScanScalarFieldEnum[]
+  }
+
+  /**
+   * ConsolidationScan create
+   */
+  export type ConsolidationScanCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConsolidationScan
+     */
+    select?: ConsolidationScanSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ConsolidationScan
+     */
+    omit?: ConsolidationScanOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ConsolidationScanInclude<ExtArgs> | null
+    /**
+     * The data needed to create a ConsolidationScan.
+     */
+    data: XOR<ConsolidationScanCreateInput, ConsolidationScanUncheckedCreateInput>
+  }
+
+  /**
+   * ConsolidationScan createMany
+   */
+  export type ConsolidationScanCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many ConsolidationScans.
+     */
+    data: ConsolidationScanCreateManyInput | ConsolidationScanCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * ConsolidationScan update
+   */
+  export type ConsolidationScanUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConsolidationScan
+     */
+    select?: ConsolidationScanSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ConsolidationScan
+     */
+    omit?: ConsolidationScanOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ConsolidationScanInclude<ExtArgs> | null
+    /**
+     * The data needed to update a ConsolidationScan.
+     */
+    data: XOR<ConsolidationScanUpdateInput, ConsolidationScanUncheckedUpdateInput>
+    /**
+     * Choose, which ConsolidationScan to update.
+     */
+    where: ConsolidationScanWhereUniqueInput
+  }
+
+  /**
+   * ConsolidationScan updateMany
+   */
+  export type ConsolidationScanUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update ConsolidationScans.
+     */
+    data: XOR<ConsolidationScanUpdateManyMutationInput, ConsolidationScanUncheckedUpdateManyInput>
+    /**
+     * Filter which ConsolidationScans to update
+     */
+    where?: ConsolidationScanWhereInput
+    /**
+     * Limit how many ConsolidationScans to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * ConsolidationScan upsert
+   */
+  export type ConsolidationScanUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConsolidationScan
+     */
+    select?: ConsolidationScanSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ConsolidationScan
+     */
+    omit?: ConsolidationScanOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ConsolidationScanInclude<ExtArgs> | null
+    /**
+     * The filter to search for the ConsolidationScan to update in case it exists.
+     */
+    where: ConsolidationScanWhereUniqueInput
+    /**
+     * In case the ConsolidationScan found by the `where` argument doesn't exist, create a new ConsolidationScan with this data.
+     */
+    create: XOR<ConsolidationScanCreateInput, ConsolidationScanUncheckedCreateInput>
+    /**
+     * In case the ConsolidationScan was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<ConsolidationScanUpdateInput, ConsolidationScanUncheckedUpdateInput>
+  }
+
+  /**
+   * ConsolidationScan delete
+   */
+  export type ConsolidationScanDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConsolidationScan
+     */
+    select?: ConsolidationScanSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ConsolidationScan
+     */
+    omit?: ConsolidationScanOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ConsolidationScanInclude<ExtArgs> | null
+    /**
+     * Filter which ConsolidationScan to delete.
+     */
+    where: ConsolidationScanWhereUniqueInput
+  }
+
+  /**
+   * ConsolidationScan deleteMany
+   */
+  export type ConsolidationScanDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ConsolidationScans to delete
+     */
+    where?: ConsolidationScanWhereInput
+    /**
+     * Limit how many ConsolidationScans to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * ConsolidationScan without action
+   */
+  export type ConsolidationScanDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConsolidationScan
+     */
+    select?: ConsolidationScanSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ConsolidationScan
+     */
+    omit?: ConsolidationScanOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ConsolidationScanInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -7581,6 +11058,7 @@ export namespace Prisma {
     barcode: 'barcode',
     lightState: 'lightState',
     currentRoutingCode: 'currentRoutingCode',
+    currentPackageId: 'currentPackageId',
     assignmentTimestamp: 'assignmentTimestamp',
     isActive: 'isActive',
     createdAt: 'createdAt'
@@ -7639,6 +11117,56 @@ export namespace Prisma {
   export type LocationEventScalarFieldEnum = (typeof LocationEventScalarFieldEnum)[keyof typeof LocationEventScalarFieldEnum]
 
 
+  export const QcDumpEntryScalarFieldEnum: {
+    id: 'id',
+    barcode: 'barcode',
+    shippingPackageId: 'shippingPackageId',
+    incrementId: 'incrementId',
+    itemType: 'itemType',
+    trayNo: 'trayNo',
+    currentStatus: 'currentStatus',
+    orderCreatedAt: 'orderCreatedAt',
+    orderUpdatedAt: 'orderUpdatedAt',
+    firstSeenAt: 'firstSeenAt',
+    lastSeenAt: 'lastSeenAt',
+    inDump: 'inDump',
+    scanned: 'scanned',
+    scannedAt: 'scannedAt'
+  };
+
+  export type QcDumpEntryScalarFieldEnum = (typeof QcDumpEntryScalarFieldEnum)[keyof typeof QcDumpEntryScalarFieldEnum]
+
+
+  export const PackageConsolidationScalarFieldEnum: {
+    id: 'id',
+    shippingPackageId: 'shippingPackageId',
+    locationId: 'locationId',
+    operatorColor: 'operatorColor',
+    status: 'status',
+    expectedCount: 'expectedCount',
+    accountedCount: 'accountedCount',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt',
+    completedAt: 'completedAt',
+    releasedAt: 'releasedAt'
+  };
+
+  export type PackageConsolidationScalarFieldEnum = (typeof PackageConsolidationScalarFieldEnum)[keyof typeof PackageConsolidationScalarFieldEnum]
+
+
+  export const ConsolidationScanScalarFieldEnum: {
+    id: 'id',
+    shippingPackageId: 'shippingPackageId',
+    barcode: 'barcode',
+    locationId: 'locationId',
+    placed: 'placed',
+    scannedAt: 'scannedAt',
+    placedAt: 'placedAt'
+  };
+
+  export type ConsolidationScanScalarFieldEnum = (typeof ConsolidationScanScalarFieldEnum)[keyof typeof ConsolidationScanScalarFieldEnum]
+
+
   export const SortOrder: {
     asc: 'asc',
     desc: 'desc'
@@ -7657,7 +11185,8 @@ export namespace Prisma {
 
   export const LocationOrderByRelevanceFieldEnum: {
     barcode: 'barcode',
-    currentRoutingCode: 'currentRoutingCode'
+    currentRoutingCode: 'currentRoutingCode',
+    currentPackageId: 'currentPackageId'
   };
 
   export type LocationOrderByRelevanceFieldEnum = (typeof LocationOrderByRelevanceFieldEnum)[keyof typeof LocationOrderByRelevanceFieldEnum]
@@ -7691,6 +11220,33 @@ export namespace Prisma {
   };
 
   export type LocationEventOrderByRelevanceFieldEnum = (typeof LocationEventOrderByRelevanceFieldEnum)[keyof typeof LocationEventOrderByRelevanceFieldEnum]
+
+
+  export const QcDumpEntryOrderByRelevanceFieldEnum: {
+    barcode: 'barcode',
+    shippingPackageId: 'shippingPackageId',
+    incrementId: 'incrementId',
+    itemType: 'itemType',
+    trayNo: 'trayNo',
+    currentStatus: 'currentStatus'
+  };
+
+  export type QcDumpEntryOrderByRelevanceFieldEnum = (typeof QcDumpEntryOrderByRelevanceFieldEnum)[keyof typeof QcDumpEntryOrderByRelevanceFieldEnum]
+
+
+  export const PackageConsolidationOrderByRelevanceFieldEnum: {
+    shippingPackageId: 'shippingPackageId'
+  };
+
+  export type PackageConsolidationOrderByRelevanceFieldEnum = (typeof PackageConsolidationOrderByRelevanceFieldEnum)[keyof typeof PackageConsolidationOrderByRelevanceFieldEnum]
+
+
+  export const ConsolidationScanOrderByRelevanceFieldEnum: {
+    shippingPackageId: 'shippingPackageId',
+    barcode: 'barcode'
+  };
+
+  export type ConsolidationScanOrderByRelevanceFieldEnum = (typeof ConsolidationScanOrderByRelevanceFieldEnum)[keyof typeof ConsolidationScanOrderByRelevanceFieldEnum]
 
 
   /**
@@ -7751,6 +11307,13 @@ export namespace Prisma {
    * Reference to a field of type 'LocationEventType'
    */
   export type EnumLocationEventTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'LocationEventType'>
+    
+
+
+  /**
+   * Reference to a field of type 'ConsolidationStatus'
+   */
+  export type EnumConsolidationStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ConsolidationStatus'>
     
 
 
@@ -7833,6 +11396,7 @@ export namespace Prisma {
     barcode?: StringFilter<"Location"> | string
     lightState?: EnumLightStateFilter<"Location"> | $Enums.LightState
     currentRoutingCode?: StringNullableFilter<"Location"> | string | null
+    currentPackageId?: StringNullableFilter<"Location"> | string | null
     assignmentTimestamp?: DateTimeNullableFilter<"Location"> | Date | string | null
     isActive?: BoolNullableFilter<"Location"> | boolean | null
     createdAt?: DateTimeNullableFilter<"Location"> | Date | string | null
@@ -7841,6 +11405,8 @@ export namespace Prisma {
     awbs?: AwbListRelationFilter
     placements?: PlacementListRelationFilter
     events?: LocationEventListRelationFilter
+    consolidations?: PackageConsolidationListRelationFilter
+    consolidationScans?: ConsolidationScanListRelationFilter
   }
 
   export type LocationOrderByWithRelationInput = {
@@ -7852,6 +11418,7 @@ export namespace Prisma {
     barcode?: SortOrder
     lightState?: SortOrder
     currentRoutingCode?: SortOrderInput | SortOrder
+    currentPackageId?: SortOrderInput | SortOrder
     assignmentTimestamp?: SortOrderInput | SortOrder
     isActive?: SortOrderInput | SortOrder
     createdAt?: SortOrderInput | SortOrder
@@ -7860,6 +11427,8 @@ export namespace Prisma {
     awbs?: AwbOrderByRelationAggregateInput
     placements?: PlacementOrderByRelationAggregateInput
     events?: LocationEventOrderByRelationAggregateInput
+    consolidations?: PackageConsolidationOrderByRelationAggregateInput
+    consolidationScans?: ConsolidationScanOrderByRelationAggregateInput
     _relevance?: LocationOrderByRelevanceInput
   }
 
@@ -7875,6 +11444,7 @@ export namespace Prisma {
     position?: IntFilter<"Location"> | number
     lightState?: EnumLightStateFilter<"Location"> | $Enums.LightState
     currentRoutingCode?: StringNullableFilter<"Location"> | string | null
+    currentPackageId?: StringNullableFilter<"Location"> | string | null
     assignmentTimestamp?: DateTimeNullableFilter<"Location"> | Date | string | null
     isActive?: BoolNullableFilter<"Location"> | boolean | null
     createdAt?: DateTimeNullableFilter<"Location"> | Date | string | null
@@ -7883,6 +11453,8 @@ export namespace Prisma {
     awbs?: AwbListRelationFilter
     placements?: PlacementListRelationFilter
     events?: LocationEventListRelationFilter
+    consolidations?: PackageConsolidationListRelationFilter
+    consolidationScans?: ConsolidationScanListRelationFilter
   }, "id" | "locationNumber" | "barcode">
 
   export type LocationOrderByWithAggregationInput = {
@@ -7894,6 +11466,7 @@ export namespace Prisma {
     barcode?: SortOrder
     lightState?: SortOrder
     currentRoutingCode?: SortOrderInput | SortOrder
+    currentPackageId?: SortOrderInput | SortOrder
     assignmentTimestamp?: SortOrderInput | SortOrder
     isActive?: SortOrderInput | SortOrder
     createdAt?: SortOrderInput | SortOrder
@@ -7916,6 +11489,7 @@ export namespace Prisma {
     barcode?: StringWithAggregatesFilter<"Location"> | string
     lightState?: EnumLightStateWithAggregatesFilter<"Location"> | $Enums.LightState
     currentRoutingCode?: StringNullableWithAggregatesFilter<"Location"> | string | null
+    currentPackageId?: StringNullableWithAggregatesFilter<"Location"> | string | null
     assignmentTimestamp?: DateTimeNullableWithAggregatesFilter<"Location"> | Date | string | null
     isActive?: BoolNullableWithAggregatesFilter<"Location"> | boolean | null
     createdAt?: DateTimeNullableWithAggregatesFilter<"Location"> | Date | string | null
@@ -8189,6 +11763,269 @@ export namespace Prisma {
     createdAt?: DateTimeNullableWithAggregatesFilter<"LocationEvent"> | Date | string | null
   }
 
+  export type QcDumpEntryWhereInput = {
+    AND?: QcDumpEntryWhereInput | QcDumpEntryWhereInput[]
+    OR?: QcDumpEntryWhereInput[]
+    NOT?: QcDumpEntryWhereInput | QcDumpEntryWhereInput[]
+    id?: IntFilter<"QcDumpEntry"> | number
+    barcode?: StringFilter<"QcDumpEntry"> | string
+    shippingPackageId?: StringFilter<"QcDumpEntry"> | string
+    incrementId?: StringNullableFilter<"QcDumpEntry"> | string | null
+    itemType?: StringNullableFilter<"QcDumpEntry"> | string | null
+    trayNo?: StringNullableFilter<"QcDumpEntry"> | string | null
+    currentStatus?: StringNullableFilter<"QcDumpEntry"> | string | null
+    orderCreatedAt?: DateTimeNullableFilter<"QcDumpEntry"> | Date | string | null
+    orderUpdatedAt?: DateTimeNullableFilter<"QcDumpEntry"> | Date | string | null
+    firstSeenAt?: DateTimeFilter<"QcDumpEntry"> | Date | string
+    lastSeenAt?: DateTimeFilter<"QcDumpEntry"> | Date | string
+    inDump?: BoolFilter<"QcDumpEntry"> | boolean
+    scanned?: BoolFilter<"QcDumpEntry"> | boolean
+    scannedAt?: DateTimeNullableFilter<"QcDumpEntry"> | Date | string | null
+  }
+
+  export type QcDumpEntryOrderByWithRelationInput = {
+    id?: SortOrder
+    barcode?: SortOrder
+    shippingPackageId?: SortOrder
+    incrementId?: SortOrderInput | SortOrder
+    itemType?: SortOrderInput | SortOrder
+    trayNo?: SortOrderInput | SortOrder
+    currentStatus?: SortOrderInput | SortOrder
+    orderCreatedAt?: SortOrderInput | SortOrder
+    orderUpdatedAt?: SortOrderInput | SortOrder
+    firstSeenAt?: SortOrder
+    lastSeenAt?: SortOrder
+    inDump?: SortOrder
+    scanned?: SortOrder
+    scannedAt?: SortOrderInput | SortOrder
+    _relevance?: QcDumpEntryOrderByRelevanceInput
+  }
+
+  export type QcDumpEntryWhereUniqueInput = Prisma.AtLeast<{
+    id?: number
+    barcode?: string
+    AND?: QcDumpEntryWhereInput | QcDumpEntryWhereInput[]
+    OR?: QcDumpEntryWhereInput[]
+    NOT?: QcDumpEntryWhereInput | QcDumpEntryWhereInput[]
+    shippingPackageId?: StringFilter<"QcDumpEntry"> | string
+    incrementId?: StringNullableFilter<"QcDumpEntry"> | string | null
+    itemType?: StringNullableFilter<"QcDumpEntry"> | string | null
+    trayNo?: StringNullableFilter<"QcDumpEntry"> | string | null
+    currentStatus?: StringNullableFilter<"QcDumpEntry"> | string | null
+    orderCreatedAt?: DateTimeNullableFilter<"QcDumpEntry"> | Date | string | null
+    orderUpdatedAt?: DateTimeNullableFilter<"QcDumpEntry"> | Date | string | null
+    firstSeenAt?: DateTimeFilter<"QcDumpEntry"> | Date | string
+    lastSeenAt?: DateTimeFilter<"QcDumpEntry"> | Date | string
+    inDump?: BoolFilter<"QcDumpEntry"> | boolean
+    scanned?: BoolFilter<"QcDumpEntry"> | boolean
+    scannedAt?: DateTimeNullableFilter<"QcDumpEntry"> | Date | string | null
+  }, "id" | "barcode">
+
+  export type QcDumpEntryOrderByWithAggregationInput = {
+    id?: SortOrder
+    barcode?: SortOrder
+    shippingPackageId?: SortOrder
+    incrementId?: SortOrderInput | SortOrder
+    itemType?: SortOrderInput | SortOrder
+    trayNo?: SortOrderInput | SortOrder
+    currentStatus?: SortOrderInput | SortOrder
+    orderCreatedAt?: SortOrderInput | SortOrder
+    orderUpdatedAt?: SortOrderInput | SortOrder
+    firstSeenAt?: SortOrder
+    lastSeenAt?: SortOrder
+    inDump?: SortOrder
+    scanned?: SortOrder
+    scannedAt?: SortOrderInput | SortOrder
+    _count?: QcDumpEntryCountOrderByAggregateInput
+    _avg?: QcDumpEntryAvgOrderByAggregateInput
+    _max?: QcDumpEntryMaxOrderByAggregateInput
+    _min?: QcDumpEntryMinOrderByAggregateInput
+    _sum?: QcDumpEntrySumOrderByAggregateInput
+  }
+
+  export type QcDumpEntryScalarWhereWithAggregatesInput = {
+    AND?: QcDumpEntryScalarWhereWithAggregatesInput | QcDumpEntryScalarWhereWithAggregatesInput[]
+    OR?: QcDumpEntryScalarWhereWithAggregatesInput[]
+    NOT?: QcDumpEntryScalarWhereWithAggregatesInput | QcDumpEntryScalarWhereWithAggregatesInput[]
+    id?: IntWithAggregatesFilter<"QcDumpEntry"> | number
+    barcode?: StringWithAggregatesFilter<"QcDumpEntry"> | string
+    shippingPackageId?: StringWithAggregatesFilter<"QcDumpEntry"> | string
+    incrementId?: StringNullableWithAggregatesFilter<"QcDumpEntry"> | string | null
+    itemType?: StringNullableWithAggregatesFilter<"QcDumpEntry"> | string | null
+    trayNo?: StringNullableWithAggregatesFilter<"QcDumpEntry"> | string | null
+    currentStatus?: StringNullableWithAggregatesFilter<"QcDumpEntry"> | string | null
+    orderCreatedAt?: DateTimeNullableWithAggregatesFilter<"QcDumpEntry"> | Date | string | null
+    orderUpdatedAt?: DateTimeNullableWithAggregatesFilter<"QcDumpEntry"> | Date | string | null
+    firstSeenAt?: DateTimeWithAggregatesFilter<"QcDumpEntry"> | Date | string
+    lastSeenAt?: DateTimeWithAggregatesFilter<"QcDumpEntry"> | Date | string
+    inDump?: BoolWithAggregatesFilter<"QcDumpEntry"> | boolean
+    scanned?: BoolWithAggregatesFilter<"QcDumpEntry"> | boolean
+    scannedAt?: DateTimeNullableWithAggregatesFilter<"QcDumpEntry"> | Date | string | null
+  }
+
+  export type PackageConsolidationWhereInput = {
+    AND?: PackageConsolidationWhereInput | PackageConsolidationWhereInput[]
+    OR?: PackageConsolidationWhereInput[]
+    NOT?: PackageConsolidationWhereInput | PackageConsolidationWhereInput[]
+    id?: IntFilter<"PackageConsolidation"> | number
+    shippingPackageId?: StringFilter<"PackageConsolidation"> | string
+    locationId?: IntNullableFilter<"PackageConsolidation"> | number | null
+    operatorColor?: EnumOperatorColorNullableFilter<"PackageConsolidation"> | $Enums.OperatorColor | null
+    status?: EnumConsolidationStatusFilter<"PackageConsolidation"> | $Enums.ConsolidationStatus
+    expectedCount?: IntFilter<"PackageConsolidation"> | number
+    accountedCount?: IntFilter<"PackageConsolidation"> | number
+    createdAt?: DateTimeFilter<"PackageConsolidation"> | Date | string
+    updatedAt?: DateTimeFilter<"PackageConsolidation"> | Date | string
+    completedAt?: DateTimeNullableFilter<"PackageConsolidation"> | Date | string | null
+    releasedAt?: DateTimeNullableFilter<"PackageConsolidation"> | Date | string | null
+    location?: XOR<LocationNullableScalarRelationFilter, LocationWhereInput> | null
+    scans?: ConsolidationScanListRelationFilter
+  }
+
+  export type PackageConsolidationOrderByWithRelationInput = {
+    id?: SortOrder
+    shippingPackageId?: SortOrder
+    locationId?: SortOrderInput | SortOrder
+    operatorColor?: SortOrderInput | SortOrder
+    status?: SortOrder
+    expectedCount?: SortOrder
+    accountedCount?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    completedAt?: SortOrderInput | SortOrder
+    releasedAt?: SortOrderInput | SortOrder
+    location?: LocationOrderByWithRelationInput
+    scans?: ConsolidationScanOrderByRelationAggregateInput
+    _relevance?: PackageConsolidationOrderByRelevanceInput
+  }
+
+  export type PackageConsolidationWhereUniqueInput = Prisma.AtLeast<{
+    id?: number
+    shippingPackageId?: string
+    AND?: PackageConsolidationWhereInput | PackageConsolidationWhereInput[]
+    OR?: PackageConsolidationWhereInput[]
+    NOT?: PackageConsolidationWhereInput | PackageConsolidationWhereInput[]
+    locationId?: IntNullableFilter<"PackageConsolidation"> | number | null
+    operatorColor?: EnumOperatorColorNullableFilter<"PackageConsolidation"> | $Enums.OperatorColor | null
+    status?: EnumConsolidationStatusFilter<"PackageConsolidation"> | $Enums.ConsolidationStatus
+    expectedCount?: IntFilter<"PackageConsolidation"> | number
+    accountedCount?: IntFilter<"PackageConsolidation"> | number
+    createdAt?: DateTimeFilter<"PackageConsolidation"> | Date | string
+    updatedAt?: DateTimeFilter<"PackageConsolidation"> | Date | string
+    completedAt?: DateTimeNullableFilter<"PackageConsolidation"> | Date | string | null
+    releasedAt?: DateTimeNullableFilter<"PackageConsolidation"> | Date | string | null
+    location?: XOR<LocationNullableScalarRelationFilter, LocationWhereInput> | null
+    scans?: ConsolidationScanListRelationFilter
+  }, "id" | "shippingPackageId">
+
+  export type PackageConsolidationOrderByWithAggregationInput = {
+    id?: SortOrder
+    shippingPackageId?: SortOrder
+    locationId?: SortOrderInput | SortOrder
+    operatorColor?: SortOrderInput | SortOrder
+    status?: SortOrder
+    expectedCount?: SortOrder
+    accountedCount?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    completedAt?: SortOrderInput | SortOrder
+    releasedAt?: SortOrderInput | SortOrder
+    _count?: PackageConsolidationCountOrderByAggregateInput
+    _avg?: PackageConsolidationAvgOrderByAggregateInput
+    _max?: PackageConsolidationMaxOrderByAggregateInput
+    _min?: PackageConsolidationMinOrderByAggregateInput
+    _sum?: PackageConsolidationSumOrderByAggregateInput
+  }
+
+  export type PackageConsolidationScalarWhereWithAggregatesInput = {
+    AND?: PackageConsolidationScalarWhereWithAggregatesInput | PackageConsolidationScalarWhereWithAggregatesInput[]
+    OR?: PackageConsolidationScalarWhereWithAggregatesInput[]
+    NOT?: PackageConsolidationScalarWhereWithAggregatesInput | PackageConsolidationScalarWhereWithAggregatesInput[]
+    id?: IntWithAggregatesFilter<"PackageConsolidation"> | number
+    shippingPackageId?: StringWithAggregatesFilter<"PackageConsolidation"> | string
+    locationId?: IntNullableWithAggregatesFilter<"PackageConsolidation"> | number | null
+    operatorColor?: EnumOperatorColorNullableWithAggregatesFilter<"PackageConsolidation"> | $Enums.OperatorColor | null
+    status?: EnumConsolidationStatusWithAggregatesFilter<"PackageConsolidation"> | $Enums.ConsolidationStatus
+    expectedCount?: IntWithAggregatesFilter<"PackageConsolidation"> | number
+    accountedCount?: IntWithAggregatesFilter<"PackageConsolidation"> | number
+    createdAt?: DateTimeWithAggregatesFilter<"PackageConsolidation"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"PackageConsolidation"> | Date | string
+    completedAt?: DateTimeNullableWithAggregatesFilter<"PackageConsolidation"> | Date | string | null
+    releasedAt?: DateTimeNullableWithAggregatesFilter<"PackageConsolidation"> | Date | string | null
+  }
+
+  export type ConsolidationScanWhereInput = {
+    AND?: ConsolidationScanWhereInput | ConsolidationScanWhereInput[]
+    OR?: ConsolidationScanWhereInput[]
+    NOT?: ConsolidationScanWhereInput | ConsolidationScanWhereInput[]
+    id?: IntFilter<"ConsolidationScan"> | number
+    shippingPackageId?: StringFilter<"ConsolidationScan"> | string
+    barcode?: StringFilter<"ConsolidationScan"> | string
+    locationId?: IntFilter<"ConsolidationScan"> | number
+    placed?: BoolFilter<"ConsolidationScan"> | boolean
+    scannedAt?: DateTimeFilter<"ConsolidationScan"> | Date | string
+    placedAt?: DateTimeNullableFilter<"ConsolidationScan"> | Date | string | null
+    consolidation?: XOR<PackageConsolidationScalarRelationFilter, PackageConsolidationWhereInput>
+    location?: XOR<LocationScalarRelationFilter, LocationWhereInput>
+  }
+
+  export type ConsolidationScanOrderByWithRelationInput = {
+    id?: SortOrder
+    shippingPackageId?: SortOrder
+    barcode?: SortOrder
+    locationId?: SortOrder
+    placed?: SortOrder
+    scannedAt?: SortOrder
+    placedAt?: SortOrderInput | SortOrder
+    consolidation?: PackageConsolidationOrderByWithRelationInput
+    location?: LocationOrderByWithRelationInput
+    _relevance?: ConsolidationScanOrderByRelevanceInput
+  }
+
+  export type ConsolidationScanWhereUniqueInput = Prisma.AtLeast<{
+    id?: number
+    shippingPackageId_barcode?: ConsolidationScanShippingPackageIdBarcodeCompoundUniqueInput
+    AND?: ConsolidationScanWhereInput | ConsolidationScanWhereInput[]
+    OR?: ConsolidationScanWhereInput[]
+    NOT?: ConsolidationScanWhereInput | ConsolidationScanWhereInput[]
+    shippingPackageId?: StringFilter<"ConsolidationScan"> | string
+    barcode?: StringFilter<"ConsolidationScan"> | string
+    locationId?: IntFilter<"ConsolidationScan"> | number
+    placed?: BoolFilter<"ConsolidationScan"> | boolean
+    scannedAt?: DateTimeFilter<"ConsolidationScan"> | Date | string
+    placedAt?: DateTimeNullableFilter<"ConsolidationScan"> | Date | string | null
+    consolidation?: XOR<PackageConsolidationScalarRelationFilter, PackageConsolidationWhereInput>
+    location?: XOR<LocationScalarRelationFilter, LocationWhereInput>
+  }, "id" | "shippingPackageId_barcode">
+
+  export type ConsolidationScanOrderByWithAggregationInput = {
+    id?: SortOrder
+    shippingPackageId?: SortOrder
+    barcode?: SortOrder
+    locationId?: SortOrder
+    placed?: SortOrder
+    scannedAt?: SortOrder
+    placedAt?: SortOrderInput | SortOrder
+    _count?: ConsolidationScanCountOrderByAggregateInput
+    _avg?: ConsolidationScanAvgOrderByAggregateInput
+    _max?: ConsolidationScanMaxOrderByAggregateInput
+    _min?: ConsolidationScanMinOrderByAggregateInput
+    _sum?: ConsolidationScanSumOrderByAggregateInput
+  }
+
+  export type ConsolidationScanScalarWhereWithAggregatesInput = {
+    AND?: ConsolidationScanScalarWhereWithAggregatesInput | ConsolidationScanScalarWhereWithAggregatesInput[]
+    OR?: ConsolidationScanScalarWhereWithAggregatesInput[]
+    NOT?: ConsolidationScanScalarWhereWithAggregatesInput | ConsolidationScanScalarWhereWithAggregatesInput[]
+    id?: IntWithAggregatesFilter<"ConsolidationScan"> | number
+    shippingPackageId?: StringWithAggregatesFilter<"ConsolidationScan"> | string
+    barcode?: StringWithAggregatesFilter<"ConsolidationScan"> | string
+    locationId?: IntWithAggregatesFilter<"ConsolidationScan"> | number
+    placed?: BoolWithAggregatesFilter<"ConsolidationScan"> | boolean
+    scannedAt?: DateTimeWithAggregatesFilter<"ConsolidationScan"> | Date | string
+    placedAt?: DateTimeNullableWithAggregatesFilter<"ConsolidationScan"> | Date | string | null
+  }
+
   export type RackCreateInput = {
     rackNumber: number
     totalLevels?: number
@@ -8253,6 +12090,7 @@ export namespace Prisma {
     barcode: string
     lightState?: $Enums.LightState
     currentRoutingCode?: string | null
+    currentPackageId?: string | null
     assignmentTimestamp?: Date | string | null
     isActive?: boolean | null
     createdAt?: Date | string | null
@@ -8261,6 +12099,8 @@ export namespace Prisma {
     awbs?: AwbCreateNestedManyWithoutAssignedLocationInput
     placements?: PlacementCreateNestedManyWithoutLocationInput
     events?: LocationEventCreateNestedManyWithoutLocationInput
+    consolidations?: PackageConsolidationCreateNestedManyWithoutLocationInput
+    consolidationScans?: ConsolidationScanCreateNestedManyWithoutLocationInput
   }
 
   export type LocationUncheckedCreateInput = {
@@ -8272,6 +12112,7 @@ export namespace Prisma {
     barcode: string
     lightState?: $Enums.LightState
     currentRoutingCode?: string | null
+    currentPackageId?: string | null
     assignmentTimestamp?: Date | string | null
     isActive?: boolean | null
     createdAt?: Date | string | null
@@ -8279,6 +12120,8 @@ export namespace Prisma {
     awbs?: AwbUncheckedCreateNestedManyWithoutAssignedLocationInput
     placements?: PlacementUncheckedCreateNestedManyWithoutLocationInput
     events?: LocationEventUncheckedCreateNestedManyWithoutLocationInput
+    consolidations?: PackageConsolidationUncheckedCreateNestedManyWithoutLocationInput
+    consolidationScans?: ConsolidationScanUncheckedCreateNestedManyWithoutLocationInput
   }
 
   export type LocationUpdateInput = {
@@ -8288,6 +12131,7 @@ export namespace Prisma {
     barcode?: StringFieldUpdateOperationsInput | string
     lightState?: EnumLightStateFieldUpdateOperationsInput | $Enums.LightState
     currentRoutingCode?: NullableStringFieldUpdateOperationsInput | string | null
+    currentPackageId?: NullableStringFieldUpdateOperationsInput | string | null
     assignmentTimestamp?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: NullableBoolFieldUpdateOperationsInput | boolean | null
     createdAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -8296,6 +12140,8 @@ export namespace Prisma {
     awbs?: AwbUpdateManyWithoutAssignedLocationNestedInput
     placements?: PlacementUpdateManyWithoutLocationNestedInput
     events?: LocationEventUpdateManyWithoutLocationNestedInput
+    consolidations?: PackageConsolidationUpdateManyWithoutLocationNestedInput
+    consolidationScans?: ConsolidationScanUpdateManyWithoutLocationNestedInput
   }
 
   export type LocationUncheckedUpdateInput = {
@@ -8307,6 +12153,7 @@ export namespace Prisma {
     barcode?: StringFieldUpdateOperationsInput | string
     lightState?: EnumLightStateFieldUpdateOperationsInput | $Enums.LightState
     currentRoutingCode?: NullableStringFieldUpdateOperationsInput | string | null
+    currentPackageId?: NullableStringFieldUpdateOperationsInput | string | null
     assignmentTimestamp?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: NullableBoolFieldUpdateOperationsInput | boolean | null
     createdAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -8314,6 +12161,8 @@ export namespace Prisma {
     awbs?: AwbUncheckedUpdateManyWithoutAssignedLocationNestedInput
     placements?: PlacementUncheckedUpdateManyWithoutLocationNestedInput
     events?: LocationEventUncheckedUpdateManyWithoutLocationNestedInput
+    consolidations?: PackageConsolidationUncheckedUpdateManyWithoutLocationNestedInput
+    consolidationScans?: ConsolidationScanUncheckedUpdateManyWithoutLocationNestedInput
   }
 
   export type LocationCreateManyInput = {
@@ -8325,6 +12174,7 @@ export namespace Prisma {
     barcode: string
     lightState?: $Enums.LightState
     currentRoutingCode?: string | null
+    currentPackageId?: string | null
     assignmentTimestamp?: Date | string | null
     isActive?: boolean | null
     createdAt?: Date | string | null
@@ -8337,6 +12187,7 @@ export namespace Prisma {
     barcode?: StringFieldUpdateOperationsInput | string
     lightState?: EnumLightStateFieldUpdateOperationsInput | $Enums.LightState
     currentRoutingCode?: NullableStringFieldUpdateOperationsInput | string | null
+    currentPackageId?: NullableStringFieldUpdateOperationsInput | string | null
     assignmentTimestamp?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: NullableBoolFieldUpdateOperationsInput | boolean | null
     createdAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -8351,6 +12202,7 @@ export namespace Prisma {
     barcode?: StringFieldUpdateOperationsInput | string
     lightState?: EnumLightStateFieldUpdateOperationsInput | $Enums.LightState
     currentRoutingCode?: NullableStringFieldUpdateOperationsInput | string | null
+    currentPackageId?: NullableStringFieldUpdateOperationsInput | string | null
     assignmentTimestamp?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: NullableBoolFieldUpdateOperationsInput | boolean | null
     createdAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -8609,6 +12461,285 @@ export namespace Prisma {
     createdAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
+  export type QcDumpEntryCreateInput = {
+    barcode: string
+    shippingPackageId: string
+    incrementId?: string | null
+    itemType?: string | null
+    trayNo?: string | null
+    currentStatus?: string | null
+    orderCreatedAt?: Date | string | null
+    orderUpdatedAt?: Date | string | null
+    firstSeenAt?: Date | string
+    lastSeenAt?: Date | string
+    inDump?: boolean
+    scanned?: boolean
+    scannedAt?: Date | string | null
+  }
+
+  export type QcDumpEntryUncheckedCreateInput = {
+    id?: number
+    barcode: string
+    shippingPackageId: string
+    incrementId?: string | null
+    itemType?: string | null
+    trayNo?: string | null
+    currentStatus?: string | null
+    orderCreatedAt?: Date | string | null
+    orderUpdatedAt?: Date | string | null
+    firstSeenAt?: Date | string
+    lastSeenAt?: Date | string
+    inDump?: boolean
+    scanned?: boolean
+    scannedAt?: Date | string | null
+  }
+
+  export type QcDumpEntryUpdateInput = {
+    barcode?: StringFieldUpdateOperationsInput | string
+    shippingPackageId?: StringFieldUpdateOperationsInput | string
+    incrementId?: NullableStringFieldUpdateOperationsInput | string | null
+    itemType?: NullableStringFieldUpdateOperationsInput | string | null
+    trayNo?: NullableStringFieldUpdateOperationsInput | string | null
+    currentStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    orderCreatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    orderUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    firstSeenAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    lastSeenAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    inDump?: BoolFieldUpdateOperationsInput | boolean
+    scanned?: BoolFieldUpdateOperationsInput | boolean
+    scannedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type QcDumpEntryUncheckedUpdateInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    barcode?: StringFieldUpdateOperationsInput | string
+    shippingPackageId?: StringFieldUpdateOperationsInput | string
+    incrementId?: NullableStringFieldUpdateOperationsInput | string | null
+    itemType?: NullableStringFieldUpdateOperationsInput | string | null
+    trayNo?: NullableStringFieldUpdateOperationsInput | string | null
+    currentStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    orderCreatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    orderUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    firstSeenAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    lastSeenAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    inDump?: BoolFieldUpdateOperationsInput | boolean
+    scanned?: BoolFieldUpdateOperationsInput | boolean
+    scannedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type QcDumpEntryCreateManyInput = {
+    id?: number
+    barcode: string
+    shippingPackageId: string
+    incrementId?: string | null
+    itemType?: string | null
+    trayNo?: string | null
+    currentStatus?: string | null
+    orderCreatedAt?: Date | string | null
+    orderUpdatedAt?: Date | string | null
+    firstSeenAt?: Date | string
+    lastSeenAt?: Date | string
+    inDump?: boolean
+    scanned?: boolean
+    scannedAt?: Date | string | null
+  }
+
+  export type QcDumpEntryUpdateManyMutationInput = {
+    barcode?: StringFieldUpdateOperationsInput | string
+    shippingPackageId?: StringFieldUpdateOperationsInput | string
+    incrementId?: NullableStringFieldUpdateOperationsInput | string | null
+    itemType?: NullableStringFieldUpdateOperationsInput | string | null
+    trayNo?: NullableStringFieldUpdateOperationsInput | string | null
+    currentStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    orderCreatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    orderUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    firstSeenAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    lastSeenAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    inDump?: BoolFieldUpdateOperationsInput | boolean
+    scanned?: BoolFieldUpdateOperationsInput | boolean
+    scannedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type QcDumpEntryUncheckedUpdateManyInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    barcode?: StringFieldUpdateOperationsInput | string
+    shippingPackageId?: StringFieldUpdateOperationsInput | string
+    incrementId?: NullableStringFieldUpdateOperationsInput | string | null
+    itemType?: NullableStringFieldUpdateOperationsInput | string | null
+    trayNo?: NullableStringFieldUpdateOperationsInput | string | null
+    currentStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    orderCreatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    orderUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    firstSeenAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    lastSeenAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    inDump?: BoolFieldUpdateOperationsInput | boolean
+    scanned?: BoolFieldUpdateOperationsInput | boolean
+    scannedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type PackageConsolidationCreateInput = {
+    shippingPackageId: string
+    operatorColor?: $Enums.OperatorColor | null
+    status?: $Enums.ConsolidationStatus
+    expectedCount?: number
+    accountedCount?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    completedAt?: Date | string | null
+    releasedAt?: Date | string | null
+    location?: LocationCreateNestedOneWithoutConsolidationsInput
+    scans?: ConsolidationScanCreateNestedManyWithoutConsolidationInput
+  }
+
+  export type PackageConsolidationUncheckedCreateInput = {
+    id?: number
+    shippingPackageId: string
+    locationId?: number | null
+    operatorColor?: $Enums.OperatorColor | null
+    status?: $Enums.ConsolidationStatus
+    expectedCount?: number
+    accountedCount?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    completedAt?: Date | string | null
+    releasedAt?: Date | string | null
+    scans?: ConsolidationScanUncheckedCreateNestedManyWithoutConsolidationInput
+  }
+
+  export type PackageConsolidationUpdateInput = {
+    shippingPackageId?: StringFieldUpdateOperationsInput | string
+    operatorColor?: NullableEnumOperatorColorFieldUpdateOperationsInput | $Enums.OperatorColor | null
+    status?: EnumConsolidationStatusFieldUpdateOperationsInput | $Enums.ConsolidationStatus
+    expectedCount?: IntFieldUpdateOperationsInput | number
+    accountedCount?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    releasedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    location?: LocationUpdateOneWithoutConsolidationsNestedInput
+    scans?: ConsolidationScanUpdateManyWithoutConsolidationNestedInput
+  }
+
+  export type PackageConsolidationUncheckedUpdateInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    shippingPackageId?: StringFieldUpdateOperationsInput | string
+    locationId?: NullableIntFieldUpdateOperationsInput | number | null
+    operatorColor?: NullableEnumOperatorColorFieldUpdateOperationsInput | $Enums.OperatorColor | null
+    status?: EnumConsolidationStatusFieldUpdateOperationsInput | $Enums.ConsolidationStatus
+    expectedCount?: IntFieldUpdateOperationsInput | number
+    accountedCount?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    releasedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    scans?: ConsolidationScanUncheckedUpdateManyWithoutConsolidationNestedInput
+  }
+
+  export type PackageConsolidationCreateManyInput = {
+    id?: number
+    shippingPackageId: string
+    locationId?: number | null
+    operatorColor?: $Enums.OperatorColor | null
+    status?: $Enums.ConsolidationStatus
+    expectedCount?: number
+    accountedCount?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    completedAt?: Date | string | null
+    releasedAt?: Date | string | null
+  }
+
+  export type PackageConsolidationUpdateManyMutationInput = {
+    shippingPackageId?: StringFieldUpdateOperationsInput | string
+    operatorColor?: NullableEnumOperatorColorFieldUpdateOperationsInput | $Enums.OperatorColor | null
+    status?: EnumConsolidationStatusFieldUpdateOperationsInput | $Enums.ConsolidationStatus
+    expectedCount?: IntFieldUpdateOperationsInput | number
+    accountedCount?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    releasedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type PackageConsolidationUncheckedUpdateManyInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    shippingPackageId?: StringFieldUpdateOperationsInput | string
+    locationId?: NullableIntFieldUpdateOperationsInput | number | null
+    operatorColor?: NullableEnumOperatorColorFieldUpdateOperationsInput | $Enums.OperatorColor | null
+    status?: EnumConsolidationStatusFieldUpdateOperationsInput | $Enums.ConsolidationStatus
+    expectedCount?: IntFieldUpdateOperationsInput | number
+    accountedCount?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    releasedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type ConsolidationScanCreateInput = {
+    barcode: string
+    placed?: boolean
+    scannedAt?: Date | string
+    placedAt?: Date | string | null
+    consolidation: PackageConsolidationCreateNestedOneWithoutScansInput
+    location: LocationCreateNestedOneWithoutConsolidationScansInput
+  }
+
+  export type ConsolidationScanUncheckedCreateInput = {
+    id?: number
+    shippingPackageId: string
+    barcode: string
+    locationId: number
+    placed?: boolean
+    scannedAt?: Date | string
+    placedAt?: Date | string | null
+  }
+
+  export type ConsolidationScanUpdateInput = {
+    barcode?: StringFieldUpdateOperationsInput | string
+    placed?: BoolFieldUpdateOperationsInput | boolean
+    scannedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    placedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    consolidation?: PackageConsolidationUpdateOneRequiredWithoutScansNestedInput
+    location?: LocationUpdateOneRequiredWithoutConsolidationScansNestedInput
+  }
+
+  export type ConsolidationScanUncheckedUpdateInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    shippingPackageId?: StringFieldUpdateOperationsInput | string
+    barcode?: StringFieldUpdateOperationsInput | string
+    locationId?: IntFieldUpdateOperationsInput | number
+    placed?: BoolFieldUpdateOperationsInput | boolean
+    scannedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    placedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type ConsolidationScanCreateManyInput = {
+    id?: number
+    shippingPackageId: string
+    barcode: string
+    locationId: number
+    placed?: boolean
+    scannedAt?: Date | string
+    placedAt?: Date | string | null
+  }
+
+  export type ConsolidationScanUpdateManyMutationInput = {
+    barcode?: StringFieldUpdateOperationsInput | string
+    placed?: BoolFieldUpdateOperationsInput | boolean
+    scannedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    placedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type ConsolidationScanUncheckedUpdateManyInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    shippingPackageId?: StringFieldUpdateOperationsInput | string
+    barcode?: StringFieldUpdateOperationsInput | string
+    locationId?: IntFieldUpdateOperationsInput | number
+    placed?: BoolFieldUpdateOperationsInput | boolean
+    scannedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    placedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
   export type IntFilter<$PrismaModel = never> = {
     equals?: number | IntFieldRefInput<$PrismaModel>
     in?: number[]
@@ -8785,6 +12916,18 @@ export namespace Prisma {
     none?: LocationEventWhereInput
   }
 
+  export type PackageConsolidationListRelationFilter = {
+    every?: PackageConsolidationWhereInput
+    some?: PackageConsolidationWhereInput
+    none?: PackageConsolidationWhereInput
+  }
+
+  export type ConsolidationScanListRelationFilter = {
+    every?: ConsolidationScanWhereInput
+    some?: ConsolidationScanWhereInput
+    none?: ConsolidationScanWhereInput
+  }
+
   export type RoutingAssignmentOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
@@ -8798,6 +12941,14 @@ export namespace Prisma {
   }
 
   export type LocationEventOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type PackageConsolidationOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type ConsolidationScanOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -8816,6 +12967,7 @@ export namespace Prisma {
     barcode?: SortOrder
     lightState?: SortOrder
     currentRoutingCode?: SortOrder
+    currentPackageId?: SortOrder
     assignmentTimestamp?: SortOrder
     isActive?: SortOrder
     createdAt?: SortOrder
@@ -8838,6 +12990,7 @@ export namespace Prisma {
     barcode?: SortOrder
     lightState?: SortOrder
     currentRoutingCode?: SortOrder
+    currentPackageId?: SortOrder
     assignmentTimestamp?: SortOrder
     isActive?: SortOrder
     createdAt?: SortOrder
@@ -8852,6 +13005,7 @@ export namespace Prisma {
     barcode?: SortOrder
     lightState?: SortOrder
     currentRoutingCode?: SortOrder
+    currentPackageId?: SortOrder
     assignmentTimestamp?: SortOrder
     isActive?: SortOrder
     createdAt?: SortOrder
@@ -9190,6 +13344,268 @@ export namespace Prisma {
     _max?: NestedEnumLocationEventTypeFilter<$PrismaModel>
   }
 
+  export type BoolFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolFilter<$PrismaModel> | boolean
+  }
+
+  export type QcDumpEntryOrderByRelevanceInput = {
+    fields: QcDumpEntryOrderByRelevanceFieldEnum | QcDumpEntryOrderByRelevanceFieldEnum[]
+    sort: SortOrder
+    search: string
+  }
+
+  export type QcDumpEntryCountOrderByAggregateInput = {
+    id?: SortOrder
+    barcode?: SortOrder
+    shippingPackageId?: SortOrder
+    incrementId?: SortOrder
+    itemType?: SortOrder
+    trayNo?: SortOrder
+    currentStatus?: SortOrder
+    orderCreatedAt?: SortOrder
+    orderUpdatedAt?: SortOrder
+    firstSeenAt?: SortOrder
+    lastSeenAt?: SortOrder
+    inDump?: SortOrder
+    scanned?: SortOrder
+    scannedAt?: SortOrder
+  }
+
+  export type QcDumpEntryAvgOrderByAggregateInput = {
+    id?: SortOrder
+  }
+
+  export type QcDumpEntryMaxOrderByAggregateInput = {
+    id?: SortOrder
+    barcode?: SortOrder
+    shippingPackageId?: SortOrder
+    incrementId?: SortOrder
+    itemType?: SortOrder
+    trayNo?: SortOrder
+    currentStatus?: SortOrder
+    orderCreatedAt?: SortOrder
+    orderUpdatedAt?: SortOrder
+    firstSeenAt?: SortOrder
+    lastSeenAt?: SortOrder
+    inDump?: SortOrder
+    scanned?: SortOrder
+    scannedAt?: SortOrder
+  }
+
+  export type QcDumpEntryMinOrderByAggregateInput = {
+    id?: SortOrder
+    barcode?: SortOrder
+    shippingPackageId?: SortOrder
+    incrementId?: SortOrder
+    itemType?: SortOrder
+    trayNo?: SortOrder
+    currentStatus?: SortOrder
+    orderCreatedAt?: SortOrder
+    orderUpdatedAt?: SortOrder
+    firstSeenAt?: SortOrder
+    lastSeenAt?: SortOrder
+    inDump?: SortOrder
+    scanned?: SortOrder
+    scannedAt?: SortOrder
+  }
+
+  export type QcDumpEntrySumOrderByAggregateInput = {
+    id?: SortOrder
+  }
+
+  export type BoolWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedBoolFilter<$PrismaModel>
+    _max?: NestedBoolFilter<$PrismaModel>
+  }
+
+  export type IntNullableFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | null
+    notIn?: number[] | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableFilter<$PrismaModel> | number | null
+  }
+
+  export type EnumOperatorColorNullableFilter<$PrismaModel = never> = {
+    equals?: $Enums.OperatorColor | EnumOperatorColorFieldRefInput<$PrismaModel> | null
+    in?: $Enums.OperatorColor[] | null
+    notIn?: $Enums.OperatorColor[] | null
+    not?: NestedEnumOperatorColorNullableFilter<$PrismaModel> | $Enums.OperatorColor | null
+  }
+
+  export type EnumConsolidationStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.ConsolidationStatus | EnumConsolidationStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.ConsolidationStatus[]
+    notIn?: $Enums.ConsolidationStatus[]
+    not?: NestedEnumConsolidationStatusFilter<$PrismaModel> | $Enums.ConsolidationStatus
+  }
+
+  export type LocationNullableScalarRelationFilter = {
+    is?: LocationWhereInput | null
+    isNot?: LocationWhereInput | null
+  }
+
+  export type PackageConsolidationOrderByRelevanceInput = {
+    fields: PackageConsolidationOrderByRelevanceFieldEnum | PackageConsolidationOrderByRelevanceFieldEnum[]
+    sort: SortOrder
+    search: string
+  }
+
+  export type PackageConsolidationCountOrderByAggregateInput = {
+    id?: SortOrder
+    shippingPackageId?: SortOrder
+    locationId?: SortOrder
+    operatorColor?: SortOrder
+    status?: SortOrder
+    expectedCount?: SortOrder
+    accountedCount?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    completedAt?: SortOrder
+    releasedAt?: SortOrder
+  }
+
+  export type PackageConsolidationAvgOrderByAggregateInput = {
+    id?: SortOrder
+    locationId?: SortOrder
+    expectedCount?: SortOrder
+    accountedCount?: SortOrder
+  }
+
+  export type PackageConsolidationMaxOrderByAggregateInput = {
+    id?: SortOrder
+    shippingPackageId?: SortOrder
+    locationId?: SortOrder
+    operatorColor?: SortOrder
+    status?: SortOrder
+    expectedCount?: SortOrder
+    accountedCount?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    completedAt?: SortOrder
+    releasedAt?: SortOrder
+  }
+
+  export type PackageConsolidationMinOrderByAggregateInput = {
+    id?: SortOrder
+    shippingPackageId?: SortOrder
+    locationId?: SortOrder
+    operatorColor?: SortOrder
+    status?: SortOrder
+    expectedCount?: SortOrder
+    accountedCount?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    completedAt?: SortOrder
+    releasedAt?: SortOrder
+  }
+
+  export type PackageConsolidationSumOrderByAggregateInput = {
+    id?: SortOrder
+    locationId?: SortOrder
+    expectedCount?: SortOrder
+    accountedCount?: SortOrder
+  }
+
+  export type IntNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | null
+    notIn?: number[] | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedIntNullableFilter<$PrismaModel>
+    _max?: NestedIntNullableFilter<$PrismaModel>
+  }
+
+  export type EnumOperatorColorNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.OperatorColor | EnumOperatorColorFieldRefInput<$PrismaModel> | null
+    in?: $Enums.OperatorColor[] | null
+    notIn?: $Enums.OperatorColor[] | null
+    not?: NestedEnumOperatorColorNullableWithAggregatesFilter<$PrismaModel> | $Enums.OperatorColor | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedEnumOperatorColorNullableFilter<$PrismaModel>
+    _max?: NestedEnumOperatorColorNullableFilter<$PrismaModel>
+  }
+
+  export type EnumConsolidationStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.ConsolidationStatus | EnumConsolidationStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.ConsolidationStatus[]
+    notIn?: $Enums.ConsolidationStatus[]
+    not?: NestedEnumConsolidationStatusWithAggregatesFilter<$PrismaModel> | $Enums.ConsolidationStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumConsolidationStatusFilter<$PrismaModel>
+    _max?: NestedEnumConsolidationStatusFilter<$PrismaModel>
+  }
+
+  export type PackageConsolidationScalarRelationFilter = {
+    is?: PackageConsolidationWhereInput
+    isNot?: PackageConsolidationWhereInput
+  }
+
+  export type ConsolidationScanOrderByRelevanceInput = {
+    fields: ConsolidationScanOrderByRelevanceFieldEnum | ConsolidationScanOrderByRelevanceFieldEnum[]
+    sort: SortOrder
+    search: string
+  }
+
+  export type ConsolidationScanShippingPackageIdBarcodeCompoundUniqueInput = {
+    shippingPackageId: string
+    barcode: string
+  }
+
+  export type ConsolidationScanCountOrderByAggregateInput = {
+    id?: SortOrder
+    shippingPackageId?: SortOrder
+    barcode?: SortOrder
+    locationId?: SortOrder
+    placed?: SortOrder
+    scannedAt?: SortOrder
+    placedAt?: SortOrder
+  }
+
+  export type ConsolidationScanAvgOrderByAggregateInput = {
+    id?: SortOrder
+    locationId?: SortOrder
+  }
+
+  export type ConsolidationScanMaxOrderByAggregateInput = {
+    id?: SortOrder
+    shippingPackageId?: SortOrder
+    barcode?: SortOrder
+    locationId?: SortOrder
+    placed?: SortOrder
+    scannedAt?: SortOrder
+    placedAt?: SortOrder
+  }
+
+  export type ConsolidationScanMinOrderByAggregateInput = {
+    id?: SortOrder
+    shippingPackageId?: SortOrder
+    barcode?: SortOrder
+    locationId?: SortOrder
+    placed?: SortOrder
+    scannedAt?: SortOrder
+    placedAt?: SortOrder
+  }
+
+  export type ConsolidationScanSumOrderByAggregateInput = {
+    id?: SortOrder
+    locationId?: SortOrder
+  }
+
   export type LocationCreateNestedManyWithoutRackInput = {
     create?: XOR<LocationCreateWithoutRackInput, LocationUncheckedCreateWithoutRackInput> | LocationCreateWithoutRackInput[] | LocationUncheckedCreateWithoutRackInput[]
     connectOrCreate?: LocationCreateOrConnectWithoutRackInput | LocationCreateOrConnectWithoutRackInput[]
@@ -9278,6 +13694,20 @@ export namespace Prisma {
     connect?: LocationEventWhereUniqueInput | LocationEventWhereUniqueInput[]
   }
 
+  export type PackageConsolidationCreateNestedManyWithoutLocationInput = {
+    create?: XOR<PackageConsolidationCreateWithoutLocationInput, PackageConsolidationUncheckedCreateWithoutLocationInput> | PackageConsolidationCreateWithoutLocationInput[] | PackageConsolidationUncheckedCreateWithoutLocationInput[]
+    connectOrCreate?: PackageConsolidationCreateOrConnectWithoutLocationInput | PackageConsolidationCreateOrConnectWithoutLocationInput[]
+    createMany?: PackageConsolidationCreateManyLocationInputEnvelope
+    connect?: PackageConsolidationWhereUniqueInput | PackageConsolidationWhereUniqueInput[]
+  }
+
+  export type ConsolidationScanCreateNestedManyWithoutLocationInput = {
+    create?: XOR<ConsolidationScanCreateWithoutLocationInput, ConsolidationScanUncheckedCreateWithoutLocationInput> | ConsolidationScanCreateWithoutLocationInput[] | ConsolidationScanUncheckedCreateWithoutLocationInput[]
+    connectOrCreate?: ConsolidationScanCreateOrConnectWithoutLocationInput | ConsolidationScanCreateOrConnectWithoutLocationInput[]
+    createMany?: ConsolidationScanCreateManyLocationInputEnvelope
+    connect?: ConsolidationScanWhereUniqueInput | ConsolidationScanWhereUniqueInput[]
+  }
+
   export type RoutingAssignmentUncheckedCreateNestedManyWithoutLocationInput = {
     create?: XOR<RoutingAssignmentCreateWithoutLocationInput, RoutingAssignmentUncheckedCreateWithoutLocationInput> | RoutingAssignmentCreateWithoutLocationInput[] | RoutingAssignmentUncheckedCreateWithoutLocationInput[]
     connectOrCreate?: RoutingAssignmentCreateOrConnectWithoutLocationInput | RoutingAssignmentCreateOrConnectWithoutLocationInput[]
@@ -9304,6 +13734,20 @@ export namespace Prisma {
     connectOrCreate?: LocationEventCreateOrConnectWithoutLocationInput | LocationEventCreateOrConnectWithoutLocationInput[]
     createMany?: LocationEventCreateManyLocationInputEnvelope
     connect?: LocationEventWhereUniqueInput | LocationEventWhereUniqueInput[]
+  }
+
+  export type PackageConsolidationUncheckedCreateNestedManyWithoutLocationInput = {
+    create?: XOR<PackageConsolidationCreateWithoutLocationInput, PackageConsolidationUncheckedCreateWithoutLocationInput> | PackageConsolidationCreateWithoutLocationInput[] | PackageConsolidationUncheckedCreateWithoutLocationInput[]
+    connectOrCreate?: PackageConsolidationCreateOrConnectWithoutLocationInput | PackageConsolidationCreateOrConnectWithoutLocationInput[]
+    createMany?: PackageConsolidationCreateManyLocationInputEnvelope
+    connect?: PackageConsolidationWhereUniqueInput | PackageConsolidationWhereUniqueInput[]
+  }
+
+  export type ConsolidationScanUncheckedCreateNestedManyWithoutLocationInput = {
+    create?: XOR<ConsolidationScanCreateWithoutLocationInput, ConsolidationScanUncheckedCreateWithoutLocationInput> | ConsolidationScanCreateWithoutLocationInput[] | ConsolidationScanUncheckedCreateWithoutLocationInput[]
+    connectOrCreate?: ConsolidationScanCreateOrConnectWithoutLocationInput | ConsolidationScanCreateOrConnectWithoutLocationInput[]
+    createMany?: ConsolidationScanCreateManyLocationInputEnvelope
+    connect?: ConsolidationScanWhereUniqueInput | ConsolidationScanWhereUniqueInput[]
   }
 
   export type StringFieldUpdateOperationsInput = {
@@ -9386,6 +13830,34 @@ export namespace Prisma {
     deleteMany?: LocationEventScalarWhereInput | LocationEventScalarWhereInput[]
   }
 
+  export type PackageConsolidationUpdateManyWithoutLocationNestedInput = {
+    create?: XOR<PackageConsolidationCreateWithoutLocationInput, PackageConsolidationUncheckedCreateWithoutLocationInput> | PackageConsolidationCreateWithoutLocationInput[] | PackageConsolidationUncheckedCreateWithoutLocationInput[]
+    connectOrCreate?: PackageConsolidationCreateOrConnectWithoutLocationInput | PackageConsolidationCreateOrConnectWithoutLocationInput[]
+    upsert?: PackageConsolidationUpsertWithWhereUniqueWithoutLocationInput | PackageConsolidationUpsertWithWhereUniqueWithoutLocationInput[]
+    createMany?: PackageConsolidationCreateManyLocationInputEnvelope
+    set?: PackageConsolidationWhereUniqueInput | PackageConsolidationWhereUniqueInput[]
+    disconnect?: PackageConsolidationWhereUniqueInput | PackageConsolidationWhereUniqueInput[]
+    delete?: PackageConsolidationWhereUniqueInput | PackageConsolidationWhereUniqueInput[]
+    connect?: PackageConsolidationWhereUniqueInput | PackageConsolidationWhereUniqueInput[]
+    update?: PackageConsolidationUpdateWithWhereUniqueWithoutLocationInput | PackageConsolidationUpdateWithWhereUniqueWithoutLocationInput[]
+    updateMany?: PackageConsolidationUpdateManyWithWhereWithoutLocationInput | PackageConsolidationUpdateManyWithWhereWithoutLocationInput[]
+    deleteMany?: PackageConsolidationScalarWhereInput | PackageConsolidationScalarWhereInput[]
+  }
+
+  export type ConsolidationScanUpdateManyWithoutLocationNestedInput = {
+    create?: XOR<ConsolidationScanCreateWithoutLocationInput, ConsolidationScanUncheckedCreateWithoutLocationInput> | ConsolidationScanCreateWithoutLocationInput[] | ConsolidationScanUncheckedCreateWithoutLocationInput[]
+    connectOrCreate?: ConsolidationScanCreateOrConnectWithoutLocationInput | ConsolidationScanCreateOrConnectWithoutLocationInput[]
+    upsert?: ConsolidationScanUpsertWithWhereUniqueWithoutLocationInput | ConsolidationScanUpsertWithWhereUniqueWithoutLocationInput[]
+    createMany?: ConsolidationScanCreateManyLocationInputEnvelope
+    set?: ConsolidationScanWhereUniqueInput | ConsolidationScanWhereUniqueInput[]
+    disconnect?: ConsolidationScanWhereUniqueInput | ConsolidationScanWhereUniqueInput[]
+    delete?: ConsolidationScanWhereUniqueInput | ConsolidationScanWhereUniqueInput[]
+    connect?: ConsolidationScanWhereUniqueInput | ConsolidationScanWhereUniqueInput[]
+    update?: ConsolidationScanUpdateWithWhereUniqueWithoutLocationInput | ConsolidationScanUpdateWithWhereUniqueWithoutLocationInput[]
+    updateMany?: ConsolidationScanUpdateManyWithWhereWithoutLocationInput | ConsolidationScanUpdateManyWithWhereWithoutLocationInput[]
+    deleteMany?: ConsolidationScanScalarWhereInput | ConsolidationScanScalarWhereInput[]
+  }
+
   export type RoutingAssignmentUncheckedUpdateManyWithoutLocationNestedInput = {
     create?: XOR<RoutingAssignmentCreateWithoutLocationInput, RoutingAssignmentUncheckedCreateWithoutLocationInput> | RoutingAssignmentCreateWithoutLocationInput[] | RoutingAssignmentUncheckedCreateWithoutLocationInput[]
     connectOrCreate?: RoutingAssignmentCreateOrConnectWithoutLocationInput | RoutingAssignmentCreateOrConnectWithoutLocationInput[]
@@ -9440,6 +13912,34 @@ export namespace Prisma {
     update?: LocationEventUpdateWithWhereUniqueWithoutLocationInput | LocationEventUpdateWithWhereUniqueWithoutLocationInput[]
     updateMany?: LocationEventUpdateManyWithWhereWithoutLocationInput | LocationEventUpdateManyWithWhereWithoutLocationInput[]
     deleteMany?: LocationEventScalarWhereInput | LocationEventScalarWhereInput[]
+  }
+
+  export type PackageConsolidationUncheckedUpdateManyWithoutLocationNestedInput = {
+    create?: XOR<PackageConsolidationCreateWithoutLocationInput, PackageConsolidationUncheckedCreateWithoutLocationInput> | PackageConsolidationCreateWithoutLocationInput[] | PackageConsolidationUncheckedCreateWithoutLocationInput[]
+    connectOrCreate?: PackageConsolidationCreateOrConnectWithoutLocationInput | PackageConsolidationCreateOrConnectWithoutLocationInput[]
+    upsert?: PackageConsolidationUpsertWithWhereUniqueWithoutLocationInput | PackageConsolidationUpsertWithWhereUniqueWithoutLocationInput[]
+    createMany?: PackageConsolidationCreateManyLocationInputEnvelope
+    set?: PackageConsolidationWhereUniqueInput | PackageConsolidationWhereUniqueInput[]
+    disconnect?: PackageConsolidationWhereUniqueInput | PackageConsolidationWhereUniqueInput[]
+    delete?: PackageConsolidationWhereUniqueInput | PackageConsolidationWhereUniqueInput[]
+    connect?: PackageConsolidationWhereUniqueInput | PackageConsolidationWhereUniqueInput[]
+    update?: PackageConsolidationUpdateWithWhereUniqueWithoutLocationInput | PackageConsolidationUpdateWithWhereUniqueWithoutLocationInput[]
+    updateMany?: PackageConsolidationUpdateManyWithWhereWithoutLocationInput | PackageConsolidationUpdateManyWithWhereWithoutLocationInput[]
+    deleteMany?: PackageConsolidationScalarWhereInput | PackageConsolidationScalarWhereInput[]
+  }
+
+  export type ConsolidationScanUncheckedUpdateManyWithoutLocationNestedInput = {
+    create?: XOR<ConsolidationScanCreateWithoutLocationInput, ConsolidationScanUncheckedCreateWithoutLocationInput> | ConsolidationScanCreateWithoutLocationInput[] | ConsolidationScanUncheckedCreateWithoutLocationInput[]
+    connectOrCreate?: ConsolidationScanCreateOrConnectWithoutLocationInput | ConsolidationScanCreateOrConnectWithoutLocationInput[]
+    upsert?: ConsolidationScanUpsertWithWhereUniqueWithoutLocationInput | ConsolidationScanUpsertWithWhereUniqueWithoutLocationInput[]
+    createMany?: ConsolidationScanCreateManyLocationInputEnvelope
+    set?: ConsolidationScanWhereUniqueInput | ConsolidationScanWhereUniqueInput[]
+    disconnect?: ConsolidationScanWhereUniqueInput | ConsolidationScanWhereUniqueInput[]
+    delete?: ConsolidationScanWhereUniqueInput | ConsolidationScanWhereUniqueInput[]
+    connect?: ConsolidationScanWhereUniqueInput | ConsolidationScanWhereUniqueInput[]
+    update?: ConsolidationScanUpdateWithWhereUniqueWithoutLocationInput | ConsolidationScanUpdateWithWhereUniqueWithoutLocationInput[]
+    updateMany?: ConsolidationScanUpdateManyWithWhereWithoutLocationInput | ConsolidationScanUpdateManyWithWhereWithoutLocationInput[]
+    deleteMany?: ConsolidationScanScalarWhereInput | ConsolidationScanScalarWhereInput[]
   }
 
   export type LocationCreateNestedOneWithoutRoutingAssignmentsInput = {
@@ -9558,6 +14058,112 @@ export namespace Prisma {
     upsert?: LocationUpsertWithoutEventsInput
     connect?: LocationWhereUniqueInput
     update?: XOR<XOR<LocationUpdateToOneWithWhereWithoutEventsInput, LocationUpdateWithoutEventsInput>, LocationUncheckedUpdateWithoutEventsInput>
+  }
+
+  export type BoolFieldUpdateOperationsInput = {
+    set?: boolean
+  }
+
+  export type LocationCreateNestedOneWithoutConsolidationsInput = {
+    create?: XOR<LocationCreateWithoutConsolidationsInput, LocationUncheckedCreateWithoutConsolidationsInput>
+    connectOrCreate?: LocationCreateOrConnectWithoutConsolidationsInput
+    connect?: LocationWhereUniqueInput
+  }
+
+  export type ConsolidationScanCreateNestedManyWithoutConsolidationInput = {
+    create?: XOR<ConsolidationScanCreateWithoutConsolidationInput, ConsolidationScanUncheckedCreateWithoutConsolidationInput> | ConsolidationScanCreateWithoutConsolidationInput[] | ConsolidationScanUncheckedCreateWithoutConsolidationInput[]
+    connectOrCreate?: ConsolidationScanCreateOrConnectWithoutConsolidationInput | ConsolidationScanCreateOrConnectWithoutConsolidationInput[]
+    createMany?: ConsolidationScanCreateManyConsolidationInputEnvelope
+    connect?: ConsolidationScanWhereUniqueInput | ConsolidationScanWhereUniqueInput[]
+  }
+
+  export type ConsolidationScanUncheckedCreateNestedManyWithoutConsolidationInput = {
+    create?: XOR<ConsolidationScanCreateWithoutConsolidationInput, ConsolidationScanUncheckedCreateWithoutConsolidationInput> | ConsolidationScanCreateWithoutConsolidationInput[] | ConsolidationScanUncheckedCreateWithoutConsolidationInput[]
+    connectOrCreate?: ConsolidationScanCreateOrConnectWithoutConsolidationInput | ConsolidationScanCreateOrConnectWithoutConsolidationInput[]
+    createMany?: ConsolidationScanCreateManyConsolidationInputEnvelope
+    connect?: ConsolidationScanWhereUniqueInput | ConsolidationScanWhereUniqueInput[]
+  }
+
+  export type NullableEnumOperatorColorFieldUpdateOperationsInput = {
+    set?: $Enums.OperatorColor | null
+  }
+
+  export type EnumConsolidationStatusFieldUpdateOperationsInput = {
+    set?: $Enums.ConsolidationStatus
+  }
+
+  export type LocationUpdateOneWithoutConsolidationsNestedInput = {
+    create?: XOR<LocationCreateWithoutConsolidationsInput, LocationUncheckedCreateWithoutConsolidationsInput>
+    connectOrCreate?: LocationCreateOrConnectWithoutConsolidationsInput
+    upsert?: LocationUpsertWithoutConsolidationsInput
+    disconnect?: LocationWhereInput | boolean
+    delete?: LocationWhereInput | boolean
+    connect?: LocationWhereUniqueInput
+    update?: XOR<XOR<LocationUpdateToOneWithWhereWithoutConsolidationsInput, LocationUpdateWithoutConsolidationsInput>, LocationUncheckedUpdateWithoutConsolidationsInput>
+  }
+
+  export type ConsolidationScanUpdateManyWithoutConsolidationNestedInput = {
+    create?: XOR<ConsolidationScanCreateWithoutConsolidationInput, ConsolidationScanUncheckedCreateWithoutConsolidationInput> | ConsolidationScanCreateWithoutConsolidationInput[] | ConsolidationScanUncheckedCreateWithoutConsolidationInput[]
+    connectOrCreate?: ConsolidationScanCreateOrConnectWithoutConsolidationInput | ConsolidationScanCreateOrConnectWithoutConsolidationInput[]
+    upsert?: ConsolidationScanUpsertWithWhereUniqueWithoutConsolidationInput | ConsolidationScanUpsertWithWhereUniqueWithoutConsolidationInput[]
+    createMany?: ConsolidationScanCreateManyConsolidationInputEnvelope
+    set?: ConsolidationScanWhereUniqueInput | ConsolidationScanWhereUniqueInput[]
+    disconnect?: ConsolidationScanWhereUniqueInput | ConsolidationScanWhereUniqueInput[]
+    delete?: ConsolidationScanWhereUniqueInput | ConsolidationScanWhereUniqueInput[]
+    connect?: ConsolidationScanWhereUniqueInput | ConsolidationScanWhereUniqueInput[]
+    update?: ConsolidationScanUpdateWithWhereUniqueWithoutConsolidationInput | ConsolidationScanUpdateWithWhereUniqueWithoutConsolidationInput[]
+    updateMany?: ConsolidationScanUpdateManyWithWhereWithoutConsolidationInput | ConsolidationScanUpdateManyWithWhereWithoutConsolidationInput[]
+    deleteMany?: ConsolidationScanScalarWhereInput | ConsolidationScanScalarWhereInput[]
+  }
+
+  export type NullableIntFieldUpdateOperationsInput = {
+    set?: number | null
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
+  }
+
+  export type ConsolidationScanUncheckedUpdateManyWithoutConsolidationNestedInput = {
+    create?: XOR<ConsolidationScanCreateWithoutConsolidationInput, ConsolidationScanUncheckedCreateWithoutConsolidationInput> | ConsolidationScanCreateWithoutConsolidationInput[] | ConsolidationScanUncheckedCreateWithoutConsolidationInput[]
+    connectOrCreate?: ConsolidationScanCreateOrConnectWithoutConsolidationInput | ConsolidationScanCreateOrConnectWithoutConsolidationInput[]
+    upsert?: ConsolidationScanUpsertWithWhereUniqueWithoutConsolidationInput | ConsolidationScanUpsertWithWhereUniqueWithoutConsolidationInput[]
+    createMany?: ConsolidationScanCreateManyConsolidationInputEnvelope
+    set?: ConsolidationScanWhereUniqueInput | ConsolidationScanWhereUniqueInput[]
+    disconnect?: ConsolidationScanWhereUniqueInput | ConsolidationScanWhereUniqueInput[]
+    delete?: ConsolidationScanWhereUniqueInput | ConsolidationScanWhereUniqueInput[]
+    connect?: ConsolidationScanWhereUniqueInput | ConsolidationScanWhereUniqueInput[]
+    update?: ConsolidationScanUpdateWithWhereUniqueWithoutConsolidationInput | ConsolidationScanUpdateWithWhereUniqueWithoutConsolidationInput[]
+    updateMany?: ConsolidationScanUpdateManyWithWhereWithoutConsolidationInput | ConsolidationScanUpdateManyWithWhereWithoutConsolidationInput[]
+    deleteMany?: ConsolidationScanScalarWhereInput | ConsolidationScanScalarWhereInput[]
+  }
+
+  export type PackageConsolidationCreateNestedOneWithoutScansInput = {
+    create?: XOR<PackageConsolidationCreateWithoutScansInput, PackageConsolidationUncheckedCreateWithoutScansInput>
+    connectOrCreate?: PackageConsolidationCreateOrConnectWithoutScansInput
+    connect?: PackageConsolidationWhereUniqueInput
+  }
+
+  export type LocationCreateNestedOneWithoutConsolidationScansInput = {
+    create?: XOR<LocationCreateWithoutConsolidationScansInput, LocationUncheckedCreateWithoutConsolidationScansInput>
+    connectOrCreate?: LocationCreateOrConnectWithoutConsolidationScansInput
+    connect?: LocationWhereUniqueInput
+  }
+
+  export type PackageConsolidationUpdateOneRequiredWithoutScansNestedInput = {
+    create?: XOR<PackageConsolidationCreateWithoutScansInput, PackageConsolidationUncheckedCreateWithoutScansInput>
+    connectOrCreate?: PackageConsolidationCreateOrConnectWithoutScansInput
+    upsert?: PackageConsolidationUpsertWithoutScansInput
+    connect?: PackageConsolidationWhereUniqueInput
+    update?: XOR<XOR<PackageConsolidationUpdateToOneWithWhereWithoutScansInput, PackageConsolidationUpdateWithoutScansInput>, PackageConsolidationUncheckedUpdateWithoutScansInput>
+  }
+
+  export type LocationUpdateOneRequiredWithoutConsolidationScansNestedInput = {
+    create?: XOR<LocationCreateWithoutConsolidationScansInput, LocationUncheckedCreateWithoutConsolidationScansInput>
+    connectOrCreate?: LocationCreateOrConnectWithoutConsolidationScansInput
+    upsert?: LocationUpsertWithoutConsolidationScansInput
+    connect?: LocationWhereUniqueInput
+    update?: XOR<XOR<LocationUpdateToOneWithWhereWithoutConsolidationScansInput, LocationUpdateWithoutConsolidationScansInput>, LocationUncheckedUpdateWithoutConsolidationScansInput>
   }
 
   export type NestedIntFilter<$PrismaModel = never> = {
@@ -9806,6 +14412,80 @@ export namespace Prisma {
     _max?: NestedEnumLocationEventTypeFilter<$PrismaModel>
   }
 
+  export type NestedBoolFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolFilter<$PrismaModel> | boolean
+  }
+
+  export type NestedBoolWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedBoolFilter<$PrismaModel>
+    _max?: NestedBoolFilter<$PrismaModel>
+  }
+
+  export type NestedEnumOperatorColorNullableFilter<$PrismaModel = never> = {
+    equals?: $Enums.OperatorColor | EnumOperatorColorFieldRefInput<$PrismaModel> | null
+    in?: $Enums.OperatorColor[] | null
+    notIn?: $Enums.OperatorColor[] | null
+    not?: NestedEnumOperatorColorNullableFilter<$PrismaModel> | $Enums.OperatorColor | null
+  }
+
+  export type NestedEnumConsolidationStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.ConsolidationStatus | EnumConsolidationStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.ConsolidationStatus[]
+    notIn?: $Enums.ConsolidationStatus[]
+    not?: NestedEnumConsolidationStatusFilter<$PrismaModel> | $Enums.ConsolidationStatus
+  }
+
+  export type NestedIntNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | null
+    notIn?: number[] | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedIntNullableFilter<$PrismaModel>
+    _max?: NestedIntNullableFilter<$PrismaModel>
+  }
+
+  export type NestedFloatNullableFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | null
+    notIn?: number[] | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableFilter<$PrismaModel> | number | null
+  }
+
+  export type NestedEnumOperatorColorNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.OperatorColor | EnumOperatorColorFieldRefInput<$PrismaModel> | null
+    in?: $Enums.OperatorColor[] | null
+    notIn?: $Enums.OperatorColor[] | null
+    not?: NestedEnumOperatorColorNullableWithAggregatesFilter<$PrismaModel> | $Enums.OperatorColor | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedEnumOperatorColorNullableFilter<$PrismaModel>
+    _max?: NestedEnumOperatorColorNullableFilter<$PrismaModel>
+  }
+
+  export type NestedEnumConsolidationStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.ConsolidationStatus | EnumConsolidationStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.ConsolidationStatus[]
+    notIn?: $Enums.ConsolidationStatus[]
+    not?: NestedEnumConsolidationStatusWithAggregatesFilter<$PrismaModel> | $Enums.ConsolidationStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumConsolidationStatusFilter<$PrismaModel>
+    _max?: NestedEnumConsolidationStatusFilter<$PrismaModel>
+  }
+
   export type LocationCreateWithoutRackInput = {
     level: number
     position: number
@@ -9813,6 +14493,7 @@ export namespace Prisma {
     barcode: string
     lightState?: $Enums.LightState
     currentRoutingCode?: string | null
+    currentPackageId?: string | null
     assignmentTimestamp?: Date | string | null
     isActive?: boolean | null
     createdAt?: Date | string | null
@@ -9820,6 +14501,8 @@ export namespace Prisma {
     awbs?: AwbCreateNestedManyWithoutAssignedLocationInput
     placements?: PlacementCreateNestedManyWithoutLocationInput
     events?: LocationEventCreateNestedManyWithoutLocationInput
+    consolidations?: PackageConsolidationCreateNestedManyWithoutLocationInput
+    consolidationScans?: ConsolidationScanCreateNestedManyWithoutLocationInput
   }
 
   export type LocationUncheckedCreateWithoutRackInput = {
@@ -9830,6 +14513,7 @@ export namespace Prisma {
     barcode: string
     lightState?: $Enums.LightState
     currentRoutingCode?: string | null
+    currentPackageId?: string | null
     assignmentTimestamp?: Date | string | null
     isActive?: boolean | null
     createdAt?: Date | string | null
@@ -9837,6 +14521,8 @@ export namespace Prisma {
     awbs?: AwbUncheckedCreateNestedManyWithoutAssignedLocationInput
     placements?: PlacementUncheckedCreateNestedManyWithoutLocationInput
     events?: LocationEventUncheckedCreateNestedManyWithoutLocationInput
+    consolidations?: PackageConsolidationUncheckedCreateNestedManyWithoutLocationInput
+    consolidationScans?: ConsolidationScanUncheckedCreateNestedManyWithoutLocationInput
   }
 
   export type LocationCreateOrConnectWithoutRackInput = {
@@ -9877,6 +14563,7 @@ export namespace Prisma {
     barcode?: StringFilter<"Location"> | string
     lightState?: EnumLightStateFilter<"Location"> | $Enums.LightState
     currentRoutingCode?: StringNullableFilter<"Location"> | string | null
+    currentPackageId?: StringNullableFilter<"Location"> | string | null
     assignmentTimestamp?: DateTimeNullableFilter<"Location"> | Date | string | null
     isActive?: BoolNullableFilter<"Location"> | boolean | null
     createdAt?: DateTimeNullableFilter<"Location"> | Date | string | null
@@ -10005,6 +14692,70 @@ export namespace Prisma {
 
   export type LocationEventCreateManyLocationInputEnvelope = {
     data: LocationEventCreateManyLocationInput | LocationEventCreateManyLocationInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type PackageConsolidationCreateWithoutLocationInput = {
+    shippingPackageId: string
+    operatorColor?: $Enums.OperatorColor | null
+    status?: $Enums.ConsolidationStatus
+    expectedCount?: number
+    accountedCount?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    completedAt?: Date | string | null
+    releasedAt?: Date | string | null
+    scans?: ConsolidationScanCreateNestedManyWithoutConsolidationInput
+  }
+
+  export type PackageConsolidationUncheckedCreateWithoutLocationInput = {
+    id?: number
+    shippingPackageId: string
+    operatorColor?: $Enums.OperatorColor | null
+    status?: $Enums.ConsolidationStatus
+    expectedCount?: number
+    accountedCount?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    completedAt?: Date | string | null
+    releasedAt?: Date | string | null
+    scans?: ConsolidationScanUncheckedCreateNestedManyWithoutConsolidationInput
+  }
+
+  export type PackageConsolidationCreateOrConnectWithoutLocationInput = {
+    where: PackageConsolidationWhereUniqueInput
+    create: XOR<PackageConsolidationCreateWithoutLocationInput, PackageConsolidationUncheckedCreateWithoutLocationInput>
+  }
+
+  export type PackageConsolidationCreateManyLocationInputEnvelope = {
+    data: PackageConsolidationCreateManyLocationInput | PackageConsolidationCreateManyLocationInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type ConsolidationScanCreateWithoutLocationInput = {
+    barcode: string
+    placed?: boolean
+    scannedAt?: Date | string
+    placedAt?: Date | string | null
+    consolidation: PackageConsolidationCreateNestedOneWithoutScansInput
+  }
+
+  export type ConsolidationScanUncheckedCreateWithoutLocationInput = {
+    id?: number
+    shippingPackageId: string
+    barcode: string
+    placed?: boolean
+    scannedAt?: Date | string
+    placedAt?: Date | string | null
+  }
+
+  export type ConsolidationScanCreateOrConnectWithoutLocationInput = {
+    where: ConsolidationScanWhereUniqueInput
+    create: XOR<ConsolidationScanCreateWithoutLocationInput, ConsolidationScanUncheckedCreateWithoutLocationInput>
+  }
+
+  export type ConsolidationScanCreateManyLocationInputEnvelope = {
+    data: ConsolidationScanCreateManyLocationInput | ConsolidationScanCreateManyLocationInput[]
     skipDuplicates?: boolean
   }
 
@@ -10148,6 +14899,68 @@ export namespace Prisma {
     createdAt?: DateTimeNullableFilter<"LocationEvent"> | Date | string | null
   }
 
+  export type PackageConsolidationUpsertWithWhereUniqueWithoutLocationInput = {
+    where: PackageConsolidationWhereUniqueInput
+    update: XOR<PackageConsolidationUpdateWithoutLocationInput, PackageConsolidationUncheckedUpdateWithoutLocationInput>
+    create: XOR<PackageConsolidationCreateWithoutLocationInput, PackageConsolidationUncheckedCreateWithoutLocationInput>
+  }
+
+  export type PackageConsolidationUpdateWithWhereUniqueWithoutLocationInput = {
+    where: PackageConsolidationWhereUniqueInput
+    data: XOR<PackageConsolidationUpdateWithoutLocationInput, PackageConsolidationUncheckedUpdateWithoutLocationInput>
+  }
+
+  export type PackageConsolidationUpdateManyWithWhereWithoutLocationInput = {
+    where: PackageConsolidationScalarWhereInput
+    data: XOR<PackageConsolidationUpdateManyMutationInput, PackageConsolidationUncheckedUpdateManyWithoutLocationInput>
+  }
+
+  export type PackageConsolidationScalarWhereInput = {
+    AND?: PackageConsolidationScalarWhereInput | PackageConsolidationScalarWhereInput[]
+    OR?: PackageConsolidationScalarWhereInput[]
+    NOT?: PackageConsolidationScalarWhereInput | PackageConsolidationScalarWhereInput[]
+    id?: IntFilter<"PackageConsolidation"> | number
+    shippingPackageId?: StringFilter<"PackageConsolidation"> | string
+    locationId?: IntNullableFilter<"PackageConsolidation"> | number | null
+    operatorColor?: EnumOperatorColorNullableFilter<"PackageConsolidation"> | $Enums.OperatorColor | null
+    status?: EnumConsolidationStatusFilter<"PackageConsolidation"> | $Enums.ConsolidationStatus
+    expectedCount?: IntFilter<"PackageConsolidation"> | number
+    accountedCount?: IntFilter<"PackageConsolidation"> | number
+    createdAt?: DateTimeFilter<"PackageConsolidation"> | Date | string
+    updatedAt?: DateTimeFilter<"PackageConsolidation"> | Date | string
+    completedAt?: DateTimeNullableFilter<"PackageConsolidation"> | Date | string | null
+    releasedAt?: DateTimeNullableFilter<"PackageConsolidation"> | Date | string | null
+  }
+
+  export type ConsolidationScanUpsertWithWhereUniqueWithoutLocationInput = {
+    where: ConsolidationScanWhereUniqueInput
+    update: XOR<ConsolidationScanUpdateWithoutLocationInput, ConsolidationScanUncheckedUpdateWithoutLocationInput>
+    create: XOR<ConsolidationScanCreateWithoutLocationInput, ConsolidationScanUncheckedCreateWithoutLocationInput>
+  }
+
+  export type ConsolidationScanUpdateWithWhereUniqueWithoutLocationInput = {
+    where: ConsolidationScanWhereUniqueInput
+    data: XOR<ConsolidationScanUpdateWithoutLocationInput, ConsolidationScanUncheckedUpdateWithoutLocationInput>
+  }
+
+  export type ConsolidationScanUpdateManyWithWhereWithoutLocationInput = {
+    where: ConsolidationScanScalarWhereInput
+    data: XOR<ConsolidationScanUpdateManyMutationInput, ConsolidationScanUncheckedUpdateManyWithoutLocationInput>
+  }
+
+  export type ConsolidationScanScalarWhereInput = {
+    AND?: ConsolidationScanScalarWhereInput | ConsolidationScanScalarWhereInput[]
+    OR?: ConsolidationScanScalarWhereInput[]
+    NOT?: ConsolidationScanScalarWhereInput | ConsolidationScanScalarWhereInput[]
+    id?: IntFilter<"ConsolidationScan"> | number
+    shippingPackageId?: StringFilter<"ConsolidationScan"> | string
+    barcode?: StringFilter<"ConsolidationScan"> | string
+    locationId?: IntFilter<"ConsolidationScan"> | number
+    placed?: BoolFilter<"ConsolidationScan"> | boolean
+    scannedAt?: DateTimeFilter<"ConsolidationScan"> | Date | string
+    placedAt?: DateTimeNullableFilter<"ConsolidationScan"> | Date | string | null
+  }
+
   export type LocationCreateWithoutRoutingAssignmentsInput = {
     level: number
     position: number
@@ -10155,6 +14968,7 @@ export namespace Prisma {
     barcode: string
     lightState?: $Enums.LightState
     currentRoutingCode?: string | null
+    currentPackageId?: string | null
     assignmentTimestamp?: Date | string | null
     isActive?: boolean | null
     createdAt?: Date | string | null
@@ -10162,6 +14976,8 @@ export namespace Prisma {
     awbs?: AwbCreateNestedManyWithoutAssignedLocationInput
     placements?: PlacementCreateNestedManyWithoutLocationInput
     events?: LocationEventCreateNestedManyWithoutLocationInput
+    consolidations?: PackageConsolidationCreateNestedManyWithoutLocationInput
+    consolidationScans?: ConsolidationScanCreateNestedManyWithoutLocationInput
   }
 
   export type LocationUncheckedCreateWithoutRoutingAssignmentsInput = {
@@ -10173,12 +14989,15 @@ export namespace Prisma {
     barcode: string
     lightState?: $Enums.LightState
     currentRoutingCode?: string | null
+    currentPackageId?: string | null
     assignmentTimestamp?: Date | string | null
     isActive?: boolean | null
     createdAt?: Date | string | null
     awbs?: AwbUncheckedCreateNestedManyWithoutAssignedLocationInput
     placements?: PlacementUncheckedCreateNestedManyWithoutLocationInput
     events?: LocationEventUncheckedCreateNestedManyWithoutLocationInput
+    consolidations?: PackageConsolidationUncheckedCreateNestedManyWithoutLocationInput
+    consolidationScans?: ConsolidationScanUncheckedCreateNestedManyWithoutLocationInput
   }
 
   export type LocationCreateOrConnectWithoutRoutingAssignmentsInput = {
@@ -10204,6 +15023,7 @@ export namespace Prisma {
     barcode?: StringFieldUpdateOperationsInput | string
     lightState?: EnumLightStateFieldUpdateOperationsInput | $Enums.LightState
     currentRoutingCode?: NullableStringFieldUpdateOperationsInput | string | null
+    currentPackageId?: NullableStringFieldUpdateOperationsInput | string | null
     assignmentTimestamp?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: NullableBoolFieldUpdateOperationsInput | boolean | null
     createdAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -10211,6 +15031,8 @@ export namespace Prisma {
     awbs?: AwbUpdateManyWithoutAssignedLocationNestedInput
     placements?: PlacementUpdateManyWithoutLocationNestedInput
     events?: LocationEventUpdateManyWithoutLocationNestedInput
+    consolidations?: PackageConsolidationUpdateManyWithoutLocationNestedInput
+    consolidationScans?: ConsolidationScanUpdateManyWithoutLocationNestedInput
   }
 
   export type LocationUncheckedUpdateWithoutRoutingAssignmentsInput = {
@@ -10222,12 +15044,15 @@ export namespace Prisma {
     barcode?: StringFieldUpdateOperationsInput | string
     lightState?: EnumLightStateFieldUpdateOperationsInput | $Enums.LightState
     currentRoutingCode?: NullableStringFieldUpdateOperationsInput | string | null
+    currentPackageId?: NullableStringFieldUpdateOperationsInput | string | null
     assignmentTimestamp?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: NullableBoolFieldUpdateOperationsInput | boolean | null
     createdAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     awbs?: AwbUncheckedUpdateManyWithoutAssignedLocationNestedInput
     placements?: PlacementUncheckedUpdateManyWithoutLocationNestedInput
     events?: LocationEventUncheckedUpdateManyWithoutLocationNestedInput
+    consolidations?: PackageConsolidationUncheckedUpdateManyWithoutLocationNestedInput
+    consolidationScans?: ConsolidationScanUncheckedUpdateManyWithoutLocationNestedInput
   }
 
   export type LocationCreateWithoutAwbsInput = {
@@ -10237,6 +15062,7 @@ export namespace Prisma {
     barcode: string
     lightState?: $Enums.LightState
     currentRoutingCode?: string | null
+    currentPackageId?: string | null
     assignmentTimestamp?: Date | string | null
     isActive?: boolean | null
     createdAt?: Date | string | null
@@ -10244,6 +15070,8 @@ export namespace Prisma {
     routingAssignments?: RoutingAssignmentCreateNestedManyWithoutLocationInput
     placements?: PlacementCreateNestedManyWithoutLocationInput
     events?: LocationEventCreateNestedManyWithoutLocationInput
+    consolidations?: PackageConsolidationCreateNestedManyWithoutLocationInput
+    consolidationScans?: ConsolidationScanCreateNestedManyWithoutLocationInput
   }
 
   export type LocationUncheckedCreateWithoutAwbsInput = {
@@ -10255,12 +15083,15 @@ export namespace Prisma {
     barcode: string
     lightState?: $Enums.LightState
     currentRoutingCode?: string | null
+    currentPackageId?: string | null
     assignmentTimestamp?: Date | string | null
     isActive?: boolean | null
     createdAt?: Date | string | null
     routingAssignments?: RoutingAssignmentUncheckedCreateNestedManyWithoutLocationInput
     placements?: PlacementUncheckedCreateNestedManyWithoutLocationInput
     events?: LocationEventUncheckedCreateNestedManyWithoutLocationInput
+    consolidations?: PackageConsolidationUncheckedCreateNestedManyWithoutLocationInput
+    consolidationScans?: ConsolidationScanUncheckedCreateNestedManyWithoutLocationInput
   }
 
   export type LocationCreateOrConnectWithoutAwbsInput = {
@@ -10306,6 +15137,7 @@ export namespace Prisma {
     barcode?: StringFieldUpdateOperationsInput | string
     lightState?: EnumLightStateFieldUpdateOperationsInput | $Enums.LightState
     currentRoutingCode?: NullableStringFieldUpdateOperationsInput | string | null
+    currentPackageId?: NullableStringFieldUpdateOperationsInput | string | null
     assignmentTimestamp?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: NullableBoolFieldUpdateOperationsInput | boolean | null
     createdAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -10313,6 +15145,8 @@ export namespace Prisma {
     routingAssignments?: RoutingAssignmentUpdateManyWithoutLocationNestedInput
     placements?: PlacementUpdateManyWithoutLocationNestedInput
     events?: LocationEventUpdateManyWithoutLocationNestedInput
+    consolidations?: PackageConsolidationUpdateManyWithoutLocationNestedInput
+    consolidationScans?: ConsolidationScanUpdateManyWithoutLocationNestedInput
   }
 
   export type LocationUncheckedUpdateWithoutAwbsInput = {
@@ -10324,12 +15158,15 @@ export namespace Prisma {
     barcode?: StringFieldUpdateOperationsInput | string
     lightState?: EnumLightStateFieldUpdateOperationsInput | $Enums.LightState
     currentRoutingCode?: NullableStringFieldUpdateOperationsInput | string | null
+    currentPackageId?: NullableStringFieldUpdateOperationsInput | string | null
     assignmentTimestamp?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: NullableBoolFieldUpdateOperationsInput | boolean | null
     createdAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     routingAssignments?: RoutingAssignmentUncheckedUpdateManyWithoutLocationNestedInput
     placements?: PlacementUncheckedUpdateManyWithoutLocationNestedInput
     events?: LocationEventUncheckedUpdateManyWithoutLocationNestedInput
+    consolidations?: PackageConsolidationUncheckedUpdateManyWithoutLocationNestedInput
+    consolidationScans?: ConsolidationScanUncheckedUpdateManyWithoutLocationNestedInput
   }
 
   export type PlacementUpsertWithoutAwbInput = {
@@ -10391,6 +15228,7 @@ export namespace Prisma {
     barcode: string
     lightState?: $Enums.LightState
     currentRoutingCode?: string | null
+    currentPackageId?: string | null
     assignmentTimestamp?: Date | string | null
     isActive?: boolean | null
     createdAt?: Date | string | null
@@ -10398,6 +15236,8 @@ export namespace Prisma {
     routingAssignments?: RoutingAssignmentCreateNestedManyWithoutLocationInput
     awbs?: AwbCreateNestedManyWithoutAssignedLocationInput
     events?: LocationEventCreateNestedManyWithoutLocationInput
+    consolidations?: PackageConsolidationCreateNestedManyWithoutLocationInput
+    consolidationScans?: ConsolidationScanCreateNestedManyWithoutLocationInput
   }
 
   export type LocationUncheckedCreateWithoutPlacementsInput = {
@@ -10409,12 +15249,15 @@ export namespace Prisma {
     barcode: string
     lightState?: $Enums.LightState
     currentRoutingCode?: string | null
+    currentPackageId?: string | null
     assignmentTimestamp?: Date | string | null
     isActive?: boolean | null
     createdAt?: Date | string | null
     routingAssignments?: RoutingAssignmentUncheckedCreateNestedManyWithoutLocationInput
     awbs?: AwbUncheckedCreateNestedManyWithoutAssignedLocationInput
     events?: LocationEventUncheckedCreateNestedManyWithoutLocationInput
+    consolidations?: PackageConsolidationUncheckedCreateNestedManyWithoutLocationInput
+    consolidationScans?: ConsolidationScanUncheckedCreateNestedManyWithoutLocationInput
   }
 
   export type LocationCreateOrConnectWithoutPlacementsInput = {
@@ -10472,6 +15315,7 @@ export namespace Prisma {
     barcode?: StringFieldUpdateOperationsInput | string
     lightState?: EnumLightStateFieldUpdateOperationsInput | $Enums.LightState
     currentRoutingCode?: NullableStringFieldUpdateOperationsInput | string | null
+    currentPackageId?: NullableStringFieldUpdateOperationsInput | string | null
     assignmentTimestamp?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: NullableBoolFieldUpdateOperationsInput | boolean | null
     createdAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -10479,6 +15323,8 @@ export namespace Prisma {
     routingAssignments?: RoutingAssignmentUpdateManyWithoutLocationNestedInput
     awbs?: AwbUpdateManyWithoutAssignedLocationNestedInput
     events?: LocationEventUpdateManyWithoutLocationNestedInput
+    consolidations?: PackageConsolidationUpdateManyWithoutLocationNestedInput
+    consolidationScans?: ConsolidationScanUpdateManyWithoutLocationNestedInput
   }
 
   export type LocationUncheckedUpdateWithoutPlacementsInput = {
@@ -10490,12 +15336,15 @@ export namespace Prisma {
     barcode?: StringFieldUpdateOperationsInput | string
     lightState?: EnumLightStateFieldUpdateOperationsInput | $Enums.LightState
     currentRoutingCode?: NullableStringFieldUpdateOperationsInput | string | null
+    currentPackageId?: NullableStringFieldUpdateOperationsInput | string | null
     assignmentTimestamp?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: NullableBoolFieldUpdateOperationsInput | boolean | null
     createdAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     routingAssignments?: RoutingAssignmentUncheckedUpdateManyWithoutLocationNestedInput
     awbs?: AwbUncheckedUpdateManyWithoutAssignedLocationNestedInput
     events?: LocationEventUncheckedUpdateManyWithoutLocationNestedInput
+    consolidations?: PackageConsolidationUncheckedUpdateManyWithoutLocationNestedInput
+    consolidationScans?: ConsolidationScanUncheckedUpdateManyWithoutLocationNestedInput
   }
 
   export type LocationCreateWithoutEventsInput = {
@@ -10505,6 +15354,7 @@ export namespace Prisma {
     barcode: string
     lightState?: $Enums.LightState
     currentRoutingCode?: string | null
+    currentPackageId?: string | null
     assignmentTimestamp?: Date | string | null
     isActive?: boolean | null
     createdAt?: Date | string | null
@@ -10512,6 +15362,8 @@ export namespace Prisma {
     routingAssignments?: RoutingAssignmentCreateNestedManyWithoutLocationInput
     awbs?: AwbCreateNestedManyWithoutAssignedLocationInput
     placements?: PlacementCreateNestedManyWithoutLocationInput
+    consolidations?: PackageConsolidationCreateNestedManyWithoutLocationInput
+    consolidationScans?: ConsolidationScanCreateNestedManyWithoutLocationInput
   }
 
   export type LocationUncheckedCreateWithoutEventsInput = {
@@ -10523,12 +15375,15 @@ export namespace Prisma {
     barcode: string
     lightState?: $Enums.LightState
     currentRoutingCode?: string | null
+    currentPackageId?: string | null
     assignmentTimestamp?: Date | string | null
     isActive?: boolean | null
     createdAt?: Date | string | null
     routingAssignments?: RoutingAssignmentUncheckedCreateNestedManyWithoutLocationInput
     awbs?: AwbUncheckedCreateNestedManyWithoutAssignedLocationInput
     placements?: PlacementUncheckedCreateNestedManyWithoutLocationInput
+    consolidations?: PackageConsolidationUncheckedCreateNestedManyWithoutLocationInput
+    consolidationScans?: ConsolidationScanUncheckedCreateNestedManyWithoutLocationInput
   }
 
   export type LocationCreateOrConnectWithoutEventsInput = {
@@ -10554,6 +15409,7 @@ export namespace Prisma {
     barcode?: StringFieldUpdateOperationsInput | string
     lightState?: EnumLightStateFieldUpdateOperationsInput | $Enums.LightState
     currentRoutingCode?: NullableStringFieldUpdateOperationsInput | string | null
+    currentPackageId?: NullableStringFieldUpdateOperationsInput | string | null
     assignmentTimestamp?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: NullableBoolFieldUpdateOperationsInput | boolean | null
     createdAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -10561,6 +15417,8 @@ export namespace Prisma {
     routingAssignments?: RoutingAssignmentUpdateManyWithoutLocationNestedInput
     awbs?: AwbUpdateManyWithoutAssignedLocationNestedInput
     placements?: PlacementUpdateManyWithoutLocationNestedInput
+    consolidations?: PackageConsolidationUpdateManyWithoutLocationNestedInput
+    consolidationScans?: ConsolidationScanUpdateManyWithoutLocationNestedInput
   }
 
   export type LocationUncheckedUpdateWithoutEventsInput = {
@@ -10572,12 +15430,316 @@ export namespace Prisma {
     barcode?: StringFieldUpdateOperationsInput | string
     lightState?: EnumLightStateFieldUpdateOperationsInput | $Enums.LightState
     currentRoutingCode?: NullableStringFieldUpdateOperationsInput | string | null
+    currentPackageId?: NullableStringFieldUpdateOperationsInput | string | null
     assignmentTimestamp?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: NullableBoolFieldUpdateOperationsInput | boolean | null
     createdAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     routingAssignments?: RoutingAssignmentUncheckedUpdateManyWithoutLocationNestedInput
     awbs?: AwbUncheckedUpdateManyWithoutAssignedLocationNestedInput
     placements?: PlacementUncheckedUpdateManyWithoutLocationNestedInput
+    consolidations?: PackageConsolidationUncheckedUpdateManyWithoutLocationNestedInput
+    consolidationScans?: ConsolidationScanUncheckedUpdateManyWithoutLocationNestedInput
+  }
+
+  export type LocationCreateWithoutConsolidationsInput = {
+    level: number
+    position: number
+    locationNumber: number
+    barcode: string
+    lightState?: $Enums.LightState
+    currentRoutingCode?: string | null
+    currentPackageId?: string | null
+    assignmentTimestamp?: Date | string | null
+    isActive?: boolean | null
+    createdAt?: Date | string | null
+    rack: RackCreateNestedOneWithoutLocationsInput
+    routingAssignments?: RoutingAssignmentCreateNestedManyWithoutLocationInput
+    awbs?: AwbCreateNestedManyWithoutAssignedLocationInput
+    placements?: PlacementCreateNestedManyWithoutLocationInput
+    events?: LocationEventCreateNestedManyWithoutLocationInput
+    consolidationScans?: ConsolidationScanCreateNestedManyWithoutLocationInput
+  }
+
+  export type LocationUncheckedCreateWithoutConsolidationsInput = {
+    id?: number
+    rackId: number
+    level: number
+    position: number
+    locationNumber: number
+    barcode: string
+    lightState?: $Enums.LightState
+    currentRoutingCode?: string | null
+    currentPackageId?: string | null
+    assignmentTimestamp?: Date | string | null
+    isActive?: boolean | null
+    createdAt?: Date | string | null
+    routingAssignments?: RoutingAssignmentUncheckedCreateNestedManyWithoutLocationInput
+    awbs?: AwbUncheckedCreateNestedManyWithoutAssignedLocationInput
+    placements?: PlacementUncheckedCreateNestedManyWithoutLocationInput
+    events?: LocationEventUncheckedCreateNestedManyWithoutLocationInput
+    consolidationScans?: ConsolidationScanUncheckedCreateNestedManyWithoutLocationInput
+  }
+
+  export type LocationCreateOrConnectWithoutConsolidationsInput = {
+    where: LocationWhereUniqueInput
+    create: XOR<LocationCreateWithoutConsolidationsInput, LocationUncheckedCreateWithoutConsolidationsInput>
+  }
+
+  export type ConsolidationScanCreateWithoutConsolidationInput = {
+    barcode: string
+    placed?: boolean
+    scannedAt?: Date | string
+    placedAt?: Date | string | null
+    location: LocationCreateNestedOneWithoutConsolidationScansInput
+  }
+
+  export type ConsolidationScanUncheckedCreateWithoutConsolidationInput = {
+    id?: number
+    barcode: string
+    locationId: number
+    placed?: boolean
+    scannedAt?: Date | string
+    placedAt?: Date | string | null
+  }
+
+  export type ConsolidationScanCreateOrConnectWithoutConsolidationInput = {
+    where: ConsolidationScanWhereUniqueInput
+    create: XOR<ConsolidationScanCreateWithoutConsolidationInput, ConsolidationScanUncheckedCreateWithoutConsolidationInput>
+  }
+
+  export type ConsolidationScanCreateManyConsolidationInputEnvelope = {
+    data: ConsolidationScanCreateManyConsolidationInput | ConsolidationScanCreateManyConsolidationInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type LocationUpsertWithoutConsolidationsInput = {
+    update: XOR<LocationUpdateWithoutConsolidationsInput, LocationUncheckedUpdateWithoutConsolidationsInput>
+    create: XOR<LocationCreateWithoutConsolidationsInput, LocationUncheckedCreateWithoutConsolidationsInput>
+    where?: LocationWhereInput
+  }
+
+  export type LocationUpdateToOneWithWhereWithoutConsolidationsInput = {
+    where?: LocationWhereInput
+    data: XOR<LocationUpdateWithoutConsolidationsInput, LocationUncheckedUpdateWithoutConsolidationsInput>
+  }
+
+  export type LocationUpdateWithoutConsolidationsInput = {
+    level?: IntFieldUpdateOperationsInput | number
+    position?: IntFieldUpdateOperationsInput | number
+    locationNumber?: IntFieldUpdateOperationsInput | number
+    barcode?: StringFieldUpdateOperationsInput | string
+    lightState?: EnumLightStateFieldUpdateOperationsInput | $Enums.LightState
+    currentRoutingCode?: NullableStringFieldUpdateOperationsInput | string | null
+    currentPackageId?: NullableStringFieldUpdateOperationsInput | string | null
+    assignmentTimestamp?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isActive?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    createdAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rack?: RackUpdateOneRequiredWithoutLocationsNestedInput
+    routingAssignments?: RoutingAssignmentUpdateManyWithoutLocationNestedInput
+    awbs?: AwbUpdateManyWithoutAssignedLocationNestedInput
+    placements?: PlacementUpdateManyWithoutLocationNestedInput
+    events?: LocationEventUpdateManyWithoutLocationNestedInput
+    consolidationScans?: ConsolidationScanUpdateManyWithoutLocationNestedInput
+  }
+
+  export type LocationUncheckedUpdateWithoutConsolidationsInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    rackId?: IntFieldUpdateOperationsInput | number
+    level?: IntFieldUpdateOperationsInput | number
+    position?: IntFieldUpdateOperationsInput | number
+    locationNumber?: IntFieldUpdateOperationsInput | number
+    barcode?: StringFieldUpdateOperationsInput | string
+    lightState?: EnumLightStateFieldUpdateOperationsInput | $Enums.LightState
+    currentRoutingCode?: NullableStringFieldUpdateOperationsInput | string | null
+    currentPackageId?: NullableStringFieldUpdateOperationsInput | string | null
+    assignmentTimestamp?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isActive?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    createdAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    routingAssignments?: RoutingAssignmentUncheckedUpdateManyWithoutLocationNestedInput
+    awbs?: AwbUncheckedUpdateManyWithoutAssignedLocationNestedInput
+    placements?: PlacementUncheckedUpdateManyWithoutLocationNestedInput
+    events?: LocationEventUncheckedUpdateManyWithoutLocationNestedInput
+    consolidationScans?: ConsolidationScanUncheckedUpdateManyWithoutLocationNestedInput
+  }
+
+  export type ConsolidationScanUpsertWithWhereUniqueWithoutConsolidationInput = {
+    where: ConsolidationScanWhereUniqueInput
+    update: XOR<ConsolidationScanUpdateWithoutConsolidationInput, ConsolidationScanUncheckedUpdateWithoutConsolidationInput>
+    create: XOR<ConsolidationScanCreateWithoutConsolidationInput, ConsolidationScanUncheckedCreateWithoutConsolidationInput>
+  }
+
+  export type ConsolidationScanUpdateWithWhereUniqueWithoutConsolidationInput = {
+    where: ConsolidationScanWhereUniqueInput
+    data: XOR<ConsolidationScanUpdateWithoutConsolidationInput, ConsolidationScanUncheckedUpdateWithoutConsolidationInput>
+  }
+
+  export type ConsolidationScanUpdateManyWithWhereWithoutConsolidationInput = {
+    where: ConsolidationScanScalarWhereInput
+    data: XOR<ConsolidationScanUpdateManyMutationInput, ConsolidationScanUncheckedUpdateManyWithoutConsolidationInput>
+  }
+
+  export type PackageConsolidationCreateWithoutScansInput = {
+    shippingPackageId: string
+    operatorColor?: $Enums.OperatorColor | null
+    status?: $Enums.ConsolidationStatus
+    expectedCount?: number
+    accountedCount?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    completedAt?: Date | string | null
+    releasedAt?: Date | string | null
+    location?: LocationCreateNestedOneWithoutConsolidationsInput
+  }
+
+  export type PackageConsolidationUncheckedCreateWithoutScansInput = {
+    id?: number
+    shippingPackageId: string
+    locationId?: number | null
+    operatorColor?: $Enums.OperatorColor | null
+    status?: $Enums.ConsolidationStatus
+    expectedCount?: number
+    accountedCount?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    completedAt?: Date | string | null
+    releasedAt?: Date | string | null
+  }
+
+  export type PackageConsolidationCreateOrConnectWithoutScansInput = {
+    where: PackageConsolidationWhereUniqueInput
+    create: XOR<PackageConsolidationCreateWithoutScansInput, PackageConsolidationUncheckedCreateWithoutScansInput>
+  }
+
+  export type LocationCreateWithoutConsolidationScansInput = {
+    level: number
+    position: number
+    locationNumber: number
+    barcode: string
+    lightState?: $Enums.LightState
+    currentRoutingCode?: string | null
+    currentPackageId?: string | null
+    assignmentTimestamp?: Date | string | null
+    isActive?: boolean | null
+    createdAt?: Date | string | null
+    rack: RackCreateNestedOneWithoutLocationsInput
+    routingAssignments?: RoutingAssignmentCreateNestedManyWithoutLocationInput
+    awbs?: AwbCreateNestedManyWithoutAssignedLocationInput
+    placements?: PlacementCreateNestedManyWithoutLocationInput
+    events?: LocationEventCreateNestedManyWithoutLocationInput
+    consolidations?: PackageConsolidationCreateNestedManyWithoutLocationInput
+  }
+
+  export type LocationUncheckedCreateWithoutConsolidationScansInput = {
+    id?: number
+    rackId: number
+    level: number
+    position: number
+    locationNumber: number
+    barcode: string
+    lightState?: $Enums.LightState
+    currentRoutingCode?: string | null
+    currentPackageId?: string | null
+    assignmentTimestamp?: Date | string | null
+    isActive?: boolean | null
+    createdAt?: Date | string | null
+    routingAssignments?: RoutingAssignmentUncheckedCreateNestedManyWithoutLocationInput
+    awbs?: AwbUncheckedCreateNestedManyWithoutAssignedLocationInput
+    placements?: PlacementUncheckedCreateNestedManyWithoutLocationInput
+    events?: LocationEventUncheckedCreateNestedManyWithoutLocationInput
+    consolidations?: PackageConsolidationUncheckedCreateNestedManyWithoutLocationInput
+  }
+
+  export type LocationCreateOrConnectWithoutConsolidationScansInput = {
+    where: LocationWhereUniqueInput
+    create: XOR<LocationCreateWithoutConsolidationScansInput, LocationUncheckedCreateWithoutConsolidationScansInput>
+  }
+
+  export type PackageConsolidationUpsertWithoutScansInput = {
+    update: XOR<PackageConsolidationUpdateWithoutScansInput, PackageConsolidationUncheckedUpdateWithoutScansInput>
+    create: XOR<PackageConsolidationCreateWithoutScansInput, PackageConsolidationUncheckedCreateWithoutScansInput>
+    where?: PackageConsolidationWhereInput
+  }
+
+  export type PackageConsolidationUpdateToOneWithWhereWithoutScansInput = {
+    where?: PackageConsolidationWhereInput
+    data: XOR<PackageConsolidationUpdateWithoutScansInput, PackageConsolidationUncheckedUpdateWithoutScansInput>
+  }
+
+  export type PackageConsolidationUpdateWithoutScansInput = {
+    shippingPackageId?: StringFieldUpdateOperationsInput | string
+    operatorColor?: NullableEnumOperatorColorFieldUpdateOperationsInput | $Enums.OperatorColor | null
+    status?: EnumConsolidationStatusFieldUpdateOperationsInput | $Enums.ConsolidationStatus
+    expectedCount?: IntFieldUpdateOperationsInput | number
+    accountedCount?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    releasedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    location?: LocationUpdateOneWithoutConsolidationsNestedInput
+  }
+
+  export type PackageConsolidationUncheckedUpdateWithoutScansInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    shippingPackageId?: StringFieldUpdateOperationsInput | string
+    locationId?: NullableIntFieldUpdateOperationsInput | number | null
+    operatorColor?: NullableEnumOperatorColorFieldUpdateOperationsInput | $Enums.OperatorColor | null
+    status?: EnumConsolidationStatusFieldUpdateOperationsInput | $Enums.ConsolidationStatus
+    expectedCount?: IntFieldUpdateOperationsInput | number
+    accountedCount?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    releasedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type LocationUpsertWithoutConsolidationScansInput = {
+    update: XOR<LocationUpdateWithoutConsolidationScansInput, LocationUncheckedUpdateWithoutConsolidationScansInput>
+    create: XOR<LocationCreateWithoutConsolidationScansInput, LocationUncheckedCreateWithoutConsolidationScansInput>
+    where?: LocationWhereInput
+  }
+
+  export type LocationUpdateToOneWithWhereWithoutConsolidationScansInput = {
+    where?: LocationWhereInput
+    data: XOR<LocationUpdateWithoutConsolidationScansInput, LocationUncheckedUpdateWithoutConsolidationScansInput>
+  }
+
+  export type LocationUpdateWithoutConsolidationScansInput = {
+    level?: IntFieldUpdateOperationsInput | number
+    position?: IntFieldUpdateOperationsInput | number
+    locationNumber?: IntFieldUpdateOperationsInput | number
+    barcode?: StringFieldUpdateOperationsInput | string
+    lightState?: EnumLightStateFieldUpdateOperationsInput | $Enums.LightState
+    currentRoutingCode?: NullableStringFieldUpdateOperationsInput | string | null
+    currentPackageId?: NullableStringFieldUpdateOperationsInput | string | null
+    assignmentTimestamp?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isActive?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    createdAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rack?: RackUpdateOneRequiredWithoutLocationsNestedInput
+    routingAssignments?: RoutingAssignmentUpdateManyWithoutLocationNestedInput
+    awbs?: AwbUpdateManyWithoutAssignedLocationNestedInput
+    placements?: PlacementUpdateManyWithoutLocationNestedInput
+    events?: LocationEventUpdateManyWithoutLocationNestedInput
+    consolidations?: PackageConsolidationUpdateManyWithoutLocationNestedInput
+  }
+
+  export type LocationUncheckedUpdateWithoutConsolidationScansInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    rackId?: IntFieldUpdateOperationsInput | number
+    level?: IntFieldUpdateOperationsInput | number
+    position?: IntFieldUpdateOperationsInput | number
+    locationNumber?: IntFieldUpdateOperationsInput | number
+    barcode?: StringFieldUpdateOperationsInput | string
+    lightState?: EnumLightStateFieldUpdateOperationsInput | $Enums.LightState
+    currentRoutingCode?: NullableStringFieldUpdateOperationsInput | string | null
+    currentPackageId?: NullableStringFieldUpdateOperationsInput | string | null
+    assignmentTimestamp?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isActive?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    createdAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    routingAssignments?: RoutingAssignmentUncheckedUpdateManyWithoutLocationNestedInput
+    awbs?: AwbUncheckedUpdateManyWithoutAssignedLocationNestedInput
+    placements?: PlacementUncheckedUpdateManyWithoutLocationNestedInput
+    events?: LocationEventUncheckedUpdateManyWithoutLocationNestedInput
+    consolidations?: PackageConsolidationUncheckedUpdateManyWithoutLocationNestedInput
   }
 
   export type LocationCreateManyRackInput = {
@@ -10588,6 +15750,7 @@ export namespace Prisma {
     barcode: string
     lightState?: $Enums.LightState
     currentRoutingCode?: string | null
+    currentPackageId?: string | null
     assignmentTimestamp?: Date | string | null
     isActive?: boolean | null
     createdAt?: Date | string | null
@@ -10600,6 +15763,7 @@ export namespace Prisma {
     barcode?: StringFieldUpdateOperationsInput | string
     lightState?: EnumLightStateFieldUpdateOperationsInput | $Enums.LightState
     currentRoutingCode?: NullableStringFieldUpdateOperationsInput | string | null
+    currentPackageId?: NullableStringFieldUpdateOperationsInput | string | null
     assignmentTimestamp?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: NullableBoolFieldUpdateOperationsInput | boolean | null
     createdAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -10607,6 +15771,8 @@ export namespace Prisma {
     awbs?: AwbUpdateManyWithoutAssignedLocationNestedInput
     placements?: PlacementUpdateManyWithoutLocationNestedInput
     events?: LocationEventUpdateManyWithoutLocationNestedInput
+    consolidations?: PackageConsolidationUpdateManyWithoutLocationNestedInput
+    consolidationScans?: ConsolidationScanUpdateManyWithoutLocationNestedInput
   }
 
   export type LocationUncheckedUpdateWithoutRackInput = {
@@ -10617,6 +15783,7 @@ export namespace Prisma {
     barcode?: StringFieldUpdateOperationsInput | string
     lightState?: EnumLightStateFieldUpdateOperationsInput | $Enums.LightState
     currentRoutingCode?: NullableStringFieldUpdateOperationsInput | string | null
+    currentPackageId?: NullableStringFieldUpdateOperationsInput | string | null
     assignmentTimestamp?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: NullableBoolFieldUpdateOperationsInput | boolean | null
     createdAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -10624,6 +15791,8 @@ export namespace Prisma {
     awbs?: AwbUncheckedUpdateManyWithoutAssignedLocationNestedInput
     placements?: PlacementUncheckedUpdateManyWithoutLocationNestedInput
     events?: LocationEventUncheckedUpdateManyWithoutLocationNestedInput
+    consolidations?: PackageConsolidationUncheckedUpdateManyWithoutLocationNestedInput
+    consolidationScans?: ConsolidationScanUncheckedUpdateManyWithoutLocationNestedInput
   }
 
   export type LocationUncheckedUpdateManyWithoutRackInput = {
@@ -10634,6 +15803,7 @@ export namespace Prisma {
     barcode?: StringFieldUpdateOperationsInput | string
     lightState?: EnumLightStateFieldUpdateOperationsInput | $Enums.LightState
     currentRoutingCode?: NullableStringFieldUpdateOperationsInput | string | null
+    currentPackageId?: NullableStringFieldUpdateOperationsInput | string | null
     assignmentTimestamp?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isActive?: NullableBoolFieldUpdateOperationsInput | boolean | null
     createdAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -10671,6 +15841,28 @@ export namespace Prisma {
     routingCode?: string | null
     awbNumber?: string | null
     createdAt?: Date | string | null
+  }
+
+  export type PackageConsolidationCreateManyLocationInput = {
+    id?: number
+    shippingPackageId: string
+    operatorColor?: $Enums.OperatorColor | null
+    status?: $Enums.ConsolidationStatus
+    expectedCount?: number
+    accountedCount?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    completedAt?: Date | string | null
+    releasedAt?: Date | string | null
+  }
+
+  export type ConsolidationScanCreateManyLocationInput = {
+    id?: number
+    shippingPackageId: string
+    barcode: string
+    placed?: boolean
+    scannedAt?: Date | string
+    placedAt?: Date | string | null
   }
 
   export type RoutingAssignmentUpdateWithoutLocationInput = {
@@ -10771,6 +15963,107 @@ export namespace Prisma {
     routingCode?: NullableStringFieldUpdateOperationsInput | string | null
     awbNumber?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type PackageConsolidationUpdateWithoutLocationInput = {
+    shippingPackageId?: StringFieldUpdateOperationsInput | string
+    operatorColor?: NullableEnumOperatorColorFieldUpdateOperationsInput | $Enums.OperatorColor | null
+    status?: EnumConsolidationStatusFieldUpdateOperationsInput | $Enums.ConsolidationStatus
+    expectedCount?: IntFieldUpdateOperationsInput | number
+    accountedCount?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    releasedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    scans?: ConsolidationScanUpdateManyWithoutConsolidationNestedInput
+  }
+
+  export type PackageConsolidationUncheckedUpdateWithoutLocationInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    shippingPackageId?: StringFieldUpdateOperationsInput | string
+    operatorColor?: NullableEnumOperatorColorFieldUpdateOperationsInput | $Enums.OperatorColor | null
+    status?: EnumConsolidationStatusFieldUpdateOperationsInput | $Enums.ConsolidationStatus
+    expectedCount?: IntFieldUpdateOperationsInput | number
+    accountedCount?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    releasedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    scans?: ConsolidationScanUncheckedUpdateManyWithoutConsolidationNestedInput
+  }
+
+  export type PackageConsolidationUncheckedUpdateManyWithoutLocationInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    shippingPackageId?: StringFieldUpdateOperationsInput | string
+    operatorColor?: NullableEnumOperatorColorFieldUpdateOperationsInput | $Enums.OperatorColor | null
+    status?: EnumConsolidationStatusFieldUpdateOperationsInput | $Enums.ConsolidationStatus
+    expectedCount?: IntFieldUpdateOperationsInput | number
+    accountedCount?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    releasedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type ConsolidationScanUpdateWithoutLocationInput = {
+    barcode?: StringFieldUpdateOperationsInput | string
+    placed?: BoolFieldUpdateOperationsInput | boolean
+    scannedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    placedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    consolidation?: PackageConsolidationUpdateOneRequiredWithoutScansNestedInput
+  }
+
+  export type ConsolidationScanUncheckedUpdateWithoutLocationInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    shippingPackageId?: StringFieldUpdateOperationsInput | string
+    barcode?: StringFieldUpdateOperationsInput | string
+    placed?: BoolFieldUpdateOperationsInput | boolean
+    scannedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    placedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type ConsolidationScanUncheckedUpdateManyWithoutLocationInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    shippingPackageId?: StringFieldUpdateOperationsInput | string
+    barcode?: StringFieldUpdateOperationsInput | string
+    placed?: BoolFieldUpdateOperationsInput | boolean
+    scannedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    placedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type ConsolidationScanCreateManyConsolidationInput = {
+    id?: number
+    barcode: string
+    locationId: number
+    placed?: boolean
+    scannedAt?: Date | string
+    placedAt?: Date | string | null
+  }
+
+  export type ConsolidationScanUpdateWithoutConsolidationInput = {
+    barcode?: StringFieldUpdateOperationsInput | string
+    placed?: BoolFieldUpdateOperationsInput | boolean
+    scannedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    placedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    location?: LocationUpdateOneRequiredWithoutConsolidationScansNestedInput
+  }
+
+  export type ConsolidationScanUncheckedUpdateWithoutConsolidationInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    barcode?: StringFieldUpdateOperationsInput | string
+    locationId?: IntFieldUpdateOperationsInput | number
+    placed?: BoolFieldUpdateOperationsInput | boolean
+    scannedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    placedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type ConsolidationScanUncheckedUpdateManyWithoutConsolidationInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    barcode?: StringFieldUpdateOperationsInput | string
+    locationId?: IntFieldUpdateOperationsInput | number
+    placed?: BoolFieldUpdateOperationsInput | boolean
+    scannedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    placedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
 

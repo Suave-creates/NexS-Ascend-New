@@ -137,6 +137,7 @@ exports.Prisma.LocationScalarFieldEnum = {
   barcode: 'barcode',
   lightState: 'lightState',
   currentRoutingCode: 'currentRoutingCode',
+  currentPackageId: 'currentPackageId',
   assignmentTimestamp: 'assignmentTimestamp',
   isActive: 'isActive',
   createdAt: 'createdAt'
@@ -180,6 +181,47 @@ exports.Prisma.LocationEventScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
+exports.Prisma.QcDumpEntryScalarFieldEnum = {
+  id: 'id',
+  barcode: 'barcode',
+  shippingPackageId: 'shippingPackageId',
+  incrementId: 'incrementId',
+  itemType: 'itemType',
+  trayNo: 'trayNo',
+  currentStatus: 'currentStatus',
+  orderCreatedAt: 'orderCreatedAt',
+  orderUpdatedAt: 'orderUpdatedAt',
+  firstSeenAt: 'firstSeenAt',
+  lastSeenAt: 'lastSeenAt',
+  inDump: 'inDump',
+  scanned: 'scanned',
+  scannedAt: 'scannedAt'
+};
+
+exports.Prisma.PackageConsolidationScalarFieldEnum = {
+  id: 'id',
+  shippingPackageId: 'shippingPackageId',
+  locationId: 'locationId',
+  operatorColor: 'operatorColor',
+  status: 'status',
+  expectedCount: 'expectedCount',
+  accountedCount: 'accountedCount',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  completedAt: 'completedAt',
+  releasedAt: 'releasedAt'
+};
+
+exports.Prisma.ConsolidationScanScalarFieldEnum = {
+  id: 'id',
+  shippingPackageId: 'shippingPackageId',
+  barcode: 'barcode',
+  locationId: 'locationId',
+  placed: 'placed',
+  scannedAt: 'scannedAt',
+  placedAt: 'placedAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -192,7 +234,8 @@ exports.Prisma.NullsOrder = {
 
 exports.Prisma.LocationOrderByRelevanceFieldEnum = {
   barcode: 'barcode',
-  currentRoutingCode: 'currentRoutingCode'
+  currentRoutingCode: 'currentRoutingCode',
+  currentPackageId: 'currentPackageId'
 };
 
 exports.Prisma.RoutingAssignmentOrderByRelevanceFieldEnum = {
@@ -211,6 +254,24 @@ exports.Prisma.PlacementOrderByRelevanceFieldEnum = {
 exports.Prisma.LocationEventOrderByRelevanceFieldEnum = {
   routingCode: 'routingCode',
   awbNumber: 'awbNumber'
+};
+
+exports.Prisma.QcDumpEntryOrderByRelevanceFieldEnum = {
+  barcode: 'barcode',
+  shippingPackageId: 'shippingPackageId',
+  incrementId: 'incrementId',
+  itemType: 'itemType',
+  trayNo: 'trayNo',
+  currentStatus: 'currentStatus'
+};
+
+exports.Prisma.PackageConsolidationOrderByRelevanceFieldEnum = {
+  shippingPackageId: 'shippingPackageId'
+};
+
+exports.Prisma.ConsolidationScanOrderByRelevanceFieldEnum = {
+  shippingPackageId: 'shippingPackageId',
+  barcode: 'barcode'
 };
 exports.LightState = exports.$Enums.LightState = {
   OFF: 'OFF',
@@ -237,13 +298,23 @@ exports.LocationEventType = exports.$Enums.LocationEventType = {
   ROUTING_RELEASED: 'ROUTING_RELEASED'
 };
 
+exports.ConsolidationStatus = exports.$Enums.ConsolidationStatus = {
+  PENDING: 'PENDING',
+  CONSOLIDATING: 'CONSOLIDATING',
+  COMPLETE: 'COMPLETE',
+  RELEASED: 'RELEASED'
+};
+
 exports.Prisma.ModelName = {
   Rack: 'Rack',
   Location: 'Location',
   RoutingAssignment: 'RoutingAssignment',
   Awb: 'Awb',
   Placement: 'Placement',
-  LocationEvent: 'LocationEvent'
+  LocationEvent: 'LocationEvent',
+  QcDumpEntry: 'QcDumpEntry',
+  PackageConsolidation: 'PackageConsolidation',
+  ConsolidationScan: 'ConsolidationScan'
 };
 
 /**

@@ -11,7 +11,8 @@ datasource db {
 model Rack {
   id             Int       @id @default(autoincrement())
   rackNumber     Int       @unique @map("rack_number")
-  totalLevels    Int       @default(3) @map("total_levels")
+  // ConsolidAte grid: 5 rows (levels) x 5 columns (positions) = 25 slots/rack.
+  totalLevels    Int       @default(5) @map("total_levels")
   totalPositions Int       @default(5) @map("total_positions")
   createdAt      DateTime? @map("created_at")
 
@@ -29,17 +30,22 @@ model Location {
   barcode             String     @unique
   lightState          LightState @default(OFF) @map("light_state")
   currentRoutingCode  String?    @map("current_routing_code")
+  // ConsolidAte: the Shipping Package ID currently consolidating in this slot.
+  currentPackageId    String?    @map("current_package_id")
   assignmentTimestamp DateTime?  @map("assignment_timestamp")
   isActive            Boolean?   @map("is_active")
   createdAt           DateTime?  @map("created_at")
 
-  rack               Rack                @relation(fields: [rackId], references: [id])
+  rack               Rack                   @relation(fields: [rackId], references: [id])
   routingAssignments RoutingAssignment[]
   awbs               Awb[]
   placements         Placement[]
   events             LocationEvent[]
+  consolidations     PackageConsolidation[]
+  consolidationScans ConsolidationScan[]
 
   @@index([currentRoutingCode])
+  @@index([currentPackageId])
   @@map("locations")
 }
 
@@ -121,4 +127,79 @@ enum LocationEventType {
   LIGHT_OFF
   ROUTING_ASSIGNED
   ROUTING_RELEASED
+}
+
+// ===========================================================================
+// ConsolidAte — Order QC dump → PTL package-consolidation pipeline
+// ===========================================================================
+
+// One row per (barcode) seen in the "CL: Order QC" dump. Upserted every poll
+// cycle so entries are never dropped across cycles. inDump flips false when a
+// barcode stops appearing in the live dump.
+model QcDumpEntry {
+  id                Int       @id @default(autoincrement())
+  barcode           String    @unique
+  shippingPackageId String    @map("shipping_package_id")
+  incrementId       String?   @map("increment_id")
+  itemType          String?   @map("item_type")
+  trayNo            String?   @map("tray_no")
+  currentStatus     String?   @map("current_status")
+  orderCreatedAt    DateTime? @map("order_created_at")
+  orderUpdatedAt    DateTime? @map("order_updated_at")
+  firstSeenAt       DateTime  @default(now()) @map("first_seen_at")
+  lastSeenAt        DateTime  @default(now()) @map("last_seen_at")
+  inDump            Boolean   @default(true) @map("in_dump")
+  scanned           Boolean   @default(false)
+  scannedAt         DateTime? @map("scanned_at")
+
+  @@index([shippingPackageId])
+  @@index([inDump])
+  @@map("qc_dump_entries")
+}
+
+// One row per Shipping Package ID being consolidated into a PTL slot.
+model PackageConsolidation {
+  id                Int                 @id @default(autoincrement())
+  shippingPackageId String              @unique @map("shipping_package_id")
+  locationId        Int?                @map("location_id")
+  operatorColor     OperatorColor?
+  status            ConsolidationStatus @default(PENDING)
+  expectedCount     Int                 @default(0) @map("expected_count")
+  accountedCount    Int                 @default(0) @map("accounted_count")
+  createdAt         DateTime            @default(now()) @map("created_at")
+  updatedAt         DateTime            @updatedAt @map("updated_at")
+  completedAt       DateTime?           @map("completed_at")
+  releasedAt        DateTime?           @map("released_at")
+
+  location Location?           @relation(fields: [locationId], references: [id])
+  scans    ConsolidationScan[]
+
+  @@index([status])
+  @@index([locationId])
+  @@map("package_consolidations")
+}
+
+// One row per barcode scanned/placed into a package's slot (the "accounted" set).
+model ConsolidationScan {
+  id                Int       @id @default(autoincrement())
+  shippingPackageId String    @map("shipping_package_id")
+  barcode           String    @map("barcode")
+  locationId        Int       @map("location_id")
+  placed            Boolean   @default(false)
+  scannedAt         DateTime  @default(now()) @map("scanned_at")
+  placedAt          DateTime? @map("placed_at")
+
+  consolidation PackageConsolidation @relation(fields: [shippingPackageId], references: [shippingPackageId])
+  location      Location             @relation(fields: [locationId], references: [id])
+
+  @@unique([shippingPackageId, barcode])
+  @@index([locationId])
+  @@map("consolidation_scans")
+}
+
+enum ConsolidationStatus {
+  PENDING // package known from dump, no slot yet
+  CONSOLIDATING // slot assigned, light on, collecting barcodes
+  COMPLETE // all expected barcodes placed, light green, awaiting location scan
+  RELEASED // location scanned, slot freed, ready-to-ship
 }

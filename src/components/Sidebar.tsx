@@ -15,10 +15,11 @@ import {
   FiInfo,
   FiTool,
   FiShield,
-  FiCheckSquare,
+  FiMaximize,
   FiChevronDown,
   FiMenu,
   FiDownload,
+  FiGrid,
 } from 'react-icons/fi';
 import { cn } from '@/lib/cn';
 
@@ -32,6 +33,7 @@ export default function Sidebar() {
 
   const navItems: NavItem[] = [
     { href: '/', icon: FiHome, label: 'Home' },
+    { href: '/consolidate', icon: FiGrid, label: 'ConsolidAte' },
 
     {
       icon: FiLayers,
@@ -99,8 +101,8 @@ export default function Sidebar() {
     },
 
     {
-      icon: FiCheckSquare,
-      label: 'Fitting & QC',
+      icon: FiMaximize,
+      label: 'Metal Frame',
       children: [
         { href: '/metal-frame/fitting', label: 'Fitting Dashboard' },
         { href: '/metal-frame/qc', label: 'QC Dashboard' },
