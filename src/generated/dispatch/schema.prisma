@@ -162,7 +162,7 @@ model PackageConsolidation {
   id                Int                 @id @default(autoincrement())
   shippingPackageId String              @unique @map("shipping_package_id")
   locationId        Int?                @map("location_id")
-  operatorColor     OperatorColor?
+  operatorColor     OperatorColor?      @map("operator_color")
   status            ConsolidationStatus @default(PENDING)
   expectedCount     Int                 @default(0) @map("expected_count")
   accountedCount    Int                 @default(0) @map("accounted_count")

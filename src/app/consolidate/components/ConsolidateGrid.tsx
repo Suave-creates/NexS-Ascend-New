@@ -24,14 +24,8 @@ function Tile({ slot, highlight }: { slot: Slot; highlight: boolean }) {
       title={slot.shippingPackageId || slot.barcode}
     >
       <span className="csl-slot-no">{slot.locationNumber}</span>
-      {active ? (
-        <>
-          <span className="csl-slot-count">{slot.accounted}/{slot.expected}</span>
-          {done && <span className="csl-slot-tag">READY</span>}
-        </>
-      ) : (
-        <span className="csl-slot-free">·</span>
-      )}
+      {active && <span className="csl-slot-count">{slot.accounted}/{slot.expected}</span>}
+      {done && <span className="csl-slot-tag">READY</span>}
     </div>
   );
 }
