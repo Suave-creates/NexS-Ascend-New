@@ -9,21 +9,27 @@
 -- reseeds the grid. Legacy AWB rows are left orphaned (that flow is retired);
 -- location surrogate ids are NOT reused (auto_increment continues), so nothing
 -- mislinks. Slot business key = location_number (1..100) + barcode NXS-PTL-###.
+--
+-- IMPORTANT: run the WHOLE script in one go (the @vars + PREPARE must run in the
+-- same session). In MySQL Workbench use "Execute all" (⚡), not single-line run.
 -- ============================================================================
+
+-- Make sure every statement targets the right schema (DATABASE() must not be NULL).
+USE dispatch_ptl;
 
 -- 1) locations.current_package_id  (add only if missing) --------------------
 SET @add_col := (SELECT COUNT(*) FROM information_schema.COLUMNS
                  WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'locations'
                    AND COLUMN_NAME = 'current_package_id');
 SET @sql := IF(@add_col = 0,
-  'ALTER TABLE locations ADD COLUMN current_package_id VARCHAR(191) NULL', 'DO 0');
+  'ALTER TABLE locations ADD COLUMN current_package_id VARCHAR(191) NULL', 'SELECT 1');
 PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
 
 SET @add_idx := (SELECT COUNT(*) FROM information_schema.STATISTICS
                  WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'locations'
                    AND INDEX_NAME = 'locations_current_package_id_idx');
 SET @sql := IF(@add_idx = 0,
-  'CREATE INDEX locations_current_package_id_idx ON locations (current_package_id)', 'DO 0');
+  'CREATE INDEX locations_current_package_id_idx ON locations (current_package_id)', 'SELECT 1');
 PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
 
 -- 2) new ConsolidAte tables --------------------------------------------------
