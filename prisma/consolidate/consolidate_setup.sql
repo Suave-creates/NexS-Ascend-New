@@ -89,6 +89,9 @@ CREATE TABLE IF NOT EXISTS consolidation_scans (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- 3) fresh 5x5 grid seed -----------------------------------------------------
+-- SQL_SAFE_UPDATES=0 is required: MySQL Workbench enables "safe updates" which
+-- blocks DELETE without a keyed WHERE (Error 1175). This disables it for the session.
+SET SQL_SAFE_UPDATES = 0;
 SET FOREIGN_KEY_CHECKS = 0;
 DELETE FROM consolidation_scans;
 DELETE FROM package_consolidations;
@@ -119,6 +122,7 @@ JOIN racks r ON r.rack_number = ((g.n - 1) DIV 25) + 1
 WHERE g.n BETWEEN 1 AND 100;
 
 SET FOREIGN_KEY_CHECKS = 1;
+SET SQL_SAFE_UPDATES = 1;
 
 -- 4) verify ------------------------------------------------------------------
 SELECT (SELECT COUNT(*) FROM racks) AS racks,
