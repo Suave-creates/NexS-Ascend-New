@@ -34,6 +34,12 @@ function pageBody(page: number, pageSize: number) {
   };
 }
 
+function nowStamp(): string {
+  const d = new Date();
+  const p = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
+}
+
 function headers(ctx: DumpContext): HeadersInit {
   return {
     'Content-Type': 'application/json',
@@ -41,6 +47,7 @@ function headers(ctx: DumpContext): HeadersInit {
     'facility-code': ctx.facility || 'NXS1',
     'workstation-id': ctx.workstation || 'QC01',
     'source-domain': 'https://app.nexs.lenskart.com',
+    'date-time': nowStamp(),
   };
 }
 

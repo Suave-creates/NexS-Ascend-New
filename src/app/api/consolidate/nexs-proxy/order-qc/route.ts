@@ -19,17 +19,24 @@ export async function POST(req: Request) {
   const fwd: HeadersInit = {
     'Content-Type': 'application/json',
     Accept: 'application/json, text/plain, */*',
+    // The monitoring gateway validates these browser-set headers (Origin/Referer
+    // for CSRF; a browser UA). They are NOT visible to page JS, so a naive header
+    // copy misses them — and a server-to-server fetch omits them entirely, which
+    // makes /details return 401 even with a valid session cookie.
+    Origin: 'https://app.nexs.lenskart.com',
+    Referer: 'https://app.nexs.lenskart.com/',
   };
 
-  for (const name of ['facility-code', 'workstation-id', 'source-domain', 'date-time']) {
+  for (const name of [
+    'facility-code', 'workstation-id', 'source-domain', 'date-time',
+    'user-agent', 'accept-language',
+  ]) {
     const v = req.headers.get(name);
     if (v) fwd[name] = v;
   }
 
-  // Forward the browser's incoming cookies — identical to the Tray Releaser
-  // fetch-trays proxy. The NexS session cookie (scoped to .lenskart.com) rides
-  // along with the request, so the user's existing NexS login authenticates the
-  // call. No token is stored or relayed by us.
+  // Forward the browser's NexS session cookie (scoped to .lenskart.com), exactly
+  // like the Tray Releaser fetch-trays proxy. No token stored or relayed by us.
   const cookie = req.headers.get('cookie');
   if (cookie) fwd['Cookie'] = cookie;
 
