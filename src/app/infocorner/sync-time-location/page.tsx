@@ -241,7 +241,7 @@ export default function PicklistChunked() {
     }, 320);
 
     try {
-      const res  = await fetch("/api/order-info/sync-time-location", {
+      const res  = await fetch("/api/infocorner/sync-time-location", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ shipment_ids: ids }),
@@ -299,7 +299,7 @@ export default function PicklistChunked() {
       {/* Header */}
       <PageHeader
         title="Picklist Chunked Query"
-        subtitle="POST /api/order-info/sync-time-location — picking.picklist_order_item"
+        subtitle="POST /api/infocorner/sync-time-location — picking.picklist_order_item"
         actions={<Badge tone="navy" className="font-mono">CHUNK_SIZE = {CHUNK_SIZE}</Badge>}
       />
 

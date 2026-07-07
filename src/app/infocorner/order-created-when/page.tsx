@@ -189,7 +189,7 @@ export default function OrderSyncTimePage() {
     }, 320);
 
     try {
-      const res  = await fetch("/api/order-info/order-created-when", {
+      const res  = await fetch("/api/infocorner/order-created-when", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ increment_ids: ids }),
@@ -247,7 +247,7 @@ export default function OrderSyncTimePage() {
       {/* ── Header ── */}
       <PageHeader
         title="Order Sync — Time & Location"
-        subtitle="POST /api/order-info/sync-time-location — wms.orders"
+        subtitle="POST /api/infocorner/sync-time-location — wms.orders"
         actions={<Badge tone="navy" className="font-mono">CHUNK_SIZE = {CHUNK_SIZE}</Badge>}
       />
 

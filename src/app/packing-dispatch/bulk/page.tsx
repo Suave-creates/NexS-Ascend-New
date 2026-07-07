@@ -30,7 +30,7 @@ export default function bulkPage() {
   useEffect(() => {
     if (!stationId) return;
     const fetchStats = async () => {
-      const res = await fetch(`/api/bulk/stats?stationId=${stationId}`);
+      const res = await fetch(`/api/packing-dispatch/bulk/stats?stationId=${stationId}`);
       if (res.ok) {
         const { count } = await res.json();
         setHourCount(count);
@@ -60,7 +60,7 @@ export default function bulkPage() {
 
     // Process scan
     (async () => {
-      const res = await fetch('/api/bulk', {
+      const res = await fetch('/api/packing-dispatch/bulk', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ scanId, stationId, nexsId }),

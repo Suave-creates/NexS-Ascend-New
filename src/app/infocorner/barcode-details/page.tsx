@@ -254,7 +254,7 @@ export default function BulkBarcodeLookupPage() {
     setTextFilter('');
 
     try {
-      const res = await fetch('/api/order-info/barcode-details', {
+      const res = await fetch('/api/infocorner/barcode-details', {
         method: 'POST',
         headers: { 'Content-Type': 'text/plain' },
         body: barcodes.join('\n'),

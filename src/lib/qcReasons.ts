@@ -4,7 +4,7 @@
 // the DB (metal_frame.QcReason) so a supervisor's edit applies to EVERY QC
 // station at once — not just one browser. This file holds the shared, pure
 // helpers used by both the client (QC page + supervisor panel) and the server
-// (auto-seed + validation in /api/qc/reasons). Nothing here touches
+// (auto-seed + validation in /api/metal-frame/qc/reasons). Nothing here touches
 // localStorage or `window`, so it is safe to import from a route handler.
 
 export type QcReason = {

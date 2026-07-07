@@ -47,7 +47,7 @@ export default function InventoryPage() {
         return;
       }
 
-      const res = await fetch('/api/order-info/plant-pid-finder', {
+      const res = await fetch('/api/infocorner/plant-pid-finder', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ pids, download }),

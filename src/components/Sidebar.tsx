@@ -102,8 +102,8 @@ export default function Sidebar() {
       icon: FiCheckSquare,
       label: 'Fitting & QC',
       children: [
-        { href: '/fitting', label: 'Fitting Dashboard' },
-        { href: '/qc', label: 'QC Dashboard' },
+        { href: '/metal-frame/fitting', label: 'Fitting Dashboard' },
+        { href: '/metal-frame/qc', label: 'QC Dashboard' },
       ],
     },
 

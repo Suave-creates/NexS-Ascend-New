@@ -45,7 +45,7 @@ export default function BarcodeScannerPage() {
 
     startTransition(async () => {
       try {
-        const res = await fetch('/api/order-info/barcode-scan', {
+        const res = await fetch('/api/infocorner/barcode-scan', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ input: rawInput }),

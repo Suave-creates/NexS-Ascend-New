@@ -43,7 +43,7 @@ export default function POBulkCSVExportPage() {
 
     startTransition(async () => {
       try {
-        const res = await fetch('/api/order-info/po-details', {
+        const res = await fetch('/api/infocorner/po-details', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ po_nums: poNums }),

@@ -19,7 +19,7 @@ export default function DispatchPage() {
   useEffect(() => {
     if (!stationId) return;
     const fetchCount = async () => {
-      const res = await fetch(`/api/dispatch/stats?stationId=${stationId}`);
+      const res = await fetch(`/api/packing-dispatch/dispatch/stats?stationId=${stationId}`);
       if (res.ok) {
         const { count } = await res.json();
         setHourCount(count);
@@ -49,7 +49,7 @@ export default function DispatchPage() {
       return;
     }
 
-    const res  = await fetch('/api/dispatch', {
+    const res  = await fetch('/api/packing-dispatch/dispatch', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ scanId: id, stationId, nexsId }),

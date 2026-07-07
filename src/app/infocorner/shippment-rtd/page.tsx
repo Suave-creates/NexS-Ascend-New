@@ -450,7 +450,7 @@ export default function ShipmentRTDPage() {
     setProgress({ done: 0, total: ids.length, currentId: ids[0] });
 
     try {
-      const res = await fetch("/api/order-info/shippment-rtd", {
+      const res = await fetch("/api/infocorner/shippment-rtd", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ shipping_ids: ids }),

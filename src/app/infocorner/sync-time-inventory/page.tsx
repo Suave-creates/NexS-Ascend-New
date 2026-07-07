@@ -493,7 +493,7 @@ export default function ShipmentSyncPage() {
       });
 
       try {
-        const res = await fetch("/api/order-info/sync-time-inventory", {
+        const res = await fetch("/api/infocorner/sync-time-inventory", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ shipping_package_ids: chunk }),

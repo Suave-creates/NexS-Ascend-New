@@ -111,7 +111,7 @@ export default function OrderInformationCornerPage() {
 
     startTransition(async () => {
       try {
-        const res = await fetch('/api/operations/qcf-order-info', {
+        const res = await fetch('/api/infocorner/qcf-order-info', {
           method:  'POST',
           headers: { 'Content-Type': 'application/json' },
           body:    JSON.stringify({ shippingPackageId: inputValue.trim() }),

@@ -34,7 +34,7 @@ export default function fr0Page() {
     }
 
     (async () => {
-      const res = await fetch('/api/fr0bulkhoto', {
+      const res = await fetch('/api/packing-dispatch/fr0bulkhoto', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ scanId, stationId, nexsId }),

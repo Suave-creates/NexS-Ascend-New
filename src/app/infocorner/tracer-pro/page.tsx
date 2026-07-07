@@ -327,7 +327,7 @@ export default function QCTrayPage() {
     setSingleError(null);
     startTransition(async () => {
       try {
-        const res = await fetch('/api/order-info/tracer-pro', {
+        const res = await fetch('/api/infocorner/tracer-pro', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ trayId }),
@@ -352,7 +352,7 @@ export default function QCTrayPage() {
     setBulkError(null);
     setBulkLoading(true);
     try {
-      const res = await fetch('/api/order-info/tracer-pro/bulk', {
+      const res = await fetch('/api/infocorner/tracer-pro/bulk', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ trayIds }),
