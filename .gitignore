@@ -37,6 +37,12 @@ yarn-error.log*
 /src/app/infocorner/numbers/credentials.json
 /src/app/infocorner/numbers/token.json
 
+# secrets / token caches for the NDD-RCA python pipeline — provide locally
+/src/app/api/packing-dispatch/ndd-rca/NDD-RCA/gcreds.json
+/src/app/api/packing-dispatch/ndd-rca/NDD-RCA/gsheet_token.json
+/src/app/api/packing-dispatch/ndd-rca/NDD-RCA/pbi_token_cache.json
+**/__pycache__/
+
 # vercel
 .vercel
 

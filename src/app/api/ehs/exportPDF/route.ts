@@ -39,7 +39,9 @@ export async function GET(req: NextRequest) {
 
     const browser = await puppeteer.launch({
       headless: true,
-      args: ['--no-sandbox', '--disable-setuid-sandbox'],
+      // --disable-dev-shm-usage: containers default to a 64MB /dev/shm, which
+      // Chromium can exhaust when rendering large image-heavy PDFs.
+      args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'],
     })
     const page = await browser.newPage()
     await page.setContent(html, { waitUntil: 'networkidle0' })

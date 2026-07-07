@@ -1,0 +1,42 @@
+# deps / build artifacts (reinstalled/regenerated in the image)
+node_modules
+.next
+out
+build
+
+# Prisma clients committed with WINDOWS engines — regenerated for Linux in-build
+/generated
+generated.zip
+src/generated
+node_modules/.prisma
+
+# secrets & local env — provide at runtime via env_file / -e (never bake into image)
+.env
+.env.*
+
+# vcs / tooling / docs
+.git
+.gitignore
+.github
+.vscode
+.VSCodeCounter
+**/*.log
+tsconfig.tsbuildinfo
+next-env.d.ts
+
+# docker meta (not needed inside the build context copy)
+Dockerfile
+.dockerignore
+docker-compose.yml
+DOCKER.md
+
+# misc local files
+Store.xlsx
+
+# runtime secrets / token caches — provide via volume mount, never bake in
+**/credentials.json
+**/token.json
+**/__pycache__
+src/app/api/packing-dispatch/ndd-rca/NDD-RCA/gcreds.json
+src/app/api/packing-dispatch/ndd-rca/NDD-RCA/gsheet_token.json
+src/app/api/packing-dispatch/ndd-rca/NDD-RCA/pbi_token_cache.json
