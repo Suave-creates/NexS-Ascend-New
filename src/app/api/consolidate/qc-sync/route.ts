@@ -2,20 +2,24 @@
 //
 // Ingests a FULL snapshot of the "CL: Order QC" dump (all pages the client
 // paginated) and upserts it into qc_dump_entries. Idempotent by barcode, so no
-// entry is ever dropped across cycles. Entries not present in this snapshot are
-// flagged in_dump=false (they left the dump) but retained, so a package's
-// expected-barcode set is the UNION seen across cycles.
+// entry is ever dropped across cycles. Entries absent from this snapshot are
+// flagged in_dump=false (kept), so a package's expected-barcode set is the UNION
+// seen across cycles.
 //
-// After ingesting, expected counts are refreshed for packages currently being
-// consolidated; a COMPLETE package that gains a new expected barcode reverts to
-// CONSOLIDATING and its light is re-lit.
+// Then expected/accounted are refreshed by SET MEMBERSHIP for packages being
+// worked, moving them COMPLETE<->CONSOLIDATING and (re)lighting as needed.
 
 import { NextResponse } from 'next/server';
 import { prismaDispatch } from '@/utils/prismaDispatch';
 import { setLight } from '@/utils/rackController';
+import { acquirePkgLock, releasePkgLock, computeProgress } from '@/utils/consolidate';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
+
+// Per-process single-flight: overlapping cycles (multiple operator tabs polling)
+// would otherwise race the in_dump reconcile. The app runs as one Node process.
+let syncing = false;
 
 type RawRow = Record<string, unknown>;
 
@@ -31,6 +35,10 @@ const toDate = (v: unknown): Date | null => {
 const CHUNK = 200;
 
 export async function POST(req: Request) {
+  if (syncing) {
+    return NextResponse.json({ success: true, skipped: true, reason: 'sync already running' });
+  }
+  syncing = true;
   try {
     const payload = await req.json();
     const rows: RawRow[] = Array.isArray(payload?.rows) ? payload.rows : [];
@@ -38,7 +46,6 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'rows[] required' }, { status: 400 });
     }
 
-    // Normalise + dedupe by barcode (last occurrence wins).
     const byBarcode = new Map<string, {
       barcode: string; pkg: string; inc: string | null; itemType: string | null;
       trayNo: string | null; status: string | null; createdAt: Date | null; updatedAt: Date | null;
@@ -62,7 +69,6 @@ export async function POST(req: Request) {
     const cycleStart = new Date();
     const entries = [...byBarcode.values()];
 
-    // Bulk upsert in chunks (one query per chunk) to keep the polled endpoint light.
     for (let i = 0; i < entries.length; i += CHUNK) {
       const chunk = entries.slice(i, i + CHUNK);
       const placeholders = chunk.map(() => '(?,?,?,?,?,?,?,?,?,?,1)').join(',');
@@ -91,35 +97,61 @@ export async function POST(req: Request) {
       await prismaDispatch.$executeRawUnsafe(sql, ...params);
     }
 
-    // Anything not touched this cycle has left the live dump (kept, flagged).
     const departed = await prismaDispatch.$executeRawUnsafe(
       `UPDATE qc_dump_entries SET in_dump=0 WHERE in_dump=1 AND last_seen_at < ?`,
       cycleStart,
     );
 
-    // Refresh expected counts for packages currently being worked.
+    // Refresh expected/accounted by set membership for active packages, and
+    // move status + light in either direction as the dump changes.
     const active = await prismaDispatch.packageConsolidation.findMany({
       where: { status: { in: ['PENDING', 'CONSOLIDATING', 'COMPLETE'] } },
-      include: { location: true },
     });
-    let reverted = 0;
-    for (const pc of active) {
-      const expected = await prismaDispatch.qcDumpEntry.count({
-        where: { shippingPackageId: pc.shippingPackageId },
-      });
-      const data: Record<string, unknown> = { expectedCount: expected };
-      // A completed package that gained a new expected barcode must reopen.
-      if (pc.status === 'COMPLETE' && expected > pc.accountedCount) {
-        data.status = 'CONSOLIDATING';
-        data.completedAt = null;
-        reverted++;
-        if (pc.location) {
-          await setLight(pc.location.locationNumber, pc.operatorColor || 'YELLOW');
-        }
-      }
-      if (expected !== pc.expectedCount || data.status) {
-        await prismaDispatch.packageConsolidation.update({ where: { id: pc.id }, data });
-      }
+    let reopened = 0;
+    let autoCompleted = 0;
+    for (const pcSnap of active) {
+      const pkg = pcSnap.shippingPackageId;
+      const lightAfter = await prismaDispatch.$transaction(
+        async (tx): Promise<{ loc: number; color: string } | null> => {
+          const lock = await acquirePkgLock(tx, pkg, 5);
+          if (!lock.ok) return null; // another op holds it; next cycle reconciles
+          try {
+            const pc = await tx.packageConsolidation.findUnique({
+              where: { shippingPackageId: pkg },
+              include: { location: true },
+            });
+            if (!pc || pc.status === 'RELEASED') return null;
+            const prog = await computeProgress(tx, pkg);
+            const newStatus = prog.complete ? 'COMPLETE' : 'CONSOLIDATING';
+            if (prog.expected === pc.expectedCount && prog.accounted === pc.accountedCount && newStatus === pc.status) {
+              return null;
+            }
+            await tx.packageConsolidation.update({
+              where: { id: pc.id },
+              data: {
+                expectedCount: prog.expected,
+                accountedCount: prog.accounted,
+                status: newStatus,
+                completedAt: prog.complete ? (pc.completedAt ?? new Date()) : null,
+              },
+            });
+            if (pc.location) {
+              if (prog.complete && pc.status !== 'COMPLETE') {
+                autoCompleted++;
+                return { loc: pc.location.locationNumber, color: 'GREEN' };
+              }
+              if (!prog.complete && pc.status === 'COMPLETE') {
+                reopened++;
+                return { loc: pc.location.locationNumber, color: pc.operatorColor || 'YELLOW' };
+              }
+            }
+            return null;
+          } finally {
+            await releasePkgLock(tx, lock.key);
+          }
+        },
+      );
+      if (lightAfter) await setLight(lightAfter.loc, lightAfter.color);
     }
 
     return NextResponse.json({
@@ -129,10 +161,13 @@ export async function POST(req: Request) {
       skipped,
       departed,
       activePackages: active.length,
-      reopened: reverted,
+      reopened,
+      autoCompleted,
     });
   } catch (error) {
     console.error('qc-sync error:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+  } finally {
+    syncing = false;
   }
 }

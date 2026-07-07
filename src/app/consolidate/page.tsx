@@ -40,6 +40,8 @@ export default function ConsolidatePage() {
 
   const itemRef = useRef<HTMLInputElement>(null);
   const dumpBusy = useRef(false);
+  const gridBusy = useRef(false);
+  const actionBusy = useRef(false); // synchronous guard vs. scanner double-Enter
 
   // Restore prefs.
   useEffect(() => {
@@ -53,11 +55,14 @@ export default function ConsolidatePage() {
 
   // ---- grid poll ----
   const refreshGrid = useCallback(async () => {
+    if (gridBusy.current) return;
+    gridBusy.current = true;
     try {
       const res = await fetch('/api/consolidate/locations');
       const d = await res.json();
       if (res.ok) { setSlots(d.locations || []); setStats(d.stats || null); }
     } catch { /* ignore transient */ }
+    finally { gridBusy.current = false; }
   }, []);
   useEffect(() => {
     refreshGrid();
@@ -72,8 +77,13 @@ export default function ConsolidatePage() {
     setDump((d) => ({ ...d, syncing: true, error: null }));
     try {
       const { rows, total } = await loadOrderQcDump({ facility, workstation });
-      await syncDump(rows);
-      setDump({ syncing: false, last: new Date().toLocaleTimeString(), total, error: null });
+      if (rows.length === 0) {
+        // Empty snapshot: skip reconcile to avoid mass-departing on a blank/auth blip.
+        setDump({ syncing: false, last: new Date().toLocaleTimeString(), total: 0, error: null });
+      } else {
+        await syncDump(rows);
+        setDump({ syncing: false, last: new Date().toLocaleTimeString(), total, error: null });
+      }
     } catch (e) {
       setDump((d) => ({ ...d, syncing: false, error: (e as Error).message }));
     } finally {
@@ -91,7 +101,8 @@ export default function ConsolidatePage() {
   // ---- actions ----
   const scanItem = async () => {
     const barcode = itemBarcode.trim();
-    if (!barcode) return;
+    if (!barcode || actionBusy.current) return;
+    actionBusy.current = true;
     setBusy('scan');
     try {
       const res = await fetch('/api/consolidate/scan-barcode', {
@@ -108,11 +119,12 @@ export default function ConsolidatePage() {
         refreshGrid();
       }
     } catch (e) { flash({ tone: 'error', msg: (e as Error).message }); }
-    finally { setBusy(''); setItemBarcode(''); focusItem(); }
+    finally { actionBusy.current = false; setBusy(''); setItemBarcode(''); focusItem(); }
   };
 
   const confirmPlacement = async () => {
-    if (!lastItemBarcode) return;
+    if (!lastItemBarcode || actionBusy.current) return;
+    actionBusy.current = true;
     setBusy('confirm');
     try {
       const res = await fetch('/api/consolidate/confirm-placement', {
@@ -130,12 +142,13 @@ export default function ConsolidatePage() {
         refreshGrid();
       }
     } catch (e) { flash({ tone: 'error', msg: (e as Error).message }); }
-    finally { setBusy(''); focusItem(); }
+    finally { actionBusy.current = false; setBusy(''); focusItem(); }
   };
 
   const completeLocation = async () => {
     const locationBarcode = locBarcode.trim();
-    if (!locationBarcode) return;
+    if (!locationBarcode || actionBusy.current) return;
+    actionBusy.current = true;
     setBusy('complete');
     try {
       const res = await fetch('/api/consolidate/complete-location', {
@@ -154,7 +167,7 @@ export default function ConsolidatePage() {
         refreshGrid();
       }
     } catch (e) { flash({ tone: 'error', msg: (e as Error).message }); }
-    finally { setBusy(''); setLocBarcode(''); }
+    finally { actionBusy.current = false; setBusy(''); setLocBarcode(''); }
   };
 
   const masterReset = async () => {

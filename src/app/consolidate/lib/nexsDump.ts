@@ -12,7 +12,7 @@ export interface DumpContext {
 const PAGE_SIZE = 35; // matches what the NexS panel sends
 const MAX_PAGES = 500; // safety cap (~17.5k rows)
 
-function body(page: number, pageSize: number) {
+function pageBody(page: number, pageSize: number) {
   return {
     page,
     pageSize,
@@ -44,37 +44,55 @@ function headers(ctx: DumpContext): HeadersInit {
   };
 }
 
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+async function fetchPage(ctx: DumpContext, page: number): Promise<{ rows: Record<string, unknown>[]; total: number }> {
+  const res = await fetch('/api/consolidate/nexs-proxy/order-qc', {
+    method: 'POST',
+    headers: headers(ctx),
+    body: JSON.stringify(pageBody(page, PAGE_SIZE)),
+  });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const json = await res.json();
+  const data = json?.data ?? {};
+  return {
+    rows: Array.isArray(data.data) ? data.data : [],
+    total: typeof data.total === 'number' ? data.total : 0,
+  };
+}
+
 export interface DumpResult {
   rows: Record<string, unknown>[];
   total: number;
   pages: number;
 }
 
-/** Paginate the full Order QC dump via the proxy. Throws on the first failed page. */
+/**
+ * Paginate the full Order QC dump via the proxy. Each page gets one retry.
+ * Terminates on a short page (page-shortness), so a missing/zero `total` cannot
+ * truncate the snapshot after the first page.
+ */
 export async function loadOrderQcDump(ctx: DumpContext): Promise<DumpResult> {
   const rows: Record<string, unknown>[] = [];
   let total = 0;
   let page = 1;
 
   for (; page <= MAX_PAGES; page++) {
-    const res = await fetch('/api/consolidate/nexs-proxy/order-qc', {
-      method: 'POST',
-      headers: headers(ctx),
-      body: JSON.stringify(body(page, PAGE_SIZE)),
-    });
-    if (!res.ok) {
-      throw new Error(`Dump page ${page} failed: HTTP ${res.status}`);
+    let pageRes: { rows: Record<string, unknown>[]; total: number };
+    try {
+      pageRes = await fetchPage(ctx, page);
+    } catch {
+      await sleep(600);
+      pageRes = await fetchPage(ctx, page); // single retry; throws to caller if it fails again
     }
-    const json = await res.json();
-    const data = json?.data ?? {};
-    const pageRows: Record<string, unknown>[] = Array.isArray(data.data) ? data.data : [];
-    if (typeof data.total === 'number') total = data.total;
-    rows.push(...pageRows);
+    if (pageRes.total > 0) total = pageRes.total;
+    rows.push(...pageRes.rows);
 
-    if (pageRows.length === 0 || rows.length >= total) break;
+    if (pageRes.rows.length < PAGE_SIZE) break; // last page
+    if (total > 0 && rows.length >= total) break; // reached known total
   }
 
-  return { rows, total, pages: page };
+  return { rows, total: total || rows.length, pages: page };
 }
 
 /** Push a full snapshot to the ingest endpoint (upsert + reconcile). */
