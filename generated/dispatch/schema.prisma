@@ -1,0 +1,117 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/dispatch"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL_DISPATCH")
+}
+
+model Rack {
+  id             Int      @id @default(autoincrement())
+  rackNumber     Int      @unique
+  totalLevels    Int      @default(3)
+  totalPositions Int      @default(5)
+  createdAt      DateTime @default(now())
+
+  locations Location[]
+
+  @@map("racks")
+}
+
+model Location {
+  id                  Int        @id @default(autoincrement())
+  rackId              Int
+  level               Int
+  position            Int
+  locationNumber      Int        @unique
+  barcode             String     @unique
+  lightState          LightState @default(OFF)
+  currentRoutingCode  String?
+  assignmentTimestamp DateTime?
+  isActive            Boolean    @default(true)
+  createdAt           DateTime   @default(now())
+
+  rack               Rack                @relation(fields: [rackId], references: [id])
+  routingAssignments RoutingAssignment[]
+  awbs               Awb[]
+  placements         Placement[]
+  events             LocationEvent[]
+
+  @@index([currentRoutingCode])
+  @@map("locations")
+}
+
+model RoutingAssignment {
+  id          Int       @id @default(autoincrement())
+  routingCode String
+  locationId  Int
+  assignedAt  DateTime  @default(now())
+  releasedAt  DateTime?
+  isActive    Boolean   @default(true)
+
+  location Location @relation(fields: [locationId], references: [id])
+
+  @@unique([routingCode, isActive])
+  @@map("routing_assignments")
+}
+
+model Awb {
+  id                 Int       @id @default(autoincrement())
+  awbNumber          String    @unique
+  routingCode        String
+  assignedLocationId Int
+  scanTimestamp      DateTime  @default(now())
+  placedTimestamp    DateTime?
+  status             AwbStatus @default(ASSIGNED)
+
+  assignedLocation Location   @relation(fields: [assignedLocationId], references: [id])
+  placement        Placement?
+
+  @@map("awbs")
+}
+
+model Placement {
+  id         Int       @id @default(autoincrement())
+  awbId      Int       @unique
+  locationId Int
+  verified   Boolean   @default(false)
+  verifiedAt DateTime?
+  operatorId String?
+
+  awb      Awb      @relation(fields: [awbId], references: [id])
+  location Location @relation(fields: [locationId], references: [id])
+
+  @@map("placements")
+}
+
+model LocationEvent {
+  id          Int               @id @default(autoincrement())
+  locationId  Int
+  eventType   LocationEventType
+  routingCode String?
+  awbNumber   String?
+  createdAt   DateTime          @default(now())
+
+  location Location @relation(fields: [locationId], references: [id])
+
+  @@map("location_events")
+}
+
+enum LightState {
+  OFF
+  ON
+}
+
+enum AwbStatus {
+  ASSIGNED
+  PLACED
+}
+
+enum LocationEventType {
+  LIGHT_ON
+  LIGHT_OFF
+  ROUTING_ASSIGNED
+  ROUTING_RELEASED
+}

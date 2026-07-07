@@ -1,0 +1,124 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/dispatch"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL_DISPATCH")
+}
+
+model Rack {
+  id             Int       @id @default(autoincrement())
+  rackNumber     Int       @unique @map("rack_number")
+  totalLevels    Int       @default(3) @map("total_levels")
+  totalPositions Int       @default(5) @map("total_positions")
+  createdAt      DateTime? @map("created_at")
+
+  locations Location[]
+
+  @@map("racks")
+}
+
+model Location {
+  id                  Int        @id @default(autoincrement())
+  rackId              Int        @map("rack_id")
+  level               Int
+  position            Int
+  locationNumber      Int        @unique @map("location_number")
+  barcode             String     @unique
+  lightState          LightState @default(OFF) @map("light_state")
+  currentRoutingCode  String?    @map("current_routing_code")
+  assignmentTimestamp DateTime?  @map("assignment_timestamp")
+  isActive            Boolean?   @map("is_active")
+  createdAt           DateTime?  @map("created_at")
+
+  rack               Rack                @relation(fields: [rackId], references: [id])
+  routingAssignments RoutingAssignment[]
+  awbs               Awb[]
+  placements         Placement[]
+  events             LocationEvent[]
+
+  @@index([currentRoutingCode])
+  @@map("locations")
+}
+
+model RoutingAssignment {
+  id          Int       @id @default(autoincrement())
+  routingCode String    @map("routing_code")
+  locationId  Int       @map("location_id")
+  assignedAt  DateTime? @map("assigned_at")
+  releasedAt  DateTime? @map("released_at")
+  isActive    Boolean?  @map("is_active")
+
+  location Location @relation(fields: [locationId], references: [id])
+
+  @@unique(routingCode)
+  @@map("routing_assignments")
+}
+
+model Awb {
+  id                 Int           @id @default(autoincrement())
+  awbNumber          String        @unique
+  routingCode        String
+  assignedLocationId Int
+  operatorColor      OperatorColor
+  scanTimestamp      DateTime      @default(now())
+  placedTimestamp    DateTime?
+  status             AwbStatus     @default(ASSIGNED)
+
+  assignedLocation Location   @relation(fields: [assignedLocationId], references: [id])
+  placement        Placement?
+}
+
+enum OperatorColor {
+  YELLOW
+  BLUE
+  GREEN
+  PINK
+  RED
+}
+
+model Placement {
+  id         Int       @id @default(autoincrement())
+  awbId      Int       @unique @map("awb_id")
+  locationId Int       @map("location_id")
+  verified   Boolean?  @map("verified")
+  verifiedAt DateTime? @map("verified_at")
+  operatorId String?   @map("operator_id")
+
+  awb      Awb      @relation(fields: [awbId], references: [id])
+  location Location @relation(fields: [locationId], references: [id])
+
+  @@map("placements")
+}
+
+model LocationEvent {
+  id          Int               @id @default(autoincrement())
+  locationId  Int               @map("location_id")
+  eventType   LocationEventType @map("event_type")
+  routingCode String?           @map("routing_code")
+  awbNumber   String?           @map("awb_number")
+  createdAt   DateTime?         @map("created_at")
+
+  location Location @relation(fields: [locationId], references: [id])
+
+  @@map("location_events")
+}
+
+enum LightState {
+  OFF
+  ON
+}
+
+enum AwbStatus {
+  ASSIGNED
+  PLACED
+}
+
+enum LocationEventType {
+  LIGHT_ON
+  LIGHT_OFF
+  ROUTING_ASSIGNED
+  ROUTING_RELEASED
+}

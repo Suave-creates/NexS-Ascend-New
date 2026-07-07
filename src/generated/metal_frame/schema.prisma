@@ -1,0 +1,96 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/metal_frame"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL_MF")
+}
+
+model Plating {
+  id Int @id @default(autoincrement())
+
+  modelId        String
+  size           String
+  finish         String
+  categoryOfWork String // Required field
+
+  totalQuantity Int @default(0)
+  qcQuantity    Int @default(0)
+  ngQuantity    Int @default(0)
+
+  copperRejection Int @default(0)
+  nickelRejection Int @default(0)
+  lineRejection   Int @default(0)
+  fqcRejection    Int @default(0)
+
+  updatedAt DateTime @updatedAt
+
+  @@index([modelId])
+  @@index([size])
+  @@index([finish])
+  @@index([categoryOfWork])
+}
+
+// ---------------------------------------------------------------------------
+// Fitting line — continuous barcode scanning. The six operation Person IDs and
+// the line number are static "line setup" (change only when the crew changes).
+// ---------------------------------------------------------------------------
+model FittingScan {
+  id             Int      @id @default(autoincrement())
+  barcode        String
+  lineNumber     String   @map("line_number")
+  nosePadPid     String   @map("nose_pad_pid")
+  tipFittingPid  String   @map("tip_fitting_pid")
+  lensFittingPid String   @map("lens_fitting_pid")
+  tipBendingPid  String   @map("tip_bending_pid")
+  frontAlignPid  String   @map("front_align_pid")
+  frameAlignPid  String   @map("frame_align_pid")
+  isRework       Boolean  @default(false) @map("is_rework")
+  timestamp      DateTime @default(now())
+
+  @@index([barcode], map: "idx_FittingScan_barcode")
+  @@index([lineNumber, timestamp], map: "idx_FittingScan_line_ts")
+  @@index([timestamp], map: "idx_FittingScan_ts")
+  @@map("FittingScan")
+}
+
+// ---------------------------------------------------------------------------
+// QC verdicts. `reason` holds the fail-reason label (null on PASS).
+// `qcStation` identifies the QC station / line the verdict was recorded at.
+// ---------------------------------------------------------------------------
+model QcScan {
+  id        Int      @id @default(autoincrement())
+  barcode   String
+  qcPerson  String   @map("qc_person")
+  qcStation String   @map("qc_station")
+  status    String // 'PASS' | 'FAIL'
+  reason    String? // fail reason label; null when status = PASS
+  timestamp DateTime @default(now())
+
+  @@index([barcode], map: "idx_QcScan_barcode")
+  @@index([status, timestamp], map: "idx_QcScan_status_ts")
+  @@index([reason], map: "idx_QcScan_reason")
+  @@index([qcStation, timestamp], map: "idx_QcScan_station_ts")
+  @@index([timestamp], map: "idx_QcScan_ts")
+  @@map("QcScan")
+}
+
+// ---------------------------------------------------------------------------
+// QC fail-reason layout — DB-backed so a supervisor's edit (rename, hotkey,
+// featured flag, order) applies to every QC station at once. `hotkey` is a
+// single char (1-9, 0, A-Z). `featured` reasons render as big buttons.
+// ---------------------------------------------------------------------------
+model QcReason {
+  id        Int      @id @default(autoincrement())
+  label     String
+  hotkey    String   @default("")
+  featured  Boolean  @default(false)
+  sortOrder Int      @default(0) @map("sort_order")
+  active    Boolean  @default(true)
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([active, sortOrder], map: "idx_QcReason_active_sort")
+  @@map("QcReason")
+}
