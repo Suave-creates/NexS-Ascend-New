@@ -26,12 +26,11 @@ export async function POST(req: Request) {
     if (v) fwd[name] = v;
   }
 
-  // On a lenskart-origin deployment the browser auto-forwards the httpOnly NexS
-  // session cookie. On a non-lenskart origin (e.g. a Docker IP) it can't reach us,
-  // so fall back to a server-provided NEXS_COOKIE (paste from DevTools "Copy as
-  // cURL" → the `cookie:` header). Kept in env only (.env* is gitignored & not baked
-  // into the image); rotate when the NexS session expires.
-  const cookie = req.headers.get('cookie') || process.env.NEXS_COOKIE;
+  // Forward the browser's incoming cookies — identical to the Tray Releaser
+  // fetch-trays proxy. The NexS session cookie (scoped to .lenskart.com) rides
+  // along with the request, so the user's existing NexS login authenticates the
+  // call. No token is stored or relayed by us.
+  const cookie = req.headers.get('cookie');
   if (cookie) fwd['Cookie'] = cookie;
 
   let nexsRes: Response;
