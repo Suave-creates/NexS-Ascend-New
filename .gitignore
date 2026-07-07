@@ -32,6 +32,7 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.docker.example
 
 # secrets (BigQuery OAuth for infocorner/numbers) — provide locally, never commit
 /src/app/infocorner/numbers/credentials.json
