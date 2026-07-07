@@ -1,0 +1,344 @@
+/* Full-screen siren alert. High-specificity, max z-index, !important so the
+   host page's styles can't override it. */
+
+.nspw-overlay {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 2147483647 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin: 0 !important;
+  padding: 24px !important;
+  box-sizing: border-box !important;
+  background: rgba(8, 9, 13, 0.92) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+  backdrop-filter: blur(8px) !important;
+  font-family: "Inter", -apple-system, "Segoe UI", Roboto, Arial, sans-serif !important;
+  color: #f5f6f8 !important;
+  text-align: center !important;
+  cursor: pointer !important;
+}
+
+/* Alternating red / blue ambient glow behind the card */
+.nspw-overlay::before,
+.nspw-overlay::after {
+  content: "" !important;
+  position: absolute !important;
+  inset: 0 !important;
+  pointer-events: none !important;
+  z-index: 0 !important;
+}
+.nspw-overlay::before {
+  background: radial-gradient(
+    55% 55% at 22% 28%,
+    rgba(255, 60, 60, 0.5),
+    transparent 70%
+  ) !important;
+  animation: nspw-glow-red 1.2s ease-in-out infinite !important;
+}
+.nspw-overlay::after {
+  background: radial-gradient(
+    55% 55% at 78% 72%,
+    rgba(70, 120, 255, 0.5),
+    transparent 70%
+  ) !important;
+  animation: nspw-glow-blue 1.2s ease-in-out infinite !important;
+}
+@keyframes nspw-glow-red {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.12; }
+}
+@keyframes nspw-glow-blue {
+  0%, 100% { opacity: 0.12; }
+  50% { opacity: 1; }
+}
+
+/* Glass card */
+.nspw-card {
+  position: relative !important;
+  z-index: 1 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 18px !important;
+  padding: 44px 56px 36px !important;
+  max-width: 90vw !important;
+  background: rgba(18, 20, 27, 0.72) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(140%) !important;
+  backdrop-filter: blur(20px) saturate(140%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 26px !important;
+  box-shadow: 0 32px 80px rgba(0, 0, 0, 0.6),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
+  overflow: hidden !important;
+  animation: nspw-pop 0.36s cubic-bezier(0.2, 0.9, 0.3, 1.2) both !important;
+}
+@keyframes nspw-pop {
+  from { opacity: 0; transform: translateY(14px) scale(0.96); }
+  to { opacity: 1; transform: none; }
+}
+
+/* Animated gradient accent bar on top of the card */
+.nspw-accent {
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  height: 3px !important;
+  background: linear-gradient(90deg, #ff3b3b, #4d8bff, #ff3b3b) !important;
+  background-size: 200% 100% !important;
+  animation: nspw-accent-slide 2.6s linear infinite !important;
+}
+@keyframes nspw-accent-slide {
+  to { background-position: 200% 0; }
+}
+
+/* Siren beacons */
+.nspw-sirens {
+  display: flex !important;
+  gap: 60px !important;
+  margin-bottom: 4px !important;
+}
+.nspw-siren {
+  position: relative !important;
+  width: 92px !important;
+  height: 92px !important;
+  border-radius: 50% !important;
+  border: 4px solid rgba(255, 255, 255, 0.8) !important;
+  overflow: hidden !important;
+}
+.nspw-siren::after {
+  /* glossy highlight */
+  content: "" !important;
+  position: absolute !important;
+  top: 9% !important;
+  left: 18% !important;
+  width: 46% !important;
+  height: 30% !important;
+  border-radius: 50% !important;
+  background: rgba(255, 255, 255, 0.55) !important;
+  filter: blur(3px) !important;
+  z-index: 2 !important;
+}
+.nspw-siren-left {
+  background: radial-gradient(circle at 35% 30%, #ffb3b3, #ff2d2d 55%, #a30000 100%) !important;
+  box-shadow: 0 0 44px 10px rgba(255, 45, 45, 0.85) !important;
+  animation: nspw-beacon-red 1.2s ease-in-out infinite !important;
+}
+.nspw-siren-right {
+  background: radial-gradient(circle at 35% 30%, #b3c8ff, #2d6bff 55%, #0030a3 100%) !important;
+  box-shadow: 0 0 44px 10px rgba(45, 107, 255, 0.85) !important;
+  animation: nspw-beacon-blue 1.2s ease-in-out infinite !important;
+}
+@keyframes nspw-beacon-red {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.28; }
+}
+@keyframes nspw-beacon-blue {
+  0%, 100% { opacity: 0.28; }
+  50% { opacity: 1; }
+}
+
+/* Rotating light sweep inside each beacon */
+.nspw-sweep {
+  position: absolute !important;
+  inset: -30% !important;
+  z-index: 1 !important;
+  background: conic-gradient(
+    from 0deg,
+    rgba(255, 255, 255, 0.6),
+    transparent 22%,
+    transparent 100%
+  ) !important;
+  animation: nspw-spin 1.6s linear infinite !important;
+}
+@keyframes nspw-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Text */
+.nspw-eyebrow {
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  letter-spacing: 3.5px !important;
+  text-transform: uppercase !important;
+  color: #ff6b6b !important;
+}
+.nspw-title {
+  margin: -6px 0 0 !important;
+  font-size: 60px !important;
+  font-weight: 800 !important;
+  letter-spacing: -1px !important;
+  line-height: 1.05 !important;
+  background: linear-gradient(180deg, #ffffff, #c8ccd6) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  color: transparent !important;
+}
+.nspw-sub {
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.4px !important;
+  color: #9aa0ac !important;
+}
+
+/* eyebrow tint by what was caught */
+.nspw-mode-frame .nspw-eyebrow {
+  color: #6fa8ff !important;
+}
+.nspw-mode-lens .nspw-eyebrow {
+  color: #e9c75a !important;
+}
+.nspw-mode-both .nspw-eyebrow {
+  color: #ff6b6b !important;
+}
+
+/* Scope badges — the "with visual" cue for frame vs lens */
+.nspw-scope {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 12px !important;
+  justify-content: center !important;
+  margin-top: 2px !important;
+}
+.nspw-scope-badge {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 9px !important;
+  padding: 9px 18px !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  letter-spacing: 1.5px !important;
+  text-transform: uppercase !important;
+  border-radius: 999px !important;
+  border: 1px solid transparent !important;
+}
+.nspw-scope-badge svg {
+  display: block !important;
+  flex: 0 0 auto !important;
+}
+/* frame = cool blue/white */
+.nspw-scope-frame {
+  color: #cfe0ff !important;
+  background: rgba(70, 120, 255, 0.16) !important;
+  border-color: rgba(120, 160, 255, 0.5) !important;
+  box-shadow: 0 0 26px rgba(70, 120, 255, 0.32) !important;
+}
+/* lens = warm gold (matches the lens chips) */
+.nspw-scope-lens {
+  color: #fff2c8 !important;
+  background: rgba(212, 175, 55, 0.16) !important;
+  border-color: rgba(246, 231, 180, 0.55) !important;
+  box-shadow: 0 0 26px rgba(212, 175, 55, 0.32) !important;
+}
+
+/* PID chips */
+.nspw-pids {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 10px !important;
+  justify-content: center !important;
+  max-width: 560px !important;
+  margin-top: 4px !important;
+}
+.nspw-chip {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  font-size: 22px !important;
+  font-weight: 700 !important;
+  font-variant-numeric: tabular-nums !important;
+  letter-spacing: 0.5px !important;
+  padding: 7px 16px 7px 8px !important;
+  color: #fff !important;
+  background: rgba(255, 255, 255, 0.07) !important;
+  border: 1px solid rgba(255, 255, 255, 0.16) !important;
+  border-radius: 999px !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+}
+.nspw-chip-val {
+  line-height: 1 !important;
+}
+/* little type pill inside each chip: PID vs LENS */
+.nspw-chip-tag {
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  letter-spacing: 1.5px !important;
+  padding: 4px 9px !important;
+  border-radius: 999px !important;
+  text-transform: uppercase !important;
+}
+/* frame chips echo the blue frame theme */
+.nspw-chip-pid {
+  background: rgba(70, 120, 255, 0.1) !important;
+  border-color: rgba(120, 160, 255, 0.4) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 0 22px rgba(70, 120, 255, 0.22) !important;
+}
+.nspw-chip-pid .nspw-chip-val {
+  color: #eef4ff !important;
+}
+.nspw-chip-pid .nspw-chip-tag {
+  color: #cfe0ff !important;
+  background: rgba(70, 120, 255, 0.22) !important;
+}
+/* lens packages highlighted in warm gold so they stand apart from PIDs */
+.nspw-chip-lens {
+  background: rgba(212, 175, 55, 0.12) !important;
+  border-color: rgba(246, 231, 180, 0.45) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    0 0 24px rgba(212, 175, 55, 0.25) !important;
+}
+.nspw-chip-lens .nspw-chip-val {
+  color: #fff7e2 !important;
+}
+.nspw-chip-lens .nspw-chip-tag {
+  color: #1c1404 !important;
+  background: linear-gradient(135deg, #f8ecc2, #d4af37 60%, #b08828) !important;
+}
+
+/* Branding signature */
+.nspw-brand {
+  margin-top: 6px !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  letter-spacing: 2.5px !important;
+  text-transform: uppercase !important;
+  color: rgba(246, 231, 180, 0.6) !important;
+}
+
+/* Dismiss button */
+.nspw-close {
+  margin-top: 10px !important;
+  padding: 12px 30px !important;
+  font: inherit !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.5px !important;
+  color: #f5f6f8 !important;
+  background: rgba(255, 255, 255, 0.06) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  border-radius: 12px !important;
+  cursor: pointer !important;
+  transition: background 0.15s ease, border-color 0.15s ease,
+    transform 0.15s ease !important;
+}
+.nspw-close:hover {
+  background: rgba(255, 255, 255, 0.14) !important;
+  border-color: rgba(255, 255, 255, 0.42) !important;
+  transform: translateY(-1px) !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nspw-overlay::before,
+  .nspw-overlay::after,
+  .nspw-siren-left,
+  .nspw-siren-right,
+  .nspw-sweep,
+  .nspw-accent,
+  .nspw-card {
+    animation-duration: 2.4s !important;
+  }
+}

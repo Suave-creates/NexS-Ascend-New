@@ -1,0 +1,39 @@
+{
+  "manifest_version": 3,
+  "name": "NexS Flash Watcher",
+  "version": "1.0.0",
+  "description": "Watches NexS responses and flashes a full-screen alert when they match rules configured in NexS Ascend (Flash Rules builder).",
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "nexs-flash-watcher@bhiwadi-ops",
+      "strict_min_version": "128.0"
+    }
+  },
+  "permissions": ["storage", "alarms"],
+  "host_permissions": [
+    "https://app.nexs.lenskart.com/*",
+    "http://192.168.27.132:3069/*"
+  ],
+  "background": {
+    "scripts": ["background.js"]
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "NexS Flash Watcher"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://app.nexs.lenskart.com/*"],
+      "js": ["interceptor.js"],
+      "run_at": "document_start",
+      "world": "MAIN"
+    },
+    {
+      "matches": ["https://app.nexs.lenskart.com/*"],
+      "js": ["engine.js", "content.js"],
+      "css": ["overlay.css"],
+      "run_at": "document_start",
+      "world": "ISOLATED"
+    }
+  ]
+}

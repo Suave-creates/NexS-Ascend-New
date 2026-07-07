@@ -18,6 +18,7 @@ import {
   FiCheckSquare,
   FiChevronDown,
   FiMenu,
+  FiDownload,
 } from 'react-icons/fi';
 import { cn } from '@/lib/cn';
 
@@ -127,6 +128,7 @@ export default function Sidebar() {
         { href: '/infocorner/shippment-rtd', label: 'Shipment RTDetails' },
         { href: '/infocorner/PO-Details', label: 'PO Details' },
         { href: '/infocorner/Bulk-status-information', label: 'Bulk Status Info' },
+        { href: '/infocorner/numbers', label: 'Numbers (BQ)' },
       ],
     },
 
@@ -140,6 +142,15 @@ export default function Sidebar() {
       icon: FiShield,
       label: 'EHS',
       children: [{ href: '/ehs/report-deviation', label: 'Report Deviation' }],
+    },
+
+    {
+      icon: FiDownload,
+      label: 'Extensions',
+      children: [
+        { href: '/extensions', label: 'Browser Extensions' },
+        { href: '/extensions/rules', label: 'Flash Rules' },
+      ],
     },
   ];
 

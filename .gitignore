@@ -33,6 +33,10 @@ yarn-error.log*
 # env files (can opt-in for committing if needed)
 .env*
 
+# secrets (BigQuery OAuth for infocorner/numbers) — provide locally, never commit
+/src/app/infocorner/numbers/credentials.json
+/src/app/infocorner/numbers/token.json
+
 # vercel
 .vercel
 

@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sensitive PID Watcher</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #08080a;
+        --bg-2: #100f12;
+        --ivory: #f3efe4;
+        --muted: #8b8576;
+        --muted-dim: #635e53;
+        --gold-1: #f6e7b4;
+        --gold-2: #d4af37;
+        --gold-3: #a9842c;
+        --surface: rgba(255, 255, 255, 0.025);
+        --surface-2: rgba(246, 231, 180, 0.05);
+        --hairline: rgba(212, 175, 55, 0.18);
+        --hairline-strong: rgba(212, 175, 55, 0.42);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        width: 344px;
+        margin: 0;
+        padding: 0;
+        font-family: "Inter", -apple-system, "Segoe UI", Roboto, Arial,
+          sans-serif;
+        color: var(--ivory);
+        background: radial-gradient(
+            140% 90% at 50% -10%,
+            rgba(212, 175, 55, 0.16),
+            transparent 55%
+          ),
+          radial-gradient(
+            120% 120% at 50% 120%,
+            rgba(0, 0, 0, 0.6),
+            transparent 60%
+          ),
+          linear-gradient(180deg, var(--bg-2), var(--bg));
+        -webkit-font-smoothing: antialiased;
+      }
+
+      /* gold filament across the very top */
+      .filament {
+        height: 1px;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          var(--gold-2) 25%,
+          var(--gold-1) 50%,
+          var(--gold-2) 75%,
+          transparent
+        );
+        opacity: 0.85;
+      }
+
+      .wrap {
+        padding: 22px 22px 22px;
+      }
+
+      /* ---- header ---- */
+      header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 16px;
+      }
+      .emblem {
+        position: relative;
+        flex: 0 0 auto;
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        background: radial-gradient(
+          circle at 35% 30%,
+          rgba(246, 231, 180, 0.18),
+          rgba(212, 175, 55, 0.06) 60%,
+          transparent 70%
+        );
+        border: 1px solid var(--hairline-strong);
+        box-shadow: inset 0 0 12px rgba(212, 175, 55, 0.18);
+      }
+      .emblem::before {
+        content: "";
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+        background: linear-gradient(180deg, var(--gold-1), var(--gold-3));
+        box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.55);
+        animation: pulse 2.4s ease-out infinite;
+      }
+      @keyframes pulse {
+        0% {
+          box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.5);
+        }
+        70% {
+          box-shadow: 0 0 0 12px rgba(212, 175, 55, 0);
+        }
+        100% {
+          box-shadow: 0 0 0 0 rgba(212, 175, 55, 0);
+        }
+      }
+      .titles {
+        min-width: 0;
+      }
+      .eyebrow {
+        font-size: 9.5px;
+        font-weight: 600;
+        letter-spacing: 3px;
+        text-transform: uppercase;
+        color: var(--gold-2);
+        margin: 0 0 3px;
+      }
+      h1 {
+        font-family: "Cormorant Garamond", "Playfair Display", Georgia,
+          "Times New Roman", serif;
+        font-size: 23px;
+        font-weight: 600;
+        font-style: italic;
+        letter-spacing: 0.2px;
+        line-height: 1;
+        margin: 0;
+        background: linear-gradient(100deg, var(--gold-1), #fffaf0 45%, var(--gold-2));
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        color: transparent;
+      }
+
+      .divider {
+        height: 1px;
+        margin: 0 0 18px;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          var(--hairline) 20%,
+          var(--hairline) 80%,
+          transparent
+        );
+      }
+
+      .subtitle {
+        font-size: 12px;
+        line-height: 1.55;
+        color: var(--muted);
+        margin: 0 0 18px;
+      }
+      .subtitle code {
+        font-family: "SF Mono", "Consolas", "Menlo", monospace;
+        font-size: 11px;
+        padding: 1px 6px;
+        border-radius: 5px;
+        background: var(--surface-2);
+        border: 1px solid var(--hairline);
+        color: var(--gold-1);
+      }
+
+      label {
+        display: block;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        color: var(--gold-2);
+        margin-bottom: 9px;
+      }
+
+      textarea {
+        width: 100%;
+        height: 96px;
+        resize: vertical;
+        padding: 13px 14px;
+        font-family: "SF Mono", "Consolas", "Menlo", monospace;
+        font-size: 14px;
+        line-height: 1.65;
+        color: var(--ivory);
+        background: var(--surface);
+        border: 1px solid var(--hairline);
+        border-radius: 12px;
+        transition: border-color 0.18s ease, box-shadow 0.18s ease,
+          background 0.18s ease;
+      }
+      textarea::placeholder {
+        color: var(--muted-dim);
+      }
+      textarea:focus {
+        outline: none;
+        background: rgba(246, 231, 180, 0.03);
+        border-color: var(--hairline-strong);
+        box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.12);
+      }
+
+      .row {
+        display: flex;
+        gap: 11px;
+        margin-top: 14px;
+      }
+      button {
+        flex: 1;
+        padding: 12px;
+        font-size: 12.5px;
+        font-weight: 600;
+        letter-spacing: 1.4px;
+        text-transform: uppercase;
+        border-radius: 11px;
+        cursor: pointer;
+        transition: transform 0.12s ease, box-shadow 0.18s ease,
+          background 0.18s ease, border-color 0.18s ease, color 0.18s ease;
+      }
+      button:active {
+        transform: translateY(1px);
+      }
+      #save {
+        color: #1c1404;
+        border: 1px solid rgba(246, 231, 180, 0.5);
+        background: linear-gradient(135deg, #f8ecc2, #d4af37 55%, #b08828);
+        box-shadow: 0 6px 20px rgba(212, 175, 55, 0.28),
+          inset 0 1px 0 rgba(255, 255, 255, 0.45);
+      }
+      #save:hover {
+        box-shadow: 0 8px 26px rgba(212, 175, 55, 0.42),
+          inset 0 1px 0 rgba(255, 255, 255, 0.55);
+      }
+      #test {
+        color: var(--gold-1);
+        background: transparent;
+        border: 1px solid var(--hairline-strong);
+      }
+      #test:hover {
+        background: var(--surface-2);
+        border-color: var(--gold-2);
+        color: #fff7e2;
+      }
+
+      .footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-top: 16px;
+        min-height: 18px;
+      }
+      #count {
+        font-size: 11.5px;
+        font-weight: 600;
+        letter-spacing: 0.3px;
+        color: var(--gold-3);
+      }
+      #status {
+        font-size: 11.5px;
+        font-weight: 600;
+        letter-spacing: 0.3px;
+        opacity: 0;
+        transform: translateY(2px);
+        transition: opacity 0.22s ease, transform 0.22s ease;
+      }
+      #status.show {
+        opacity: 1;
+        transform: none;
+      }
+
+      /* ---- signature ---- */
+      .brand {
+        margin-top: 20px;
+        padding-top: 18px;
+        text-align: center;
+        border-top: 1px solid var(--hairline);
+      }
+      .brand-eyebrow {
+        font-size: 9.5px;
+        font-weight: 700;
+        letter-spacing: 3px;
+        text-transform: uppercase;
+        color: var(--gold-3);
+        margin-bottom: 7px;
+      }
+      .brand-name {
+        font-family: "Cormorant Garamond", "Playfair Display", Georgia,
+          "Times New Roman", serif;
+        font-size: 22px;
+        font-weight: 700;
+        font-style: italic;
+        letter-spacing: 0.3px;
+        line-height: 1.15;
+        background: linear-gradient(
+          100deg,
+          var(--gold-3),
+          var(--gold-1) 45%,
+          #fffaf0 55%,
+          var(--gold-2)
+        );
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        color: transparent;
+      }
+      /* gold flourish under the name */
+      .brand-rule {
+        width: 64px;
+        height: 1px;
+        margin: 10px auto 0;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          var(--gold-2) 50%,
+          transparent
+        );
+        opacity: 0.9;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="filament"></div>
+    <div class="wrap">
+      <header>
+        <span class="emblem"></span>
+        <div class="titles">
+          <p class="eyebrow">Lenskart · NEXS</p>
+          <h1>Sensitive PID Watcher</h1>
+        </div>
+      </header>
+      <div class="divider"></div>
+
+      <p class="subtitle">
+        Sounds the siren when any <code>product_id</code> <em>or</em>
+        <code>lens_package</code> in a <code>getFittingDetail</code> response
+        matches a watched value. Either one is enough.
+      </p>
+
+      <label for="pids">Watched Product IDs</label>
+      <textarea
+        id="pids"
+        placeholder="233704&#10;123456&#10;…"
+        spellcheck="false"
+      ></textarea>
+
+      <label for="lens" style="margin-top: 16px">Watched Lens Packages</label>
+      <textarea
+        id="lens"
+        placeholder="BLUECUT_1.56&#10;BLUECUT_1.60&#10;…"
+        spellcheck="false"
+      ></textarea>
+
+      <div class="row">
+        <button id="save">Save</button>
+        <button id="test">Test Siren</button>
+      </div>
+
+      <div class="footer">
+        <span id="count"></span>
+        <span id="status"></span>
+      </div>
+
+      <div class="brand">
+        <div class="brand-eyebrow">Crafted with precision by</div>
+        <div class="brand-name">Bhiwadi Ops &amp; Tech Sanghatan</div>
+        <div class="brand-rule"></div>
+      </div>
+    </div>
+    <script src="popup.js"></script>
+  </body>
+</html>
