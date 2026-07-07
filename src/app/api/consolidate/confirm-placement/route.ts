@@ -15,7 +15,7 @@ export const dynamic = 'force-dynamic';
 
 export async function POST(req: Request) {
   try {
-    const { barcode } = await req.json();
+    const { barcode, locationBarcode } = await req.json();
     if (!barcode) return NextResponse.json({ error: 'barcode required' }, { status: 400 });
 
     const outcome = await prismaDispatch.$transaction(async (tx) => {
@@ -30,6 +30,12 @@ export async function POST(req: Request) {
       const lock = await acquirePkgLock(tx, pkg);
       if (!lock.ok) throw new Error('LOCK_TIMEOUT');
       try {
+        // Defensive: verify the operator scanned the item's assigned slot.
+        if (locationBarcode) {
+          const loc = await tx.location.findUnique({ where: { id: scan.locationId } });
+          if (!loc || loc.barcode !== locationBarcode) throw new Error('LOCATION_MISMATCH');
+        }
+
         if (!scan.placed) {
           await tx.consolidationScan.update({
             where: { id: scan.id },
@@ -77,6 +83,9 @@ export async function POST(req: Request) {
     const msg = error instanceof Error ? error.message : '';
     if (msg === 'NOT_SCANNED') {
       return NextResponse.json({ error: 'Barcode was not scanned into a slot first' }, { status: 404 });
+    }
+    if (msg === 'LOCATION_MISMATCH') {
+      return NextResponse.json({ error: 'Wrong location for this item' }, { status: 409 });
     }
     if (msg === 'LOCK_TIMEOUT') {
       return NextResponse.json({ error: 'Busy, try again' }, { status: 503 });
