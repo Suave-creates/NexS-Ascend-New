@@ -12,8 +12,8 @@ import ConsolidateGrid from './components/ConsolidateGrid';
 import { loadOrderQcDump, syncDump } from './lib/nexsDump';
 import type { Slot, Stats, OperatorColor } from './types';
 
-const DUMP_INTERVAL_MS = 30_000;
-const GRID_INTERVAL_MS = 3_000;
+const DUMP_INTERVAL_MS = 300_000; // 5 min — poll NexS Order QC dump (paginates per run)
+const GRID_INTERVAL_MS = 3_000;   // local DB grid read only (cheap)
 
 // Power Ranger operator colours. GREEN is reserved for a completed/ready slot,
 // so it is not offered as an operator glow colour (would be ambiguous).
