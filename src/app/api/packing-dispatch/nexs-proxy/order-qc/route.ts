@@ -9,7 +9,6 @@
 
 import { NextResponse } from 'next/server';
 import { getNexsToken } from '@/utils/nexsAuth';
-import { getNexsCookie } from '@/utils/nexsSession';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -34,15 +33,15 @@ export async function POST(req: Request) {
     if (v) fwd[name] = v;
   }
 
-  // Resolve the auth cookie.
+  // Resolve auth: use the browser's jwt-token cookie on a lenskart origin,
+  // otherwise a server-obtained token (login + cache + auto-refresh). No paste.
   const browserCookie = req.headers.get('cookie');
   let cookie: string | null =
     browserCookie && browserCookie.includes('jwt-token') ? browserCookie : null;
   if (!cookie) {
-    const token = await getNexsToken();          // server logs in + caches
+    const token = await getNexsToken();
     if (token) cookie = `jwt-token=${token}`;
   }
-  if (!cookie) cookie = await getNexsCookie();    // last-resort stored cookie
   if (cookie) fwd['Cookie'] = cookie;
 
   let nexsRes: Response;
