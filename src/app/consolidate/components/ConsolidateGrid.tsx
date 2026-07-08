@@ -7,18 +7,19 @@ const COLOR_HEX: Record<string, string> = {
 };
 
 function Tile({ slot, highlight }: { slot: Slot; highlight: boolean }) {
-  const lit = slot.lightState === 'ON';                         // active put-to-light target
-  const done = slot.status === 'COMPLETE';
-  const assigned = slot.status === 'CONSOLIDATING' || done;     // holds a package
+  const done = slot.status === 'COMPLETE';                        // complete → GREEN (wins)
+  const lit = !done && slot.lightState === 'ON';                  // active put-to-light target → AMBER
+  const assigned = !done && slot.status === 'CONSOLIDATING';      // holds a package, light off (dark)
   const color = COLOR_HEX[slot.operatorColor || 'YELLOW'] || '#f5b942';
+  const hasPkg = lit || assigned || done;
 
-  // BRIGHT glow ONLY while the light is ON ("put here"). Because the light turns
-  // off on PUT, exactly one slot is ever lit — so two concurrent orders stay
-  // segregable. Assigned-but-placed slots show a calm marker; done shows green.
-  const style: React.CSSProperties = lit
+  // Only the active item glows AMBER (one at a time → concurrent orders stay
+  // segregable). A completed slot glows GREEN until its location is scanned to
+  // release it. An assigned-but-dark slot shows a calm marker + count.
+  const style: React.CSSProperties = done
+    ? { borderColor: '#46d39a', boxShadow: '0 0 0 1px #46d39a, 0 0 16px #46d39a88', color: '#46d39a' }
+    : lit
     ? { borderColor: color, boxShadow: `0 0 0 1px ${color}, 0 0 16px ${color}88`, color }
-    : done
-    ? { borderColor: 'rgba(70,211,154,.45)', color: '#46d39a' }
     : assigned
     ? { borderColor: `${color}55`, color }
     : {};
@@ -26,13 +27,13 @@ function Tile({ slot, highlight }: { slot: Slot; highlight: boolean }) {
   return (
     <div
       className={
-        'csl-slot' + (lit ? ' on' : '') + (assigned ? ' asg' : '') + (done ? ' done' : '') + (highlight ? ' hi' : '')
+        'csl-slot' + (lit || done ? ' on' : '') + (assigned ? ' asg' : '') + (done ? ' done' : '') + (highlight ? ' hi' : '')
       }
       style={style}
       title={slot.shippingPackageId || slot.barcode}
     >
       <span className="csl-slot-no">{slot.locationNumber}</span>
-      {assigned && <span className="csl-slot-count">{slot.accounted}/{slot.expected}</span>}
+      {hasPkg && <span className="csl-slot-count">{slot.accounted}/{slot.expected}</span>}
       {done && <span className="csl-slot-tag">READY</span>}
     </div>
   );

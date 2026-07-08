@@ -1,11 +1,14 @@
 'use client';
 
 // ConsolidAte — scanner-ONLY consolidation console (Tray Releaser look).
-// No buttons in the workflow. Two auto-focusing scan fields drive everything:
-//   PICK item barcode  -> slot light glows, cursor jumps to LOCATION
-//   PUT  location scan -> confirms the item into the slot (repeat per item)
-//   when the order is 100% consolidated -> LOCATION scan = ACKNOWLEDGE -> release
-// Dump sync + grid refresh run automatically in the background.
+// NEW put-to-light flow (no per-item location scan):
+//   Scan item      -> its slot glows (operator colour); it becomes "pending".
+//   Scan next item -> the previous item is CONFIRMED PLACED (its light off),
+//                     the new item's slot glows. Repeat.
+//   Order complete -> that slot turns GREEN; scan its LOCATION barcode once to
+//                     release it (light off, ready-to-ship).
+// One ONE scan field handles both: a value matching a slot barcode = release,
+// anything else = an item scan. Dump sync + grid refresh run in the background.
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import ConsolidateGrid from './components/ConsolidateGrid';
@@ -24,7 +27,6 @@ const RANGERS: { color: OperatorColor; name: string; hex: string }[] = [
   { color: 'PINK', name: 'Pink', hex: '#f26fb8' },
 ];
 
-type Step = 'PICK' | 'PUT' | 'ACK';
 interface Current {
   pkg: string;
   item: string;
@@ -33,29 +35,28 @@ interface Current {
   rackNumber: number;
   expected: number;
   placed: number;
+  complete: boolean;
 }
 
 export default function ConsolidatePage() {
   const [slots, setSlots] = useState<Slot[]>([]);
   const [stats, setStats] = useState<Stats | null>(null);
-  const [step, setStep] = useState<Step>('PICK');
   const [current, setCurrent] = useState<Current | null>(null);
-  const [itemVal, setItemVal] = useState('');
-  const [locVal, setLocVal] = useState('');
+  const [scanVal, setScanVal] = useState('');
   const [log, setLog] = useState<string[]>([]);
   const [dump, setDump] = useState<{ syncing: boolean; last: string | null; total: number; error: string | null }>({
     syncing: false, last: null, total: 0, error: null,
   });
 
-  const pickRef = useRef<HTMLInputElement>(null);
-  const locRef = useRef<HTMLInputElement>(null);
+  const scanRef = useRef<HTMLInputElement>(null);
   const busy = useRef(false);
   const dumpBusy = useRef(false);
   const gridBusy = useRef(false);
-  const stepRef = useRef<Step>('PICK');
-  stepRef.current = step;
+  const lastMutateAt = useRef(0); // guards the grid poll from clobbering optimistic state
   const currentRef = useRef<Current | null>(null);
   currentRef.current = current;
+  const slotsRef = useRef<Slot[]>([]);
+  slotsRef.current = slots;
 
   const [color, setColor] = useState<OperatorColor>('BLUE');
   const facility = (typeof window !== 'undefined' && localStorage.getItem('consolidate.facility')) || 'NXS1';
@@ -69,7 +70,7 @@ export default function ConsolidatePage() {
   const chooseColor = (c: OperatorColor) => {
     setColor(c);
     localStorage.setItem('consolidate.color', c);
-    // input onBlur -> keepFocus refocuses the active scan field after the click.
+    // input onBlur -> keepFocus refocuses the scan field after the click.
   };
 
   const addLog = useCallback((msg: string, kind: 'ok' | 'err' | 'info' = 'info') => {
@@ -78,22 +79,26 @@ export default function ConsolidatePage() {
     setLog((l) => [`${t}  ${mark} ${msg}`, ...l].slice(0, 60));
   }, []);
 
-  // Keep the active field focused (kiosk / scanner).
+  // Keep the scan field focused (kiosk / scanner).
   const focusActive = useCallback(() => {
-    setTimeout(() => {
-      (stepRef.current === 'PICK' ? pickRef : locRef).current?.focus();
-    }, 20);
+    setTimeout(() => scanRef.current?.focus(), 20);
   }, []);
-  useEffect(() => { focusActive(); }, [step, focusActive]);
+  useEffect(() => { focusActive(); }, [focusActive]);
 
   // ---- grid poll ----
   const refreshGrid = useCallback(async () => {
     if (gridBusy.current) return;
     gridBusy.current = true;
+    const startedAt = Date.now();
     try {
       const res = await fetch('/api/consolidate/locations');
       const d = await res.json();
-      if (res.ok) { setSlots(d.locations || []); setStats(d.stats || null); }
+      // Don't let a poll that STARTED before an optimistic scan update overwrite
+      // it with pre-scan data — a mutation since this fetch began means it's stale.
+      if (res.ok && startedAt >= lastMutateAt.current) {
+        setSlots(d.locations || []);
+        setStats(d.stats || null);
+      }
     } catch { /* transient */ }
     finally { gridBusy.current = false; }
   }, []);
@@ -128,136 +133,99 @@ export default function ConsolidatePage() {
     return () => clearInterval(id);
   }, [runDump]);
 
-  // Resolve a scanned value as a dump ITEM (PICK). 'ok' | 'notfound' | 'error'.
-  const pick = async (barcode: string): Promise<'ok' | 'notfound' | 'error'> => {
+  // ---- ITEM scan: glow this item's slot, confirm the previous pending item ----
+  const scanItem = async (barcode: string) => {
     try {
       const res = await fetch('/api/consolidate/scan-barcode', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ barcode, operatorColor: color }),
       });
-      if (res.status === 404) return 'notfound';
+      if (res.status === 404) { addLog(`${barcode}: not in QC dump`, 'err'); return; }
       const d = await res.json();
-      if (!res.ok || !d.location) { addLog(`PICK ${barcode}: ${d.error || 'failed'}`, 'err'); return 'error'; }
-      const prev = currentRef.current;
-      if (prev && prev.pkg !== d.shippingPackageId && prev.placed < prev.expected) {
-        addLog(`Switched from ${prev.pkg} (${prev.placed}/${prev.expected}, NOT released)`, 'err');
-      }
+      if (!res.ok || !d.location) { addLog(`${barcode}: ${d.error || 'failed'}`, 'err'); return; }
+
+      const dimmed: number[] = d.dimmed || [];
+      const greened: number[] = d.greened || [];
+      const locId = d.location.id as number;
+      // Optimistic lights: active slot amber/green, previous pending(s) dark,
+      // any newly-completed slots green. refreshGrid() reconciles from the DB.
+      setSlots((prev) => prev.map((s) => {
+        if (s.id === locId) {
+          return {
+            ...s, lightState: 'ON', status: d.complete ? 'COMPLETE' : 'CONSOLIDATING',
+            operatorColor: color, shippingPackageId: d.shippingPackageId,
+            expected: d.expected, accounted: d.placed,
+          };
+        }
+        if (greened.includes(s.locationNumber)) return { ...s, lightState: 'ON', status: 'COMPLETE' };
+        if (dimmed.includes(s.locationNumber)) return { ...s, lightState: 'OFF' };
+        return s;
+      }));
+      lastMutateAt.current = Date.now();
+
       setCurrent({
         pkg: d.shippingPackageId, item: barcode,
         slotNumber: d.location.locationNumber, slotBarcode: d.location.barcode,
-        rackNumber: d.location.rackNumber, expected: d.expected, placed: d.placed,
+        rackNumber: d.location.rackNumber, expected: d.expected, placed: d.placed, complete: d.complete,
       });
-      setStep(d.complete ? 'ACK' : 'PUT');
-      // Optimistically glow the slot NOW — the UI must not wait on the grid poll
-      // (or the fire-and-forget ESP32) to light up. refreshGrid() reconciles.
-      const locId = d.location.id as number;
-      setSlots((prev) => prev.map((s) =>
-        s.id === locId
-          ? { ...s, lightState: 'ON', status: d.complete ? 'COMPLETE' : 'CONSOLIDATING',
-              operatorColor: color, shippingPackageId: d.shippingPackageId,
-              expected: d.expected, accounted: d.placed }
-          : s));
-      addLog(`PICK ${barcode} → ${d.shippingPackageId} → slot #${d.location.locationNumber} (${d.placed}/${d.expected})`, 'ok');
+
+      if (d.complete) {
+        addLog(`ORDER COMPLETE — ${d.shippingPackageId} @ slot #${d.location.locationNumber} — scan its LOCATION to release`, 'ok');
+      } else if (d.alreadyScanned) {
+        addLog(`${barcode} already scanned — slot #${d.location.locationNumber} (${d.placed}/${d.expected})`, 'info');
+      } else {
+        addLog(`${barcode} → ${d.shippingPackageId} → slot #${d.location.locationNumber} (${d.placed}/${d.expected})`, 'ok');
+      }
       refreshGrid();
-      return 'ok';
     } catch (e) {
-      addLog(`PICK ${barcode}: ${(e as Error).message}`, 'err');
-      return 'error';
+      addLog(`${barcode}: ${(e as Error).message}`, 'err');
     }
   };
 
-  // ---- PICK field ----
-  const onPick = async () => {
-    const barcode = itemVal.trim();
-    setItemVal('');
-    if (!barcode || busy.current) return;
-    busy.current = true;
+  // ---- LOCATION scan: release a completed (green) slot ----
+  const release = async (locationBarcode: string, slot: Slot) => {
     try {
-      const r = await pick(barcode);
-      if (r === 'notfound') addLog(`PICK ${barcode}: not in QC dump`, 'err');
-    } finally {
-      busy.current = false;
-      focusActive();
-    }
-  };
-
-  // ---- LOCATION field (PUT / ACK, with scanner-only re-pick escape) ----
-  const onLocation = async () => {
-    const loc = locVal.trim();
-    setLocVal('');
-    if (!loc || busy.current) return;
-    const cur = currentRef.current;
-    if (!cur) { addLog('Scan an item first', 'err'); focusActive(); return; }
-    busy.current = true;
-    try {
-      // A scan that isn't the expected slot may be a different ITEM — re-pick it
-      // (scanner-only escape when the wrong item was picked / can't be placed).
-      if (loc !== cur.slotBarcode) {
-        const r = await pick(loc);
-        if (r !== 'ok') addLog(`WRONG LOCATION ${loc} — expected slot #${cur.slotNumber} (${cur.slotBarcode})`, 'err');
+      const res = await fetch('/api/consolidate/complete-location', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ locationBarcode }),
+      });
+      const d = await res.json();
+      if (!res.ok) {
+        if (d.error === 'NOT_COMPLETE') {
+          addLog(`Slot #${slot.locationNumber} not complete (${d.progress?.accounted ?? '?'}/${d.progress?.expected ?? '?'}) — scan the missing item(s)`, 'err');
+        } else if (d.error === 'SLOT_EMPTY') {
+          addLog(`Slot #${slot.locationNumber} is empty`, 'err');
+        } else {
+          addLog(`Release #${slot.locationNumber}: ${d.error || 'failed'}`, 'err');
+        }
         return;
       }
-
-      if (stepRef.current === 'ACK') {
-        const res = await fetch('/api/consolidate/complete-location', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ locationBarcode: loc }),
-        });
-        const d = await res.json();
-        if (!res.ok) {
-          if (d.error === 'NOT_COMPLETE') {
-            // Dump changed after it went green — reopen so PICK is usable again.
-            setStep('PICK');
-            if (d.progress) setCurrent((c) => (c ? { ...c, placed: d.progress.accounted, expected: d.progress.expected } : c));
-            addLog(`No longer complete (${d.progress?.accounted ?? '?'}/${d.progress?.expected ?? '?'}) — PICK missing item(s)`, 'err');
-          } else {
-            addLog(`ACK slot #${cur.slotNumber}: ${d.error || 'failed'}`, 'err');
-          }
-        } else {
-          addLog(`ACK slot #${cur.slotNumber} — ${cur.pkg} released, ready-to-ship`, 'ok');
-          // Optimistically free the slot on the board (light off).
-          setSlots((prev) => prev.map((s) =>
-            s.locationNumber === cur.slotNumber
-              ? { ...s, lightState: 'OFF', status: 'FREE', shippingPackageId: null,
-                  operatorColor: null, expected: 0, accounted: 0 }
-              : s));
-          setCurrent(null);
-          setStep('PICK');
-          refreshGrid();
-        }
-      } else {
-        // PUT
-        const res = await fetch('/api/consolidate/confirm-placement', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ barcode: cur.item, locationBarcode: loc }),
-        });
-        const d = await res.json();
-        if (!res.ok) {
-          addLog(`PUT ${cur.item}: ${d.error || 'failed'}`, 'err');
-        } else {
-          setCurrent((c) => (c ? { ...c, placed: d.placed, expected: d.expected } : c));
-          // Put-to-light: item placed → the slot's light goes OFF, so only the
-          // next PICK's target is ever lit. Count updates; green when complete.
-          setSlots((prev) => prev.map((s) =>
-            s.locationNumber === cur.slotNumber
-              ? { ...s, lightState: 'OFF', status: d.complete ? 'COMPLETE' : 'CONSOLIDATING',
-                  expected: d.expected, accounted: d.placed }
-              : s));
-          if (d.complete) {
-            setStep('ACK');
-            addLog(`PUT ok — ORDER COMPLETE ${d.placed}/${d.expected} — scan location to ACKNOWLEDGE`, 'ok');
-          } else {
-            setStep('PICK');
-            addLog(`PUT ok ${d.placed}/${d.expected} — PICK next item`, 'ok');
-          }
-          refreshGrid();
-        }
-      }
+      addLog(`RELEASED slot #${slot.locationNumber}${d.shippingPackageId ? ` — ${d.shippingPackageId}` : ''} — ready to ship`, 'ok');
+      setSlots((prev) => prev.map((s) =>
+        s.locationNumber === slot.locationNumber
+          ? { ...s, lightState: 'OFF', status: 'FREE', shippingPackageId: null, operatorColor: null, expected: 0, accounted: 0 }
+          : s));
+      lastMutateAt.current = Date.now();
+      if (currentRef.current?.slotNumber === slot.locationNumber) setCurrent(null);
+      refreshGrid();
     } catch (e) {
-      addLog(`${stepRef.current} ${loc}: ${(e as Error).message}`, 'err');
+      addLog(`Release: ${(e as Error).message}`, 'err');
+    }
+  };
+
+  // ---- single scan field: route location-barcode -> release, else -> item ----
+  const onScan = async () => {
+    const v = scanVal.trim();
+    setScanVal('');
+    if (!v) return;
+    if (busy.current) { addLog(`${v}: busy — please re-scan`, 'err'); return; } // don't drop silently
+    busy.current = true;
+    try {
+      const slot = slotsRef.current.find((s) => s.barcode === v);
+      if (slot) await release(v, slot);
+      else await scanItem(v);
     } finally {
       busy.current = false;
       focusActive();
@@ -272,10 +240,11 @@ export default function ConsolidatePage() {
   const pct = current && current.expected > 0
     ? Math.min(100, Math.round((current.placed / current.expected) * 100)) : 0;
 
-  const banner =
-    step === 'PICK' ? { cls: 'pick', text: current ? '① PICK — scan next item barcode' : '① PICK — scan item barcode' }
-    : step === 'PUT' ? { cls: 'put', text: `② PUT — scan LOCATION #${current?.slotNumber} · Rack ${current?.rackNumber}` }
-    : { cls: 'ack', text: `✓ COMPLETE — scan LOCATION #${current?.slotNumber} to ACKNOWLEDGE & ship` };
+  const banner = current?.complete
+    ? { cls: 'ack', text: `✓ COMPLETE — scan LOCATION #${current.slotNumber} to release & ship` }
+    : current
+    ? { cls: 'put', text: 'SCAN — next item · or a completed slot’s location to release' }
+    : { cls: 'pick', text: 'SCAN — item barcode to begin' };
 
   return (
     <div className="csl-root">
@@ -319,39 +288,26 @@ export default function ConsolidatePage() {
           <div className={'csl-banner ' + banner.cls}>{banner.text}</div>
 
           <div className="csl-fields">
-            <label className={'csl-field' + (step === 'PICK' ? ' active' : '')}>
-              <span>PICK · item</span>
+            <label className="csl-field active">
+              <span>Scan · item or location</span>
               <input
-                ref={pickRef}
+                ref={scanRef}
                 autoFocus
-                disabled={step !== 'PICK'}
-                value={itemVal}
-                placeholder="scan item barcode"
-                onChange={(e) => setItemVal(e.target.value)}
-                onKeyDown={onEnter(onPick)}
-                onBlur={keepFocus}
-              />
-            </label>
-            <label className={'csl-field' + (step !== 'PICK' ? ' active' : '')}>
-              <span>{step === 'ACK' ? 'ACK · location' : 'PUT · location'}</span>
-              <input
-                ref={locRef}
-                disabled={step === 'PICK'}
-                value={locVal}
-                placeholder="scan location barcode"
-                onChange={(e) => setLocVal(e.target.value)}
-                onKeyDown={onEnter(onLocation)}
+                value={scanVal}
+                placeholder="scan item barcode…"
+                onChange={(e) => setScanVal(e.target.value)}
+                onKeyDown={onEnter(onScan)}
                 onBlur={keepFocus}
               />
             </label>
           </div>
 
           {current && (
-            <div className={'csl-task' + (step === 'ACK' ? ' done' : '')}>
+            <div className={'csl-task' + (current.complete ? ' done' : '')}>
               <div className="row"><span>Package</span><b title={current.pkg}>{current.pkg}</b></div>
               <div className="row"><span>Slot</span><b>#{current.slotNumber} · Rack {current.rackNumber}</b></div>
-              <div className="bar"><i style={{ width: `${pct}%` }} className={step === 'ACK' ? 'ok' : ''} /></div>
-              <div className="row sm"><span>Placed</span><b>{current.placed}/{current.expected}</b></div>
+              <div className="bar"><i style={{ width: `${pct}%` }} className={current.complete ? 'ok' : ''} /></div>
+              <div className="row sm"><span>Scanned</span><b>{current.placed}/{current.expected}</b></div>
             </div>
           )}
 

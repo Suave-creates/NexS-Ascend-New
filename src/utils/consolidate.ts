@@ -29,6 +29,23 @@ export async function releasePkgLock(tx: Tx, key: string) {
   await tx.$queryRawUnsafe('SELECT RELEASE_LOCK(?) AS r', key);
 }
 
+// ── In-process serialization for the scan/release flow ───────────────────────
+// A scan does a cross-package "place the previous pending" hand-off, so scans
+// (and releases) must not interleave. A MySQL advisory lock held INSIDE a Prisma
+// interactive transaction is unsafe: it is released in `finally` BEFORE COMMIT
+// (a waiter can read uncommitted state), it leaks if the tx is aborted (the
+// RELEASE runs on a dead tx), and its wait counts against the tx timeout. This
+// app runs as ONE process (cf. qc-sync's single-flight guard), so a simple
+// in-process async mutex serialises every mutation cleanly — each op runs,
+// COMMITS, then the next starts. (If this is ever scaled to multiple processes,
+// replace this with a lock held on a dedicated connection across the commit.)
+let opChain: Promise<unknown> = Promise.resolve();
+export function runExclusive<T>(fn: () => Promise<T>): Promise<T> {
+  const result = opChain.then(fn, fn); // run after the previous op settles (ok or fail)
+  opChain = result.then(() => undefined, () => undefined); // keep the chain alive
+  return result;
+}
+
 export interface Progress {
   expected: number;
   missing: number;
