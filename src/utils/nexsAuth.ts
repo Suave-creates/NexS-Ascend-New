@@ -22,8 +22,11 @@
 // response body (field `content`) and/or as a Set-Cookie jwt-token=…
 
 type Cached = { token: string; expMs: number };
-let cache: Cached | null = null;
-let inFlight: Promise<string | null> | null = null;
+// Per-app-id caches. The auth-service mints a DIFFERENT token per
+// x-lenskart-app-id, and each downstream service only accepts its own app's
+// token (e.g. /nexs/wms rejects an nexs-analytics token). Key by app-id.
+const cache = new Map<string, Cached>();
+const inFlight = new Map<string, Promise<string | null>>();
 
 const SKEW_MS = 60_000; // refresh a minute before expiry
 
@@ -57,7 +60,7 @@ function buildLoginBody(user: string, pass: string): string {
   return JSON.stringify({ userName: user, password: pass });
 }
 
-async function login(): Promise<string | null> {
+async function login(appId: string): Promise<string | null> {
   const url = process.env.NEXS_AUTH_URL;
   const user = process.env.NEXS_USERNAME;
   const pass = process.env.NEXS_PASSWORD;
@@ -71,8 +74,9 @@ async function login(): Promise<string | null> {
     'workstation-id': process.env.NEXS_WORKSTATION || 'QC01',
   };
   // App identifier header (frontend hardcodes this). Without a valid value the
-  // auth-service replies 400 "Invalid app".
-  if (process.env.NEXS_APP_ID) headers['x-lenskart-app-id'] = process.env.NEXS_APP_ID;
+  // auth-service replies 400 "Invalid app". The token is scoped to this app —
+  // only that app's downstream service will accept it.
+  if (appId) headers['x-lenskart-app-id'] = appId;
 
   const res = await fetch(url, {
     method: 'POST',
@@ -98,21 +102,29 @@ async function login(): Promise<string | null> {
     } catch { token = null; }
   }
   if (!res.ok || !token) {
-    console.error('[nexsAuth] login failed', res.status);
+    console.error('[nexsAuth] login failed', res.status, `(app ${appId})`);
     return null;
   }
 
   const expMs = jwtExpMs(token) ?? Date.now() + 30 * 60_000; // fallback 30m
-  cache = { token, expMs };
+  cache.set(appId, { token, expMs });
   return token;
 }
 
-/** Get a valid NexS jwt-token, logging in / refreshing as needed. */
-export async function getNexsToken(): Promise<string | null> {
-  if (cache && cache.expMs - SKEW_MS > Date.now()) return cache.token;
-  if (inFlight) return inFlight;              // single-flight: one login at a time
-  inFlight = login().finally(() => { inFlight = null; });
-  return inFlight;
+/**
+ * Get a valid NexS jwt-token for the given app, logging in / refreshing as
+ * needed. `appId` defaults to NEXS_APP_ID; pass an explicit app-id (e.g.
+ * 'nexs_wms') when the target service only accepts its own app's token.
+ */
+export async function getNexsToken(appId?: string): Promise<string | null> {
+  const key = appId || process.env.NEXS_APP_ID || '';
+  const hit = cache.get(key);
+  if (hit && hit.expMs - SKEW_MS > Date.now()) return hit.token;
+  const pending = inFlight.get(key);
+  if (pending) return pending;                // single-flight per app-id
+  const p = login(key).finally(() => { inFlight.delete(key); });
+  inFlight.set(key, p);
+  return p;
 }
 
 export function nexsAuthConfigured(): boolean {

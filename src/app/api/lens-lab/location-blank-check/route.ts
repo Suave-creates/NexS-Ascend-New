@@ -1,12 +1,41 @@
 // src/app/api/lens-lab/location-blank-check/route.ts
+//
+// Data source changed: the blank-in-tray check no longer reads the WMS DB
+// (order_items). It now calls the NexS WMS fittingDetails API. Unlike the Tray
+// Releaser's fetchTrays endpoint (which serves without a token), the /nexs/wms
+// endpoint REQUIRES a NexS jwt-token minted for the `nexs_wms` app. Auth is
+// resolved with NO paste, on any origin:
+//   1. the browser's jwt-token cookie, if it reached us (prod lenskart origin)
+//   2. else a server-side login (getNexsToken) for the wms app-id
+// EVERYTHING downstream (validity rule, allGreen, IST handling, DB logging,
+// response shape) is unchanged.
 
 import { NextResponse } from 'next/server';
-import type mysql from 'mysql2/promise';
-import { nexsPool } from '@/utils/nexsPool';
+import { getNexsToken } from '@/utils/nexsAuth';
 import { prismaLensLab } from '@/utils/prismaLensLab';
 
 export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
 
+// NexS WMS fitting-details endpoint. Keyed by the tray/location id (e.g.
+// CT61308); returns every item of the fitting, including the lens blanks that
+// are physically sitting in the tray.
+const NEXS_BASE = 'https://app.nexs.lenskart.com/nexs/wms/api/v1/fittingDetails';
+
+// A single entry from the API's data.item_details[].
+type ItemDetail = {
+  type: string;
+  status: string;
+  barcode: string | null;
+  updated_at: string;
+  parentLocation: string | null;
+  item_id: number;
+  product_id: number;
+  tray_id: string | null;
+};
+
+// The shape the downstream processing expects — mirrors the old WMS
+// order_items row so the processing block below is untouched.
 type OrderItemRow = {
   location_id: string;
   fitting_id: number | null;
@@ -24,26 +53,8 @@ type ResultRow = {
   is_valid: boolean;
 };
 
-// ─── helpers ────────────────────────────────────────────────
-async function getConnectionWithRetry(
-  retries = 3,
-  delayMs = 300
-): Promise<mysql.PoolConnection> {
-  for (let attempt = 1; attempt <= retries; attempt++) {
-    try {
-      return await nexsPool.getConnection();
-    } catch (err) {
-      if (attempt === retries) throw err;
-      await new Promise((r) => setTimeout(r, delayMs * attempt));
-    }
-  }
-  throw new Error('Unreachable');
-}
-
 // ─── route ──────────────────────────────────────────────────
 export async function POST(req: Request) {
-  let conn: mysql.PoolConnection | null = null;
-
   // ── 0. Parse + validate input ──────────────────────────────
   let locationId: string;
   let operatorId: string;
@@ -73,32 +84,87 @@ export async function POST(req: Request) {
   }
 
   try {
-    // ── 1. Read from WMS DB ─────────────────────────────────
-    conn = await getConnectionWithRetry();
-    await conn.changeUser({ database: 'wms' });
+    // ── 1. Read from NexS WMS API (replaces the WMS DB query) ─
+    const fwd: Record<string, string> = {
+      Accept: 'application/json, text/plain, */*',
+      'source-domain': 'https://app.nexs.lenskart.com',
+    };
+    for (const name of ['facility-code', 'workstation-id', 'source-domain']) {
+      const v = req.headers.get(name);
+      if (v) fwd[name] = v;
+    }
 
-    const [rows] = await conn.execute<mysql.RowDataPacket[]>(
-      `SELECT
-         location_id,
-         fitting_id,
-         product_id,
-         barcode,
-         status,
-         updated_at
-       FROM order_items
-       WHERE location_id = ?
-       ORDER BY updated_at DESC
-       LIMIT 2`,
-      [locationId]
-    );
+    // Resolve auth with NO paste: the browser's jwt-token cookie if it reached
+    // us (prod lenskart origin), else a server-side login. The wms endpoint
+    // rejects the default nexs-analytics token, so mint one for the wms app.
+    const browserCookie = req.headers.get('cookie');
+    let cookie: string | null =
+      browserCookie && browserCookie.includes('jwt-token') ? browserCookie : null;
+    let authVia = cookie ? 'browser-cookie' : '';
+    if (!cookie) {
+      const token = await getNexsToken(process.env.NEXS_WMS_APP_ID || 'nexs_wms');
+      if (token) {
+        cookie = `jwt-token=${token}`;
+        authVia = 'server-login';
+      }
+    }
+    if (cookie) fwd['Cookie'] = cookie;
+    console.log('[location-blank-check]', locationId, '| auth:', authVia || 'NONE');
 
-    const rawData = rows as OrderItemRow[];
+    let nexsRes: Response;
+    try {
+      nexsRes = await fetch(`${NEXS_BASE}/${encodeURIComponent(locationId)}`, {
+        method: 'GET',
+        headers: fwd,
+      });
+    } catch (err) {
+      return NextResponse.json(
+        { success: false, error: `NexS network error: ${(err as Error).message}` },
+        { status: 502 }
+      );
+    }
+
+    const payload = await nexsRes.json().catch(() => null);
+    if (!nexsRes.ok) {
+      console.error('[LocationBlankCheck] NexS returned', nexsRes.status);
+      return NextResponse.json(
+        { success: false, error: `NexS returned HTTP ${nexsRes.status}` },
+        { status: 502 }
+      );
+    }
+
+    const details = payload?.data ?? {};
+    const items: ItemDetail[] = Array.isArray(details.item_details)
+      ? details.item_details
+      : [];
+    const fittingId =
+      details.fitting_id != null ? String(details.fitting_id) : null;
+
+    // Equivalent of `WHERE location_id = ? ORDER BY updated_at DESC LIMIT 2`:
+    // keep only the items physically in THIS tray (tray_id === locationId — the
+    // FRAME has tray_id null, so it drops out just like in the DB), newest
+    // first, top 2.
+    const rawData: OrderItemRow[] = items
+      .filter(
+        (it) =>
+          it.tray_id != null &&
+          String(it.tray_id).trim().toUpperCase() === locationId.toUpperCase()
+      )
+      .sort(
+        (a, b) =>
+          new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
+      )
+      .slice(0, 2)
+      .map((it) => ({
+        location_id: String(it.tray_id ?? locationId),
+        fitting_id: details.fitting_id ?? null,
+        product_id: it.product_id,
+        barcode: it.barcode,
+        status: it.status,
+        updated_at: it.updated_at,
+      }));
 
     // ── 2. Process rows ─────────────────────────────────────
-    const fittingId = rawData[0]?.fitting_id
-      ? String(rawData[0].fitting_id)
-      : null;
-
     const nowIST = new Date(Date.now());
 
     const processed: ResultRow[] = rawData.map((row) => {
@@ -177,7 +243,5 @@ export async function POST(req: Request) {
       { success: false, error: error?.message ?? 'Internal Server Error' },
       { status: 500 }
     );
-  } finally {
-    conn?.release();
   }
 }
