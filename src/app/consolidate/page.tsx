@@ -239,10 +239,11 @@ export default function ConsolidatePage() {
           addLog(`PUT ${cur.item}: ${d.error || 'failed'}`, 'err');
         } else {
           setCurrent((c) => (c ? { ...c, placed: d.placed, expected: d.expected } : c));
-          // Optimistically update the slot's count/state (green when complete).
+          // Put-to-light: item placed → the slot's light goes OFF, so only the
+          // next PICK's target is ever lit. Count updates; green when complete.
           setSlots((prev) => prev.map((s) =>
             s.locationNumber === cur.slotNumber
-              ? { ...s, status: d.complete ? 'COMPLETE' : 'CONSOLIDATING',
+              ? { ...s, lightState: 'OFF', status: d.complete ? 'COMPLETE' : 'CONSOLIDATING',
                   expected: d.expected, accounted: d.placed }
               : s));
           if (d.complete) {
@@ -456,10 +457,12 @@ const CSS = `
 .csl-grid{ display:grid; grid-template-columns:repeat(5,1fr); gap:7px; }
 .csl-slot{ aspect-ratio:1; border-radius:12px; border:1px solid var(--line); background:var(--bg-2);
   display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; position:relative; color:var(--muted); transition:all .15s ease; }
-.csl-slot.on{ background:rgba(255,255,255,.03); }
+.csl-slot.asg{ background:rgba(255,255,255,.02); }
+.csl-slot.on{ background:rgba(255,255,255,.05); animation:cslslot 1.1s ease-in-out infinite; }
+@keyframes cslslot{ 0%,100%{ filter:brightness(1);} 50%{ filter:brightness(1.4);} }
 .csl-slot.hi{ outline:2px solid var(--gold); outline-offset:2px; }
 .csl-slot-no{ font-size:21px; font-weight:800; line-height:1; font-variant-numeric:tabular-nums; letter-spacing:-.5px; }
-.csl-slot.on .csl-slot-no{ font-size:17px; }
+.csl-slot.on .csl-slot-no, .csl-slot.asg .csl-slot-no{ font-size:17px; }
 .csl-slot-count{ font-size:12px; font-weight:700; font-variant-numeric:tabular-nums; }
 .csl-slot-tag{ font-size:7.5px; font-weight:800; letter-spacing:1px; }
 @media (max-width:760px){
@@ -467,6 +470,6 @@ const CSS = `
   .csl-header{ gap:10px; padding:14px 16px; }
   .csl-field input{ height:56px; font-size:20px; }
   .csl-rack{ width:100%; } .csl-grid{ gap:6px; }
-  .csl-slot-no{ font-size:24px; } .csl-slot.on .csl-slot-no{ font-size:20px; }
+  .csl-slot-no{ font-size:24px; } .csl-slot.on .csl-slot-no, .csl-slot.asg .csl-slot-no{ font-size:20px; }
 }
 `;

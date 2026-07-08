@@ -7,24 +7,32 @@ const COLOR_HEX: Record<string, string> = {
 };
 
 function Tile({ slot, highlight }: { slot: Slot; highlight: boolean }) {
-  const active = slot.status === 'CONSOLIDATING' || slot.status === 'COMPLETE';
+  const lit = slot.lightState === 'ON';                         // active put-to-light target
   const done = slot.status === 'COMPLETE';
-  const glow = done ? '#46d39a' : COLOR_HEX[slot.operatorColor || 'YELLOW'] || '#f5b942';
+  const assigned = slot.status === 'CONSOLIDATING' || done;     // holds a package
+  const color = COLOR_HEX[slot.operatorColor || 'YELLOW'] || '#f5b942';
 
-  const style: React.CSSProperties = active
-    ? { borderColor: glow, boxShadow: `0 0 0 1px ${glow}, 0 0 14px ${glow}66`, color: glow }
+  // BRIGHT glow ONLY while the light is ON ("put here"). Because the light turns
+  // off on PUT, exactly one slot is ever lit — so two concurrent orders stay
+  // segregable. Assigned-but-placed slots show a calm marker; done shows green.
+  const style: React.CSSProperties = lit
+    ? { borderColor: color, boxShadow: `0 0 0 1px ${color}, 0 0 16px ${color}88`, color }
+    : done
+    ? { borderColor: 'rgba(70,211,154,.45)', color: '#46d39a' }
+    : assigned
+    ? { borderColor: `${color}55`, color }
     : {};
 
   return (
     <div
       className={
-        'csl-slot' + (active ? ' on' : '') + (done ? ' done' : '') + (highlight ? ' hi' : '')
+        'csl-slot' + (lit ? ' on' : '') + (assigned ? ' asg' : '') + (done ? ' done' : '') + (highlight ? ' hi' : '')
       }
       style={style}
       title={slot.shippingPackageId || slot.barcode}
     >
       <span className="csl-slot-no">{slot.locationNumber}</span>
-      {active && <span className="csl-slot-count">{slot.accounted}/{slot.expected}</span>}
+      {assigned && <span className="csl-slot-count">{slot.accounted}/{slot.expected}</span>}
       {done && <span className="csl-slot-tag">READY</span>}
     </div>
   );

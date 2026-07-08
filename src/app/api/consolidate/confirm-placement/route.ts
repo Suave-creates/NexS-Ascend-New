@@ -43,6 +43,13 @@ export async function POST(req: Request) {
           });
         }
 
+        // Put-to-light: the item is now placed, so the directing light goes OFF.
+        // Keeping it on would leave multiple slots lit and make two concurrent
+        // orders impossible to segregate. (Completion is signalled on-screen.)
+        if (scan.locationId != null) {
+          await tx.location.update({ where: { id: scan.locationId }, data: { lightState: 'OFF' } });
+        }
+
         const prog = await computeProgress(tx, pkg);
 
         const pc = await tx.packageConsolidation.update({
@@ -56,18 +63,17 @@ export async function POST(req: Request) {
           include: { location: true },
         });
 
-        const greenLoc = prog.complete && pc.location ? pc.location.locationNumber : null;
+        const offLoc = pc.location?.locationNumber ?? null;
 
-        return { pkg, prog, location: pc.location, greenLoc };
+        return { pkg, prog, location: pc.location, offLoc };
       } finally {
         await releasePkgLock(tx, lock.key);
       }
     });
 
-    // Green after commit only when fully consolidated (the slot is already
-    // glowing the operator colour while consolidating). Fire-and-forget — the
-    // light is an add-on and must not delay the operator's response.
-    if (outcome.greenLoc != null) void setLight(outcome.greenLoc, 'GREEN');
+    // Put-to-light: turn the slot's light OFF now the item is placed, so only the
+    // NEXT pick's target is ever lit. Fire-and-forget (light is an optional add-on).
+    if (outcome.offLoc != null) void setLight(outcome.offLoc, 'OFF');
 
     return NextResponse.json({
       success: true,

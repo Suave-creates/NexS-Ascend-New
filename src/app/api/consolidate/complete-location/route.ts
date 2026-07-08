@@ -47,12 +47,10 @@ export async function POST(req: Request) {
               completedAt: null,
             },
           });
+          // Put-to-light: don't relight — there's no item in hand. The operator
+          // re-picks the missing item(s), which lights the slot on that PICK.
           const err = new Error('NOT_COMPLETE') as Error & { info?: unknown };
-          err.info = {
-            expected: prog.expected,
-            accounted: prog.accounted,
-            relight: { loc: location.locationNumber, color: pc.operatorColor || 'YELLOW' },
-          };
+          err.info = { expected: prog.expected, accounted: prog.accounted };
           throw err;
         }
 
@@ -91,8 +89,7 @@ export async function POST(req: Request) {
   } catch (error: unknown) {
     const msg = error instanceof Error ? error.message : '';
     if (msg === 'NOT_COMPLETE') {
-      const info = (error as Error & { info?: { expected: number; accounted: number; relight?: { loc: number; color: string } } }).info;
-      if (info?.relight) await setLight(info.relight.loc, info.relight.color).catch(() => {});
+      const info = (error as Error & { info?: { expected: number; accounted: number } }).info;
       return NextResponse.json(
         { error: 'NOT_COMPLETE', progress: { expected: info?.expected, accounted: info?.accounted } },
         { status: 409 },
