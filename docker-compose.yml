@@ -1,0 +1,57 @@
+# NexS Ascend — local end-to-end stack (app + MySQL).
+#
+#   cp .env.docker.example .env.docker    # edit secrets / external DB URLs
+#   docker compose up --build
+#
+# One env file (.env.docker) drives BOTH services. The bundled MySQL serves the
+# Prisma-modeled schemas for a self-contained run; raw-SQL warehouse queries
+# (NexS_DB, NexS_DB_PICKING, bosch) hit EXTERNAL data in production — point those
+# at the real databases in .env.docker.
+
+services:
+  db:
+    image: mysql:8.0
+    restart: unless-stopped
+    env_file:
+      - .env.docker            # provides MYSQL_ROOT_PASSWORD (+ harmless extras)
+    ports:
+      - "127.0.0.1:3306:3306"  # loopback only — not published to the network
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./docker/mysql-init.sql:/docker-entrypoint-initdb.d/00-init.sql:ro
+    healthcheck:
+      # $$ → a literal $ handed to the container shell, which reads its OWN env.
+      # Stays correct whatever MYSQL_ROOT_PASSWORD is (no compose substitution).
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p\"$$MYSQL_ROOT_PASSWORD\" --silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  app:
+    build:
+      context: .
+      args:
+        # NEXT_PUBLIC_* is inlined at build time; export it in your shell before
+        # `docker compose build` if you use it.
+        NEXT_PUBLIC_AGENT_URL: ${NEXT_PUBLIC_AGENT_URL:-}
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file:
+      - .env.docker
+    ports:
+      - "3069:3069"
+    volumes:
+      # Named volume: seeded from the image's /app/data AND keeps the image's
+      # nextjs:nodejs ownership (a host bind mount would mask + break writes).
+      - app_data:/app/data
+      # --- NDD-RCA runtime secrets (optional feature). Create these files and
+      #     uncomment to enable the ndd-rca pipeline. Token caches must be RW. ---
+      # - ./secrets/gcreds.json:/app/src/app/api/packing-dispatch/ndd-rca/NDD-RCA/gcreds.json:ro
+      # - ./secrets/gsheet_token.json:/app/src/app/api/packing-dispatch/ndd-rca/NDD-RCA/gsheet_token.json
+      # - ./secrets/pbi_token_cache.json:/app/src/app/api/packing-dispatch/ndd-rca/NDD-RCA/pbi_token_cache.json
+
+volumes:
+  db_data:
+  app_data:

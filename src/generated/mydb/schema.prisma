@@ -1,0 +1,297 @@
+// prisma/schema.prisma
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/mydb"
+}
+
+model User {
+  id           Int      @id @default(autoincrement())
+  employeeCode String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+}
+
+model ShippingMetadata {
+  id         Int    @id @default(autoincrement())
+  shippingID String @unique
+  city       String
+
+  @@map("ShippingMetadata")
+}
+
+model PackingScan {
+  id        Int      @id @default(autoincrement())
+  scanId    String
+  stationId String
+  nexsId    String
+  timestamp DateTime @default(now())
+
+  @@index([scanId], map: "idx_PackingScan_scanId")
+  @@index([stationId, timestamp], map: "idx_PackingScan_station_ts")
+}
+
+model DispatchScan {
+  id        Int      @id @default(autoincrement())
+  scanId    String
+  stationId String
+  nexsId    String
+  timestamp DateTime @default(now())
+
+  @@index([scanId], map: "idx_DispatchScan_scanId")
+  @@index([stationId, timestamp], map: "idx_DispatchScan_station_ts")
+}
+
+model OperationsMetadata {
+  id         Int     @id @default(autoincrement())
+  locationId String  @map("location_id")
+  cityOdd    String  @map("city_odd")
+  shipToCust String? @map("ship_to_cust")
+
+  @@index([locationId], map: "idx_OperationsMetadata_location_id")
+  @@map("OperationsMetadata")
+}
+
+model MaintenanceShopIssue {
+  id          Int      @id @default(autoincrement())
+  pid         String
+  partName    String
+  quantity    Int
+  unit        String
+  rate        Float
+  category    String
+  total       Float
+  currency    String?
+  destination String
+  department  String
+  issuedAt    DateTime @default(now())
+}
+
+model FastTrackScan {
+  id         Int      @id @default(autoincrement())
+  locationID String   @map("location_id")
+  cityOdd    String   @map("city_odd")
+  time       DateTime @default(now()) @map("time")
+
+  @@map("fasttrackscan")
+}
+
+model FR0Scan {
+  id        Int      @id @default(autoincrement())
+  scanId    String
+  stationId String
+  nexsId    String
+  createdAt DateTime @default(now())
+
+  @@index([scanId], map: "idx_FR0Scan_scanId")
+  @@index([stationId, createdAt], map: "idx_FR0Scan_station_created")
+}
+
+model BulkScan {
+  id        Int      @id @default(autoincrement())
+  scanId    String
+  stationId String
+  nexsId    String
+  timestamp DateTime @default(now())
+
+  @@index([scanId], map: "idx_BulkScan_scanId")
+  @@index([stationId, timestamp], map: "idx_BulkScan_station_ts")
+}
+
+model ManualWarehouse {
+  id        Int      @id @default(autoincrement())
+  scanId    String
+  stationId String
+  nexsId    String
+  timestamp DateTime @default(now())
+
+  @@index([timestamp], map: "idx_ManualWarehouse_timestamp")
+}
+
+model EHSDeviation {
+  id                    Int       @id @default(autoincrement())
+  month                 String
+  date                  DateTime  @db.Date
+  timeOfRound           String
+  location              String
+  responsibleDepartment String
+  remarks               String
+  observations          String    @db.Text
+  photographBefore      String?   @db.VarChar(500)
+  controlMeasures       String    @db.Text
+  photographAfter       String?   @db.VarChar(500)
+  categorization        String    @default("Yellow")
+  remarksByDepartment   String?   @db.Text
+  complianceStatus      String    @default("Open")
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  complianceDate        DateTime?
+
+  @@index([date])
+}
+
+model CourierHandover {
+  id              Int      @id @default(autoincrement())
+  partner         String
+  awb             String
+  personId        String
+  lastScan        DateTime @default(now())
+  duplicate       Boolean  @default(false)
+  mismatch        Boolean  @default(false)
+  detectedPartner String?
+
+  @@index([partner, awb], map: "idx_CourierHandover_partner_awb")
+}
+
+model MetalFrameFittingScan {
+  id        Int      @id @default(autoincrement())
+  scanId    String
+  stationId String
+  nexsId    String
+  pid       String?
+  timestamp DateTime @default(now())
+
+  @@index([scanId])
+  @@index([stationId])
+}
+
+model OrderUpdateDashboardStudy {
+  id Int @id @default(autoincrement())
+
+  wave                String?
+  orderId             String?   @map("order_id")
+  orderStatus         String?   @map("order_status")
+  stationId           String?   @map("station_id")
+  fittingId           String?   @map("fitting_id")
+  updatedFittingId    String?   @map("updated_fitting_id")
+  orderSyncTime       DateTime? @map("order_sync_time")
+  orderItemId         String?   @map("order_item_id")
+  sku                 String?
+  unallocatedReason   String?   @map("unallocated_reason")
+  itemType            String?   @map("item_type")
+  quantity            Int?
+  priority            String?
+  orderItemStatus     String?   @map("order_item_status")
+  waveState           String?   @map("wave_state")
+  category            String?
+  trayId              String?   @map("tray_id")
+  jitFlag             Boolean?  @map("jit_flag")
+  serialNo            String?   @map("serial_no")
+  responseMessage     String?   @map("response_message") @db.Text
+  pickingCutoffTime   DateTime? @map("picking_cutoff_time")
+  orderAllocationTime DateTime? @map("order_allocation_time")
+  itemPickedTimestamp DateTime? @map("item_picked_timestamp")
+  uploadedAt          DateTime  @default(now()) @map("uploaded_at")
+
+  @@index([orderId])
+  @@index([fittingId])
+  @@index([updatedFittingId])
+  @@index([stationId])
+  @@index([sku])
+  @@map("order_update_dashboard_study")
+}
+
+model InventoryPID {
+  PID     String  @id @map("PID")
+  Comment String? @map("Comment")
+
+  @@map("InventoryPID")
+}
+
+model FR0BulkHOTO {
+  id        Int      @id @default(autoincrement())
+  scanId    String
+  stationId String
+  nexsId    String
+  timestamp DateTime @default(now())
+
+  @@index([scanId, timestamp], map: "idx_FR0BulkHOTO_scanId_ts")
+  @@index([scanId])
+}
+
+model ManualWarehouseSetUp {
+  id        Int      @id @default(autoincrement())
+  pid       String   @unique
+  location  String
+  package   String
+  createdAt DateTime @default(now())
+
+  @@index([pid])
+  @@index([location])
+}
+
+model ScannedBarcodeInventory {
+  id BigInt @id @default(autoincrement())
+
+  pid     String @db.VarChar(50)
+  barcode String @db.VarChar(50)
+
+  status       String? @db.VarChar(50)
+  condition    String? @map("condition") @db.VarChar(50)
+  availability String? @db.VarChar(50)
+
+  scanLocation String @map("scan_location") @db.VarChar(100)
+
+  scannedAt DateTime @default(now()) @map("scanned_at")
+
+  @@unique([barcode, scanLocation], name: "uniq_barcode_scan")
+  @@index([scanLocation, scannedAt], map: "idx_sbi_location_scanned")
+  @@index([barcode])
+  @@map("scanned_barcode_inventory")
+}
+
+model CLScan {
+  id        Int      @id @default(autoincrement())
+  scanId    String
+  stationId String
+  nexsId    String
+  createdAt DateTime @default(now())
+
+  @@index([scanId], map: "idx_CLScans_scanId")
+  @@index([stationId, createdAt], map: "idx_CLScans_station_created")
+  @@map("CLScans")
+}
+
+model ScannedBarcodeInventoryTransfer {
+  id BigInt @id @default(autoincrement())
+
+  pid     String @db.VarChar(50)
+  barcode String @db.VarChar(50)
+
+  status       String? @db.VarChar(50)
+  condition    String? @map("condition") @db.VarChar(50)
+  availability String? @db.VarChar(50)
+
+  scanLocation String @map("scan_location") @db.VarChar(100)
+
+  scannedAt  DateTime @default(now()) @map("scanned_at")
+  injestedAt DateTime @default(now()) @map("injested_at") @db.DateTime(3)
+
+  @@unique([barcode, scanLocation], name: "uniq_barcode_scan")
+  @@index([barcode])
+  @@map("scanned_barcode_inventory_transfer")
+}
+
+model NddShipment {
+  id        Int             @id @default(autoincrement())
+  createdAt DateTime        @default(now()) @map("created_at")
+  awb       String          @db.VarChar(100)
+  type      NddShipmentType @default(Normal)
+
+  @@index([createdAt], map: "idx_ndd_created_at")
+  @@index([awb], map: "idx_ndd_awb")
+  @@map("ndd_shipments")
+}
+
+enum NddShipmentType {
+  Normal
+  Rescue
+}
+
+// NOTE: FittingScan and QcScan were moved to the metal_frame datasource
+// (prisma/schema-metal-frame.prisma). They no longer live in mydb.

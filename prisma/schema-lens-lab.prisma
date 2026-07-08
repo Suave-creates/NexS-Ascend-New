@@ -1,0 +1,124 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/lens_lab"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL_LENS_LAB")
+}
+
+model LocationBlankCheckLog {
+  id                Int       @id @default(autoincrement())
+  operatorId        String    @map("operator_id") @db.VarChar(100)
+  fittingId         String?   @map("fitting_id") @db.VarChar(100)
+  locationId        String    @map("location_id") @db.VarChar(20)
+  product1Id        String?   @map("product1_id") @db.VarChar(100)
+  product1Barcode   String?   @map("product1_barcode") @db.VarChar(200)
+  product1UpdatedAt DateTime? @map("product1_updated_at") @db.DateTime(0)
+  product1IsValid   Boolean?  @map("product1_is_valid")
+  product2Id        String?   @map("product2_id") @db.VarChar(100)
+  product2Barcode   String?   @map("product2_barcode") @db.VarChar(200)
+  product2UpdatedAt DateTime? @map("product2_updated_at") @db.DateTime(0)
+  product2IsValid   Boolean?  @map("product2_is_valid")
+  allGreen          Boolean   @default(false) @map("all_green")
+  scannedAt         DateTime  @default(now()) @map("scanned_at") @db.DateTime(0)
+
+  @@index([fittingId], map: "idx_fitting_id")
+  @@index([locationId], map: "idx_location_id")
+  @@index([operatorId], map: "idx_operator_id")
+  @@index([scannedAt], map: "idx_scanned_at")
+  @@map("location_blank_check_logs")
+}
+
+model LabOutCheckLogs {
+  id                Int       @id @default(autoincrement())
+  operatorId        String    @map("operator_id") @db.VarChar(100)
+  fittingId         String?   @map("fitting_id") @db.VarChar(100)
+  locationId        String    @map("location_id") @db.VarChar(20)
+  product1Id        String?   @map("product1_id") @db.VarChar(100)
+  product1Barcode   String?   @map("product1_barcode") @db.VarChar(200)
+  product1UpdatedAt DateTime? @map("product1_updated_at") @db.DateTime(0)
+  product1IsValid   Boolean?  @map("product1_is_valid")
+  product2Id        String?   @map("product2_id") @db.VarChar(100)
+  product2Barcode   String?   @map("product2_barcode") @db.VarChar(200)
+  product2UpdatedAt DateTime? @map("product2_updated_at") @db.DateTime(0)
+  product2IsValid   Boolean?  @map("product2_is_valid")
+  allGreen          Boolean   @default(false) @map("all_green")
+  scannedAt         DateTime  @default(now()) @map("scanned_at") @db.DateTime(0)
+
+  @@index([fittingId], map: "idx_fitting_id")
+  @@index([locationId], map: "idx_location_id")
+  @@index([operatorId], map: "idx_operator_id")
+  @@index([scannedAt], map: "idx_scanned_at")
+  @@map("lab_out_check_logs")
+}
+
+
+model BlanksFqc {
+  id              BigInt    @id @default(autoincrement())
+
+  fitting_id      String    @db.VarChar(50)
+  wms_order_code  String    @db.VarChar(50)
+  order_id        String    @db.VarChar(50)
+  product_id      String?   @db.VarChar(50)
+
+  operator_id     String    @db.VarChar(50)
+  operator_grade  Int       @db.TinyInt   // 1 = Grade-1, 2 = Grade-2
+
+  // Right eye — prescribed
+  right_sph              Decimal? @db.Decimal(6, 2)
+  right_cyl              Decimal? @db.Decimal(6, 2)
+  right_axis             Int?     @db.SmallInt
+  right_ap               Decimal? @db.Decimal(6, 2)
+  right_pd               Decimal? @db.Decimal(5, 2)
+  // Right eye — measured (lensometer)
+  right_lensometer_sph   Decimal? @db.Decimal(6, 2)
+  right_lensometer_cyl   Decimal? @db.Decimal(6, 2)
+  right_lensometer_axis  Int?     @db.SmallInt
+  right_lensometer_ap    Decimal? @db.Decimal(6, 2)
+
+  // Left eye — prescribed
+  left_sph               Decimal? @db.Decimal(6, 2)
+  left_cyl               Decimal? @db.Decimal(6, 2)
+  left_axis              Int?     @db.SmallInt
+  left_ap                Decimal? @db.Decimal(6, 2)
+  left_pd                Decimal? @db.Decimal(5, 2)
+  // Left eye — measured (lensometer)
+  left_lensometer_sph    Decimal? @db.Decimal(6, 2)
+  left_lensometer_cyl    Decimal? @db.Decimal(6, 2)
+  left_lensometer_axis   Int?     @db.SmallInt
+  left_lensometer_ap    Decimal? @db.Decimal(6, 2)
+ 
+
+  qc_status   BlanksFqcStatus
+  qcf_dept    String?  @db.VarChar(30)
+  qcf_reason  String?  @db.VarChar(100)
+  fail_side   BlanksFqcFailSide?
+
+  coating     String?  @db.VarChar(100)
+  lens_index  String?  @db.VarChar(20)
+  lens_name   String?  @db.VarChar(100)
+  lens_type   String?  @db.VarChar(50)
+
+  remarks     String?  @db.Text
+
+  created_at  DateTime? @default(now())  @db.Timestamp(0)
+  updated_at  DateTime? @updatedAt        @db.Timestamp(0)
+
+  @@map("blanks-fqc")
+}
+
+enum BlanksFqcStatus {
+  PASS
+  HOLD
+  FAIL
+  UNHOLD
+}
+
+enum BlanksFqcFailSide {
+  LEFT
+  RIGHT
+  BOTH
+}
+

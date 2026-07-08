@@ -1,0 +1,10 @@
+# NDD RCA pipeline (Fetch.py, Push.py, pbi_auth.py) — Python deps.
+# Install:  pip install -r requirements.txt   (Python 3.10+)
+
+pandas                      # CSV / dataframe handling
+msal                        # Power BI interactive sign-in + token cache (Fetch.py)
+gspread                     # Google Sheets read/write (Push.py)
+google-auth-oauthlib        # OAuth consent + token (google_auth_oauthlib, google.oauth2)
+google-api-python-client    # Sheets/Drive REST clients (googleapiclient)
+openpyxl                    # build the DRCA / DAC .xlsx workbooks
+PyMySQL                     # warehouse + wms MySQL access (pure-Python driver)
