@@ -14,6 +14,12 @@ const ESP32_URL = (process.env.PTL_ESP32_URL || 'http://10.9.97.101').replace(/\
 
 export type LightColor = 'YELLOW' | 'BLUE' | 'GREEN' | 'PINK' | 'RED' | 'OFF';
 
+// The light is an OPTIONAL add-on: a missing/unreachable controller must not spam
+// the log with a full DOMException per scan. Warn concisely, at most once/minute,
+// and note once when it recovers.
+let lastWarnAt = 0;
+let warnedSinceOk = false;
+
 async function post(path: string, body: unknown): Promise<boolean> {
   try {
     const res = await fetch(`${ESP32_URL}${path}`, {
@@ -25,9 +31,19 @@ async function post(path: string, body: unknown): Promise<boolean> {
       // but keep the timeout short so background calls can't pile up.
       signal: AbortSignal.timeout(1500),
     });
+    if (warnedSinceOk) {
+      console.info(`[rackController] ESP32 ${ESP32_URL} reachable again`);
+      warnedSinceOk = false;
+    }
     return res.ok;
   } catch (err) {
-    console.error(`[rackController] ${path} failed (ESP32 ${ESP32_URL} unreachable?)`, err);
+    const now = Date.now();
+    if (now - lastWarnAt > 60_000) {
+      lastWarnAt = now;
+      warnedSinceOk = true;
+      const msg = err instanceof Error ? err.message : String(err);
+      console.warn(`[rackController] ESP32 ${ESP32_URL} unreachable — skipping light (optional add-on): ${msg}`);
+    }
     return false;
   }
 }
