@@ -6,21 +6,23 @@
 import { NextResponse } from 'next/server';
 import { prismaDispatch } from '@/utils/prismaDispatch';
 import { resetAll } from '@/utils/rackController';
+import { runExclusive } from '@/utils/consolidate';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 export async function POST() {
   try {
-    await prismaDispatch.$transaction([
+    // Serialise with scan/release so a reset can't run mid-scan transaction.
+    await runExclusive(() => prismaDispatch.$transaction([
       prismaDispatch.consolidationScan.deleteMany({}),
       prismaDispatch.packageConsolidation.deleteMany({}),
       prismaDispatch.location.updateMany({
         data: { lightState: 'OFF', currentPackageId: null, currentRoutingCode: null },
       }),
-    ]);
+    ]));
 
-    await resetAll();
+    void resetAll(); // fire-and-forget: don't block on the ESP32 (optional add-on)
 
     return NextResponse.json({ success: true, message: 'All slots cleared and lights reset' });
   } catch (error) {

@@ -232,6 +232,34 @@ export default function ConsolidatePage() {
     }
   };
 
+  // ---- master reset: clear the whole board (recovery for a wedged slot) ----
+  const resetBoard = async () => {
+    if (busy.current) return;
+    if (!window.confirm('Reset the ENTIRE board?\n\nThis clears ALL in-progress consolidations and turns every light off. Order QC history is kept.')) {
+      focusActive();
+      return;
+    }
+    busy.current = true;
+    try {
+      const res = await fetch('/api/consolidate/master-reset', { method: 'POST' });
+      const d = await res.json().catch(() => ({}));
+      if (!res.ok) { addLog(`Master reset failed: ${d.error || res.status}`, 'err'); return; }
+      setCurrent(null);
+      setSlots((prev) => prev.map((s) => ({
+        ...s, lightState: 'OFF', status: 'FREE', shippingPackageId: null,
+        operatorColor: null, expected: 0, accounted: 0,
+      })));
+      lastMutateAt.current = Date.now();
+      addLog('Master reset — board cleared', 'ok');
+      refreshGrid();
+    } catch (e) {
+      addLog(`Master reset: ${(e as Error).message}`, 'err');
+    } finally {
+      busy.current = false;
+      focusActive();
+    }
+  };
+
   const onEnter = (fn: () => void) => (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') { e.preventDefault(); fn(); }
   };
@@ -260,6 +288,9 @@ export default function ConsolidatePage() {
         <span className={'pill ' + (dump.error ? 'err' : dump.syncing ? 'warn' : 'ok')}>
           {dump.error ? 'sync error' : dump.syncing ? 'syncing…' : `synced ${dump.last ?? '—'}`}
         </span>
+        <button type="button" className="csl-reset" onClick={resetBoard} onBlur={keepFocus} title="Clear ALL slots & lights (recover a stuck slot)">
+          ⟲ Reset
+        </button>
       </header>
 
       {dump.error && <div className="csl-alert">Dump sync failed: {dump.error} — is the NexS tab logged in?</div>}
@@ -359,6 +390,9 @@ const CSS = `
 .pill.ok{ background:rgba(70,211,154,.12); color:var(--emerald); border:1px solid rgba(70,211,154,.28); }
 .pill.warn{ background:rgba(251,191,36,.12); color:var(--amber); border:1px solid rgba(251,191,36,.28); }
 .pill.err{ background:rgba(240,97,106,.12); color:var(--crimson); border:1px solid rgba(240,97,106,.3); }
+.csl-reset{ padding:6px 13px; border-radius:10px; font:inherit; font-size:10px; font-weight:700; letter-spacing:.5px;
+  text-transform:uppercase; cursor:pointer; color:var(--muted); background:rgba(255,255,255,.02); border:1px solid var(--line-strong); transition:all .14s ease; }
+.csl-reset:hover{ color:var(--crimson); border-color:var(--crimson); background:rgba(240,97,106,.08); }
 .csl-alert{ margin:12px 26px 0; padding:10px 15px; border-radius:11px; background:rgba(251,191,36,.1);
   border:1px solid rgba(251,191,36,.28); color:var(--amber); font-size:13px; }
 .csl-body{ flex:1; display:grid; grid-template-columns:minmax(380px,440px) 1fr; gap:22px; padding:22px 26px; align-items:start; }

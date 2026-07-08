@@ -11,6 +11,7 @@ export interface DumpContext {
 
 const PAGE_SIZE = 35; // matches what the NexS panel sends
 const MAX_PAGES = 500; // safety cap (~17.5k rows)
+const PAGE_DELAY_MS = 500; // pace the proxy — don't hammer NexS with a burst of pages per run
 
 function pageBody(page: number, pageSize: number) {
   return {
@@ -98,6 +99,7 @@ export async function loadOrderQcDump(ctx: DumpContext): Promise<DumpResult> {
 
     if (pageRes.rows.length < PAGE_SIZE) break; // last page
     if (total > 0 && rows.length >= total) break; // reached known total
+    await sleep(PAGE_DELAY_MS); // throttle between pages so the proxy isn't hammered
   }
 
   return { rows, total: total || rows.length, pages: page };
