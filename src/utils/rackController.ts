@@ -20,8 +20,10 @@ async function post(path: string, body: unknown): Promise<boolean> {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
-      // Never hang a request on an unreachable/not-yet-installed controller.
-      signal: AbortSignal.timeout(4000),
+      // Never hang on an unreachable/not-yet-installed controller. Callers
+      // dispatch this fire-and-forget (the light is an add-on, not a mandate),
+      // but keep the timeout short so background calls can't pile up.
+      signal: AbortSignal.timeout(1500),
     });
     return res.ok;
   } catch (err) {

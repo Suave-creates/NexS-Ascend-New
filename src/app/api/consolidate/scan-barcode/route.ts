@@ -127,7 +127,9 @@ export async function POST(req: Request) {
       }
     });
 
-    if (result.light) await setLight(result.light.loc, result.light.color);
+    // Fire-and-forget: the light is an add-on. Don't make the operator wait on
+    // an unreachable/slow ESP32 — they scan the location barcode regardless.
+    if (result.light) void setLight(result.light.loc, result.light.color);
 
     return NextResponse.json({
       success: true,

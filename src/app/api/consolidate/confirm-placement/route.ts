@@ -65,8 +65,9 @@ export async function POST(req: Request) {
     });
 
     // Green after commit only when fully consolidated (the slot is already
-    // glowing the operator colour while consolidating).
-    if (outcome.greenLoc != null) await setLight(outcome.greenLoc, 'GREEN');
+    // glowing the operator colour while consolidating). Fire-and-forget — the
+    // light is an add-on and must not delay the operator's response.
+    if (outcome.greenLoc != null) void setLight(outcome.greenLoc, 'GREEN');
 
     return NextResponse.json({
       success: true,

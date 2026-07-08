@@ -80,7 +80,7 @@ export async function POST(req: Request) {
       }
     });
 
-    await setLight(outcome.locationNumber, 'OFF');
+    void setLight(outcome.locationNumber, 'OFF'); // fire-and-forget add-on
 
     return NextResponse.json({
       success: true,

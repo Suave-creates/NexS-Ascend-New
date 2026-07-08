@@ -149,6 +149,15 @@ export default function ConsolidatePage() {
         rackNumber: d.location.rackNumber, expected: d.expected, placed: d.placed,
       });
       setStep(d.complete ? 'ACK' : 'PUT');
+      // Optimistically glow the slot NOW — the UI must not wait on the grid poll
+      // (or the fire-and-forget ESP32) to light up. refreshGrid() reconciles.
+      const locId = d.location.id as number;
+      setSlots((prev) => prev.map((s) =>
+        s.id === locId
+          ? { ...s, lightState: 'ON', status: d.complete ? 'COMPLETE' : 'CONSOLIDATING',
+              operatorColor: color, shippingPackageId: d.shippingPackageId,
+              expected: d.expected, accounted: d.placed }
+          : s));
       addLog(`PICK ${barcode} → ${d.shippingPackageId} → slot #${d.location.locationNumber} (${d.placed}/${d.expected})`, 'ok');
       refreshGrid();
       return 'ok';
@@ -208,6 +217,12 @@ export default function ConsolidatePage() {
           }
         } else {
           addLog(`ACK slot #${cur.slotNumber} — ${cur.pkg} released, ready-to-ship`, 'ok');
+          // Optimistically free the slot on the board (light off).
+          setSlots((prev) => prev.map((s) =>
+            s.locationNumber === cur.slotNumber
+              ? { ...s, lightState: 'OFF', status: 'FREE', shippingPackageId: null,
+                  operatorColor: null, expected: 0, accounted: 0 }
+              : s));
           setCurrent(null);
           setStep('PICK');
           refreshGrid();
@@ -224,6 +239,12 @@ export default function ConsolidatePage() {
           addLog(`PUT ${cur.item}: ${d.error || 'failed'}`, 'err');
         } else {
           setCurrent((c) => (c ? { ...c, placed: d.placed, expected: d.expected } : c));
+          // Optimistically update the slot's count/state (green when complete).
+          setSlots((prev) => prev.map((s) =>
+            s.locationNumber === cur.slotNumber
+              ? { ...s, status: d.complete ? 'COMPLETE' : 'CONSOLIDATING',
+                  expected: d.expected, accounted: d.placed }
+              : s));
           if (d.complete) {
             setStep('ACK');
             addLog(`PUT ok — ORDER COMPLETE ${d.placed}/${d.expected} — scan location to ACKNOWLEDGE`, 'ok');
