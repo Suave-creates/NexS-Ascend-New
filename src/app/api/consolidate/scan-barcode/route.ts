@@ -63,6 +63,23 @@ export async function POST(req: Request) {
           await tx.location.update({ where: { id: locationId }, data: { lightState: 'ON' } });
         }
 
+        // Scan rows FK to PackageConsolidation, so the parent must exist before
+        // we insert one. On a package's first scan there is none yet — create a
+        // minimal row (progress/status are finalised in the upsert below). This
+        // is race-safe: the per-package advisory lock serialises same-package scans.
+        if (!pc) {
+          pc = await tx.packageConsolidation.create({
+            data: {
+              shippingPackageId: pkg,
+              locationId,
+              operatorColor: color as never,
+              status: 'CONSOLIDATING',
+              expectedCount: 0,
+              accountedCount: 0,
+            },
+          });
+        }
+
         // Record the scan (idempotent on re-scan).
         const existing = await tx.consolidationScan.findUnique({
           where: { shippingPackageId_barcode: { shippingPackageId: pkg, barcode } },
