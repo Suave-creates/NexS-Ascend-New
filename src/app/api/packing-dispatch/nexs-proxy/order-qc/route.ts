@@ -1,11 +1,15 @@
-// src/app/api/consolidate/nexs-proxy/order-qc/route.ts
+// src/app/api/packing-dispatch/nexs-proxy/order-qc/route.ts
 //
-// Server-side proxy for the NexS "CL: Order QC" dump, mirroring the Tray Releaser
-// proxy. The browser cannot call app.nexs.lenskart.com directly (CORS); this route
-// forwards server-to-server and re-forwards the incoming Cookie + NexS headers so
-// the user's existing NexS session is used (no token is stored or relayed by us).
+// ConsolidAte Order QC dump proxy. The monitoring endpoint requires the NexS
+// `jwt-token`. Auth precedence:
+//   1. browser cookie that already carries jwt-token (lenskart-origin deploy)
+//   2. server-side login token (getNexsToken) — no paste, no extension, any origin
+//   3. a stored cookie (NEXS_COOKIE / data file) as a last resort
+// Colocated with fetch-trays under /api/packing-dispatch/nexs-proxy/.
 
 import { NextResponse } from 'next/server';
+import { getNexsToken } from '@/utils/nexsAuth';
+import { getNexsCookie } from '@/utils/nexsSession';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -19,14 +23,9 @@ export async function POST(req: Request) {
   const fwd: HeadersInit = {
     'Content-Type': 'application/json',
     Accept: 'application/json, text/plain, */*',
-    // The monitoring gateway validates these browser-set headers (Origin/Referer
-    // for CSRF; a browser UA). They are NOT visible to page JS, so a naive header
-    // copy misses them — and a server-to-server fetch omits them entirely, which
-    // makes /details return 401 even with a valid session cookie.
     Origin: 'https://app.nexs.lenskart.com',
     Referer: 'https://app.nexs.lenskart.com/monitor',
   };
-
   for (const name of [
     'facility-code', 'workstation-id', 'source-domain', 'date-time',
     'user-agent', 'accept-language',
@@ -35,12 +34,15 @@ export async function POST(req: Request) {
     if (v) fwd[name] = v;
   }
 
-  // Auth is the httpOnly `jwt-token` cookie (a ~24h JWT). On a lenskart-origin
-  // deployment the browser forwards it here automatically. On a non-lenskart
-  // origin (e.g. a Docker IP) it cannot — so fall back to a server-provided
-  // NEXS_COOKIE (the DevTools request "cookie:" value, or just "jwt-token=…").
-  // Env-only (.env* gitignored, not baked into the image); the JWT expires ~24h.
-  const cookie = req.headers.get('cookie') || process.env.NEXS_COOKIE;
+  // Resolve the auth cookie.
+  const browserCookie = req.headers.get('cookie');
+  let cookie: string | null =
+    browserCookie && browserCookie.includes('jwt-token') ? browserCookie : null;
+  if (!cookie) {
+    const token = await getNexsToken();          // server logs in + caches
+    if (token) cookie = `jwt-token=${token}`;
+  }
+  if (!cookie) cookie = await getNexsCookie();    // last-resort stored cookie
   if (cookie) fwd['Cookie'] = cookie;
 
   let nexsRes: Response;
@@ -54,6 +56,8 @@ export async function POST(req: Request) {
   }
 
   const text = await nexsRes.text();
+  if (!nexsRes.ok) console.error('[consolidate/order-qc] NexS', nexsRes.status, text.slice(0, 200));
+
   return new NextResponse(text, {
     status: nexsRes.status,
     headers: {

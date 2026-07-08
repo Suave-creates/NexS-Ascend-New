@@ -54,7 +54,8 @@ function headers(ctx: DumpContext): HeadersInit {
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 async function fetchPage(ctx: DumpContext, page: number): Promise<{ rows: Record<string, unknown>[]; total: number }> {
-  const res = await fetch('/api/consolidate/nexs-proxy/order-qc', {
+  // Colocated with fetch-trays so the browser sends the same jwt-token cookie.
+  const res = await fetch('/api/packing-dispatch/nexs-proxy/order-qc', {
     method: 'POST',
     headers: headers(ctx),
     body: JSON.stringify(pageBody(page, PAGE_SIZE)),
