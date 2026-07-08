@@ -11,7 +11,7 @@
 // response shape) is unchanged.
 
 import { NextResponse } from 'next/server';
-import { getNexsToken } from '@/utils/nexsAuth';
+import { getNexsToken, invalidateNexsToken } from '@/utils/nexsAuth';
 import { prismaLensLab } from '@/utils/prismaLensLab';
 
 export const runtime = 'nodejs';
@@ -98,25 +98,33 @@ export async function POST(req: Request) {
     // us (prod lenskart origin), else a server-side login. The wms endpoint
     // rejects the default nexs-analytics token, so mint one for the wms app.
     const browserCookie = req.headers.get('cookie');
-    let cookie: string | null =
-      browserCookie && browserCookie.includes('jwt-token') ? browserCookie : null;
-    let authVia = cookie ? 'browser-cookie' : '';
+    const usingBrowserCookie = !!(browserCookie && browserCookie.includes('jwt-token'));
+    const wmsApp = process.env.NEXS_WMS_APP_ID || 'nexs_wms';
+    let cookie: string | null = usingBrowserCookie ? browserCookie : null;
     if (!cookie) {
-      const token = await getNexsToken(process.env.NEXS_WMS_APP_ID || 'nexs_wms');
-      if (token) {
-        cookie = `jwt-token=${token}`;
-        authVia = 'server-login';
-      }
+      const token = await getNexsToken(wmsApp);
+      if (token) cookie = `jwt-token=${token}`;
     }
-    if (cookie) fwd['Cookie'] = cookie;
-    console.log('[location-blank-check]', locationId, '| auth:', authVia || 'NONE');
+    console.log('[location-blank-check]', locationId, '| auth:',
+      usingBrowserCookie ? 'browser-cookie' : cookie ? 'server-login' : 'NONE');
+
+    const call = (c: string | null): Promise<Response> => {
+      const headers = { ...fwd };
+      if (c) headers['Cookie'] = c;
+      return fetch(`${NEXS_BASE}/${encodeURIComponent(locationId)}`, { method: 'GET', headers });
+    };
 
     let nexsRes: Response;
     try {
-      nexsRes = await fetch(`${NEXS_BASE}/${encodeURIComponent(locationId)}`, {
-        method: 'GET',
-        headers: fwd,
-      });
+      nexsRes = await call(cookie);
+      // NexS single sign-on can REVOKE the server token while its JWT is still
+      // within exp ("isValidSingleSignon failed : Invalid Session"), so a 401 is
+      // not caught by expiry-based refresh. Force a fresh wms-app login, retry once.
+      if (nexsRes.status === 401 && !usingBrowserCookie) {
+        invalidateNexsToken(wmsApp);
+        const fresh = await getNexsToken(wmsApp, true);
+        if (fresh) nexsRes = await call(`jwt-token=${fresh}`);
+      }
     } catch (err) {
       return NextResponse.json(
         { success: false, error: `NexS network error: ${(err as Error).message}` },

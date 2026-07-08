@@ -116,8 +116,9 @@ async function login(appId: string): Promise<string | null> {
  * needed. `appId` defaults to NEXS_APP_ID; pass an explicit app-id (e.g.
  * 'nexs_wms') when the target service only accepts its own app's token.
  */
-export async function getNexsToken(appId?: string): Promise<string | null> {
+export async function getNexsToken(appId?: string, force = false): Promise<string | null> {
   const key = appId || process.env.NEXS_APP_ID || '';
+  if (force) cache.delete(key); // drop the (possibly session-revoked) cached token
   const hit = cache.get(key);
   if (hit && hit.expMs - SKEW_MS > Date.now()) return hit.token;
   const pending = inFlight.get(key);
@@ -125,6 +126,18 @@ export async function getNexsToken(appId?: string): Promise<string | null> {
   const p = login(key).finally(() => { inFlight.delete(key); });
   inFlight.set(key, p);
   return p;
+}
+
+/**
+ * Drop the cached token for an app so the next getNexsToken() logs in fresh.
+ * Call this after a downstream 401 ("Invalid Session" / expired): NexS single
+ * sign-on can REVOKE a session while the JWT is still inside its exp window
+ * (e.g. the same user logs in elsewhere), so the time-based cache alone can hand
+ * back a dead token forever.
+ */
+export function invalidateNexsToken(appId?: string): void {
+  const key = appId || process.env.NEXS_APP_ID || '';
+  cache.delete(key);
 }
 
 export function nexsAuthConfigured(): boolean {

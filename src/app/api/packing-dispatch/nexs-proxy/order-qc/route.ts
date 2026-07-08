@@ -8,7 +8,7 @@
 // Colocated with fetch-trays under /api/packing-dispatch/nexs-proxy/.
 
 import { NextResponse } from 'next/server';
-import { getNexsToken } from '@/utils/nexsAuth';
+import { getNexsToken, invalidateNexsToken } from '@/utils/nexsAuth';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -19,7 +19,7 @@ const TARGET =
 export async function POST(req: Request) {
   const body = await req.text();
 
-  const fwd: HeadersInit = {
+  const fwd: Record<string, string> = {
     'Content-Type': 'application/json',
     Accept: 'application/json, text/plain, */*',
     Origin: 'https://app.nexs.lenskart.com',
@@ -36,17 +36,30 @@ export async function POST(req: Request) {
   // Resolve auth: use the browser's jwt-token cookie on a lenskart origin,
   // otherwise a server-obtained token (login + cache + auto-refresh). No paste.
   const browserCookie = req.headers.get('cookie');
-  let cookie: string | null =
-    browserCookie && browserCookie.includes('jwt-token') ? browserCookie : null;
+  const usingBrowserCookie = !!(browserCookie && browserCookie.includes('jwt-token'));
+  let cookie: string | null = usingBrowserCookie ? browserCookie : null;
   if (!cookie) {
     const token = await getNexsToken();
     if (token) cookie = `jwt-token=${token}`;
   }
-  if (cookie) fwd['Cookie'] = cookie;
+
+  const call = (c: string | null): Promise<Response> => {
+    const headers = { ...fwd };
+    if (c) headers['Cookie'] = c;
+    return fetch(TARGET, { method: 'POST', headers, body });
+  };
 
   let nexsRes: Response;
   try {
-    nexsRes = await fetch(TARGET, { method: 'POST', headers: fwd, body });
+    nexsRes = await call(cookie);
+    // NexS single sign-on can REVOKE the server token while its JWT is still
+    // within exp ("isValidSingleSignon failed : Invalid Session"), so a 401 here
+    // is not caught by expiry-based refresh. Force a fresh login and retry once.
+    if (nexsRes.status === 401 && !usingBrowserCookie) {
+      invalidateNexsToken();
+      const fresh = await getNexsToken(undefined, true);
+      if (fresh) nexsRes = await call(`jwt-token=${fresh}`);
+    }
   } catch (err) {
     return NextResponse.json(
       { error: `Proxy network error: ${(err as Error).message}` },
