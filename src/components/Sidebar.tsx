@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import type { IconType } from 'react-icons';
@@ -30,6 +30,12 @@ export default function Sidebar() {
   const [collapsed, setCollapsed] = useState(false);
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({});
   const path = usePathname();
+
+  // Hand-held scanners (4.6"-5.8" screens) can't spare 256px for the expanded
+  // sidebar — default to the icon rail there; still manually expandable.
+  useEffect(() => {
+    if (window.innerWidth < 640) setCollapsed(true);
+  }, []);
 
   const navItems: NavItem[] = [
     { href: '/', icon: FiHome, label: 'Home' },

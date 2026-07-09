@@ -233,12 +233,12 @@ export default function ConsolidatePage() {
   };
 
   // ---- master reset: clear the whole board (recovery for a wedged slot) ----
+  const RESET_PASSWORD = '0000';
   const resetBoard = async () => {
     if (busy.current) return;
-    if (!window.confirm('Reset the ENTIRE board?\n\nThis clears ALL in-progress consolidations and turns every light off. Order QC history is kept.')) {
-      focusActive();
-      return;
-    }
+    const pw = window.prompt('Enter password to reset the ENTIRE board:\n\nThis clears ALL in-progress consolidations and turns every light off. Order QC history is kept.');
+    if (pw === null) { focusActive(); return; }
+    if (pw !== RESET_PASSWORD) { addLog('Master reset: wrong password', 'err'); focusActive(); return; }
     busy.current = true;
     try {
       const res = await fetch('/api/consolidate/master-reset', { method: 'POST' });
@@ -277,6 +277,15 @@ export default function ConsolidatePage() {
   return (
     <div className="csl-root">
       <style dangerouslySetInnerHTML={{ __html: CSS }} />
+
+      {/* HHD-only: full-screen green flash on order complete (station monitors keep the pulsing banner instead) */}
+      <div className={'csl-flash' + (current?.complete ? ' on' : '')} aria-hidden={!current?.complete}>
+        <div className="csl-flash-msg">
+          <span className="tick">✓</span>
+          <span className="txt">Order Complete</span>
+          {current && <span className="sub">Scan location #{current.slotNumber} to release</span>}
+        </div>
+      </div>
 
       <header className="csl-header">
         <div className="brand"><span className="glyph">◆</span><h1>ConsolidAte</h1><small>Order QC → PTL</small></div>
@@ -317,6 +326,21 @@ export default function ConsolidatePage() {
           </div>
 
           <div className={'csl-banner ' + banner.cls}>{banner.text}</div>
+
+          {/* HHD-only: big location card + status bar (hidden on the station-monitor layout, which has the full grid) */}
+          <div className={'csl-hhdcard' + (current?.complete ? ' done' : '')}>
+            {current ? (
+              <>
+                <span className="hhd-label">{current.complete ? 'Scan to release' : 'Go to location'}</span>
+                <span className="hhd-num">{current.slotNumber}</span>
+                <span className="hhd-rack">Rack {current.rackNumber}</span>
+                <div className="hhd-bar"><i style={{ width: `${pct}%` }} className={current.complete ? 'ok' : ''} /></div>
+                <span className="hhd-count">{current.placed}/{current.expected} scanned</span>
+              </>
+            ) : (
+              <span className="hhd-idle">Scan an item to begin</span>
+            )}
+          </div>
 
           <div className="csl-fields">
             <label className="csl-field active">
@@ -417,7 +441,7 @@ const CSS = `
 .csl-field{ display:flex; flex-direction:column; gap:6px; opacity:.4; transition:opacity .15s; }
 .csl-field.active{ opacity:1; }
 .csl-field span{ font-size:10px; text-transform:uppercase; letter-spacing:1.6px; color:var(--muted); font-weight:700; }
-.csl-field input{ height:60px; font-size:22px; font-weight:600; letter-spacing:.4px; padding:0 18px; border-radius:14px;
+.csl-field input{ width:100%; height:60px; font-size:22px; font-weight:600; letter-spacing:.4px; padding:0 18px; border-radius:14px;
   background:var(--bg-2); border:1px solid var(--line-strong); color:var(--text); font-family:inherit; font-variant-numeric:tabular-nums;
   transition:border-color .15s, box-shadow .15s, background .15s; }
 .csl-field input::placeholder{ color:var(--muted); font-weight:500; letter-spacing:0; }
@@ -461,5 +485,53 @@ const CSS = `
   .csl-field input{ height:56px; font-size:20px; }
   .csl-rack{ width:100%; } .csl-grid{ gap:6px; }
   .csl-slot-no{ font-size:24px; } .csl-slot.on .csl-slot-no, .csl-slot.asg .csl-slot-no{ font-size:20px; }
+}
+
+/* ---- HHD (hand-held device) mode — 4.6"–5.8" scanner screens ----
+   Physical PTL lights already guide the operator, so the on-screen grid is
+   dropped in favour of: the location to go to, the current order's progress,
+   and an unmissable full-screen flash on completion. */
+.csl-hhdcard{ display:none; }
+.csl-flash{ display:none; }
+@keyframes cslflashpulse{ 0%,100%{ background:#16a34a; } 50%{ background:#34d76f; } }
+
+@media (max-width:560px){
+  .csl-root{ font-size:15px; }
+  .csl-header{ padding:10px 12px; gap:8px; }
+  .csl-header .brand small{ display:none; }
+  .csl-header .stat{ display:none; }
+  .csl-header .pill{ font-size:9px; padding:5px 9px; }
+  .csl-reset{ display:none; }
+  .csl-alert{ margin:10px 12px 0; font-size:12px; }
+  .csl-rangers .lbl{ display:none; }
+  .csl-root .ranger{ padding:9px; }
+  .csl-root .ranger .nm{ display:none; }
+  .csl-banner{ font-size:13px; padding:13px 14px; }
+  .csl-gridwrap{ display:none; }
+  .csl-body{ padding:10px; gap:10px; }
+  .csl-log{ max-height:16vh; font-size:11px; }
+  .csl-field input{ height:64px; font-size:24px; }
+
+  .csl-hhdcard{
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:5px; text-align:center;
+    padding:22px 16px; border-radius:18px; background:var(--bg-1); border:1px solid var(--line-strong); box-shadow:var(--shadow);
+  }
+  .csl-hhdcard .hhd-label{ font-size:11px; text-transform:uppercase; letter-spacing:2px; font-weight:700; color:var(--muted); }
+  .csl-hhdcard .hhd-num{ font-size:84px; font-weight:900; line-height:1; letter-spacing:-2px; font-variant-numeric:tabular-nums; color:var(--gold-hi); }
+  .csl-hhdcard.done .hhd-num{ color:var(--emerald); }
+  .csl-hhdcard .hhd-rack{ font-size:13px; font-weight:600; color:var(--text-2); }
+  .csl-hhdcard .hhd-bar{ width:100%; max-width:220px; height:9px; border-radius:999px; background:var(--bg-3); overflow:hidden; margin-top:8px; border:1px solid var(--line); }
+  .csl-hhdcard .hhd-bar i{ display:block; height:100%; background:linear-gradient(90deg,var(--blue),#8fbcff); border-radius:999px; transition:width .3s ease; }
+  .csl-hhdcard .hhd-bar i.ok{ background:linear-gradient(90deg,var(--emerald),#7be6b6); }
+  .csl-hhdcard .hhd-count{ font-size:12px; font-weight:600; color:var(--text-2); }
+  .csl-hhdcard .hhd-idle{ font-size:19px; font-weight:700; color:var(--muted); padding:20px 0; }
+
+  .csl-flash{ position:fixed; inset:0; z-index:999; display:flex; align-items:center; justify-content:center;
+    background:#16a34a; opacity:0; pointer-events:none; transition:opacity .2s ease; }
+  .csl-flash.on{ opacity:1; animation:cslflashpulse 900ms ease-in-out infinite; }
+  .csl-flash-msg{ display:flex; flex-direction:column; align-items:center; gap:8px; color:#06210f; text-align:center; padding:0 24px; }
+  .csl-flash-msg .tick{ font-size:96px; font-weight:900; line-height:1; }
+  .csl-flash-msg .txt{ font-size:24px; font-weight:800; letter-spacing:2px; text-transform:uppercase; }
+  .csl-flash-msg .sub{ font-size:13px; font-weight:600; opacity:.85; }
 }
 `;
