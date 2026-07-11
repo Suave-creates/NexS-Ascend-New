@@ -7,10 +7,12 @@
 // ever addresses a slot by its GLOBAL location number (1..N). The firmware maps
 //   location -> LEDs (location-1)*2 and (location-1)*2 + 1.
 //
-// The controller address is configurable (hardware is wired later): set
-// PTL_ESP32_URL, e.g. PTL_ESP32_URL=http://10.9.97.101
+// The controller gets its address via DHCP (the firmware prints its MAC on
+// boot — request a DHCP reservation for it from IT so the address stays
+// stable). Set PTL_ESP32_URL once that reservation is confirmed; until then
+// this falls back to the last known-good DHCP-assigned address.
 
-const ESP32_URL = (process.env.PTL_ESP32_URL || 'http://10.9.97.101').replace(/\/$/, '');
+const ESP32_URL = (process.env.PTL_ESP32_URL || 'http://10.9.97.126').replace(/\/$/, '');
 
 export type LightColor = 'YELLOW' | 'BLUE' | 'GREEN' | 'PINK' | 'RED' | 'OFF';
 
@@ -48,9 +50,22 @@ async function post(path: string, body: unknown): Promise<boolean> {
   }
 }
 
-/** Light a slot (its 2 LEDs) a colour, or turn it OFF. */
-export async function setLight(location: number, color: LightColor | string): Promise<boolean> {
-  return post('/light', { location, color: String(color).toUpperCase() });
+/**
+ * Light a slot's 2 LEDs. Pass a single colour to drive both LEDs the same
+ * (unchanged behaviour), or an array of 2 to drive them independently — used
+ * when 2 concurrent operators (different Ranger colours) both have a live
+ * pending item on the same shared slot.
+ *
+ * Always sends BOTH the legacy singular `color` field and the new `colors`
+ * array: dispatch_ptl's routes (scan-awb/confirm-placement/master-reset,
+ * out of scope for this redesign) also call through here via sendToRack(),
+ * and may be pointed at older/unmodified firmware that only understands
+ * `color`. Adding `colors` alongside it — never replacing `color` — means
+ * that path keeps working unchanged regardless of which firmware it hits.
+ */
+export async function setLight(location: number, color: LightColor | string | (LightColor | string)[]): Promise<boolean> {
+  const colors = (Array.isArray(color) ? color : [color]).map((c) => String(c).toUpperCase()).slice(0, 2);
+  return post('/light', { location, color: colors[0] ?? 'OFF', colors });
 }
 
 /** Turn every LED off. */

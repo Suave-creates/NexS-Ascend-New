@@ -218,8 +218,99 @@ exports.Prisma.ConsolidationScanScalarFieldEnum = {
   barcode: 'barcode',
   locationId: 'locationId',
   placed: 'placed',
+  operatorColor: 'operatorColor',
   scannedAt: 'scannedAt',
   placedAt: 'placedAt'
+};
+
+exports.Prisma.ConsolidationHistoryScalarFieldEnum = {
+  id: 'id',
+  shippingPackageId: 'shippingPackageId',
+  locationNumber: 'locationNumber',
+  rackNumber: 'rackNumber',
+  operatorColor: 'operatorColor',
+  expectedCount: 'expectedCount',
+  accountedCount: 'accountedCount',
+  barcodes: 'barcodes',
+  completedAt: 'completedAt',
+  releasedAt: 'releasedAt'
+};
+
+exports.Prisma.ConsolidateRackScalarFieldEnum = {
+  id: 'id',
+  rackNumber: 'rackNumber',
+  totalLevels: 'totalLevels',
+  totalPositions: 'totalPositions',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.ConsolidateLocationScalarFieldEnum = {
+  id: 'id',
+  rackId: 'rackId',
+  level: 'level',
+  position: 'position',
+  locationNumber: 'locationNumber',
+  barcode: 'barcode',
+  lightState: 'lightState',
+  currentPackageId: 'currentPackageId',
+  assignmentTimestamp: 'assignmentTimestamp',
+  isActive: 'isActive',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.ConsolidateQcDumpEntryScalarFieldEnum = {
+  id: 'id',
+  barcode: 'barcode',
+  shippingPackageId: 'shippingPackageId',
+  incrementId: 'incrementId',
+  itemType: 'itemType',
+  trayNo: 'trayNo',
+  currentStatus: 'currentStatus',
+  orderCreatedAt: 'orderCreatedAt',
+  orderUpdatedAt: 'orderUpdatedAt',
+  firstSeenAt: 'firstSeenAt',
+  lastSeenAt: 'lastSeenAt',
+  inDump: 'inDump',
+  scanned: 'scanned',
+  scannedAt: 'scannedAt'
+};
+
+exports.Prisma.ConsolidatePackageScalarFieldEnum = {
+  id: 'id',
+  shippingPackageId: 'shippingPackageId',
+  locationId: 'locationId',
+  operatorColor: 'operatorColor',
+  status: 'status',
+  expectedCount: 'expectedCount',
+  accountedCount: 'accountedCount',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  completedAt: 'completedAt',
+  releasedAt: 'releasedAt'
+};
+
+exports.Prisma.ConsolidatePackageScanScalarFieldEnum = {
+  id: 'id',
+  shippingPackageId: 'shippingPackageId',
+  barcode: 'barcode',
+  locationId: 'locationId',
+  placed: 'placed',
+  operatorColor: 'operatorColor',
+  scannedAt: 'scannedAt',
+  placedAt: 'placedAt'
+};
+
+exports.Prisma.ConsolidateReleaseHistoryScalarFieldEnum = {
+  id: 'id',
+  shippingPackageId: 'shippingPackageId',
+  locationNumber: 'locationNumber',
+  rackNumber: 'rackNumber',
+  operatorColor: 'operatorColor',
+  expectedCount: 'expectedCount',
+  accountedCount: 'accountedCount',
+  barcodes: 'barcodes',
+  completedAt: 'completedAt',
+  releasedAt: 'releasedAt'
 };
 
 exports.Prisma.SortOrder = {
@@ -273,6 +364,39 @@ exports.Prisma.ConsolidationScanOrderByRelevanceFieldEnum = {
   shippingPackageId: 'shippingPackageId',
   barcode: 'barcode'
 };
+
+exports.Prisma.ConsolidationHistoryOrderByRelevanceFieldEnum = {
+  shippingPackageId: 'shippingPackageId',
+  barcodes: 'barcodes'
+};
+
+exports.Prisma.ConsolidateLocationOrderByRelevanceFieldEnum = {
+  barcode: 'barcode',
+  currentPackageId: 'currentPackageId'
+};
+
+exports.Prisma.ConsolidateQcDumpEntryOrderByRelevanceFieldEnum = {
+  barcode: 'barcode',
+  shippingPackageId: 'shippingPackageId',
+  incrementId: 'incrementId',
+  itemType: 'itemType',
+  trayNo: 'trayNo',
+  currentStatus: 'currentStatus'
+};
+
+exports.Prisma.ConsolidatePackageOrderByRelevanceFieldEnum = {
+  shippingPackageId: 'shippingPackageId'
+};
+
+exports.Prisma.ConsolidatePackageScanOrderByRelevanceFieldEnum = {
+  shippingPackageId: 'shippingPackageId',
+  barcode: 'barcode'
+};
+
+exports.Prisma.ConsolidateReleaseHistoryOrderByRelevanceFieldEnum = {
+  shippingPackageId: 'shippingPackageId',
+  barcodes: 'barcodes'
+};
 exports.LightState = exports.$Enums.LightState = {
   OFF: 'OFF',
   ON: 'ON'
@@ -305,6 +429,13 @@ exports.ConsolidationStatus = exports.$Enums.ConsolidationStatus = {
   RELEASED: 'RELEASED'
 };
 
+exports.ConsolidateStatus = exports.$Enums.ConsolidateStatus = {
+  PENDING: 'PENDING',
+  CONSOLIDATING: 'CONSOLIDATING',
+  COMPLETE: 'COMPLETE',
+  RELEASED: 'RELEASED'
+};
+
 exports.Prisma.ModelName = {
   Rack: 'Rack',
   Location: 'Location',
@@ -314,7 +445,14 @@ exports.Prisma.ModelName = {
   LocationEvent: 'LocationEvent',
   QcDumpEntry: 'QcDumpEntry',
   PackageConsolidation: 'PackageConsolidation',
-  ConsolidationScan: 'ConsolidationScan'
+  ConsolidationScan: 'ConsolidationScan',
+  ConsolidationHistory: 'ConsolidationHistory',
+  ConsolidateRack: 'ConsolidateRack',
+  ConsolidateLocation: 'ConsolidateLocation',
+  ConsolidateQcDumpEntry: 'ConsolidateQcDumpEntry',
+  ConsolidatePackage: 'ConsolidatePackage',
+  ConsolidatePackageScan: 'ConsolidatePackageScan',
+  ConsolidateReleaseHistory: 'ConsolidateReleaseHistory'
 };
 
 /**

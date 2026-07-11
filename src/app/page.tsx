@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { cn } from '@/lib/cn';
 import {
   FiGrid,
+  FiZap,
   FiLayers,
   FiEye,
   FiTool,
@@ -20,6 +21,7 @@ const FEATURES: {
   color: string;
 }[] = [
   { icon: FiGrid, title: 'ConsolidAte', href: '/consolidate', color: 'from-sky-400 to-blue-600' },
+  { icon: FiZap, title: 'ConsolidAte PTL', href: '/consolidate-ptl', color: 'from-indigo-400 to-blue-700' },
   { icon: FiLayers, title: 'ASRS & Warehouse', href: '/asrs/tote-master', color: 'from-violet-400 to-purple-600' },
   { icon: FiEye, title: 'Lens Lab', href: '/lens-lab/fqc', color: 'from-emerald-400 to-teal-600' },
   { icon: FiTool, title: 'Metal Frame', href: '/metal-frame/fitting', color: 'from-amber-400 to-orange-600' },

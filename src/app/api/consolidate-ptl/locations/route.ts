@@ -1,22 +1,22 @@
-// src/app/api/consolidate/locations/route.ts
+// src/app/api/consolidate-ptl/locations/route.ts
 //
-// Grid + live consolidation state for the ConsolidAte (non-PTL) board.
+// Grid + live consolidation state for the ConsolidAte board.
 
 import { NextResponse } from 'next/server';
 import { prismaDispatch } from '@/utils/prismaDispatch';
-import { dedupeActiveColors } from '@/utils/consolidatePlatform';
+import { dedupeActiveColors } from '@/utils/consolidate';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
-    const locations = await prismaDispatch.consolidateLocation.findMany({
+    const locations = await prismaDispatch.location.findMany({
       include: { rack: true },
       orderBy: [{ rackId: 'asc' }, { level: 'asc' }, { position: 'asc' }],
     });
 
-    const consolidations = await prismaDispatch.consolidatePackage.findMany({
+    const consolidations = await prismaDispatch.packageConsolidation.findMany({
       where: { status: { in: ['CONSOLIDATING', 'COMPLETE'] } },
     });
     const byLocation = new Map(
@@ -24,17 +24,23 @@ export async function GET() {
     );
 
     // Batch-fetch pending (unplaced) scans for every CONSOLIDATING package so
-    // a slot with 2 concurrent operators shows both colours on the dashboard.
+    // a slot with 2 concurrent operators shows both colours on the dashboard
+    // — mirrors the physical 2-LED behaviour, not just the single mutable
+    // PackageConsolidation.operatorColor column (whoever scanned last).
     const consolidatingPkgs = consolidations
       .filter((c) => c.status === 'CONSOLIDATING')
       .map((c) => c.shippingPackageId);
     const pendingScans = consolidatingPkgs.length
-      ? await prismaDispatch.consolidatePackageScan.findMany({
+      ? await prismaDispatch.consolidationScan.findMany({
           where: { shippingPackageId: { in: consolidatingPkgs }, placed: false },
           orderBy: { scannedAt: 'desc' },
           select: { shippingPackageId: true, operatorColor: true },
         })
       : [];
+    // Group by package (preserving the scannedAt-desc order from the query
+    // above), then reduce each group with the SAME rule scan-barcode's
+    // pendingColors() uses — one shared definition of "active colours" for
+    // both the live scan flow and this dashboard mirror.
     const rowsByPkg = new Map<string, { operatorColor: string | null }[]>();
     for (const s of pendingScans) {
       const arr = rowsByPkg.get(s.shippingPackageId) ?? [];
@@ -79,7 +85,7 @@ export async function GET() {
       },
     });
   } catch (error) {
-    console.error('consolidate/locations error:', error);
+    console.error('consolidate-ptl/locations error:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }

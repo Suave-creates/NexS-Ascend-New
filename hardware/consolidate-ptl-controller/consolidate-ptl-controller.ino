@@ -39,34 +39,50 @@ uint32_t getColor(String color) {
   return strip.Color(0, 0, 0); // OFF / unknown
 }
 
+// POST /light body shapes (both accepted for back-compat):
+//   { "location": N, "color": "RED" }                 -> both LEDs = RED
+//   { "location": N, "colors": ["RED","BLUE"] }        -> LED0=RED, LED1=BLUE
+// `colors` (2 concurrent operators sharing a slot) takes priority when
+// present; older callers that only send `color` are unaffected.
 void handleLight() {
   if (server.method() != HTTP_POST) {
     server.send(405, "text/plain", "Method Not Allowed");
     return;
   }
 
-  StaticJsonDocument<200> doc;
+  StaticJsonDocument<256> doc;
   if (deserializeJson(doc, server.arg("plain"))) {
     server.send(400, "application/json", "{\"error\":\"Invalid JSON\"}");
     return;
   }
 
   int location = doc["location"] | 0;
-  String color = doc["color"] | "OFF";
-
   if (location < 1 || location > SLOTS) {
     server.send(400, "application/json", "{\"error\":\"Invalid location\"}");
     return;
   }
 
   int led0 = (location - 1) * LEDS_PER_SLOT;
-  uint32_t c = getColor(color);
-  for (int i = 0; i < LEDS_PER_SLOT; i++) {
-    strip.setPixelColor(led0 + i, c);
-  }
-  strip.show();
+  JsonArray colors = doc["colors"].as<JsonArray>();
 
-  Serial.printf("slot %d -> LEDs %d,%d = %s\n", location, led0, led0 + 1, color.c_str());
+  // Resolve each LED's colour name up front, then write both the same way
+  // regardless of whether `colors` (dual) or `color` (legacy, both LEDs
+  // matching) supplied them.
+  String c0, c1;
+  if (!colors.isNull() && colors.size() >= 2) {
+    c0 = colors[0].as<String>();
+    c1 = colors[1].as<String>();
+  } else {
+    String color = doc["color"] | "OFF";
+    c0 = color;
+    c1 = color;
+  }
+
+  strip.setPixelColor(led0, getColor(c0));
+  strip.setPixelColor(led0 + 1, getColor(c1));
+  strip.show();
+  Serial.printf("slot %d -> LEDs %d,%d = %s,%s\n", location, led0, led0 + 1, c0.c_str(), c1.c_str());
+
   server.send(200, "application/json", "{\"success\":true}");
 }
 
@@ -83,6 +99,10 @@ void setup() {
   strip.show();
 
   WiFi.mode(WIFI_STA);
+  // Print the MAC up front — hand this to IT for a DHCP reservation so this
+  // board keeps a stable address without hardcoding a static IP/subnet we
+  // can't independently confirm against the AP's real network.
+  Serial.print("MAC: "); Serial.println(WiFi.macAddress());
   WiFi.begin(ssid, password);
   Serial.print("Connecting WiFi");
   int retry = 0;

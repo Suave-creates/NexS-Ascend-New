@@ -78,6 +78,41 @@ export async function computeProgress(tx: Tx, pkg: string): Promise<Progress> {
   return { expected, missing, accounted, complete: expected > 0 && missing === 0 };
 }
 
+/**
+ * Reduce scan rows (ordered most-recent-first) to their distinct operator
+ * colours, capped at 2 (only 2 LEDs exist per slot — a 3rd concurrent
+ * operator bumps the oldest still-pending colour off the display). A
+ * legacy/untagged row (operatorColor NULL — predates per-scan colour
+ * tracking, or a rare write race) still counts as an active, unidentified
+ * contributor instead of silently vanishing from the count: dropping it
+ * would make a genuinely-still-pending slot look falsely "clear" to any
+ * caller deciding whether it's safe to turn a light off.
+ */
+export function dedupeActiveColors(rows: { operatorColor: string | null }[]): string[] {
+  const colors: string[] = [];
+  for (const r of rows) {
+    const c = r.operatorColor ?? 'YELLOW';
+    if (!colors.includes(c)) colors.push(c);
+    if (colors.length === 2) break;
+  }
+  return colors;
+}
+
+/**
+ * Distinct operator colours with a currently-PENDING (unplaced) scan on this
+ * package, most-recently-scanned first — i.e. who is "actively holding" an
+ * item for this slot right now. Two concurrent operators on the same package
+ * both show up here; that's what drives the slot's 2 LEDs independently.
+ */
+export async function pendingColors(tx: Tx, pkg: string): Promise<string[]> {
+  const rows = await tx.consolidationScan.findMany({
+    where: { shippingPackageId: pkg, placed: false },
+    orderBy: { scannedAt: 'desc' },
+    select: { operatorColor: true },
+  });
+  return dedupeActiveColors(rows);
+}
+
 /** Claim the lowest-numbered free slot atomically (row-locked, skip contended). */
 export async function claimFreeSlot(tx: Tx): Promise<{ id: number; locationNumber: number } | null> {
   const rows = await tx.$queryRawUnsafe<Array<{ id: number; location_number: number }>>(

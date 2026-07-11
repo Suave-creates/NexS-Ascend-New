@@ -1,25 +1,24 @@
 // src/app/api/consolidate/scan-barcode/route.ts
 //
-// ConsolidAte item scan (new put-to-light flow — NO per-item location scan).
+// ConsolidAte (non-PTL) item scan — same put-to-light-STYLE flow as
+// ConsolidAte PTL (src/app/api/consolidate-ptl/scan-barcode/route.ts), minus
+// any physical light hardware. The operator picks BOTH a rack and a Ranger
+// colour before scanning; a brand-new package claims a slot strictly within
+// the CHOSEN rack (never spills into another rack — see claimFreeSlotInRack).
 //
-//   Scan item 1  -> its slot glows (operator colour); item 1 is "pending".
-//   Scan item 2  -> item 1 is CONFIRMED PLACED (placedAt = now, the item-2 scan),
-//                   its light goes off; item 2's slot glows. And so on.
-//   The scan that completes an order places that last item IMMEDIATELY and the
-//   slot turns GREEN (awaiting a single location scan to release — see
-//   complete-location). Interleaving is fine: only ONE amber (the active item)
-//   is ever lit; an unfinished order goes dark and re-glows on its next item.
+//   Scan item 1  -> its slot glows on-screen (operator colour); item 1 "pending".
+//   Scan item 2  -> item 1 is CONFIRMED PLACED, its glow off; item 2's slot glows.
+//   The scan that completes an order places that last item immediately and the
+//   slot turns GREEN on-screen (awaiting a single location scan to release).
 //
-// DB is unchanged — same tables/writes; only WHEN `placed`/`placedAt` is set
-// moves to the next scan (and the completing scan). Scans are serialised with an
-// in-process mutex (runExclusive) because one scan may confirm a pending item of
-// ANOTHER package; the mutex commits each scan before the next begins (no DB
-// advisory lock held across a transaction — that pattern leaks / races).
+// Same concurrent-operator model as PTL: an operator's scan only ever confirms
+// THEIR OWN previous pending scan (scoped by operatorColor), and a slot shared
+// by 2 concurrent operators shows both colours instead of collapsing to one.
 
 import { NextResponse } from 'next/server';
 import { prismaDispatch } from '@/utils/prismaDispatch';
-import { setLight } from '@/utils/rackController';
-import { computeProgress, claimFreeSlot, runExclusive } from '@/utils/consolidate';
+import { computeProgress, claimFreeSlotInRack, runExclusive, pendingColors } from '@/utils/consolidatePlatform';
+import type { OperatorColor } from '@/generated/dispatch';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -28,151 +27,162 @@ const COLORS = new Set(['YELLOW', 'BLUE', 'GREEN', 'PINK', 'RED']);
 
 export async function POST(req: Request) {
   try {
-    const { barcode, operatorColor } = await req.json();
+    const { barcode, operatorColor, rackNumber } = await req.json();
     if (!barcode) return NextResponse.json({ error: 'barcode required' }, { status: 400 });
+    const rackNum = Number(rackNumber);
+    if (!Number.isInteger(rackNum) || rackNum < 1) {
+      return NextResponse.json({ error: 'rackNumber required' }, { status: 400 });
+    }
     const color = COLORS.has(String(operatorColor).toUpperCase())
       ? String(operatorColor).toUpperCase()
       : 'YELLOW';
+    const opColor = color as OperatorColor;
 
-    const entry = await prismaDispatch.qcDumpEntry.findUnique({ where: { barcode } });
+    const entry = await prismaDispatch.consolidateQcDumpEntry.findUnique({ where: { barcode } });
     if (!entry) {
       return NextResponse.json({ error: 'Barcode not found in the Order QC dump yet' }, { status: 404 });
     }
     const pkg = entry.shippingPackageId;
 
-    // Serialise the whole scan in-process — one scan may place a pending item of
-    // another package, and each scan must COMMIT before the next starts.
+    // Serialise the whole scan in-process — one scan may place a pending item
+    // of another package, and each scan must COMMIT before the next starts.
     const result = await runExclusive(() => prismaDispatch.$transaction(async (tx) => {
       const now = new Date();
       const offLocs: number[] = [];
       const greenLocs: number[] = [];
+      const dualLocs: { locationNumber: number; colors: string[] }[] = [];
 
-      // ── 1) Confirm the PREVIOUS pending item(s) as placed (timestamp = now).
-      // Scanning the next barcode is what places the previous one. Exclude only
-      // THIS package's THIS barcode (step 3 handles it) — NOT the same barcode
-      // value in another package, so a reassigned barcode's stale pending is
-      // still confirmed. Normally exactly one row is pending (one amber light).
-      const pendings = await tx.consolidationScan.findMany({
-        where: { placed: false, NOT: { shippingPackageId: pkg, barcode } },
+      const rack = await tx.consolidateRack.findUnique({ where: { rackNumber: rackNum } });
+      if (!rack) throw new Error('INVALID_RACK');
+
+      // ── 1) Confirm the PREVIOUS pending item(s) as placed — ONLY for THIS
+      // SAME OPERATOR's own previous pending scan (concurrent operators, any
+      // rack, are fully independent — see ConsolidAte PTL's identical logic).
+      const pendings = await tx.consolidatePackageScan.findMany({
+        where: { placed: false, operatorColor: opColor, NOT: { shippingPackageId: pkg, barcode } },
       });
       const otherPkgs = new Set<string>();
       for (const q of pendings) {
-        await tx.consolidationScan.update({ where: { id: q.id }, data: { placed: true, placedAt: now } });
+        await tx.consolidatePackageScan.update({ where: { id: q.id }, data: { placed: true, placedAt: now } });
         if (q.shippingPackageId !== pkg) otherPkgs.add(q.shippingPackageId);
       }
 
-      // ── 2) Resolve / claim this package's slot.
-      let pc = await tx.packageConsolidation.findUnique({ where: { shippingPackageId: pkg } });
+      // ── 2) Resolve / claim this package's slot — strictly within rackNum
+      // for a BRAND-NEW claim only; an already-assigned package keeps its
+      // existing slot regardless of which rack the operator has selected now.
+      let pc = await tx.consolidatePackage.findUnique({ where: { shippingPackageId: pkg } });
       const reactivating = !!pc && pc.status === 'RELEASED';
-      if (reactivating) await tx.consolidationScan.deleteMany({ where: { shippingPackageId: pkg } });
+      if (reactivating) await tx.consolidatePackageScan.deleteMany({ where: { shippingPackageId: pkg } });
 
       let locationId = pc && !reactivating && pc.locationId ? pc.locationId : null;
       if (!locationId) {
-        const free = await claimFreeSlot(tx);
-        if (!free) throw new Error('NO_SLOTS');
+        const free = await claimFreeSlotInRack(tx, rack.id);
+        if (!free) throw new Error('RACK_FULL');
         locationId = free.id;
-        await tx.location.update({
+        await tx.consolidateLocation.update({
           where: { id: free.id },
           data: { currentPackageId: pkg, assignmentTimestamp: now },
         });
       }
       if (!pc || reactivating) {
-        pc = await tx.packageConsolidation.upsert({
+        pc = await tx.consolidatePackage.upsert({
           where: { shippingPackageId: pkg },
           create: {
-            shippingPackageId: pkg, locationId, operatorColor: color as never,
+            shippingPackageId: pkg, locationId, operatorColor: opColor,
             status: 'CONSOLIDATING', expectedCount: 0, accountedCount: 0,
           },
           update: {
-            locationId, operatorColor: color as never,
+            locationId, operatorColor: opColor,
             status: 'CONSOLIDATING', releasedAt: null, completedAt: null,
           },
         });
       }
 
       // ── 3) Handle THIS barcode. Ensure its scan row exists.
-      let bScan = await tx.consolidationScan.findUnique({
+      // operatorColor is set ONLY at creation (first-write-wins) — never
+      // overwritten by a later re-scan under a different colour.
+      let bScan = await tx.consolidatePackageScan.findUnique({
         where: { shippingPackageId_barcode: { shippingPackageId: pkg, barcode } },
       });
       const wasPlaced = !!bScan?.placed;
       if (!bScan) {
-        bScan = await tx.consolidationScan.create({
-          data: { shippingPackageId: pkg, barcode, locationId, placed: false },
+        bScan = await tx.consolidatePackageScan.create({
+          data: { shippingPackageId: pkg, barcode, locationId, placed: false, operatorColor: opColor },
         });
       }
 
-      // Does placing THIS barcode complete the order? Tentatively place & test.
       let complete: boolean;
       if (wasPlaced) {
         complete = (await computeProgress(tx, pkg)).complete; // redundant re-scan; don't toggle
       } else {
-        await tx.consolidationScan.update({ where: { id: bScan.id }, data: { placed: true, placedAt: now } });
+        await tx.consolidatePackageScan.update({ where: { id: bScan.id }, data: { placed: true, placedAt: now } });
         complete = (await computeProgress(tx, pkg)).complete;
         if (!complete) {
-          // Not the last item → keep it PENDING (placed later, on the next scan).
-          await tx.consolidationScan.update({ where: { id: bScan.id }, data: { placed: false, placedAt: null } });
+          // Not the last item -> keep it PENDING (placed later, on the next scan).
+          await tx.consolidatePackageScan.update({ where: { id: bScan.id }, data: { placed: false, placedAt: null } });
         }
       }
 
       const prog = await computeProgress(tx, pkg);
 
-      // Light for this slot: GREEN if complete, else AMBER while it's the active
-      // pending. A redundant re-scan of an already-placed, still-incomplete item
-      // does not re-light (avoids a stray second amber).
+      // On-screen glow flag (no physical light — this just drives the grid's
+      // CSS animation). A redundant re-scan of an already-placed, still-
+      // incomplete item does not re-light (avoids a stray second glow).
       const lightThisOn = complete || !wasPlaced;
       if (lightThisOn) {
-        await tx.location.update({ where: { id: locationId }, data: { lightState: 'ON' } });
+        await tx.consolidateLocation.update({ where: { id: locationId }, data: { lightState: 'ON' } });
       }
-      pc = await tx.packageConsolidation.update({
+      pc = await tx.consolidatePackage.update({
         where: { shippingPackageId: pkg },
         data: {
-          locationId, operatorColor: color as never,
+          locationId, operatorColor: opColor,
           status: complete ? 'COMPLETE' : 'CONSOLIDATING',
           expectedCount: prog.expected, accountedCount: prog.accounted,
           releasedAt: null, completedAt: complete ? now : null,
         },
       });
 
-      // ── 4) Resolve lights for the just-placed pendings of OTHER packages.
-      // (By construction the completing item is always THIS barcode, so these
-      //  never complete — but we handle it defensively.)
+      // Colours to show on THIS slot: green if complete, else every operator
+      // currently holding a pending item here (1 or 2).
+      const activeColors = complete ? [] : await pendingColors(tx, pkg);
+
+      // ── 4) Resolve the on-screen state for the just-placed pendings of
+      // OTHER packages (by construction these never complete here).
       for (const p of otherPkgs) {
-        const pp = await tx.packageConsolidation.findUnique({
+        const pp = await tx.consolidatePackage.findUnique({
           where: { shippingPackageId: p }, include: { location: true },
         });
         if (!pp?.location) continue;
         const pprog = await computeProgress(tx, p);
         if (pprog.complete) {
-          await tx.packageConsolidation.update({
+          await tx.consolidatePackage.update({
             where: { shippingPackageId: p },
             data: { status: 'COMPLETE', expectedCount: pprog.expected, accountedCount: pprog.accounted, completedAt: now },
           });
-          await tx.location.update({ where: { id: pp.location.id }, data: { lightState: 'ON' } });
+          await tx.consolidateLocation.update({ where: { id: pp.location.id }, data: { lightState: 'ON' } });
           greenLocs.push(pp.location.locationNumber);
         } else {
-          await tx.packageConsolidation.update({
+          await tx.consolidatePackage.update({
             where: { shippingPackageId: p },
             data: { status: 'CONSOLIDATING', expectedCount: pprog.expected, accountedCount: pprog.accounted },
           });
-          await tx.location.update({ where: { id: pp.location.id }, data: { lightState: 'OFF' } });
-          offLocs.push(pp.location.locationNumber);
+          // A DIFFERENT operator may still have their own live pending scan on
+          // this same package (shared slot) — don't clear their glow.
+          const stillActive = await pendingColors(tx, p);
+          if (stillActive.length > 0) {
+            await tx.consolidateLocation.update({ where: { id: pp.location.id }, data: { lightState: 'ON' } });
+            dualLocs.push({ locationNumber: pp.location.locationNumber, colors: stillActive });
+          } else {
+            await tx.consolidateLocation.update({ where: { id: pp.location.id }, data: { lightState: 'OFF' } });
+            offLocs.push(pp.location.locationNumber);
+          }
         }
       }
 
-      // Progress shown to the operator = items SCANNED (placed + the current
-      // pending), so the 1st scan of an N-item order reads 1/N (not 0/N).
-      const scannedCount = await tx.consolidationScan.count({ where: { shippingPackageId: pkg } });
-
-      const location = await tx.location.findUnique({ where: { id: locationId }, include: { rack: true } });
-      return { location, prog, scannedCount, complete, wasPlaced, offLocs, greenLocs };
+      const scannedCount = await tx.consolidatePackageScan.count({ where: { shippingPackageId: pkg } });
+      const location = await tx.consolidateLocation.findUnique({ where: { id: locationId }, include: { rack: true } });
+      return { location, prog, scannedCount, complete, wasPlaced, offLocs, greenLocs, dualLocs, activeColors };
     }));
-
-    // Fire-and-forget lights (optional add-on — never block the scan).
-    if (result.location && (result.complete || !result.wasPlaced)) {
-      void setLight(result.location.locationNumber, result.complete ? 'GREEN' : color);
-    }
-    for (const n of result.greenLocs) void setLight(n, 'GREEN');
-    for (const n of result.offLocs) void setLight(n, 'OFF');
 
     return NextResponse.json({
       success: true,
@@ -191,13 +201,16 @@ export async function POST(req: Request) {
       complete: result.complete,
       alreadyScanned: result.wasPlaced,
       color,
-      dimmed: result.offLocs,   // locationNumbers whose light went dark (still assigned)
-      greened: result.greenLocs, // locationNumbers that turned green
+      activeColors: result.activeColors,
+      dimmed: result.offLocs,
+      greened: result.greenLocs,
+      dual: result.dualLocs,
     });
   } catch (error: unknown) {
     const msg = error instanceof Error ? error.message : '';
-    if (msg === 'NO_SLOTS') return NextResponse.json({ error: 'No free PTL slots available' }, { status: 409 });
-    console.error('scan-barcode error:', error);
+    if (msg === 'INVALID_RACK') return NextResponse.json({ error: 'INVALID_RACK' }, { status: 400 });
+    if (msg === 'RACK_FULL') return NextResponse.json({ error: 'RACK_FULL' }, { status: 409 });
+    console.error('consolidate scan-barcode error:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }

@@ -182,13 +182,14 @@ model PackageConsolidation {
 
 // One row per barcode scanned/placed into a package's slot (the "accounted" set).
 model ConsolidationScan {
-  id                Int       @id @default(autoincrement())
-  shippingPackageId String    @map("shipping_package_id")
-  barcode           String    @map("barcode")
-  locationId        Int       @map("location_id")
-  placed            Boolean   @default(false)
-  scannedAt         DateTime  @default(now()) @map("scanned_at")
-  placedAt          DateTime? @map("placed_at")
+  id                Int            @id @default(autoincrement())
+  shippingPackageId String         @map("shipping_package_id")
+  barcode           String         @map("barcode")
+  locationId        Int            @map("location_id")
+  placed            Boolean        @default(false)
+  operatorColor     OperatorColor? @map("operator_color") // who scanned THIS barcode (per-scan, not per-package — 2 operators can share a slot)
+  scannedAt         DateTime       @default(now()) @map("scanned_at")
+  placedAt          DateTime?      @map("placed_at")
 
   consolidation     PackageConsolidation @relation(fields: [shippingPackageId], references: [shippingPackageId])
   location          Location             @relation(fields: [locationId], references: [id])
@@ -203,4 +204,158 @@ enum ConsolidationStatus {
   CONSOLIDATING // slot assigned, light on, collecting barcodes
   COMPLETE      // all expected barcodes placed, light green, awaiting location scan
   RELEASED      // location scanned, slot freed, ready-to-ship
+}
+
+// Append-only audit trail, one row per released package. Written by
+// complete-location and NEVER touched by master-reset (unlike
+// PackageConsolidation/ConsolidationScan, which master-reset clears to
+// recover a stuck board) — this is the durable "history of consolidations".
+model ConsolidationHistory {
+  id                Int            @id @default(autoincrement())
+  shippingPackageId String         @map("shipping_package_id")
+  locationNumber    Int            @map("location_number")
+  rackNumber        Int            @map("rack_number")
+  operatorColor     OperatorColor? @map("operator_color")
+  expectedCount     Int            @map("expected_count")
+  accountedCount    Int            @map("accounted_count")
+  barcodes          String         @db.Text // JSON array snapshot of scanned barcodes
+  completedAt       DateTime?      @map("completed_at")
+  releasedAt        DateTime       @default(now()) @map("released_at")
+
+  @@index([shippingPackageId])
+  @@index([releasedAt])
+  @@map("consolidation_history")
+}
+
+// ===========================================================================
+// ConsolidAte (non-PTL platform, /consolidate) — same consolidation flow and
+// UI as ConsolidAte PTL above (now at /consolidate-ptl), but:
+//   - no physical light hardware (lightState is a pure on-screen concept)
+//   - operator picks BOTH a rack and a colour before scanning; slot claiming
+//     is scoped strictly to the chosen rack (no spillover to another rack)
+//   - 4 rows x 5 columns = 20 slots/rack (vs PTL's 5x5=25), 10 racks = 200
+// Fully independent tables/DB rows from the PTL models above — releasing or
+// resetting one platform never touches the other's data.
+// ===========================================================================
+
+model ConsolidateRack {
+  id             Int       @id @default(autoincrement())
+  rackNumber     Int       @unique @map("rack_number")
+  totalLevels    Int       @default(4) @map("total_levels")
+  totalPositions Int       @default(5) @map("total_positions")
+  createdAt      DateTime? @map("created_at")
+
+  locations      ConsolidateLocation[]
+
+  @@map("consolidate_racks")
+}
+
+model ConsolidateLocation {
+  id                  Int        @id @default(autoincrement())
+  rackId              Int        @map("rack_id")
+  level               Int
+  position            Int
+  locationNumber      Int        @unique @map("location_number")
+  barcode             String     @unique
+  lightState          LightState @default(OFF) @map("light_state")
+  currentPackageId    String?    @map("current_package_id")
+  assignmentTimestamp DateTime?  @map("assignment_timestamp")
+  isActive            Boolean?   @map("is_active")
+  createdAt           DateTime?  @map("created_at")
+
+  rack                ConsolidateRack          @relation(fields: [rackId], references: [id])
+  consolidations      ConsolidatePackage[]
+  scans               ConsolidatePackageScan[]
+
+  @@index([currentPackageId])
+  @@map("consolidate_locations")
+}
+
+// One row per barcode seen in the "CL: Order QC" dump — independent copy of
+// QcDumpEntry above, so scanning/releasing in one platform never marks
+// anything "scanned" in the other.
+model ConsolidateQcDumpEntry {
+  id                Int       @id @default(autoincrement())
+  barcode           String    @unique
+  shippingPackageId String    @map("shipping_package_id")
+  incrementId       String?   @map("increment_id")
+  itemType          String?   @map("item_type")
+  trayNo            String?   @map("tray_no")
+  currentStatus     String?   @map("current_status")
+  orderCreatedAt    DateTime? @map("order_created_at")
+  orderUpdatedAt    DateTime? @map("order_updated_at")
+  firstSeenAt       DateTime  @default(now()) @map("first_seen_at")
+  lastSeenAt        DateTime  @default(now()) @map("last_seen_at")
+  inDump            Boolean   @default(true) @map("in_dump")
+  scanned           Boolean   @default(false)
+  scannedAt         DateTime? @map("scanned_at")
+
+  @@index([shippingPackageId])
+  @@index([inDump])
+  @@map("consolidate_qc_dump_entries")
+}
+
+model ConsolidatePackage {
+  id                Int               @id @default(autoincrement())
+  shippingPackageId String            @unique @map("shipping_package_id")
+  locationId        Int?              @map("location_id")
+  operatorColor     OperatorColor?    @map("operator_color")
+  status            ConsolidateStatus @default(PENDING)
+  expectedCount     Int               @default(0) @map("expected_count")
+  accountedCount    Int               @default(0) @map("accounted_count")
+  createdAt         DateTime          @default(now()) @map("created_at")
+  updatedAt         DateTime          @updatedAt @map("updated_at")
+  completedAt       DateTime?         @map("completed_at")
+  releasedAt        DateTime?         @map("released_at")
+
+  location          ConsolidateLocation?     @relation(fields: [locationId], references: [id])
+  scans             ConsolidatePackageScan[]
+
+  @@index([status])
+  @@index([locationId])
+  @@map("consolidate_packages")
+}
+
+model ConsolidatePackageScan {
+  id                Int            @id @default(autoincrement())
+  shippingPackageId String         @map("shipping_package_id")
+  barcode           String         @map("barcode")
+  locationId        Int            @map("location_id")
+  placed            Boolean        @default(false)
+  operatorColor     OperatorColor? @map("operator_color")
+  scannedAt         DateTime       @default(now()) @map("scanned_at")
+  placedAt          DateTime?      @map("placed_at")
+
+  consolidation     ConsolidatePackage  @relation(fields: [shippingPackageId], references: [shippingPackageId])
+  location          ConsolidateLocation @relation(fields: [locationId], references: [id])
+
+  @@unique([shippingPackageId, barcode])
+  @@index([locationId])
+  @@map("consolidate_package_scans")
+}
+
+enum ConsolidateStatus {
+  PENDING       // package known from dump, no slot yet
+  CONSOLIDATING // slot assigned, collecting barcodes
+  COMPLETE      // all expected barcodes placed, awaiting location scan
+  RELEASED      // location scanned, slot freed, ready-to-ship
+}
+
+// Append-only audit trail — independent copy of ConsolidationHistory above,
+// never touched by this platform's own master-reset.
+model ConsolidateReleaseHistory {
+  id                Int            @id @default(autoincrement())
+  shippingPackageId String         @map("shipping_package_id")
+  locationNumber    Int            @map("location_number")
+  rackNumber        Int            @map("rack_number")
+  operatorColor     OperatorColor? @map("operator_color")
+  expectedCount     Int            @map("expected_count")
+  accountedCount    Int            @map("accounted_count")
+  barcodes          String         @db.Text
+  completedAt       DateTime?      @map("completed_at")
+  releasedAt        DateTime       @default(now()) @map("released_at")
+
+  @@index([shippingPackageId])
+  @@index([releasedAt])
+  @@map("consolidate_release_history")
 }

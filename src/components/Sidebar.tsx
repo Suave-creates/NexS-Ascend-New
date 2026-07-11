@@ -20,6 +20,7 @@ import {
   FiMenu,
   FiDownload,
   FiGrid,
+  FiZap,
 } from 'react-icons/fi';
 import { cn } from '@/lib/cn';
 
@@ -40,6 +41,7 @@ export default function Sidebar() {
   const navItems: NavItem[] = [
     { href: '/', icon: FiHome, label: 'Home' },
     { href: '/consolidate', icon: FiGrid, label: 'ConsolidAte' },
+    { href: '/consolidate-ptl', icon: FiZap, label: 'ConsolidAte PTL' },
 
     {
       icon: FiLayers,
