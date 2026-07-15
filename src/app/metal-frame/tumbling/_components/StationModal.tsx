@@ -5,7 +5,7 @@ import { FiX, FiRefreshCw } from 'react-icons/fi';
 import { Modal, Alert, Field, Input } from '@/components/ui';
 import type { StationDetailResponse } from '@/services/metal-frame/tumbling/types';
 import { ContainerPanel } from './ContainerPanel';
-import { formatClockTime } from '../_lib/format';
+import { formatClockTime } from './format';
 
 const POLL_INTERVAL_MS = 15_000;
 const OPERATOR_STORAGE_KEY = 'tumbling.operatorName';

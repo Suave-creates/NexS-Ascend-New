@@ -7,8 +7,8 @@ import { Card, CardHeader, CardBody, Button, Alert, Modal } from '@/components/u
 import { cn } from '@/lib/cn';
 import { computeProgress } from '@/services/metal-frame/tumbling/progress.service';
 import type { StationContainerPanelDto, TumblingConfigValuesDto } from '@/services/metal-frame/tumbling/types';
-import { containerStatusStyle } from '../_lib/statusStyles';
-import { formatClockTime, formatDuration, formatFullDateTime } from '../_lib/format';
+import { containerStatusStyle } from './statusStyles';
+import { formatClockTime, formatDuration, formatFullDateTime } from './format';
 import { ProgressBar } from './ProgressBar';
 import { ProcessTimeline } from './ProcessTimeline';
 import { ProductFormModal } from './ProductFormModal';
@@ -142,7 +142,7 @@ export function ContainerPanel({
                   <li key={p.pid} className="rounded-lg bg-gray-50 px-3 py-1.5 text-sm">
                     <span className="truncate">
                       <span className="font-medium text-gray-800">{p.pid}</span>{' '}
-                      <span className="text-gray-400">· {p.sheetCode} · {p.modelNumber}</span>
+                      <span className="text-gray-400">· {p.sheetCode} · {p.modelNumber} · Qty {p.quantity}</span>
                     </span>
                   </li>
                 ))}
@@ -214,7 +214,6 @@ export function ContainerPanel({
       <ProductFormModal
         open={showAddModal}
         onClose={() => setShowAddModal(false)}
-        additionalFieldLabel={config.additionalFieldLabel}
         operatorName={operatorName}
         containerId={panel.containerId}
         stationLabel={fullLabel}

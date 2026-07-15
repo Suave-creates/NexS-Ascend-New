@@ -7,7 +7,7 @@ import { computeProgress } from '@/services/metal-frame/tumbling/progress.servic
 import type { ProcessDetailDto, TumblingContainerSide } from '@/services/metal-frame/tumbling/types';
 import { ProgressBar } from './ProgressBar';
 import { ProcessTimeline } from './ProcessTimeline';
-import { formatClockTime, formatDuration, formatFullDateTime, pluralize } from '../_lib/format';
+import { formatClockTime, formatDuration, formatFullDateTime, pluralize } from './format';
 
 interface ProcessDetailFull extends ProcessDetailDto {
   container: { stationNumber: number; side: TumblingContainerSide; displayName: string };
@@ -159,7 +159,7 @@ export function ProcessDetailModal({ processId, onClose }: { processId: number |
                   <TH>PID</TH>
                   <TH>Sheet Code</TH>
                   <TH>Model Number</TH>
-                  <TH>Additional Reference</TH>
+                  <TH>Quantity</TH>
                 </TR>
               </THead>
               <TBody>
@@ -168,7 +168,7 @@ export function ProcessDetailModal({ processId, onClose }: { processId: number |
                     <TD className="font-medium">{p.pid}</TD>
                     <TD>{p.sheetCode}</TD>
                     <TD>{p.modelNumber}</TD>
-                    <TD>{p.additionalReference ?? '—'}</TD>
+                    <TD>{p.quantity}</TD>
                   </TR>
                 ))}
               </TBody>

@@ -2,7 +2,6 @@ import { prismaMetalFrame as prisma } from '@/utils/prismaMetalFrame';
 
 export interface TumblingConfigValues {
   defaultDurationMinutes: number;
-  additionalFieldLabel: string;
   nearCompletionThresholdMinutes: number;
 }
 
@@ -22,7 +21,6 @@ export async function getTumblingConfig(): Promise<TumblingConfigValues> {
 
   const values: TumblingConfigValues = {
     defaultDurationMinutes: row.defaultDurationMinutes,
-    additionalFieldLabel: row.additionalFieldLabel,
     nearCompletionThresholdMinutes: row.nearCompletionThresholdMinutes,
   };
   cache = { values, expiresAt: Date.now() + CACHE_TTL_MS };

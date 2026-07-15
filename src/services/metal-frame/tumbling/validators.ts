@@ -28,18 +28,23 @@ function requiredString(value: unknown, field: string, maxLen = MAX_TEXT_LEN): s
   return trimmed;
 }
 
+function validateQuantity(value: unknown): number {
+  const n = Number(value);
+  if (!Number.isFinite(n) || !Number.isInteger(n) || n < 1) {
+    throw new TumblingError(400, 'Quantity must be a positive whole number.');
+  }
+  if (n > 1_000_000) throw new TumblingError(400, 'Quantity is too large.');
+  return n;
+}
+
 export function validateProduct(raw: unknown): ProductInput {
   const p = (raw ?? {}) as Record<string, unknown>;
-  const additionalReference =
-    typeof p.additionalReference === 'string' && p.additionalReference.trim()
-      ? p.additionalReference.trim().slice(0, MAX_TEXT_LEN)
-      : null;
 
   return {
     pid: requiredString(p.pid, 'PID'),
     sheetCode: requiredString(p.sheetCode, 'Sheet Code'),
     modelNumber: requiredString(p.modelNumber, 'Model Number'),
-    additionalReference,
+    quantity: validateQuantity(p.quantity),
   };
 }
 
@@ -80,4 +85,15 @@ export function validateDurationMinutes(value: unknown): number {
     throw new TumblingError(400, 'Duration must be a positive number of minutes.');
   }
   return Math.floor(n);
+}
+
+export function validateEmployeeCode(value: unknown): string {
+  return requiredString(value, 'Employee code', 50);
+}
+
+export function validatePassword(value: unknown): string {
+  const password = typeof value === 'string' ? value : '';
+  if (password.length < 6) throw new TumblingError(400, 'Password must be at least 6 characters.');
+  if (password.length > 100) throw new TumblingError(400, 'Password must be 100 characters or fewer.');
+  return password;
 }

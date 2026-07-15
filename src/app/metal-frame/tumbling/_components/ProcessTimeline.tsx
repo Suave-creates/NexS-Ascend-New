@@ -1,6 +1,6 @@
 import { FiCircle } from 'react-icons/fi';
 import type { ProcessEventEntry } from '@/services/metal-frame/tumbling/types';
-import { formatClockTime } from '../_lib/format';
+import { formatClockTime } from './format';
 
 const EVENT_LABELS: Record<string, string> = {
   PROCESS_CREATED: 'Process Started (Draft Created)',

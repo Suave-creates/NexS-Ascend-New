@@ -3,7 +3,6 @@ import { getTumblingConfig, updateTumblingConfig, TumblingConfigValues } from '@
 import { verifyAuthorization } from '@/services/metal-frame/tumbling/authorization.service';
 import { validateDurationMinutes } from '@/services/metal-frame/tumbling/validators';
 import { handleRouteError } from '@/services/metal-frame/tumbling/http';
-import { TumblingError } from '@/services/metal-frame/tumbling/types';
 
 export const dynamic = 'force-dynamic';
 
@@ -29,11 +28,6 @@ export async function PATCH(req: Request) {
     }
     if (body.nearCompletionThresholdMinutes !== undefined) {
       patch.nearCompletionThresholdMinutes = validateDurationMinutes(body.nearCompletionThresholdMinutes);
-    }
-    if (body.additionalFieldLabel !== undefined) {
-      const label = String(body.additionalFieldLabel).trim();
-      if (!label) throw new TumblingError(400, 'Additional field label cannot be empty.');
-      patch.additionalFieldLabel = label.slice(0, 100);
     }
 
     const config = await updateTumblingConfig(patch);

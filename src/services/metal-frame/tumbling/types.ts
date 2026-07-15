@@ -36,7 +36,7 @@ export interface ProductInput {
   pid: string;
   sheetCode: string;
   modelNumber: string;
-  additionalReference?: string | null;
+  quantity: number;
 }
 
 /** Shape persisted inside TumblingProcess.events (JSON) — one immutable timeline entry. */
@@ -168,7 +168,6 @@ export interface StationContainerPanelDto {
 
 export interface TumblingConfigValuesDto {
   defaultDurationMinutes: number;
-  additionalFieldLabel: string;
   nearCompletionThresholdMinutes: number;
 }
 

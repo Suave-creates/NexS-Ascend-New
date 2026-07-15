@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
+import Link from 'next/link';
 import { PageHeader, Alert, Card, CardHeader, CardBody, Field, Input, Button, Table, THead, TBody, TR, TH, TD } from '@/components/ui';
 
 interface ContainerRow {
@@ -19,7 +20,7 @@ export default function TumblingSettingsPage() {
   const [employeeCode, setEmployeeCode] = useState('');
   const [password, setPassword] = useState('');
 
-  const [configDraft, setConfigDraft] = useState({ defaultDurationMinutes: '', additionalFieldLabel: '', nearCompletionThresholdMinutes: '' });
+  const [configDraft, setConfigDraft] = useState({ defaultDurationMinutes: '', nearCompletionThresholdMinutes: '' });
   const [containerDrafts, setContainerDrafts] = useState<Record<number, { displayName: string; isActive: boolean }>>({});
   const [savingKey, setSavingKey] = useState<string | null>(null);
 
@@ -37,7 +38,6 @@ export default function TumblingSettingsPage() {
       setContainers(containersJson.containers);
       setConfigDraft({
         defaultDurationMinutes: String(configJson.config.defaultDurationMinutes),
-        additionalFieldLabel: configJson.config.additionalFieldLabel,
         nearCompletionThresholdMinutes: String(configJson.config.nearCompletionThresholdMinutes),
       });
       setContainerDrafts(
@@ -75,7 +75,6 @@ export default function TumblingSettingsPage() {
           employeeCode: employeeCode.trim(),
           password,
           defaultDurationMinutes: Number(configDraft.defaultDurationMinutes),
-          additionalFieldLabel: configDraft.additionalFieldLabel,
           nearCompletionThresholdMinutes: Number(configDraft.nearCompletionThresholdMinutes),
         }),
       });
@@ -117,7 +116,15 @@ export default function TumblingSettingsPage() {
 
   return (
     <div>
-      <PageHeader title="Tumbling — Settings" subtitle="Every save below re-verifies your credentials against the portal login." />
+      <PageHeader
+        title="Tumbling — Settings"
+        subtitle="Every save below re-verifies your credentials against the portal login."
+        actions={
+          <Link href="/metal-frame/tumbling/admin-users" className="text-xs font-medium text-brand-700 hover:underline">
+            Manage login accounts →
+          </Link>
+        }
+      />
 
       <Card className="mb-6">
         <CardHeader>
@@ -140,19 +147,13 @@ export default function TumblingSettingsPage() {
         <CardHeader>
           <span className="font-semibold text-gray-800">Process Defaults</span>
         </CardHeader>
-        <CardBody className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+        <CardBody className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <Field label="Default Duration (minutes)" hint="Applies to new processes only; history is unaffected">
             <Input
               type="number"
               min={1}
               value={configDraft.defaultDurationMinutes}
               onChange={(e) => setConfigDraft((d) => ({ ...d, defaultDurationMinutes: e.target.value }))}
-            />
-          </Field>
-          <Field label="4th Field Label" hint='Default: "Additional Reference"'>
-            <Input
-              value={configDraft.additionalFieldLabel}
-              onChange={(e) => setConfigDraft((d) => ({ ...d, additionalFieldLabel: e.target.value }))}
             />
           </Field>
           <Field label="Completing Soon Threshold (minutes)">
@@ -163,7 +164,7 @@ export default function TumblingSettingsPage() {
               onChange={(e) => setConfigDraft((d) => ({ ...d, nearCompletionThresholdMinutes: e.target.value }))}
             />
           </Field>
-          <div className="sm:col-span-3">
+          <div className="sm:col-span-2">
             <Button onClick={saveConfig} loading={savingKey === 'config'}>
               Save Process Defaults
             </Button>

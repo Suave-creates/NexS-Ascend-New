@@ -2,11 +2,18 @@ import { cn } from '@/lib/cn';
 import { StatusPill } from '@/components/ui';
 import { computeProgress } from '@/services/metal-frame/tumbling/progress.service';
 import type { DashboardContainerSummary, DashboardStationCard as StationCardData } from '@/services/metal-frame/tumbling/types';
-import { containerStatusStyle, stationStatusStyle } from '../_lib/statusStyles';
-import { formatClockTime, formatDuration, pluralize } from '../_lib/format';
+import { containerStatusStyle, stationStatusStyle } from './statusStyles';
+import { formatClockTime, formatDuration, pluralize } from './format';
 import { ProgressBar } from './ProgressBar';
 
 const PILL_TONE_MAP = { gray: 'gold', navy: 'gold', good: 'good', danger: 'danger', notice: 'notice', gold: 'gold' } as const;
+
+/** The bar's color evolves as the process nears completion instead of staying one flat color for 12 hours. */
+function progressTone(percent: number, isNearCompletion: boolean): 'navy' | 'good' | 'notice' {
+  if (isNearCompletion) return 'notice';
+  if (percent >= 50) return 'good';
+  return 'navy';
+}
 
 const STATUS_TEXT_CLASS: Record<'gray' | 'navy' | 'good' | 'danger' | 'notice' | 'gold', string> = {
   gray: 'text-gray-500',
@@ -58,7 +65,7 @@ function ContainerPanel({
       {container.status === 'RUNNING' && proc && liveProgress ? (
         <div className="mt-2 space-y-1.5">
           <div className="text-xs text-gray-500">{pluralize(proc.productCount, 'Product')}</div>
-          <ProgressBar percent={liveProgress.progressPercent} tone={liveProgress.isNearCompletion ? 'notice' : 'navy'} />
+          <ProgressBar percent={liveProgress.progressPercent} tone={progressTone(liveProgress.progressPercent, liveProgress.isNearCompletion)} />
           <div className="flex items-center justify-between text-xs text-gray-500">
             <span>{formatDuration(liveProgress.remainingMs)} remaining</span>
             <span>Completes {formatClockTime(proc.expectedCompletionAt)}</span>

@@ -3,23 +3,22 @@
 import { useState } from 'react';
 import { Modal, Field, Input, Button, Alert } from '@/components/ui';
 import { validateProduct } from '@/services/metal-frame/tumbling/validators';
-import { formatDuration, formatFullDateTime } from '../_lib/format';
+import { formatDuration, formatFullDateTime } from './format';
 
 interface ProductDraft {
   pid: string;
   sheetCode: string;
   modelNumber: string;
-  additionalReference: string;
+  quantity: string;
 }
 
 function blankDraft(): ProductDraft {
-  return { pid: '', sheetCode: '', modelNumber: '', additionalReference: '' };
+  return { pid: '', sheetCode: '', modelNumber: '', quantity: '1' };
 }
 
 interface ProductFormModalProps {
   open: boolean;
   onClose: () => void;
-  additionalFieldLabel: string;
   operatorName: string;
   containerId: number;
   stationLabel: string;
@@ -31,7 +30,6 @@ interface ProductFormModalProps {
 export function ProductFormModal({
   open,
   onClose,
-  additionalFieldLabel,
   operatorName,
   containerId,
   stationLabel,
@@ -171,8 +169,8 @@ export function ProductFormModal({
         <Field label="Model Number">
           <Input value={draft.modelNumber} onChange={(e) => update('modelNumber', e.target.value)} />
         </Field>
-        <Field label={additionalFieldLabel}>
-          <Input value={draft.additionalReference} onChange={(e) => update('additionalReference', e.target.value)} />
+        <Field label="Quantity">
+          <Input type="number" min={1} step={1} value={draft.quantity} onChange={(e) => update('quantity', e.target.value)} />
         </Field>
       </div>
 

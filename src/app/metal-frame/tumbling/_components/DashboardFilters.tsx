@@ -8,12 +8,10 @@ export type DashboardFilterValue = 'ALL' | StationOverallStatus;
 const FILTERS: { value: DashboardFilterValue; label: string }[] = [
   { value: 'ALL', label: 'All Stations' },
   { value: 'RUNNING', label: 'Running' },
-  { value: 'COMPLETING_SOON', label: 'Completing Soon' },
   { value: 'AVAILABLE', label: 'Available' },
   { value: 'DRAFT', label: 'Draft' },
   { value: 'COMPLETED', label: 'Completed' },
   { value: 'STOPPED', label: 'Stopped' },
-  { value: 'INACTIVE', label: 'Inactive' },
 ];
 
 export function DashboardFilters({

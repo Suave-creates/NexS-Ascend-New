@@ -4,8 +4,8 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { FiX } from 'react-icons/fi';
 import { Alert, Badge, Input, Select, Field, Button, Table, THead, TBody, TR, TH, TD } from '@/components/ui';
 import type { PaginatedResult, ProcessHistoryRowDto, TumblingProcessStatus } from '@/services/metal-frame/tumbling/types';
-import { formatClockTime, formatDuration, formatFullDateTime } from '../_lib/format';
-import { containerStatusStyle } from '../_lib/statusStyles';
+import { formatClockTime, formatDuration, formatFullDateTime } from '../_components/format';
+import { containerStatusStyle } from '../_components/statusStyles';
 import { ProcessDetailModal } from '../_components/ProcessDetailModal';
 
 const STATUS_OPTIONS: TumblingProcessStatus[] = ['DRAFT', 'RUNNING', 'COMPLETED', 'COMPLETED_EARLY', 'STOPPED', 'CANCELLED'];

@@ -1,8 +1,9 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { FiRefreshCw } from 'react-icons/fi';
-import { PageHeader, Alert, Card, CardBody } from '@/components/ui';
+import Link from 'next/link';
+import { FiRefreshCw, FiClock, FiGrid, FiSettings } from 'react-icons/fi';
+import { PageHeader, Alert, Card, CardBody, Button } from '@/components/ui';
 import { cn } from '@/lib/cn';
 import type { DashboardResponse } from '@/services/metal-frame/tumbling/types';
 import { KpiRow, KpiRowSkeleton } from './_components/KpiRow';
@@ -10,7 +11,7 @@ import { DashboardFilters, DashboardFilterValue } from './_components/DashboardF
 import { StationCard } from './_components/StationCard';
 import { StationGridSkeleton } from './_components/Skeletons';
 import { StationModal } from './_components/StationModal';
-import { formatClockTime } from './_lib/format';
+import { formatClockTime } from './_components/format';
 
 const POLL_INTERVAL_MS = 20_000;
 
@@ -100,9 +101,28 @@ export default function TumblingDashboardPage() {
           month: 'long',
         })}`}
         actions={
-          <div className="flex items-center gap-1.5 text-xs text-gray-400">
-            <FiRefreshCw className={cn('h-3.5 w-3.5', loading && 'animate-spin')} aria-hidden="true" />
-            {lastRefreshedAt ? `Refreshed ${formatClockTime(lastRefreshedAt.toISOString())}` : 'Loading…'}
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="flex items-center gap-1.5 text-xs text-gray-400">
+              <FiRefreshCw className={cn('h-3.5 w-3.5', loading && 'animate-spin')} aria-hidden="true" />
+              {lastRefreshedAt ? `Refreshed ${formatClockTime(lastRefreshedAt.toISOString())}` : 'Loading…'}
+            </div>
+            <div className="flex items-center gap-2">
+              <Link href="/metal-frame/tumbling/processes">
+                <Button variant="outline" size="sm">
+                  <FiClock className="h-3.5 w-3.5" /> History
+                </Button>
+              </Link>
+              <Link href="/metal-frame/tumbling/qr-codes">
+                <Button variant="outline" size="sm">
+                  <FiGrid className="h-3.5 w-3.5" /> QR Codes
+                </Button>
+              </Link>
+              <Link href="/metal-frame/tumbling/settings">
+                <Button variant="outline" size="sm">
+                  <FiSettings className="h-3.5 w-3.5" /> Settings
+                </Button>
+              </Link>
+            </div>
           </div>
         }
       />
