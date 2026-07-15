@@ -94,3 +94,115 @@ model QcReason {
   @@index([active, sortOrder], map: "idx_QcReason_active_sort")
   @@map("QcReason")
 }
+
+// ---------------------------------------------------------------------------
+// Tumbling Process Management — 3 tables total.
+//
+// TumblingContainer: 44 static rows (22 stations x Left/Right). A "station"
+//   is just a `stationNumber` shared by its two container rows — there is no
+//   separate Station table.
+//
+// TumblingProcess: the whole transactional record. Products and the
+//   immutable event timeline are stored as JSON columns on the process row
+//   itself (not child tables) since they are always read/written together
+//   with their process and never queried independently at scale. One active
+//   (DRAFT/RUNNING) process per container is enforced with a real unique DB
+//   constraint via `activeSlotContainerId` (set to the container's id while
+//   active, cleared to null on any terminal transition), not app logic alone.
+//
+// TumblingConfiguration: a single settings row (fixed id = 1).
+//
+// Authorization for Complete Early / Stop / Settings reuses the existing
+// `User`/bcrypt credential store directly (read-only cross-client lookup, no
+// cross-schema Prisma relation) — there is no separate role/permission table.
+// ---------------------------------------------------------------------------
+enum TumblingContainerSide {
+  LEFT
+  RIGHT
+}
+
+enum TumblingProcessStatus {
+  DRAFT
+  RUNNING
+  COMPLETED
+  COMPLETED_EARLY
+  STOPPED
+  CANCELLED
+}
+
+enum TumblingCompletionType {
+  AUTOMATIC
+  EARLY
+  STOPPED
+}
+
+model TumblingContainer {
+  id            Int                   @id @default(autoincrement())
+  stationNumber Int
+  side          TumblingContainerSide
+  displayName   String
+  isActive      Boolean               @default(true)
+  createdAt     DateTime              @default(now())
+  updatedAt     DateTime              @updatedAt
+
+  processes TumblingProcess[]
+
+  @@unique([stationNumber, side])
+  @@index([stationNumber])
+  @@map("TumblingContainer")
+}
+
+model TumblingProcess {
+  id          Int                   @id @default(autoincrement())
+  processCode String                @unique
+  containerId Int
+  status      TumblingProcessStatus @default(DRAFT)
+
+  // Stored per-process (not read from config at completion time) so
+  // historical records stay accurate if the configured default changes.
+  durationMinutes Int @default(720)
+
+  startedAt            DateTime?
+  expectedCompletionAt DateTime?
+  completedAt          DateTime?
+  stoppedAt            DateTime?
+
+  completionType TumblingCompletionType?
+  // Reused for both the Stop reason and the Complete-Early reason.
+  reason         String?
+  remarks        String?                 @db.Text
+
+  startedByName    String?
+  authorizedByCode String?
+  authorizedByName String?
+
+  // [{ pid, sheetCode, modelNumber, additionalReference }]
+  products Json @default("[]")
+  // Immutable, append-only: [{ type, at, by, authorizedBy, reason, remarks }]
+  events   Json @default("[]")
+
+  // Non-null only while status is DRAFT/RUNNING; unique so the DB itself
+  // rejects a second concurrent active process in the same container.
+  activeSlotContainerId Int? @unique
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  container TumblingContainer @relation(fields: [containerId], references: [id])
+
+  @@index([status])
+  @@index([containerId])
+  @@index([startedAt])
+  @@index([expectedCompletionAt])
+  @@map("TumblingProcess")
+}
+
+model TumblingConfiguration {
+  id                             Int      @id @default(autoincrement())
+  defaultDurationMinutes         Int      @default(720)
+  additionalFieldLabel           String   @default("Additional Reference")
+  nearCompletionThresholdMinutes Int      @default(60)
+  updatedAt                      DateTime @updatedAt
+
+  @@map("TumblingConfiguration")
+}

@@ -170,9 +170,54 @@ exports.Prisma.QcReasonScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.TumblingContainerScalarFieldEnum = {
+  id: 'id',
+  stationNumber: 'stationNumber',
+  side: 'side',
+  displayName: 'displayName',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.TumblingProcessScalarFieldEnum = {
+  id: 'id',
+  processCode: 'processCode',
+  containerId: 'containerId',
+  status: 'status',
+  durationMinutes: 'durationMinutes',
+  startedAt: 'startedAt',
+  expectedCompletionAt: 'expectedCompletionAt',
+  completedAt: 'completedAt',
+  stoppedAt: 'stoppedAt',
+  completionType: 'completionType',
+  reason: 'reason',
+  remarks: 'remarks',
+  startedByName: 'startedByName',
+  authorizedByCode: 'authorizedByCode',
+  authorizedByName: 'authorizedByName',
+  products: 'products',
+  events: 'events',
+  activeSlotContainerId: 'activeSlotContainerId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.TumblingConfigurationScalarFieldEnum = {
+  id: 'id',
+  defaultDurationMinutes: 'defaultDurationMinutes',
+  additionalFieldLabel: 'additionalFieldLabel',
+  nearCompletionThresholdMinutes: 'nearCompletionThresholdMinutes',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
+};
+
+exports.Prisma.JsonNullValueInput = {
+  JsonNull: Prisma.JsonNull
 };
 
 exports.Prisma.PlatingOrderByRelevanceFieldEnum = {
@@ -211,12 +256,61 @@ exports.Prisma.QcReasonOrderByRelevanceFieldEnum = {
   hotkey: 'hotkey'
 };
 
+exports.Prisma.TumblingContainerOrderByRelevanceFieldEnum = {
+  displayName: 'displayName'
+};
+
+exports.Prisma.JsonNullValueFilter = {
+  DbNull: Prisma.DbNull,
+  JsonNull: Prisma.JsonNull,
+  AnyNull: Prisma.AnyNull
+};
+
+exports.Prisma.QueryMode = {
+  default: 'default',
+  insensitive: 'insensitive'
+};
+
+exports.Prisma.TumblingProcessOrderByRelevanceFieldEnum = {
+  processCode: 'processCode',
+  reason: 'reason',
+  remarks: 'remarks',
+  startedByName: 'startedByName',
+  authorizedByCode: 'authorizedByCode',
+  authorizedByName: 'authorizedByName'
+};
+
+exports.Prisma.TumblingConfigurationOrderByRelevanceFieldEnum = {
+  additionalFieldLabel: 'additionalFieldLabel'
+};
+exports.TumblingContainerSide = exports.$Enums.TumblingContainerSide = {
+  LEFT: 'LEFT',
+  RIGHT: 'RIGHT'
+};
+
+exports.TumblingProcessStatus = exports.$Enums.TumblingProcessStatus = {
+  DRAFT: 'DRAFT',
+  RUNNING: 'RUNNING',
+  COMPLETED: 'COMPLETED',
+  COMPLETED_EARLY: 'COMPLETED_EARLY',
+  STOPPED: 'STOPPED',
+  CANCELLED: 'CANCELLED'
+};
+
+exports.TumblingCompletionType = exports.$Enums.TumblingCompletionType = {
+  AUTOMATIC: 'AUTOMATIC',
+  EARLY: 'EARLY',
+  STOPPED: 'STOPPED'
+};
 
 exports.Prisma.ModelName = {
   Plating: 'Plating',
   FittingScan: 'FittingScan',
   QcScan: 'QcScan',
-  QcReason: 'QcReason'
+  QcReason: 'QcReason',
+  TumblingContainer: 'TumblingContainer',
+  TumblingProcess: 'TumblingProcess',
+  TumblingConfiguration: 'TumblingConfiguration'
 };
 
 /**

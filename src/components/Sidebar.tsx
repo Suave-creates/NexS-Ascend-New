@@ -114,6 +114,7 @@ export default function Sidebar() {
       children: [
         { href: '/metal-frame/fitting', label: 'Fitting Dashboard' },
         { href: '/metal-frame/qc', label: 'QC Dashboard' },
+        { href: '/metal-frame/tumbling', label: 'Tumbling' },
       ],
     },
 

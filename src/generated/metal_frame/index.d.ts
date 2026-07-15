@@ -33,6 +33,67 @@ export type QcScan = $Result.DefaultSelection<Prisma.$QcScanPayload>
  * 
  */
 export type QcReason = $Result.DefaultSelection<Prisma.$QcReasonPayload>
+/**
+ * Model TumblingContainer
+ * 
+ */
+export type TumblingContainer = $Result.DefaultSelection<Prisma.$TumblingContainerPayload>
+/**
+ * Model TumblingProcess
+ * 
+ */
+export type TumblingProcess = $Result.DefaultSelection<Prisma.$TumblingProcessPayload>
+/**
+ * Model TumblingConfiguration
+ * 
+ */
+export type TumblingConfiguration = $Result.DefaultSelection<Prisma.$TumblingConfigurationPayload>
+
+/**
+ * Enums
+ */
+export namespace $Enums {
+  export const TumblingContainerSide: {
+  LEFT: 'LEFT',
+  RIGHT: 'RIGHT'
+};
+
+export type TumblingContainerSide = (typeof TumblingContainerSide)[keyof typeof TumblingContainerSide]
+
+
+export const TumblingProcessStatus: {
+  DRAFT: 'DRAFT',
+  RUNNING: 'RUNNING',
+  COMPLETED: 'COMPLETED',
+  COMPLETED_EARLY: 'COMPLETED_EARLY',
+  STOPPED: 'STOPPED',
+  CANCELLED: 'CANCELLED'
+};
+
+export type TumblingProcessStatus = (typeof TumblingProcessStatus)[keyof typeof TumblingProcessStatus]
+
+
+export const TumblingCompletionType: {
+  AUTOMATIC: 'AUTOMATIC',
+  EARLY: 'EARLY',
+  STOPPED: 'STOPPED'
+};
+
+export type TumblingCompletionType = (typeof TumblingCompletionType)[keyof typeof TumblingCompletionType]
+
+}
+
+export type TumblingContainerSide = $Enums.TumblingContainerSide
+
+export const TumblingContainerSide: typeof $Enums.TumblingContainerSide
+
+export type TumblingProcessStatus = $Enums.TumblingProcessStatus
+
+export const TumblingProcessStatus: typeof $Enums.TumblingProcessStatus
+
+export type TumblingCompletionType = $Enums.TumblingCompletionType
+
+export const TumblingCompletionType: typeof $Enums.TumblingCompletionType
 
 /**
  * ##  Prisma Client ʲˢ
@@ -198,6 +259,36 @@ export class PrismaClient<
     * ```
     */
   get qcReason(): Prisma.QcReasonDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.tumblingContainer`: Exposes CRUD operations for the **TumblingContainer** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more TumblingContainers
+    * const tumblingContainers = await prisma.tumblingContainer.findMany()
+    * ```
+    */
+  get tumblingContainer(): Prisma.TumblingContainerDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.tumblingProcess`: Exposes CRUD operations for the **TumblingProcess** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more TumblingProcesses
+    * const tumblingProcesses = await prisma.tumblingProcess.findMany()
+    * ```
+    */
+  get tumblingProcess(): Prisma.TumblingProcessDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.tumblingConfiguration`: Exposes CRUD operations for the **TumblingConfiguration** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more TumblingConfigurations
+    * const tumblingConfigurations = await prisma.tumblingConfiguration.findMany()
+    * ```
+    */
+  get tumblingConfiguration(): Prisma.TumblingConfigurationDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -641,7 +732,10 @@ export namespace Prisma {
     Plating: 'Plating',
     FittingScan: 'FittingScan',
     QcScan: 'QcScan',
-    QcReason: 'QcReason'
+    QcReason: 'QcReason',
+    TumblingContainer: 'TumblingContainer',
+    TumblingProcess: 'TumblingProcess',
+    TumblingConfiguration: 'TumblingConfiguration'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -660,7 +754,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "plating" | "fittingScan" | "qcScan" | "qcReason"
+      modelProps: "plating" | "fittingScan" | "qcScan" | "qcReason" | "tumblingContainer" | "tumblingProcess" | "tumblingConfiguration"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -928,6 +1022,204 @@ export namespace Prisma {
           }
         }
       }
+      TumblingContainer: {
+        payload: Prisma.$TumblingContainerPayload<ExtArgs>
+        fields: Prisma.TumblingContainerFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.TumblingContainerFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TumblingContainerPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.TumblingContainerFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TumblingContainerPayload>
+          }
+          findFirst: {
+            args: Prisma.TumblingContainerFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TumblingContainerPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.TumblingContainerFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TumblingContainerPayload>
+          }
+          findMany: {
+            args: Prisma.TumblingContainerFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TumblingContainerPayload>[]
+          }
+          create: {
+            args: Prisma.TumblingContainerCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TumblingContainerPayload>
+          }
+          createMany: {
+            args: Prisma.TumblingContainerCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          delete: {
+            args: Prisma.TumblingContainerDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TumblingContainerPayload>
+          }
+          update: {
+            args: Prisma.TumblingContainerUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TumblingContainerPayload>
+          }
+          deleteMany: {
+            args: Prisma.TumblingContainerDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.TumblingContainerUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.TumblingContainerUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TumblingContainerPayload>
+          }
+          aggregate: {
+            args: Prisma.TumblingContainerAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateTumblingContainer>
+          }
+          groupBy: {
+            args: Prisma.TumblingContainerGroupByArgs<ExtArgs>
+            result: $Utils.Optional<TumblingContainerGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.TumblingContainerCountArgs<ExtArgs>
+            result: $Utils.Optional<TumblingContainerCountAggregateOutputType> | number
+          }
+        }
+      }
+      TumblingProcess: {
+        payload: Prisma.$TumblingProcessPayload<ExtArgs>
+        fields: Prisma.TumblingProcessFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.TumblingProcessFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TumblingProcessPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.TumblingProcessFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TumblingProcessPayload>
+          }
+          findFirst: {
+            args: Prisma.TumblingProcessFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TumblingProcessPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.TumblingProcessFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TumblingProcessPayload>
+          }
+          findMany: {
+            args: Prisma.TumblingProcessFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TumblingProcessPayload>[]
+          }
+          create: {
+            args: Prisma.TumblingProcessCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TumblingProcessPayload>
+          }
+          createMany: {
+            args: Prisma.TumblingProcessCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          delete: {
+            args: Prisma.TumblingProcessDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TumblingProcessPayload>
+          }
+          update: {
+            args: Prisma.TumblingProcessUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TumblingProcessPayload>
+          }
+          deleteMany: {
+            args: Prisma.TumblingProcessDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.TumblingProcessUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.TumblingProcessUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TumblingProcessPayload>
+          }
+          aggregate: {
+            args: Prisma.TumblingProcessAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateTumblingProcess>
+          }
+          groupBy: {
+            args: Prisma.TumblingProcessGroupByArgs<ExtArgs>
+            result: $Utils.Optional<TumblingProcessGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.TumblingProcessCountArgs<ExtArgs>
+            result: $Utils.Optional<TumblingProcessCountAggregateOutputType> | number
+          }
+        }
+      }
+      TumblingConfiguration: {
+        payload: Prisma.$TumblingConfigurationPayload<ExtArgs>
+        fields: Prisma.TumblingConfigurationFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.TumblingConfigurationFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TumblingConfigurationPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.TumblingConfigurationFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TumblingConfigurationPayload>
+          }
+          findFirst: {
+            args: Prisma.TumblingConfigurationFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TumblingConfigurationPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.TumblingConfigurationFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TumblingConfigurationPayload>
+          }
+          findMany: {
+            args: Prisma.TumblingConfigurationFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TumblingConfigurationPayload>[]
+          }
+          create: {
+            args: Prisma.TumblingConfigurationCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TumblingConfigurationPayload>
+          }
+          createMany: {
+            args: Prisma.TumblingConfigurationCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          delete: {
+            args: Prisma.TumblingConfigurationDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TumblingConfigurationPayload>
+          }
+          update: {
+            args: Prisma.TumblingConfigurationUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TumblingConfigurationPayload>
+          }
+          deleteMany: {
+            args: Prisma.TumblingConfigurationDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.TumblingConfigurationUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.TumblingConfigurationUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TumblingConfigurationPayload>
+          }
+          aggregate: {
+            args: Prisma.TumblingConfigurationAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateTumblingConfiguration>
+          }
+          groupBy: {
+            args: Prisma.TumblingConfigurationGroupByArgs<ExtArgs>
+            result: $Utils.Optional<TumblingConfigurationGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.TumblingConfigurationCountArgs<ExtArgs>
+            result: $Utils.Optional<TumblingConfigurationCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -1016,6 +1308,9 @@ export namespace Prisma {
     fittingScan?: FittingScanOmit
     qcScan?: QcScanOmit
     qcReason?: QcReasonOmit
+    tumblingContainer?: TumblingContainerOmit
+    tumblingProcess?: TumblingProcessOmit
+    tumblingConfiguration?: TumblingConfigurationOmit
   }
 
   /* Types for Logging */
@@ -1104,6 +1399,36 @@ export namespace Prisma {
    * Count Types
    */
 
+
+  /**
+   * Count Type TumblingContainerCountOutputType
+   */
+
+  export type TumblingContainerCountOutputType = {
+    processes: number
+  }
+
+  export type TumblingContainerCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    processes?: boolean | TumblingContainerCountOutputTypeCountProcessesArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * TumblingContainerCountOutputType without action
+   */
+  export type TumblingContainerCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TumblingContainerCountOutputType
+     */
+    select?: TumblingContainerCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * TumblingContainerCountOutputType without action
+   */
+  export type TumblingContainerCountOutputTypeCountProcessesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: TumblingProcessWhereInput
+  }
 
 
   /**
@@ -5005,6 +5330,3077 @@ export namespace Prisma {
 
 
   /**
+   * Model TumblingContainer
+   */
+
+  export type AggregateTumblingContainer = {
+    _count: TumblingContainerCountAggregateOutputType | null
+    _avg: TumblingContainerAvgAggregateOutputType | null
+    _sum: TumblingContainerSumAggregateOutputType | null
+    _min: TumblingContainerMinAggregateOutputType | null
+    _max: TumblingContainerMaxAggregateOutputType | null
+  }
+
+  export type TumblingContainerAvgAggregateOutputType = {
+    id: number | null
+    stationNumber: number | null
+  }
+
+  export type TumblingContainerSumAggregateOutputType = {
+    id: number | null
+    stationNumber: number | null
+  }
+
+  export type TumblingContainerMinAggregateOutputType = {
+    id: number | null
+    stationNumber: number | null
+    side: $Enums.TumblingContainerSide | null
+    displayName: string | null
+    isActive: boolean | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type TumblingContainerMaxAggregateOutputType = {
+    id: number | null
+    stationNumber: number | null
+    side: $Enums.TumblingContainerSide | null
+    displayName: string | null
+    isActive: boolean | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type TumblingContainerCountAggregateOutputType = {
+    id: number
+    stationNumber: number
+    side: number
+    displayName: number
+    isActive: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type TumblingContainerAvgAggregateInputType = {
+    id?: true
+    stationNumber?: true
+  }
+
+  export type TumblingContainerSumAggregateInputType = {
+    id?: true
+    stationNumber?: true
+  }
+
+  export type TumblingContainerMinAggregateInputType = {
+    id?: true
+    stationNumber?: true
+    side?: true
+    displayName?: true
+    isActive?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type TumblingContainerMaxAggregateInputType = {
+    id?: true
+    stationNumber?: true
+    side?: true
+    displayName?: true
+    isActive?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type TumblingContainerCountAggregateInputType = {
+    id?: true
+    stationNumber?: true
+    side?: true
+    displayName?: true
+    isActive?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type TumblingContainerAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which TumblingContainer to aggregate.
+     */
+    where?: TumblingContainerWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TumblingContainers to fetch.
+     */
+    orderBy?: TumblingContainerOrderByWithRelationInput | TumblingContainerOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: TumblingContainerWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TumblingContainers from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TumblingContainers.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned TumblingContainers
+    **/
+    _count?: true | TumblingContainerCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: TumblingContainerAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: TumblingContainerSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: TumblingContainerMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: TumblingContainerMaxAggregateInputType
+  }
+
+  export type GetTumblingContainerAggregateType<T extends TumblingContainerAggregateArgs> = {
+        [P in keyof T & keyof AggregateTumblingContainer]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateTumblingContainer[P]>
+      : GetScalarType<T[P], AggregateTumblingContainer[P]>
+  }
+
+
+
+
+  export type TumblingContainerGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: TumblingContainerWhereInput
+    orderBy?: TumblingContainerOrderByWithAggregationInput | TumblingContainerOrderByWithAggregationInput[]
+    by: TumblingContainerScalarFieldEnum[] | TumblingContainerScalarFieldEnum
+    having?: TumblingContainerScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: TumblingContainerCountAggregateInputType | true
+    _avg?: TumblingContainerAvgAggregateInputType
+    _sum?: TumblingContainerSumAggregateInputType
+    _min?: TumblingContainerMinAggregateInputType
+    _max?: TumblingContainerMaxAggregateInputType
+  }
+
+  export type TumblingContainerGroupByOutputType = {
+    id: number
+    stationNumber: number
+    side: $Enums.TumblingContainerSide
+    displayName: string
+    isActive: boolean
+    createdAt: Date
+    updatedAt: Date
+    _count: TumblingContainerCountAggregateOutputType | null
+    _avg: TumblingContainerAvgAggregateOutputType | null
+    _sum: TumblingContainerSumAggregateOutputType | null
+    _min: TumblingContainerMinAggregateOutputType | null
+    _max: TumblingContainerMaxAggregateOutputType | null
+  }
+
+  type GetTumblingContainerGroupByPayload<T extends TumblingContainerGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<TumblingContainerGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof TumblingContainerGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], TumblingContainerGroupByOutputType[P]>
+            : GetScalarType<T[P], TumblingContainerGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type TumblingContainerSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    stationNumber?: boolean
+    side?: boolean
+    displayName?: boolean
+    isActive?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    processes?: boolean | TumblingContainer$processesArgs<ExtArgs>
+    _count?: boolean | TumblingContainerCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["tumblingContainer"]>
+
+
+
+  export type TumblingContainerSelectScalar = {
+    id?: boolean
+    stationNumber?: boolean
+    side?: boolean
+    displayName?: boolean
+    isActive?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type TumblingContainerOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "stationNumber" | "side" | "displayName" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["tumblingContainer"]>
+  export type TumblingContainerInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    processes?: boolean | TumblingContainer$processesArgs<ExtArgs>
+    _count?: boolean | TumblingContainerCountOutputTypeDefaultArgs<ExtArgs>
+  }
+
+  export type $TumblingContainerPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "TumblingContainer"
+    objects: {
+      processes: Prisma.$TumblingProcessPayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: number
+      stationNumber: number
+      side: $Enums.TumblingContainerSide
+      displayName: string
+      isActive: boolean
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["tumblingContainer"]>
+    composites: {}
+  }
+
+  type TumblingContainerGetPayload<S extends boolean | null | undefined | TumblingContainerDefaultArgs> = $Result.GetResult<Prisma.$TumblingContainerPayload, S>
+
+  type TumblingContainerCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<TumblingContainerFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: TumblingContainerCountAggregateInputType | true
+    }
+
+  export interface TumblingContainerDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['TumblingContainer'], meta: { name: 'TumblingContainer' } }
+    /**
+     * Find zero or one TumblingContainer that matches the filter.
+     * @param {TumblingContainerFindUniqueArgs} args - Arguments to find a TumblingContainer
+     * @example
+     * // Get one TumblingContainer
+     * const tumblingContainer = await prisma.tumblingContainer.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends TumblingContainerFindUniqueArgs>(args: SelectSubset<T, TumblingContainerFindUniqueArgs<ExtArgs>>): Prisma__TumblingContainerClient<$Result.GetResult<Prisma.$TumblingContainerPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one TumblingContainer that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {TumblingContainerFindUniqueOrThrowArgs} args - Arguments to find a TumblingContainer
+     * @example
+     * // Get one TumblingContainer
+     * const tumblingContainer = await prisma.tumblingContainer.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends TumblingContainerFindUniqueOrThrowArgs>(args: SelectSubset<T, TumblingContainerFindUniqueOrThrowArgs<ExtArgs>>): Prisma__TumblingContainerClient<$Result.GetResult<Prisma.$TumblingContainerPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first TumblingContainer that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TumblingContainerFindFirstArgs} args - Arguments to find a TumblingContainer
+     * @example
+     * // Get one TumblingContainer
+     * const tumblingContainer = await prisma.tumblingContainer.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends TumblingContainerFindFirstArgs>(args?: SelectSubset<T, TumblingContainerFindFirstArgs<ExtArgs>>): Prisma__TumblingContainerClient<$Result.GetResult<Prisma.$TumblingContainerPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first TumblingContainer that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TumblingContainerFindFirstOrThrowArgs} args - Arguments to find a TumblingContainer
+     * @example
+     * // Get one TumblingContainer
+     * const tumblingContainer = await prisma.tumblingContainer.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends TumblingContainerFindFirstOrThrowArgs>(args?: SelectSubset<T, TumblingContainerFindFirstOrThrowArgs<ExtArgs>>): Prisma__TumblingContainerClient<$Result.GetResult<Prisma.$TumblingContainerPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more TumblingContainers that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TumblingContainerFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all TumblingContainers
+     * const tumblingContainers = await prisma.tumblingContainer.findMany()
+     * 
+     * // Get first 10 TumblingContainers
+     * const tumblingContainers = await prisma.tumblingContainer.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const tumblingContainerWithIdOnly = await prisma.tumblingContainer.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends TumblingContainerFindManyArgs>(args?: SelectSubset<T, TumblingContainerFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TumblingContainerPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a TumblingContainer.
+     * @param {TumblingContainerCreateArgs} args - Arguments to create a TumblingContainer.
+     * @example
+     * // Create one TumblingContainer
+     * const TumblingContainer = await prisma.tumblingContainer.create({
+     *   data: {
+     *     // ... data to create a TumblingContainer
+     *   }
+     * })
+     * 
+     */
+    create<T extends TumblingContainerCreateArgs>(args: SelectSubset<T, TumblingContainerCreateArgs<ExtArgs>>): Prisma__TumblingContainerClient<$Result.GetResult<Prisma.$TumblingContainerPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many TumblingContainers.
+     * @param {TumblingContainerCreateManyArgs} args - Arguments to create many TumblingContainers.
+     * @example
+     * // Create many TumblingContainers
+     * const tumblingContainer = await prisma.tumblingContainer.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends TumblingContainerCreateManyArgs>(args?: SelectSubset<T, TumblingContainerCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a TumblingContainer.
+     * @param {TumblingContainerDeleteArgs} args - Arguments to delete one TumblingContainer.
+     * @example
+     * // Delete one TumblingContainer
+     * const TumblingContainer = await prisma.tumblingContainer.delete({
+     *   where: {
+     *     // ... filter to delete one TumblingContainer
+     *   }
+     * })
+     * 
+     */
+    delete<T extends TumblingContainerDeleteArgs>(args: SelectSubset<T, TumblingContainerDeleteArgs<ExtArgs>>): Prisma__TumblingContainerClient<$Result.GetResult<Prisma.$TumblingContainerPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one TumblingContainer.
+     * @param {TumblingContainerUpdateArgs} args - Arguments to update one TumblingContainer.
+     * @example
+     * // Update one TumblingContainer
+     * const tumblingContainer = await prisma.tumblingContainer.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends TumblingContainerUpdateArgs>(args: SelectSubset<T, TumblingContainerUpdateArgs<ExtArgs>>): Prisma__TumblingContainerClient<$Result.GetResult<Prisma.$TumblingContainerPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more TumblingContainers.
+     * @param {TumblingContainerDeleteManyArgs} args - Arguments to filter TumblingContainers to delete.
+     * @example
+     * // Delete a few TumblingContainers
+     * const { count } = await prisma.tumblingContainer.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends TumblingContainerDeleteManyArgs>(args?: SelectSubset<T, TumblingContainerDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more TumblingContainers.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TumblingContainerUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many TumblingContainers
+     * const tumblingContainer = await prisma.tumblingContainer.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends TumblingContainerUpdateManyArgs>(args: SelectSubset<T, TumblingContainerUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one TumblingContainer.
+     * @param {TumblingContainerUpsertArgs} args - Arguments to update or create a TumblingContainer.
+     * @example
+     * // Update or create a TumblingContainer
+     * const tumblingContainer = await prisma.tumblingContainer.upsert({
+     *   create: {
+     *     // ... data to create a TumblingContainer
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the TumblingContainer we want to update
+     *   }
+     * })
+     */
+    upsert<T extends TumblingContainerUpsertArgs>(args: SelectSubset<T, TumblingContainerUpsertArgs<ExtArgs>>): Prisma__TumblingContainerClient<$Result.GetResult<Prisma.$TumblingContainerPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of TumblingContainers.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TumblingContainerCountArgs} args - Arguments to filter TumblingContainers to count.
+     * @example
+     * // Count the number of TumblingContainers
+     * const count = await prisma.tumblingContainer.count({
+     *   where: {
+     *     // ... the filter for the TumblingContainers we want to count
+     *   }
+     * })
+    **/
+    count<T extends TumblingContainerCountArgs>(
+      args?: Subset<T, TumblingContainerCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], TumblingContainerCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a TumblingContainer.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TumblingContainerAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends TumblingContainerAggregateArgs>(args: Subset<T, TumblingContainerAggregateArgs>): Prisma.PrismaPromise<GetTumblingContainerAggregateType<T>>
+
+    /**
+     * Group by TumblingContainer.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TumblingContainerGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends TumblingContainerGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: TumblingContainerGroupByArgs['orderBy'] }
+        : { orderBy?: TumblingContainerGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, TumblingContainerGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetTumblingContainerGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the TumblingContainer model
+   */
+  readonly fields: TumblingContainerFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for TumblingContainer.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__TumblingContainerClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    processes<T extends TumblingContainer$processesArgs<ExtArgs> = {}>(args?: Subset<T, TumblingContainer$processesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TumblingProcessPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the TumblingContainer model
+   */
+  interface TumblingContainerFieldRefs {
+    readonly id: FieldRef<"TumblingContainer", 'Int'>
+    readonly stationNumber: FieldRef<"TumblingContainer", 'Int'>
+    readonly side: FieldRef<"TumblingContainer", 'TumblingContainerSide'>
+    readonly displayName: FieldRef<"TumblingContainer", 'String'>
+    readonly isActive: FieldRef<"TumblingContainer", 'Boolean'>
+    readonly createdAt: FieldRef<"TumblingContainer", 'DateTime'>
+    readonly updatedAt: FieldRef<"TumblingContainer", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * TumblingContainer findUnique
+   */
+  export type TumblingContainerFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TumblingContainer
+     */
+    select?: TumblingContainerSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TumblingContainer
+     */
+    omit?: TumblingContainerOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TumblingContainerInclude<ExtArgs> | null
+    /**
+     * Filter, which TumblingContainer to fetch.
+     */
+    where: TumblingContainerWhereUniqueInput
+  }
+
+  /**
+   * TumblingContainer findUniqueOrThrow
+   */
+  export type TumblingContainerFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TumblingContainer
+     */
+    select?: TumblingContainerSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TumblingContainer
+     */
+    omit?: TumblingContainerOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TumblingContainerInclude<ExtArgs> | null
+    /**
+     * Filter, which TumblingContainer to fetch.
+     */
+    where: TumblingContainerWhereUniqueInput
+  }
+
+  /**
+   * TumblingContainer findFirst
+   */
+  export type TumblingContainerFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TumblingContainer
+     */
+    select?: TumblingContainerSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TumblingContainer
+     */
+    omit?: TumblingContainerOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TumblingContainerInclude<ExtArgs> | null
+    /**
+     * Filter, which TumblingContainer to fetch.
+     */
+    where?: TumblingContainerWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TumblingContainers to fetch.
+     */
+    orderBy?: TumblingContainerOrderByWithRelationInput | TumblingContainerOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for TumblingContainers.
+     */
+    cursor?: TumblingContainerWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TumblingContainers from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TumblingContainers.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of TumblingContainers.
+     */
+    distinct?: TumblingContainerScalarFieldEnum | TumblingContainerScalarFieldEnum[]
+  }
+
+  /**
+   * TumblingContainer findFirstOrThrow
+   */
+  export type TumblingContainerFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TumblingContainer
+     */
+    select?: TumblingContainerSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TumblingContainer
+     */
+    omit?: TumblingContainerOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TumblingContainerInclude<ExtArgs> | null
+    /**
+     * Filter, which TumblingContainer to fetch.
+     */
+    where?: TumblingContainerWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TumblingContainers to fetch.
+     */
+    orderBy?: TumblingContainerOrderByWithRelationInput | TumblingContainerOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for TumblingContainers.
+     */
+    cursor?: TumblingContainerWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TumblingContainers from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TumblingContainers.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of TumblingContainers.
+     */
+    distinct?: TumblingContainerScalarFieldEnum | TumblingContainerScalarFieldEnum[]
+  }
+
+  /**
+   * TumblingContainer findMany
+   */
+  export type TumblingContainerFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TumblingContainer
+     */
+    select?: TumblingContainerSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TumblingContainer
+     */
+    omit?: TumblingContainerOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TumblingContainerInclude<ExtArgs> | null
+    /**
+     * Filter, which TumblingContainers to fetch.
+     */
+    where?: TumblingContainerWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TumblingContainers to fetch.
+     */
+    orderBy?: TumblingContainerOrderByWithRelationInput | TumblingContainerOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing TumblingContainers.
+     */
+    cursor?: TumblingContainerWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TumblingContainers from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TumblingContainers.
+     */
+    skip?: number
+    distinct?: TumblingContainerScalarFieldEnum | TumblingContainerScalarFieldEnum[]
+  }
+
+  /**
+   * TumblingContainer create
+   */
+  export type TumblingContainerCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TumblingContainer
+     */
+    select?: TumblingContainerSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TumblingContainer
+     */
+    omit?: TumblingContainerOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TumblingContainerInclude<ExtArgs> | null
+    /**
+     * The data needed to create a TumblingContainer.
+     */
+    data: XOR<TumblingContainerCreateInput, TumblingContainerUncheckedCreateInput>
+  }
+
+  /**
+   * TumblingContainer createMany
+   */
+  export type TumblingContainerCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many TumblingContainers.
+     */
+    data: TumblingContainerCreateManyInput | TumblingContainerCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * TumblingContainer update
+   */
+  export type TumblingContainerUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TumblingContainer
+     */
+    select?: TumblingContainerSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TumblingContainer
+     */
+    omit?: TumblingContainerOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TumblingContainerInclude<ExtArgs> | null
+    /**
+     * The data needed to update a TumblingContainer.
+     */
+    data: XOR<TumblingContainerUpdateInput, TumblingContainerUncheckedUpdateInput>
+    /**
+     * Choose, which TumblingContainer to update.
+     */
+    where: TumblingContainerWhereUniqueInput
+  }
+
+  /**
+   * TumblingContainer updateMany
+   */
+  export type TumblingContainerUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update TumblingContainers.
+     */
+    data: XOR<TumblingContainerUpdateManyMutationInput, TumblingContainerUncheckedUpdateManyInput>
+    /**
+     * Filter which TumblingContainers to update
+     */
+    where?: TumblingContainerWhereInput
+    /**
+     * Limit how many TumblingContainers to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * TumblingContainer upsert
+   */
+  export type TumblingContainerUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TumblingContainer
+     */
+    select?: TumblingContainerSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TumblingContainer
+     */
+    omit?: TumblingContainerOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TumblingContainerInclude<ExtArgs> | null
+    /**
+     * The filter to search for the TumblingContainer to update in case it exists.
+     */
+    where: TumblingContainerWhereUniqueInput
+    /**
+     * In case the TumblingContainer found by the `where` argument doesn't exist, create a new TumblingContainer with this data.
+     */
+    create: XOR<TumblingContainerCreateInput, TumblingContainerUncheckedCreateInput>
+    /**
+     * In case the TumblingContainer was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<TumblingContainerUpdateInput, TumblingContainerUncheckedUpdateInput>
+  }
+
+  /**
+   * TumblingContainer delete
+   */
+  export type TumblingContainerDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TumblingContainer
+     */
+    select?: TumblingContainerSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TumblingContainer
+     */
+    omit?: TumblingContainerOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TumblingContainerInclude<ExtArgs> | null
+    /**
+     * Filter which TumblingContainer to delete.
+     */
+    where: TumblingContainerWhereUniqueInput
+  }
+
+  /**
+   * TumblingContainer deleteMany
+   */
+  export type TumblingContainerDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which TumblingContainers to delete
+     */
+    where?: TumblingContainerWhereInput
+    /**
+     * Limit how many TumblingContainers to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * TumblingContainer.processes
+   */
+  export type TumblingContainer$processesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TumblingProcess
+     */
+    select?: TumblingProcessSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TumblingProcess
+     */
+    omit?: TumblingProcessOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TumblingProcessInclude<ExtArgs> | null
+    where?: TumblingProcessWhereInput
+    orderBy?: TumblingProcessOrderByWithRelationInput | TumblingProcessOrderByWithRelationInput[]
+    cursor?: TumblingProcessWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: TumblingProcessScalarFieldEnum | TumblingProcessScalarFieldEnum[]
+  }
+
+  /**
+   * TumblingContainer without action
+   */
+  export type TumblingContainerDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TumblingContainer
+     */
+    select?: TumblingContainerSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TumblingContainer
+     */
+    omit?: TumblingContainerOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TumblingContainerInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model TumblingProcess
+   */
+
+  export type AggregateTumblingProcess = {
+    _count: TumblingProcessCountAggregateOutputType | null
+    _avg: TumblingProcessAvgAggregateOutputType | null
+    _sum: TumblingProcessSumAggregateOutputType | null
+    _min: TumblingProcessMinAggregateOutputType | null
+    _max: TumblingProcessMaxAggregateOutputType | null
+  }
+
+  export type TumblingProcessAvgAggregateOutputType = {
+    id: number | null
+    containerId: number | null
+    durationMinutes: number | null
+    activeSlotContainerId: number | null
+  }
+
+  export type TumblingProcessSumAggregateOutputType = {
+    id: number | null
+    containerId: number | null
+    durationMinutes: number | null
+    activeSlotContainerId: number | null
+  }
+
+  export type TumblingProcessMinAggregateOutputType = {
+    id: number | null
+    processCode: string | null
+    containerId: number | null
+    status: $Enums.TumblingProcessStatus | null
+    durationMinutes: number | null
+    startedAt: Date | null
+    expectedCompletionAt: Date | null
+    completedAt: Date | null
+    stoppedAt: Date | null
+    completionType: $Enums.TumblingCompletionType | null
+    reason: string | null
+    remarks: string | null
+    startedByName: string | null
+    authorizedByCode: string | null
+    authorizedByName: string | null
+    activeSlotContainerId: number | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type TumblingProcessMaxAggregateOutputType = {
+    id: number | null
+    processCode: string | null
+    containerId: number | null
+    status: $Enums.TumblingProcessStatus | null
+    durationMinutes: number | null
+    startedAt: Date | null
+    expectedCompletionAt: Date | null
+    completedAt: Date | null
+    stoppedAt: Date | null
+    completionType: $Enums.TumblingCompletionType | null
+    reason: string | null
+    remarks: string | null
+    startedByName: string | null
+    authorizedByCode: string | null
+    authorizedByName: string | null
+    activeSlotContainerId: number | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type TumblingProcessCountAggregateOutputType = {
+    id: number
+    processCode: number
+    containerId: number
+    status: number
+    durationMinutes: number
+    startedAt: number
+    expectedCompletionAt: number
+    completedAt: number
+    stoppedAt: number
+    completionType: number
+    reason: number
+    remarks: number
+    startedByName: number
+    authorizedByCode: number
+    authorizedByName: number
+    products: number
+    events: number
+    activeSlotContainerId: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type TumblingProcessAvgAggregateInputType = {
+    id?: true
+    containerId?: true
+    durationMinutes?: true
+    activeSlotContainerId?: true
+  }
+
+  export type TumblingProcessSumAggregateInputType = {
+    id?: true
+    containerId?: true
+    durationMinutes?: true
+    activeSlotContainerId?: true
+  }
+
+  export type TumblingProcessMinAggregateInputType = {
+    id?: true
+    processCode?: true
+    containerId?: true
+    status?: true
+    durationMinutes?: true
+    startedAt?: true
+    expectedCompletionAt?: true
+    completedAt?: true
+    stoppedAt?: true
+    completionType?: true
+    reason?: true
+    remarks?: true
+    startedByName?: true
+    authorizedByCode?: true
+    authorizedByName?: true
+    activeSlotContainerId?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type TumblingProcessMaxAggregateInputType = {
+    id?: true
+    processCode?: true
+    containerId?: true
+    status?: true
+    durationMinutes?: true
+    startedAt?: true
+    expectedCompletionAt?: true
+    completedAt?: true
+    stoppedAt?: true
+    completionType?: true
+    reason?: true
+    remarks?: true
+    startedByName?: true
+    authorizedByCode?: true
+    authorizedByName?: true
+    activeSlotContainerId?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type TumblingProcessCountAggregateInputType = {
+    id?: true
+    processCode?: true
+    containerId?: true
+    status?: true
+    durationMinutes?: true
+    startedAt?: true
+    expectedCompletionAt?: true
+    completedAt?: true
+    stoppedAt?: true
+    completionType?: true
+    reason?: true
+    remarks?: true
+    startedByName?: true
+    authorizedByCode?: true
+    authorizedByName?: true
+    products?: true
+    events?: true
+    activeSlotContainerId?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type TumblingProcessAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which TumblingProcess to aggregate.
+     */
+    where?: TumblingProcessWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TumblingProcesses to fetch.
+     */
+    orderBy?: TumblingProcessOrderByWithRelationInput | TumblingProcessOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: TumblingProcessWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TumblingProcesses from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TumblingProcesses.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned TumblingProcesses
+    **/
+    _count?: true | TumblingProcessCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: TumblingProcessAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: TumblingProcessSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: TumblingProcessMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: TumblingProcessMaxAggregateInputType
+  }
+
+  export type GetTumblingProcessAggregateType<T extends TumblingProcessAggregateArgs> = {
+        [P in keyof T & keyof AggregateTumblingProcess]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateTumblingProcess[P]>
+      : GetScalarType<T[P], AggregateTumblingProcess[P]>
+  }
+
+
+
+
+  export type TumblingProcessGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: TumblingProcessWhereInput
+    orderBy?: TumblingProcessOrderByWithAggregationInput | TumblingProcessOrderByWithAggregationInput[]
+    by: TumblingProcessScalarFieldEnum[] | TumblingProcessScalarFieldEnum
+    having?: TumblingProcessScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: TumblingProcessCountAggregateInputType | true
+    _avg?: TumblingProcessAvgAggregateInputType
+    _sum?: TumblingProcessSumAggregateInputType
+    _min?: TumblingProcessMinAggregateInputType
+    _max?: TumblingProcessMaxAggregateInputType
+  }
+
+  export type TumblingProcessGroupByOutputType = {
+    id: number
+    processCode: string
+    containerId: number
+    status: $Enums.TumblingProcessStatus
+    durationMinutes: number
+    startedAt: Date | null
+    expectedCompletionAt: Date | null
+    completedAt: Date | null
+    stoppedAt: Date | null
+    completionType: $Enums.TumblingCompletionType | null
+    reason: string | null
+    remarks: string | null
+    startedByName: string | null
+    authorizedByCode: string | null
+    authorizedByName: string | null
+    products: JsonValue
+    events: JsonValue
+    activeSlotContainerId: number | null
+    createdAt: Date
+    updatedAt: Date
+    _count: TumblingProcessCountAggregateOutputType | null
+    _avg: TumblingProcessAvgAggregateOutputType | null
+    _sum: TumblingProcessSumAggregateOutputType | null
+    _min: TumblingProcessMinAggregateOutputType | null
+    _max: TumblingProcessMaxAggregateOutputType | null
+  }
+
+  type GetTumblingProcessGroupByPayload<T extends TumblingProcessGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<TumblingProcessGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof TumblingProcessGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], TumblingProcessGroupByOutputType[P]>
+            : GetScalarType<T[P], TumblingProcessGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type TumblingProcessSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    processCode?: boolean
+    containerId?: boolean
+    status?: boolean
+    durationMinutes?: boolean
+    startedAt?: boolean
+    expectedCompletionAt?: boolean
+    completedAt?: boolean
+    stoppedAt?: boolean
+    completionType?: boolean
+    reason?: boolean
+    remarks?: boolean
+    startedByName?: boolean
+    authorizedByCode?: boolean
+    authorizedByName?: boolean
+    products?: boolean
+    events?: boolean
+    activeSlotContainerId?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    container?: boolean | TumblingContainerDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["tumblingProcess"]>
+
+
+
+  export type TumblingProcessSelectScalar = {
+    id?: boolean
+    processCode?: boolean
+    containerId?: boolean
+    status?: boolean
+    durationMinutes?: boolean
+    startedAt?: boolean
+    expectedCompletionAt?: boolean
+    completedAt?: boolean
+    stoppedAt?: boolean
+    completionType?: boolean
+    reason?: boolean
+    remarks?: boolean
+    startedByName?: boolean
+    authorizedByCode?: boolean
+    authorizedByName?: boolean
+    products?: boolean
+    events?: boolean
+    activeSlotContainerId?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type TumblingProcessOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "processCode" | "containerId" | "status" | "durationMinutes" | "startedAt" | "expectedCompletionAt" | "completedAt" | "stoppedAt" | "completionType" | "reason" | "remarks" | "startedByName" | "authorizedByCode" | "authorizedByName" | "products" | "events" | "activeSlotContainerId" | "createdAt" | "updatedAt", ExtArgs["result"]["tumblingProcess"]>
+  export type TumblingProcessInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    container?: boolean | TumblingContainerDefaultArgs<ExtArgs>
+  }
+
+  export type $TumblingProcessPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "TumblingProcess"
+    objects: {
+      container: Prisma.$TumblingContainerPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: number
+      processCode: string
+      containerId: number
+      status: $Enums.TumblingProcessStatus
+      durationMinutes: number
+      startedAt: Date | null
+      expectedCompletionAt: Date | null
+      completedAt: Date | null
+      stoppedAt: Date | null
+      completionType: $Enums.TumblingCompletionType | null
+      reason: string | null
+      remarks: string | null
+      startedByName: string | null
+      authorizedByCode: string | null
+      authorizedByName: string | null
+      products: Prisma.JsonValue
+      events: Prisma.JsonValue
+      activeSlotContainerId: number | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["tumblingProcess"]>
+    composites: {}
+  }
+
+  type TumblingProcessGetPayload<S extends boolean | null | undefined | TumblingProcessDefaultArgs> = $Result.GetResult<Prisma.$TumblingProcessPayload, S>
+
+  type TumblingProcessCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<TumblingProcessFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: TumblingProcessCountAggregateInputType | true
+    }
+
+  export interface TumblingProcessDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['TumblingProcess'], meta: { name: 'TumblingProcess' } }
+    /**
+     * Find zero or one TumblingProcess that matches the filter.
+     * @param {TumblingProcessFindUniqueArgs} args - Arguments to find a TumblingProcess
+     * @example
+     * // Get one TumblingProcess
+     * const tumblingProcess = await prisma.tumblingProcess.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends TumblingProcessFindUniqueArgs>(args: SelectSubset<T, TumblingProcessFindUniqueArgs<ExtArgs>>): Prisma__TumblingProcessClient<$Result.GetResult<Prisma.$TumblingProcessPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one TumblingProcess that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {TumblingProcessFindUniqueOrThrowArgs} args - Arguments to find a TumblingProcess
+     * @example
+     * // Get one TumblingProcess
+     * const tumblingProcess = await prisma.tumblingProcess.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends TumblingProcessFindUniqueOrThrowArgs>(args: SelectSubset<T, TumblingProcessFindUniqueOrThrowArgs<ExtArgs>>): Prisma__TumblingProcessClient<$Result.GetResult<Prisma.$TumblingProcessPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first TumblingProcess that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TumblingProcessFindFirstArgs} args - Arguments to find a TumblingProcess
+     * @example
+     * // Get one TumblingProcess
+     * const tumblingProcess = await prisma.tumblingProcess.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends TumblingProcessFindFirstArgs>(args?: SelectSubset<T, TumblingProcessFindFirstArgs<ExtArgs>>): Prisma__TumblingProcessClient<$Result.GetResult<Prisma.$TumblingProcessPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first TumblingProcess that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TumblingProcessFindFirstOrThrowArgs} args - Arguments to find a TumblingProcess
+     * @example
+     * // Get one TumblingProcess
+     * const tumblingProcess = await prisma.tumblingProcess.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends TumblingProcessFindFirstOrThrowArgs>(args?: SelectSubset<T, TumblingProcessFindFirstOrThrowArgs<ExtArgs>>): Prisma__TumblingProcessClient<$Result.GetResult<Prisma.$TumblingProcessPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more TumblingProcesses that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TumblingProcessFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all TumblingProcesses
+     * const tumblingProcesses = await prisma.tumblingProcess.findMany()
+     * 
+     * // Get first 10 TumblingProcesses
+     * const tumblingProcesses = await prisma.tumblingProcess.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const tumblingProcessWithIdOnly = await prisma.tumblingProcess.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends TumblingProcessFindManyArgs>(args?: SelectSubset<T, TumblingProcessFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TumblingProcessPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a TumblingProcess.
+     * @param {TumblingProcessCreateArgs} args - Arguments to create a TumblingProcess.
+     * @example
+     * // Create one TumblingProcess
+     * const TumblingProcess = await prisma.tumblingProcess.create({
+     *   data: {
+     *     // ... data to create a TumblingProcess
+     *   }
+     * })
+     * 
+     */
+    create<T extends TumblingProcessCreateArgs>(args: SelectSubset<T, TumblingProcessCreateArgs<ExtArgs>>): Prisma__TumblingProcessClient<$Result.GetResult<Prisma.$TumblingProcessPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many TumblingProcesses.
+     * @param {TumblingProcessCreateManyArgs} args - Arguments to create many TumblingProcesses.
+     * @example
+     * // Create many TumblingProcesses
+     * const tumblingProcess = await prisma.tumblingProcess.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends TumblingProcessCreateManyArgs>(args?: SelectSubset<T, TumblingProcessCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a TumblingProcess.
+     * @param {TumblingProcessDeleteArgs} args - Arguments to delete one TumblingProcess.
+     * @example
+     * // Delete one TumblingProcess
+     * const TumblingProcess = await prisma.tumblingProcess.delete({
+     *   where: {
+     *     // ... filter to delete one TumblingProcess
+     *   }
+     * })
+     * 
+     */
+    delete<T extends TumblingProcessDeleteArgs>(args: SelectSubset<T, TumblingProcessDeleteArgs<ExtArgs>>): Prisma__TumblingProcessClient<$Result.GetResult<Prisma.$TumblingProcessPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one TumblingProcess.
+     * @param {TumblingProcessUpdateArgs} args - Arguments to update one TumblingProcess.
+     * @example
+     * // Update one TumblingProcess
+     * const tumblingProcess = await prisma.tumblingProcess.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends TumblingProcessUpdateArgs>(args: SelectSubset<T, TumblingProcessUpdateArgs<ExtArgs>>): Prisma__TumblingProcessClient<$Result.GetResult<Prisma.$TumblingProcessPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more TumblingProcesses.
+     * @param {TumblingProcessDeleteManyArgs} args - Arguments to filter TumblingProcesses to delete.
+     * @example
+     * // Delete a few TumblingProcesses
+     * const { count } = await prisma.tumblingProcess.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends TumblingProcessDeleteManyArgs>(args?: SelectSubset<T, TumblingProcessDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more TumblingProcesses.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TumblingProcessUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many TumblingProcesses
+     * const tumblingProcess = await prisma.tumblingProcess.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends TumblingProcessUpdateManyArgs>(args: SelectSubset<T, TumblingProcessUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one TumblingProcess.
+     * @param {TumblingProcessUpsertArgs} args - Arguments to update or create a TumblingProcess.
+     * @example
+     * // Update or create a TumblingProcess
+     * const tumblingProcess = await prisma.tumblingProcess.upsert({
+     *   create: {
+     *     // ... data to create a TumblingProcess
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the TumblingProcess we want to update
+     *   }
+     * })
+     */
+    upsert<T extends TumblingProcessUpsertArgs>(args: SelectSubset<T, TumblingProcessUpsertArgs<ExtArgs>>): Prisma__TumblingProcessClient<$Result.GetResult<Prisma.$TumblingProcessPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of TumblingProcesses.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TumblingProcessCountArgs} args - Arguments to filter TumblingProcesses to count.
+     * @example
+     * // Count the number of TumblingProcesses
+     * const count = await prisma.tumblingProcess.count({
+     *   where: {
+     *     // ... the filter for the TumblingProcesses we want to count
+     *   }
+     * })
+    **/
+    count<T extends TumblingProcessCountArgs>(
+      args?: Subset<T, TumblingProcessCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], TumblingProcessCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a TumblingProcess.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TumblingProcessAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends TumblingProcessAggregateArgs>(args: Subset<T, TumblingProcessAggregateArgs>): Prisma.PrismaPromise<GetTumblingProcessAggregateType<T>>
+
+    /**
+     * Group by TumblingProcess.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TumblingProcessGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends TumblingProcessGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: TumblingProcessGroupByArgs['orderBy'] }
+        : { orderBy?: TumblingProcessGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, TumblingProcessGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetTumblingProcessGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the TumblingProcess model
+   */
+  readonly fields: TumblingProcessFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for TumblingProcess.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__TumblingProcessClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    container<T extends TumblingContainerDefaultArgs<ExtArgs> = {}>(args?: Subset<T, TumblingContainerDefaultArgs<ExtArgs>>): Prisma__TumblingContainerClient<$Result.GetResult<Prisma.$TumblingContainerPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the TumblingProcess model
+   */
+  interface TumblingProcessFieldRefs {
+    readonly id: FieldRef<"TumblingProcess", 'Int'>
+    readonly processCode: FieldRef<"TumblingProcess", 'String'>
+    readonly containerId: FieldRef<"TumblingProcess", 'Int'>
+    readonly status: FieldRef<"TumblingProcess", 'TumblingProcessStatus'>
+    readonly durationMinutes: FieldRef<"TumblingProcess", 'Int'>
+    readonly startedAt: FieldRef<"TumblingProcess", 'DateTime'>
+    readonly expectedCompletionAt: FieldRef<"TumblingProcess", 'DateTime'>
+    readonly completedAt: FieldRef<"TumblingProcess", 'DateTime'>
+    readonly stoppedAt: FieldRef<"TumblingProcess", 'DateTime'>
+    readonly completionType: FieldRef<"TumblingProcess", 'TumblingCompletionType'>
+    readonly reason: FieldRef<"TumblingProcess", 'String'>
+    readonly remarks: FieldRef<"TumblingProcess", 'String'>
+    readonly startedByName: FieldRef<"TumblingProcess", 'String'>
+    readonly authorizedByCode: FieldRef<"TumblingProcess", 'String'>
+    readonly authorizedByName: FieldRef<"TumblingProcess", 'String'>
+    readonly products: FieldRef<"TumblingProcess", 'Json'>
+    readonly events: FieldRef<"TumblingProcess", 'Json'>
+    readonly activeSlotContainerId: FieldRef<"TumblingProcess", 'Int'>
+    readonly createdAt: FieldRef<"TumblingProcess", 'DateTime'>
+    readonly updatedAt: FieldRef<"TumblingProcess", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * TumblingProcess findUnique
+   */
+  export type TumblingProcessFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TumblingProcess
+     */
+    select?: TumblingProcessSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TumblingProcess
+     */
+    omit?: TumblingProcessOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TumblingProcessInclude<ExtArgs> | null
+    /**
+     * Filter, which TumblingProcess to fetch.
+     */
+    where: TumblingProcessWhereUniqueInput
+  }
+
+  /**
+   * TumblingProcess findUniqueOrThrow
+   */
+  export type TumblingProcessFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TumblingProcess
+     */
+    select?: TumblingProcessSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TumblingProcess
+     */
+    omit?: TumblingProcessOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TumblingProcessInclude<ExtArgs> | null
+    /**
+     * Filter, which TumblingProcess to fetch.
+     */
+    where: TumblingProcessWhereUniqueInput
+  }
+
+  /**
+   * TumblingProcess findFirst
+   */
+  export type TumblingProcessFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TumblingProcess
+     */
+    select?: TumblingProcessSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TumblingProcess
+     */
+    omit?: TumblingProcessOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TumblingProcessInclude<ExtArgs> | null
+    /**
+     * Filter, which TumblingProcess to fetch.
+     */
+    where?: TumblingProcessWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TumblingProcesses to fetch.
+     */
+    orderBy?: TumblingProcessOrderByWithRelationInput | TumblingProcessOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for TumblingProcesses.
+     */
+    cursor?: TumblingProcessWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TumblingProcesses from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TumblingProcesses.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of TumblingProcesses.
+     */
+    distinct?: TumblingProcessScalarFieldEnum | TumblingProcessScalarFieldEnum[]
+  }
+
+  /**
+   * TumblingProcess findFirstOrThrow
+   */
+  export type TumblingProcessFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TumblingProcess
+     */
+    select?: TumblingProcessSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TumblingProcess
+     */
+    omit?: TumblingProcessOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TumblingProcessInclude<ExtArgs> | null
+    /**
+     * Filter, which TumblingProcess to fetch.
+     */
+    where?: TumblingProcessWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TumblingProcesses to fetch.
+     */
+    orderBy?: TumblingProcessOrderByWithRelationInput | TumblingProcessOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for TumblingProcesses.
+     */
+    cursor?: TumblingProcessWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TumblingProcesses from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TumblingProcesses.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of TumblingProcesses.
+     */
+    distinct?: TumblingProcessScalarFieldEnum | TumblingProcessScalarFieldEnum[]
+  }
+
+  /**
+   * TumblingProcess findMany
+   */
+  export type TumblingProcessFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TumblingProcess
+     */
+    select?: TumblingProcessSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TumblingProcess
+     */
+    omit?: TumblingProcessOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TumblingProcessInclude<ExtArgs> | null
+    /**
+     * Filter, which TumblingProcesses to fetch.
+     */
+    where?: TumblingProcessWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TumblingProcesses to fetch.
+     */
+    orderBy?: TumblingProcessOrderByWithRelationInput | TumblingProcessOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing TumblingProcesses.
+     */
+    cursor?: TumblingProcessWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TumblingProcesses from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TumblingProcesses.
+     */
+    skip?: number
+    distinct?: TumblingProcessScalarFieldEnum | TumblingProcessScalarFieldEnum[]
+  }
+
+  /**
+   * TumblingProcess create
+   */
+  export type TumblingProcessCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TumblingProcess
+     */
+    select?: TumblingProcessSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TumblingProcess
+     */
+    omit?: TumblingProcessOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TumblingProcessInclude<ExtArgs> | null
+    /**
+     * The data needed to create a TumblingProcess.
+     */
+    data: XOR<TumblingProcessCreateInput, TumblingProcessUncheckedCreateInput>
+  }
+
+  /**
+   * TumblingProcess createMany
+   */
+  export type TumblingProcessCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many TumblingProcesses.
+     */
+    data: TumblingProcessCreateManyInput | TumblingProcessCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * TumblingProcess update
+   */
+  export type TumblingProcessUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TumblingProcess
+     */
+    select?: TumblingProcessSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TumblingProcess
+     */
+    omit?: TumblingProcessOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TumblingProcessInclude<ExtArgs> | null
+    /**
+     * The data needed to update a TumblingProcess.
+     */
+    data: XOR<TumblingProcessUpdateInput, TumblingProcessUncheckedUpdateInput>
+    /**
+     * Choose, which TumblingProcess to update.
+     */
+    where: TumblingProcessWhereUniqueInput
+  }
+
+  /**
+   * TumblingProcess updateMany
+   */
+  export type TumblingProcessUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update TumblingProcesses.
+     */
+    data: XOR<TumblingProcessUpdateManyMutationInput, TumblingProcessUncheckedUpdateManyInput>
+    /**
+     * Filter which TumblingProcesses to update
+     */
+    where?: TumblingProcessWhereInput
+    /**
+     * Limit how many TumblingProcesses to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * TumblingProcess upsert
+   */
+  export type TumblingProcessUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TumblingProcess
+     */
+    select?: TumblingProcessSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TumblingProcess
+     */
+    omit?: TumblingProcessOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TumblingProcessInclude<ExtArgs> | null
+    /**
+     * The filter to search for the TumblingProcess to update in case it exists.
+     */
+    where: TumblingProcessWhereUniqueInput
+    /**
+     * In case the TumblingProcess found by the `where` argument doesn't exist, create a new TumblingProcess with this data.
+     */
+    create: XOR<TumblingProcessCreateInput, TumblingProcessUncheckedCreateInput>
+    /**
+     * In case the TumblingProcess was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<TumblingProcessUpdateInput, TumblingProcessUncheckedUpdateInput>
+  }
+
+  /**
+   * TumblingProcess delete
+   */
+  export type TumblingProcessDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TumblingProcess
+     */
+    select?: TumblingProcessSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TumblingProcess
+     */
+    omit?: TumblingProcessOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TumblingProcessInclude<ExtArgs> | null
+    /**
+     * Filter which TumblingProcess to delete.
+     */
+    where: TumblingProcessWhereUniqueInput
+  }
+
+  /**
+   * TumblingProcess deleteMany
+   */
+  export type TumblingProcessDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which TumblingProcesses to delete
+     */
+    where?: TumblingProcessWhereInput
+    /**
+     * Limit how many TumblingProcesses to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * TumblingProcess without action
+   */
+  export type TumblingProcessDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TumblingProcess
+     */
+    select?: TumblingProcessSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TumblingProcess
+     */
+    omit?: TumblingProcessOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TumblingProcessInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model TumblingConfiguration
+   */
+
+  export type AggregateTumblingConfiguration = {
+    _count: TumblingConfigurationCountAggregateOutputType | null
+    _avg: TumblingConfigurationAvgAggregateOutputType | null
+    _sum: TumblingConfigurationSumAggregateOutputType | null
+    _min: TumblingConfigurationMinAggregateOutputType | null
+    _max: TumblingConfigurationMaxAggregateOutputType | null
+  }
+
+  export type TumblingConfigurationAvgAggregateOutputType = {
+    id: number | null
+    defaultDurationMinutes: number | null
+    nearCompletionThresholdMinutes: number | null
+  }
+
+  export type TumblingConfigurationSumAggregateOutputType = {
+    id: number | null
+    defaultDurationMinutes: number | null
+    nearCompletionThresholdMinutes: number | null
+  }
+
+  export type TumblingConfigurationMinAggregateOutputType = {
+    id: number | null
+    defaultDurationMinutes: number | null
+    additionalFieldLabel: string | null
+    nearCompletionThresholdMinutes: number | null
+    updatedAt: Date | null
+  }
+
+  export type TumblingConfigurationMaxAggregateOutputType = {
+    id: number | null
+    defaultDurationMinutes: number | null
+    additionalFieldLabel: string | null
+    nearCompletionThresholdMinutes: number | null
+    updatedAt: Date | null
+  }
+
+  export type TumblingConfigurationCountAggregateOutputType = {
+    id: number
+    defaultDurationMinutes: number
+    additionalFieldLabel: number
+    nearCompletionThresholdMinutes: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type TumblingConfigurationAvgAggregateInputType = {
+    id?: true
+    defaultDurationMinutes?: true
+    nearCompletionThresholdMinutes?: true
+  }
+
+  export type TumblingConfigurationSumAggregateInputType = {
+    id?: true
+    defaultDurationMinutes?: true
+    nearCompletionThresholdMinutes?: true
+  }
+
+  export type TumblingConfigurationMinAggregateInputType = {
+    id?: true
+    defaultDurationMinutes?: true
+    additionalFieldLabel?: true
+    nearCompletionThresholdMinutes?: true
+    updatedAt?: true
+  }
+
+  export type TumblingConfigurationMaxAggregateInputType = {
+    id?: true
+    defaultDurationMinutes?: true
+    additionalFieldLabel?: true
+    nearCompletionThresholdMinutes?: true
+    updatedAt?: true
+  }
+
+  export type TumblingConfigurationCountAggregateInputType = {
+    id?: true
+    defaultDurationMinutes?: true
+    additionalFieldLabel?: true
+    nearCompletionThresholdMinutes?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type TumblingConfigurationAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which TumblingConfiguration to aggregate.
+     */
+    where?: TumblingConfigurationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TumblingConfigurations to fetch.
+     */
+    orderBy?: TumblingConfigurationOrderByWithRelationInput | TumblingConfigurationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: TumblingConfigurationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TumblingConfigurations from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TumblingConfigurations.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned TumblingConfigurations
+    **/
+    _count?: true | TumblingConfigurationCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: TumblingConfigurationAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: TumblingConfigurationSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: TumblingConfigurationMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: TumblingConfigurationMaxAggregateInputType
+  }
+
+  export type GetTumblingConfigurationAggregateType<T extends TumblingConfigurationAggregateArgs> = {
+        [P in keyof T & keyof AggregateTumblingConfiguration]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateTumblingConfiguration[P]>
+      : GetScalarType<T[P], AggregateTumblingConfiguration[P]>
+  }
+
+
+
+
+  export type TumblingConfigurationGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: TumblingConfigurationWhereInput
+    orderBy?: TumblingConfigurationOrderByWithAggregationInput | TumblingConfigurationOrderByWithAggregationInput[]
+    by: TumblingConfigurationScalarFieldEnum[] | TumblingConfigurationScalarFieldEnum
+    having?: TumblingConfigurationScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: TumblingConfigurationCountAggregateInputType | true
+    _avg?: TumblingConfigurationAvgAggregateInputType
+    _sum?: TumblingConfigurationSumAggregateInputType
+    _min?: TumblingConfigurationMinAggregateInputType
+    _max?: TumblingConfigurationMaxAggregateInputType
+  }
+
+  export type TumblingConfigurationGroupByOutputType = {
+    id: number
+    defaultDurationMinutes: number
+    additionalFieldLabel: string
+    nearCompletionThresholdMinutes: number
+    updatedAt: Date
+    _count: TumblingConfigurationCountAggregateOutputType | null
+    _avg: TumblingConfigurationAvgAggregateOutputType | null
+    _sum: TumblingConfigurationSumAggregateOutputType | null
+    _min: TumblingConfigurationMinAggregateOutputType | null
+    _max: TumblingConfigurationMaxAggregateOutputType | null
+  }
+
+  type GetTumblingConfigurationGroupByPayload<T extends TumblingConfigurationGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<TumblingConfigurationGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof TumblingConfigurationGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], TumblingConfigurationGroupByOutputType[P]>
+            : GetScalarType<T[P], TumblingConfigurationGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type TumblingConfigurationSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    defaultDurationMinutes?: boolean
+    additionalFieldLabel?: boolean
+    nearCompletionThresholdMinutes?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["tumblingConfiguration"]>
+
+
+
+  export type TumblingConfigurationSelectScalar = {
+    id?: boolean
+    defaultDurationMinutes?: boolean
+    additionalFieldLabel?: boolean
+    nearCompletionThresholdMinutes?: boolean
+    updatedAt?: boolean
+  }
+
+  export type TumblingConfigurationOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "defaultDurationMinutes" | "additionalFieldLabel" | "nearCompletionThresholdMinutes" | "updatedAt", ExtArgs["result"]["tumblingConfiguration"]>
+
+  export type $TumblingConfigurationPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "TumblingConfiguration"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: number
+      defaultDurationMinutes: number
+      additionalFieldLabel: string
+      nearCompletionThresholdMinutes: number
+      updatedAt: Date
+    }, ExtArgs["result"]["tumblingConfiguration"]>
+    composites: {}
+  }
+
+  type TumblingConfigurationGetPayload<S extends boolean | null | undefined | TumblingConfigurationDefaultArgs> = $Result.GetResult<Prisma.$TumblingConfigurationPayload, S>
+
+  type TumblingConfigurationCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<TumblingConfigurationFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: TumblingConfigurationCountAggregateInputType | true
+    }
+
+  export interface TumblingConfigurationDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['TumblingConfiguration'], meta: { name: 'TumblingConfiguration' } }
+    /**
+     * Find zero or one TumblingConfiguration that matches the filter.
+     * @param {TumblingConfigurationFindUniqueArgs} args - Arguments to find a TumblingConfiguration
+     * @example
+     * // Get one TumblingConfiguration
+     * const tumblingConfiguration = await prisma.tumblingConfiguration.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends TumblingConfigurationFindUniqueArgs>(args: SelectSubset<T, TumblingConfigurationFindUniqueArgs<ExtArgs>>): Prisma__TumblingConfigurationClient<$Result.GetResult<Prisma.$TumblingConfigurationPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one TumblingConfiguration that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {TumblingConfigurationFindUniqueOrThrowArgs} args - Arguments to find a TumblingConfiguration
+     * @example
+     * // Get one TumblingConfiguration
+     * const tumblingConfiguration = await prisma.tumblingConfiguration.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends TumblingConfigurationFindUniqueOrThrowArgs>(args: SelectSubset<T, TumblingConfigurationFindUniqueOrThrowArgs<ExtArgs>>): Prisma__TumblingConfigurationClient<$Result.GetResult<Prisma.$TumblingConfigurationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first TumblingConfiguration that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TumblingConfigurationFindFirstArgs} args - Arguments to find a TumblingConfiguration
+     * @example
+     * // Get one TumblingConfiguration
+     * const tumblingConfiguration = await prisma.tumblingConfiguration.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends TumblingConfigurationFindFirstArgs>(args?: SelectSubset<T, TumblingConfigurationFindFirstArgs<ExtArgs>>): Prisma__TumblingConfigurationClient<$Result.GetResult<Prisma.$TumblingConfigurationPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first TumblingConfiguration that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TumblingConfigurationFindFirstOrThrowArgs} args - Arguments to find a TumblingConfiguration
+     * @example
+     * // Get one TumblingConfiguration
+     * const tumblingConfiguration = await prisma.tumblingConfiguration.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends TumblingConfigurationFindFirstOrThrowArgs>(args?: SelectSubset<T, TumblingConfigurationFindFirstOrThrowArgs<ExtArgs>>): Prisma__TumblingConfigurationClient<$Result.GetResult<Prisma.$TumblingConfigurationPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more TumblingConfigurations that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TumblingConfigurationFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all TumblingConfigurations
+     * const tumblingConfigurations = await prisma.tumblingConfiguration.findMany()
+     * 
+     * // Get first 10 TumblingConfigurations
+     * const tumblingConfigurations = await prisma.tumblingConfiguration.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const tumblingConfigurationWithIdOnly = await prisma.tumblingConfiguration.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends TumblingConfigurationFindManyArgs>(args?: SelectSubset<T, TumblingConfigurationFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TumblingConfigurationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a TumblingConfiguration.
+     * @param {TumblingConfigurationCreateArgs} args - Arguments to create a TumblingConfiguration.
+     * @example
+     * // Create one TumblingConfiguration
+     * const TumblingConfiguration = await prisma.tumblingConfiguration.create({
+     *   data: {
+     *     // ... data to create a TumblingConfiguration
+     *   }
+     * })
+     * 
+     */
+    create<T extends TumblingConfigurationCreateArgs>(args: SelectSubset<T, TumblingConfigurationCreateArgs<ExtArgs>>): Prisma__TumblingConfigurationClient<$Result.GetResult<Prisma.$TumblingConfigurationPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many TumblingConfigurations.
+     * @param {TumblingConfigurationCreateManyArgs} args - Arguments to create many TumblingConfigurations.
+     * @example
+     * // Create many TumblingConfigurations
+     * const tumblingConfiguration = await prisma.tumblingConfiguration.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends TumblingConfigurationCreateManyArgs>(args?: SelectSubset<T, TumblingConfigurationCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a TumblingConfiguration.
+     * @param {TumblingConfigurationDeleteArgs} args - Arguments to delete one TumblingConfiguration.
+     * @example
+     * // Delete one TumblingConfiguration
+     * const TumblingConfiguration = await prisma.tumblingConfiguration.delete({
+     *   where: {
+     *     // ... filter to delete one TumblingConfiguration
+     *   }
+     * })
+     * 
+     */
+    delete<T extends TumblingConfigurationDeleteArgs>(args: SelectSubset<T, TumblingConfigurationDeleteArgs<ExtArgs>>): Prisma__TumblingConfigurationClient<$Result.GetResult<Prisma.$TumblingConfigurationPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one TumblingConfiguration.
+     * @param {TumblingConfigurationUpdateArgs} args - Arguments to update one TumblingConfiguration.
+     * @example
+     * // Update one TumblingConfiguration
+     * const tumblingConfiguration = await prisma.tumblingConfiguration.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends TumblingConfigurationUpdateArgs>(args: SelectSubset<T, TumblingConfigurationUpdateArgs<ExtArgs>>): Prisma__TumblingConfigurationClient<$Result.GetResult<Prisma.$TumblingConfigurationPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more TumblingConfigurations.
+     * @param {TumblingConfigurationDeleteManyArgs} args - Arguments to filter TumblingConfigurations to delete.
+     * @example
+     * // Delete a few TumblingConfigurations
+     * const { count } = await prisma.tumblingConfiguration.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends TumblingConfigurationDeleteManyArgs>(args?: SelectSubset<T, TumblingConfigurationDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more TumblingConfigurations.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TumblingConfigurationUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many TumblingConfigurations
+     * const tumblingConfiguration = await prisma.tumblingConfiguration.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends TumblingConfigurationUpdateManyArgs>(args: SelectSubset<T, TumblingConfigurationUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one TumblingConfiguration.
+     * @param {TumblingConfigurationUpsertArgs} args - Arguments to update or create a TumblingConfiguration.
+     * @example
+     * // Update or create a TumblingConfiguration
+     * const tumblingConfiguration = await prisma.tumblingConfiguration.upsert({
+     *   create: {
+     *     // ... data to create a TumblingConfiguration
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the TumblingConfiguration we want to update
+     *   }
+     * })
+     */
+    upsert<T extends TumblingConfigurationUpsertArgs>(args: SelectSubset<T, TumblingConfigurationUpsertArgs<ExtArgs>>): Prisma__TumblingConfigurationClient<$Result.GetResult<Prisma.$TumblingConfigurationPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of TumblingConfigurations.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TumblingConfigurationCountArgs} args - Arguments to filter TumblingConfigurations to count.
+     * @example
+     * // Count the number of TumblingConfigurations
+     * const count = await prisma.tumblingConfiguration.count({
+     *   where: {
+     *     // ... the filter for the TumblingConfigurations we want to count
+     *   }
+     * })
+    **/
+    count<T extends TumblingConfigurationCountArgs>(
+      args?: Subset<T, TumblingConfigurationCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], TumblingConfigurationCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a TumblingConfiguration.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TumblingConfigurationAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends TumblingConfigurationAggregateArgs>(args: Subset<T, TumblingConfigurationAggregateArgs>): Prisma.PrismaPromise<GetTumblingConfigurationAggregateType<T>>
+
+    /**
+     * Group by TumblingConfiguration.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TumblingConfigurationGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends TumblingConfigurationGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: TumblingConfigurationGroupByArgs['orderBy'] }
+        : { orderBy?: TumblingConfigurationGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, TumblingConfigurationGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetTumblingConfigurationGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the TumblingConfiguration model
+   */
+  readonly fields: TumblingConfigurationFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for TumblingConfiguration.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__TumblingConfigurationClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the TumblingConfiguration model
+   */
+  interface TumblingConfigurationFieldRefs {
+    readonly id: FieldRef<"TumblingConfiguration", 'Int'>
+    readonly defaultDurationMinutes: FieldRef<"TumblingConfiguration", 'Int'>
+    readonly additionalFieldLabel: FieldRef<"TumblingConfiguration", 'String'>
+    readonly nearCompletionThresholdMinutes: FieldRef<"TumblingConfiguration", 'Int'>
+    readonly updatedAt: FieldRef<"TumblingConfiguration", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * TumblingConfiguration findUnique
+   */
+  export type TumblingConfigurationFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TumblingConfiguration
+     */
+    select?: TumblingConfigurationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TumblingConfiguration
+     */
+    omit?: TumblingConfigurationOmit<ExtArgs> | null
+    /**
+     * Filter, which TumblingConfiguration to fetch.
+     */
+    where: TumblingConfigurationWhereUniqueInput
+  }
+
+  /**
+   * TumblingConfiguration findUniqueOrThrow
+   */
+  export type TumblingConfigurationFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TumblingConfiguration
+     */
+    select?: TumblingConfigurationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TumblingConfiguration
+     */
+    omit?: TumblingConfigurationOmit<ExtArgs> | null
+    /**
+     * Filter, which TumblingConfiguration to fetch.
+     */
+    where: TumblingConfigurationWhereUniqueInput
+  }
+
+  /**
+   * TumblingConfiguration findFirst
+   */
+  export type TumblingConfigurationFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TumblingConfiguration
+     */
+    select?: TumblingConfigurationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TumblingConfiguration
+     */
+    omit?: TumblingConfigurationOmit<ExtArgs> | null
+    /**
+     * Filter, which TumblingConfiguration to fetch.
+     */
+    where?: TumblingConfigurationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TumblingConfigurations to fetch.
+     */
+    orderBy?: TumblingConfigurationOrderByWithRelationInput | TumblingConfigurationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for TumblingConfigurations.
+     */
+    cursor?: TumblingConfigurationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TumblingConfigurations from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TumblingConfigurations.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of TumblingConfigurations.
+     */
+    distinct?: TumblingConfigurationScalarFieldEnum | TumblingConfigurationScalarFieldEnum[]
+  }
+
+  /**
+   * TumblingConfiguration findFirstOrThrow
+   */
+  export type TumblingConfigurationFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TumblingConfiguration
+     */
+    select?: TumblingConfigurationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TumblingConfiguration
+     */
+    omit?: TumblingConfigurationOmit<ExtArgs> | null
+    /**
+     * Filter, which TumblingConfiguration to fetch.
+     */
+    where?: TumblingConfigurationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TumblingConfigurations to fetch.
+     */
+    orderBy?: TumblingConfigurationOrderByWithRelationInput | TumblingConfigurationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for TumblingConfigurations.
+     */
+    cursor?: TumblingConfigurationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TumblingConfigurations from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TumblingConfigurations.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of TumblingConfigurations.
+     */
+    distinct?: TumblingConfigurationScalarFieldEnum | TumblingConfigurationScalarFieldEnum[]
+  }
+
+  /**
+   * TumblingConfiguration findMany
+   */
+  export type TumblingConfigurationFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TumblingConfiguration
+     */
+    select?: TumblingConfigurationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TumblingConfiguration
+     */
+    omit?: TumblingConfigurationOmit<ExtArgs> | null
+    /**
+     * Filter, which TumblingConfigurations to fetch.
+     */
+    where?: TumblingConfigurationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TumblingConfigurations to fetch.
+     */
+    orderBy?: TumblingConfigurationOrderByWithRelationInput | TumblingConfigurationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing TumblingConfigurations.
+     */
+    cursor?: TumblingConfigurationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TumblingConfigurations from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TumblingConfigurations.
+     */
+    skip?: number
+    distinct?: TumblingConfigurationScalarFieldEnum | TumblingConfigurationScalarFieldEnum[]
+  }
+
+  /**
+   * TumblingConfiguration create
+   */
+  export type TumblingConfigurationCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TumblingConfiguration
+     */
+    select?: TumblingConfigurationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TumblingConfiguration
+     */
+    omit?: TumblingConfigurationOmit<ExtArgs> | null
+    /**
+     * The data needed to create a TumblingConfiguration.
+     */
+    data: XOR<TumblingConfigurationCreateInput, TumblingConfigurationUncheckedCreateInput>
+  }
+
+  /**
+   * TumblingConfiguration createMany
+   */
+  export type TumblingConfigurationCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many TumblingConfigurations.
+     */
+    data: TumblingConfigurationCreateManyInput | TumblingConfigurationCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * TumblingConfiguration update
+   */
+  export type TumblingConfigurationUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TumblingConfiguration
+     */
+    select?: TumblingConfigurationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TumblingConfiguration
+     */
+    omit?: TumblingConfigurationOmit<ExtArgs> | null
+    /**
+     * The data needed to update a TumblingConfiguration.
+     */
+    data: XOR<TumblingConfigurationUpdateInput, TumblingConfigurationUncheckedUpdateInput>
+    /**
+     * Choose, which TumblingConfiguration to update.
+     */
+    where: TumblingConfigurationWhereUniqueInput
+  }
+
+  /**
+   * TumblingConfiguration updateMany
+   */
+  export type TumblingConfigurationUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update TumblingConfigurations.
+     */
+    data: XOR<TumblingConfigurationUpdateManyMutationInput, TumblingConfigurationUncheckedUpdateManyInput>
+    /**
+     * Filter which TumblingConfigurations to update
+     */
+    where?: TumblingConfigurationWhereInput
+    /**
+     * Limit how many TumblingConfigurations to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * TumblingConfiguration upsert
+   */
+  export type TumblingConfigurationUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TumblingConfiguration
+     */
+    select?: TumblingConfigurationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TumblingConfiguration
+     */
+    omit?: TumblingConfigurationOmit<ExtArgs> | null
+    /**
+     * The filter to search for the TumblingConfiguration to update in case it exists.
+     */
+    where: TumblingConfigurationWhereUniqueInput
+    /**
+     * In case the TumblingConfiguration found by the `where` argument doesn't exist, create a new TumblingConfiguration with this data.
+     */
+    create: XOR<TumblingConfigurationCreateInput, TumblingConfigurationUncheckedCreateInput>
+    /**
+     * In case the TumblingConfiguration was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<TumblingConfigurationUpdateInput, TumblingConfigurationUncheckedUpdateInput>
+  }
+
+  /**
+   * TumblingConfiguration delete
+   */
+  export type TumblingConfigurationDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TumblingConfiguration
+     */
+    select?: TumblingConfigurationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TumblingConfiguration
+     */
+    omit?: TumblingConfigurationOmit<ExtArgs> | null
+    /**
+     * Filter which TumblingConfiguration to delete.
+     */
+    where: TumblingConfigurationWhereUniqueInput
+  }
+
+  /**
+   * TumblingConfiguration deleteMany
+   */
+  export type TumblingConfigurationDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which TumblingConfigurations to delete
+     */
+    where?: TumblingConfigurationWhereInput
+    /**
+     * Limit how many TumblingConfigurations to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * TumblingConfiguration without action
+   */
+  export type TumblingConfigurationDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TumblingConfiguration
+     */
+    select?: TumblingConfigurationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TumblingConfiguration
+     */
+    omit?: TumblingConfigurationOmit<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -5080,12 +8476,69 @@ export namespace Prisma {
   export type QcReasonScalarFieldEnum = (typeof QcReasonScalarFieldEnum)[keyof typeof QcReasonScalarFieldEnum]
 
 
+  export const TumblingContainerScalarFieldEnum: {
+    id: 'id',
+    stationNumber: 'stationNumber',
+    side: 'side',
+    displayName: 'displayName',
+    isActive: 'isActive',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type TumblingContainerScalarFieldEnum = (typeof TumblingContainerScalarFieldEnum)[keyof typeof TumblingContainerScalarFieldEnum]
+
+
+  export const TumblingProcessScalarFieldEnum: {
+    id: 'id',
+    processCode: 'processCode',
+    containerId: 'containerId',
+    status: 'status',
+    durationMinutes: 'durationMinutes',
+    startedAt: 'startedAt',
+    expectedCompletionAt: 'expectedCompletionAt',
+    completedAt: 'completedAt',
+    stoppedAt: 'stoppedAt',
+    completionType: 'completionType',
+    reason: 'reason',
+    remarks: 'remarks',
+    startedByName: 'startedByName',
+    authorizedByCode: 'authorizedByCode',
+    authorizedByName: 'authorizedByName',
+    products: 'products',
+    events: 'events',
+    activeSlotContainerId: 'activeSlotContainerId',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type TumblingProcessScalarFieldEnum = (typeof TumblingProcessScalarFieldEnum)[keyof typeof TumblingProcessScalarFieldEnum]
+
+
+  export const TumblingConfigurationScalarFieldEnum: {
+    id: 'id',
+    defaultDurationMinutes: 'defaultDurationMinutes',
+    additionalFieldLabel: 'additionalFieldLabel',
+    nearCompletionThresholdMinutes: 'nearCompletionThresholdMinutes',
+    updatedAt: 'updatedAt'
+  };
+
+  export type TumblingConfigurationScalarFieldEnum = (typeof TumblingConfigurationScalarFieldEnum)[keyof typeof TumblingConfigurationScalarFieldEnum]
+
+
   export const SortOrder: {
     asc: 'asc',
     desc: 'desc'
   };
 
   export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
+
+
+  export const JsonNullValueInput: {
+    JsonNull: typeof JsonNull
+  };
+
+  export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
 
 
   export const PlatingOrderByRelevanceFieldEnum: {
@@ -5139,6 +8592,49 @@ export namespace Prisma {
   export type QcReasonOrderByRelevanceFieldEnum = (typeof QcReasonOrderByRelevanceFieldEnum)[keyof typeof QcReasonOrderByRelevanceFieldEnum]
 
 
+  export const TumblingContainerOrderByRelevanceFieldEnum: {
+    displayName: 'displayName'
+  };
+
+  export type TumblingContainerOrderByRelevanceFieldEnum = (typeof TumblingContainerOrderByRelevanceFieldEnum)[keyof typeof TumblingContainerOrderByRelevanceFieldEnum]
+
+
+  export const JsonNullValueFilter: {
+    DbNull: typeof DbNull,
+    JsonNull: typeof JsonNull,
+    AnyNull: typeof AnyNull
+  };
+
+  export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
+
+
+  export const QueryMode: {
+    default: 'default',
+    insensitive: 'insensitive'
+  };
+
+  export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
+
+
+  export const TumblingProcessOrderByRelevanceFieldEnum: {
+    processCode: 'processCode',
+    reason: 'reason',
+    remarks: 'remarks',
+    startedByName: 'startedByName',
+    authorizedByCode: 'authorizedByCode',
+    authorizedByName: 'authorizedByName'
+  };
+
+  export type TumblingProcessOrderByRelevanceFieldEnum = (typeof TumblingProcessOrderByRelevanceFieldEnum)[keyof typeof TumblingProcessOrderByRelevanceFieldEnum]
+
+
+  export const TumblingConfigurationOrderByRelevanceFieldEnum: {
+    additionalFieldLabel: 'additionalFieldLabel'
+  };
+
+  export type TumblingConfigurationOrderByRelevanceFieldEnum = (typeof TumblingConfigurationOrderByRelevanceFieldEnum)[keyof typeof TumblingConfigurationOrderByRelevanceFieldEnum]
+
+
   /**
    * Field references
    */
@@ -5169,6 +8665,41 @@ export namespace Prisma {
    * Reference to a field of type 'Boolean'
    */
   export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
+    
+
+
+  /**
+   * Reference to a field of type 'TumblingContainerSide'
+   */
+  export type EnumTumblingContainerSideFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TumblingContainerSide'>
+    
+
+
+  /**
+   * Reference to a field of type 'TumblingProcessStatus'
+   */
+  export type EnumTumblingProcessStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TumblingProcessStatus'>
+    
+
+
+  /**
+   * Reference to a field of type 'TumblingCompletionType'
+   */
+  export type EnumTumblingCompletionTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TumblingCompletionType'>
+    
+
+
+  /**
+   * Reference to a field of type 'Json'
+   */
+  export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
+    
+
+
+  /**
+   * Reference to a field of type 'QueryMode'
+   */
+  export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
     
 
 
@@ -5490,6 +9021,263 @@ export namespace Prisma {
     sortOrder?: IntWithAggregatesFilter<"QcReason"> | number
     active?: BoolWithAggregatesFilter<"QcReason"> | boolean
     updatedAt?: DateTimeWithAggregatesFilter<"QcReason"> | Date | string
+  }
+
+  export type TumblingContainerWhereInput = {
+    AND?: TumblingContainerWhereInput | TumblingContainerWhereInput[]
+    OR?: TumblingContainerWhereInput[]
+    NOT?: TumblingContainerWhereInput | TumblingContainerWhereInput[]
+    id?: IntFilter<"TumblingContainer"> | number
+    stationNumber?: IntFilter<"TumblingContainer"> | number
+    side?: EnumTumblingContainerSideFilter<"TumblingContainer"> | $Enums.TumblingContainerSide
+    displayName?: StringFilter<"TumblingContainer"> | string
+    isActive?: BoolFilter<"TumblingContainer"> | boolean
+    createdAt?: DateTimeFilter<"TumblingContainer"> | Date | string
+    updatedAt?: DateTimeFilter<"TumblingContainer"> | Date | string
+    processes?: TumblingProcessListRelationFilter
+  }
+
+  export type TumblingContainerOrderByWithRelationInput = {
+    id?: SortOrder
+    stationNumber?: SortOrder
+    side?: SortOrder
+    displayName?: SortOrder
+    isActive?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    processes?: TumblingProcessOrderByRelationAggregateInput
+    _relevance?: TumblingContainerOrderByRelevanceInput
+  }
+
+  export type TumblingContainerWhereUniqueInput = Prisma.AtLeast<{
+    id?: number
+    stationNumber_side?: TumblingContainerStationNumberSideCompoundUniqueInput
+    AND?: TumblingContainerWhereInput | TumblingContainerWhereInput[]
+    OR?: TumblingContainerWhereInput[]
+    NOT?: TumblingContainerWhereInput | TumblingContainerWhereInput[]
+    stationNumber?: IntFilter<"TumblingContainer"> | number
+    side?: EnumTumblingContainerSideFilter<"TumblingContainer"> | $Enums.TumblingContainerSide
+    displayName?: StringFilter<"TumblingContainer"> | string
+    isActive?: BoolFilter<"TumblingContainer"> | boolean
+    createdAt?: DateTimeFilter<"TumblingContainer"> | Date | string
+    updatedAt?: DateTimeFilter<"TumblingContainer"> | Date | string
+    processes?: TumblingProcessListRelationFilter
+  }, "id" | "stationNumber_side">
+
+  export type TumblingContainerOrderByWithAggregationInput = {
+    id?: SortOrder
+    stationNumber?: SortOrder
+    side?: SortOrder
+    displayName?: SortOrder
+    isActive?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: TumblingContainerCountOrderByAggregateInput
+    _avg?: TumblingContainerAvgOrderByAggregateInput
+    _max?: TumblingContainerMaxOrderByAggregateInput
+    _min?: TumblingContainerMinOrderByAggregateInput
+    _sum?: TumblingContainerSumOrderByAggregateInput
+  }
+
+  export type TumblingContainerScalarWhereWithAggregatesInput = {
+    AND?: TumblingContainerScalarWhereWithAggregatesInput | TumblingContainerScalarWhereWithAggregatesInput[]
+    OR?: TumblingContainerScalarWhereWithAggregatesInput[]
+    NOT?: TumblingContainerScalarWhereWithAggregatesInput | TumblingContainerScalarWhereWithAggregatesInput[]
+    id?: IntWithAggregatesFilter<"TumblingContainer"> | number
+    stationNumber?: IntWithAggregatesFilter<"TumblingContainer"> | number
+    side?: EnumTumblingContainerSideWithAggregatesFilter<"TumblingContainer"> | $Enums.TumblingContainerSide
+    displayName?: StringWithAggregatesFilter<"TumblingContainer"> | string
+    isActive?: BoolWithAggregatesFilter<"TumblingContainer"> | boolean
+    createdAt?: DateTimeWithAggregatesFilter<"TumblingContainer"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"TumblingContainer"> | Date | string
+  }
+
+  export type TumblingProcessWhereInput = {
+    AND?: TumblingProcessWhereInput | TumblingProcessWhereInput[]
+    OR?: TumblingProcessWhereInput[]
+    NOT?: TumblingProcessWhereInput | TumblingProcessWhereInput[]
+    id?: IntFilter<"TumblingProcess"> | number
+    processCode?: StringFilter<"TumblingProcess"> | string
+    containerId?: IntFilter<"TumblingProcess"> | number
+    status?: EnumTumblingProcessStatusFilter<"TumblingProcess"> | $Enums.TumblingProcessStatus
+    durationMinutes?: IntFilter<"TumblingProcess"> | number
+    startedAt?: DateTimeNullableFilter<"TumblingProcess"> | Date | string | null
+    expectedCompletionAt?: DateTimeNullableFilter<"TumblingProcess"> | Date | string | null
+    completedAt?: DateTimeNullableFilter<"TumblingProcess"> | Date | string | null
+    stoppedAt?: DateTimeNullableFilter<"TumblingProcess"> | Date | string | null
+    completionType?: EnumTumblingCompletionTypeNullableFilter<"TumblingProcess"> | $Enums.TumblingCompletionType | null
+    reason?: StringNullableFilter<"TumblingProcess"> | string | null
+    remarks?: StringNullableFilter<"TumblingProcess"> | string | null
+    startedByName?: StringNullableFilter<"TumblingProcess"> | string | null
+    authorizedByCode?: StringNullableFilter<"TumblingProcess"> | string | null
+    authorizedByName?: StringNullableFilter<"TumblingProcess"> | string | null
+    products?: JsonFilter<"TumblingProcess">
+    events?: JsonFilter<"TumblingProcess">
+    activeSlotContainerId?: IntNullableFilter<"TumblingProcess"> | number | null
+    createdAt?: DateTimeFilter<"TumblingProcess"> | Date | string
+    updatedAt?: DateTimeFilter<"TumblingProcess"> | Date | string
+    container?: XOR<TumblingContainerScalarRelationFilter, TumblingContainerWhereInput>
+  }
+
+  export type TumblingProcessOrderByWithRelationInput = {
+    id?: SortOrder
+    processCode?: SortOrder
+    containerId?: SortOrder
+    status?: SortOrder
+    durationMinutes?: SortOrder
+    startedAt?: SortOrderInput | SortOrder
+    expectedCompletionAt?: SortOrderInput | SortOrder
+    completedAt?: SortOrderInput | SortOrder
+    stoppedAt?: SortOrderInput | SortOrder
+    completionType?: SortOrderInput | SortOrder
+    reason?: SortOrderInput | SortOrder
+    remarks?: SortOrderInput | SortOrder
+    startedByName?: SortOrderInput | SortOrder
+    authorizedByCode?: SortOrderInput | SortOrder
+    authorizedByName?: SortOrderInput | SortOrder
+    products?: SortOrder
+    events?: SortOrder
+    activeSlotContainerId?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    container?: TumblingContainerOrderByWithRelationInput
+    _relevance?: TumblingProcessOrderByRelevanceInput
+  }
+
+  export type TumblingProcessWhereUniqueInput = Prisma.AtLeast<{
+    id?: number
+    processCode?: string
+    activeSlotContainerId?: number
+    AND?: TumblingProcessWhereInput | TumblingProcessWhereInput[]
+    OR?: TumblingProcessWhereInput[]
+    NOT?: TumblingProcessWhereInput | TumblingProcessWhereInput[]
+    containerId?: IntFilter<"TumblingProcess"> | number
+    status?: EnumTumblingProcessStatusFilter<"TumblingProcess"> | $Enums.TumblingProcessStatus
+    durationMinutes?: IntFilter<"TumblingProcess"> | number
+    startedAt?: DateTimeNullableFilter<"TumblingProcess"> | Date | string | null
+    expectedCompletionAt?: DateTimeNullableFilter<"TumblingProcess"> | Date | string | null
+    completedAt?: DateTimeNullableFilter<"TumblingProcess"> | Date | string | null
+    stoppedAt?: DateTimeNullableFilter<"TumblingProcess"> | Date | string | null
+    completionType?: EnumTumblingCompletionTypeNullableFilter<"TumblingProcess"> | $Enums.TumblingCompletionType | null
+    reason?: StringNullableFilter<"TumblingProcess"> | string | null
+    remarks?: StringNullableFilter<"TumblingProcess"> | string | null
+    startedByName?: StringNullableFilter<"TumblingProcess"> | string | null
+    authorizedByCode?: StringNullableFilter<"TumblingProcess"> | string | null
+    authorizedByName?: StringNullableFilter<"TumblingProcess"> | string | null
+    products?: JsonFilter<"TumblingProcess">
+    events?: JsonFilter<"TumblingProcess">
+    createdAt?: DateTimeFilter<"TumblingProcess"> | Date | string
+    updatedAt?: DateTimeFilter<"TumblingProcess"> | Date | string
+    container?: XOR<TumblingContainerScalarRelationFilter, TumblingContainerWhereInput>
+  }, "id" | "processCode" | "activeSlotContainerId">
+
+  export type TumblingProcessOrderByWithAggregationInput = {
+    id?: SortOrder
+    processCode?: SortOrder
+    containerId?: SortOrder
+    status?: SortOrder
+    durationMinutes?: SortOrder
+    startedAt?: SortOrderInput | SortOrder
+    expectedCompletionAt?: SortOrderInput | SortOrder
+    completedAt?: SortOrderInput | SortOrder
+    stoppedAt?: SortOrderInput | SortOrder
+    completionType?: SortOrderInput | SortOrder
+    reason?: SortOrderInput | SortOrder
+    remarks?: SortOrderInput | SortOrder
+    startedByName?: SortOrderInput | SortOrder
+    authorizedByCode?: SortOrderInput | SortOrder
+    authorizedByName?: SortOrderInput | SortOrder
+    products?: SortOrder
+    events?: SortOrder
+    activeSlotContainerId?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: TumblingProcessCountOrderByAggregateInput
+    _avg?: TumblingProcessAvgOrderByAggregateInput
+    _max?: TumblingProcessMaxOrderByAggregateInput
+    _min?: TumblingProcessMinOrderByAggregateInput
+    _sum?: TumblingProcessSumOrderByAggregateInput
+  }
+
+  export type TumblingProcessScalarWhereWithAggregatesInput = {
+    AND?: TumblingProcessScalarWhereWithAggregatesInput | TumblingProcessScalarWhereWithAggregatesInput[]
+    OR?: TumblingProcessScalarWhereWithAggregatesInput[]
+    NOT?: TumblingProcessScalarWhereWithAggregatesInput | TumblingProcessScalarWhereWithAggregatesInput[]
+    id?: IntWithAggregatesFilter<"TumblingProcess"> | number
+    processCode?: StringWithAggregatesFilter<"TumblingProcess"> | string
+    containerId?: IntWithAggregatesFilter<"TumblingProcess"> | number
+    status?: EnumTumblingProcessStatusWithAggregatesFilter<"TumblingProcess"> | $Enums.TumblingProcessStatus
+    durationMinutes?: IntWithAggregatesFilter<"TumblingProcess"> | number
+    startedAt?: DateTimeNullableWithAggregatesFilter<"TumblingProcess"> | Date | string | null
+    expectedCompletionAt?: DateTimeNullableWithAggregatesFilter<"TumblingProcess"> | Date | string | null
+    completedAt?: DateTimeNullableWithAggregatesFilter<"TumblingProcess"> | Date | string | null
+    stoppedAt?: DateTimeNullableWithAggregatesFilter<"TumblingProcess"> | Date | string | null
+    completionType?: EnumTumblingCompletionTypeNullableWithAggregatesFilter<"TumblingProcess"> | $Enums.TumblingCompletionType | null
+    reason?: StringNullableWithAggregatesFilter<"TumblingProcess"> | string | null
+    remarks?: StringNullableWithAggregatesFilter<"TumblingProcess"> | string | null
+    startedByName?: StringNullableWithAggregatesFilter<"TumblingProcess"> | string | null
+    authorizedByCode?: StringNullableWithAggregatesFilter<"TumblingProcess"> | string | null
+    authorizedByName?: StringNullableWithAggregatesFilter<"TumblingProcess"> | string | null
+    products?: JsonWithAggregatesFilter<"TumblingProcess">
+    events?: JsonWithAggregatesFilter<"TumblingProcess">
+    activeSlotContainerId?: IntNullableWithAggregatesFilter<"TumblingProcess"> | number | null
+    createdAt?: DateTimeWithAggregatesFilter<"TumblingProcess"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"TumblingProcess"> | Date | string
+  }
+
+  export type TumblingConfigurationWhereInput = {
+    AND?: TumblingConfigurationWhereInput | TumblingConfigurationWhereInput[]
+    OR?: TumblingConfigurationWhereInput[]
+    NOT?: TumblingConfigurationWhereInput | TumblingConfigurationWhereInput[]
+    id?: IntFilter<"TumblingConfiguration"> | number
+    defaultDurationMinutes?: IntFilter<"TumblingConfiguration"> | number
+    additionalFieldLabel?: StringFilter<"TumblingConfiguration"> | string
+    nearCompletionThresholdMinutes?: IntFilter<"TumblingConfiguration"> | number
+    updatedAt?: DateTimeFilter<"TumblingConfiguration"> | Date | string
+  }
+
+  export type TumblingConfigurationOrderByWithRelationInput = {
+    id?: SortOrder
+    defaultDurationMinutes?: SortOrder
+    additionalFieldLabel?: SortOrder
+    nearCompletionThresholdMinutes?: SortOrder
+    updatedAt?: SortOrder
+    _relevance?: TumblingConfigurationOrderByRelevanceInput
+  }
+
+  export type TumblingConfigurationWhereUniqueInput = Prisma.AtLeast<{
+    id?: number
+    AND?: TumblingConfigurationWhereInput | TumblingConfigurationWhereInput[]
+    OR?: TumblingConfigurationWhereInput[]
+    NOT?: TumblingConfigurationWhereInput | TumblingConfigurationWhereInput[]
+    defaultDurationMinutes?: IntFilter<"TumblingConfiguration"> | number
+    additionalFieldLabel?: StringFilter<"TumblingConfiguration"> | string
+    nearCompletionThresholdMinutes?: IntFilter<"TumblingConfiguration"> | number
+    updatedAt?: DateTimeFilter<"TumblingConfiguration"> | Date | string
+  }, "id">
+
+  export type TumblingConfigurationOrderByWithAggregationInput = {
+    id?: SortOrder
+    defaultDurationMinutes?: SortOrder
+    additionalFieldLabel?: SortOrder
+    nearCompletionThresholdMinutes?: SortOrder
+    updatedAt?: SortOrder
+    _count?: TumblingConfigurationCountOrderByAggregateInput
+    _avg?: TumblingConfigurationAvgOrderByAggregateInput
+    _max?: TumblingConfigurationMaxOrderByAggregateInput
+    _min?: TumblingConfigurationMinOrderByAggregateInput
+    _sum?: TumblingConfigurationSumOrderByAggregateInput
+  }
+
+  export type TumblingConfigurationScalarWhereWithAggregatesInput = {
+    AND?: TumblingConfigurationScalarWhereWithAggregatesInput | TumblingConfigurationScalarWhereWithAggregatesInput[]
+    OR?: TumblingConfigurationScalarWhereWithAggregatesInput[]
+    NOT?: TumblingConfigurationScalarWhereWithAggregatesInput | TumblingConfigurationScalarWhereWithAggregatesInput[]
+    id?: IntWithAggregatesFilter<"TumblingConfiguration"> | number
+    defaultDurationMinutes?: IntWithAggregatesFilter<"TumblingConfiguration"> | number
+    additionalFieldLabel?: StringWithAggregatesFilter<"TumblingConfiguration"> | string
+    nearCompletionThresholdMinutes?: IntWithAggregatesFilter<"TumblingConfiguration"> | number
+    updatedAt?: DateTimeWithAggregatesFilter<"TumblingConfiguration"> | Date | string
   }
 
   export type PlatingCreateInput = {
@@ -5827,6 +9615,287 @@ export namespace Prisma {
     featured?: BoolFieldUpdateOperationsInput | boolean
     sortOrder?: IntFieldUpdateOperationsInput | number
     active?: BoolFieldUpdateOperationsInput | boolean
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TumblingContainerCreateInput = {
+    stationNumber: number
+    side: $Enums.TumblingContainerSide
+    displayName: string
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    processes?: TumblingProcessCreateNestedManyWithoutContainerInput
+  }
+
+  export type TumblingContainerUncheckedCreateInput = {
+    id?: number
+    stationNumber: number
+    side: $Enums.TumblingContainerSide
+    displayName: string
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    processes?: TumblingProcessUncheckedCreateNestedManyWithoutContainerInput
+  }
+
+  export type TumblingContainerUpdateInput = {
+    stationNumber?: IntFieldUpdateOperationsInput | number
+    side?: EnumTumblingContainerSideFieldUpdateOperationsInput | $Enums.TumblingContainerSide
+    displayName?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    processes?: TumblingProcessUpdateManyWithoutContainerNestedInput
+  }
+
+  export type TumblingContainerUncheckedUpdateInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    stationNumber?: IntFieldUpdateOperationsInput | number
+    side?: EnumTumblingContainerSideFieldUpdateOperationsInput | $Enums.TumblingContainerSide
+    displayName?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    processes?: TumblingProcessUncheckedUpdateManyWithoutContainerNestedInput
+  }
+
+  export type TumblingContainerCreateManyInput = {
+    id?: number
+    stationNumber: number
+    side: $Enums.TumblingContainerSide
+    displayName: string
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type TumblingContainerUpdateManyMutationInput = {
+    stationNumber?: IntFieldUpdateOperationsInput | number
+    side?: EnumTumblingContainerSideFieldUpdateOperationsInput | $Enums.TumblingContainerSide
+    displayName?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TumblingContainerUncheckedUpdateManyInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    stationNumber?: IntFieldUpdateOperationsInput | number
+    side?: EnumTumblingContainerSideFieldUpdateOperationsInput | $Enums.TumblingContainerSide
+    displayName?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TumblingProcessCreateInput = {
+    processCode: string
+    status?: $Enums.TumblingProcessStatus
+    durationMinutes?: number
+    startedAt?: Date | string | null
+    expectedCompletionAt?: Date | string | null
+    completedAt?: Date | string | null
+    stoppedAt?: Date | string | null
+    completionType?: $Enums.TumblingCompletionType | null
+    reason?: string | null
+    remarks?: string | null
+    startedByName?: string | null
+    authorizedByCode?: string | null
+    authorizedByName?: string | null
+    products?: JsonNullValueInput | InputJsonValue
+    events?: JsonNullValueInput | InputJsonValue
+    activeSlotContainerId?: number | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    container: TumblingContainerCreateNestedOneWithoutProcessesInput
+  }
+
+  export type TumblingProcessUncheckedCreateInput = {
+    id?: number
+    processCode: string
+    containerId: number
+    status?: $Enums.TumblingProcessStatus
+    durationMinutes?: number
+    startedAt?: Date | string | null
+    expectedCompletionAt?: Date | string | null
+    completedAt?: Date | string | null
+    stoppedAt?: Date | string | null
+    completionType?: $Enums.TumblingCompletionType | null
+    reason?: string | null
+    remarks?: string | null
+    startedByName?: string | null
+    authorizedByCode?: string | null
+    authorizedByName?: string | null
+    products?: JsonNullValueInput | InputJsonValue
+    events?: JsonNullValueInput | InputJsonValue
+    activeSlotContainerId?: number | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type TumblingProcessUpdateInput = {
+    processCode?: StringFieldUpdateOperationsInput | string
+    status?: EnumTumblingProcessStatusFieldUpdateOperationsInput | $Enums.TumblingProcessStatus
+    durationMinutes?: IntFieldUpdateOperationsInput | number
+    startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    expectedCompletionAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    stoppedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    completionType?: NullableEnumTumblingCompletionTypeFieldUpdateOperationsInput | $Enums.TumblingCompletionType | null
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    remarks?: NullableStringFieldUpdateOperationsInput | string | null
+    startedByName?: NullableStringFieldUpdateOperationsInput | string | null
+    authorizedByCode?: NullableStringFieldUpdateOperationsInput | string | null
+    authorizedByName?: NullableStringFieldUpdateOperationsInput | string | null
+    products?: JsonNullValueInput | InputJsonValue
+    events?: JsonNullValueInput | InputJsonValue
+    activeSlotContainerId?: NullableIntFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    container?: TumblingContainerUpdateOneRequiredWithoutProcessesNestedInput
+  }
+
+  export type TumblingProcessUncheckedUpdateInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    processCode?: StringFieldUpdateOperationsInput | string
+    containerId?: IntFieldUpdateOperationsInput | number
+    status?: EnumTumblingProcessStatusFieldUpdateOperationsInput | $Enums.TumblingProcessStatus
+    durationMinutes?: IntFieldUpdateOperationsInput | number
+    startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    expectedCompletionAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    stoppedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    completionType?: NullableEnumTumblingCompletionTypeFieldUpdateOperationsInput | $Enums.TumblingCompletionType | null
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    remarks?: NullableStringFieldUpdateOperationsInput | string | null
+    startedByName?: NullableStringFieldUpdateOperationsInput | string | null
+    authorizedByCode?: NullableStringFieldUpdateOperationsInput | string | null
+    authorizedByName?: NullableStringFieldUpdateOperationsInput | string | null
+    products?: JsonNullValueInput | InputJsonValue
+    events?: JsonNullValueInput | InputJsonValue
+    activeSlotContainerId?: NullableIntFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TumblingProcessCreateManyInput = {
+    id?: number
+    processCode: string
+    containerId: number
+    status?: $Enums.TumblingProcessStatus
+    durationMinutes?: number
+    startedAt?: Date | string | null
+    expectedCompletionAt?: Date | string | null
+    completedAt?: Date | string | null
+    stoppedAt?: Date | string | null
+    completionType?: $Enums.TumblingCompletionType | null
+    reason?: string | null
+    remarks?: string | null
+    startedByName?: string | null
+    authorizedByCode?: string | null
+    authorizedByName?: string | null
+    products?: JsonNullValueInput | InputJsonValue
+    events?: JsonNullValueInput | InputJsonValue
+    activeSlotContainerId?: number | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type TumblingProcessUpdateManyMutationInput = {
+    processCode?: StringFieldUpdateOperationsInput | string
+    status?: EnumTumblingProcessStatusFieldUpdateOperationsInput | $Enums.TumblingProcessStatus
+    durationMinutes?: IntFieldUpdateOperationsInput | number
+    startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    expectedCompletionAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    stoppedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    completionType?: NullableEnumTumblingCompletionTypeFieldUpdateOperationsInput | $Enums.TumblingCompletionType | null
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    remarks?: NullableStringFieldUpdateOperationsInput | string | null
+    startedByName?: NullableStringFieldUpdateOperationsInput | string | null
+    authorizedByCode?: NullableStringFieldUpdateOperationsInput | string | null
+    authorizedByName?: NullableStringFieldUpdateOperationsInput | string | null
+    products?: JsonNullValueInput | InputJsonValue
+    events?: JsonNullValueInput | InputJsonValue
+    activeSlotContainerId?: NullableIntFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TumblingProcessUncheckedUpdateManyInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    processCode?: StringFieldUpdateOperationsInput | string
+    containerId?: IntFieldUpdateOperationsInput | number
+    status?: EnumTumblingProcessStatusFieldUpdateOperationsInput | $Enums.TumblingProcessStatus
+    durationMinutes?: IntFieldUpdateOperationsInput | number
+    startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    expectedCompletionAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    stoppedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    completionType?: NullableEnumTumblingCompletionTypeFieldUpdateOperationsInput | $Enums.TumblingCompletionType | null
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    remarks?: NullableStringFieldUpdateOperationsInput | string | null
+    startedByName?: NullableStringFieldUpdateOperationsInput | string | null
+    authorizedByCode?: NullableStringFieldUpdateOperationsInput | string | null
+    authorizedByName?: NullableStringFieldUpdateOperationsInput | string | null
+    products?: JsonNullValueInput | InputJsonValue
+    events?: JsonNullValueInput | InputJsonValue
+    activeSlotContainerId?: NullableIntFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TumblingConfigurationCreateInput = {
+    defaultDurationMinutes?: number
+    additionalFieldLabel?: string
+    nearCompletionThresholdMinutes?: number
+    updatedAt?: Date | string
+  }
+
+  export type TumblingConfigurationUncheckedCreateInput = {
+    id?: number
+    defaultDurationMinutes?: number
+    additionalFieldLabel?: string
+    nearCompletionThresholdMinutes?: number
+    updatedAt?: Date | string
+  }
+
+  export type TumblingConfigurationUpdateInput = {
+    defaultDurationMinutes?: IntFieldUpdateOperationsInput | number
+    additionalFieldLabel?: StringFieldUpdateOperationsInput | string
+    nearCompletionThresholdMinutes?: IntFieldUpdateOperationsInput | number
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TumblingConfigurationUncheckedUpdateInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    defaultDurationMinutes?: IntFieldUpdateOperationsInput | number
+    additionalFieldLabel?: StringFieldUpdateOperationsInput | string
+    nearCompletionThresholdMinutes?: IntFieldUpdateOperationsInput | number
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TumblingConfigurationCreateManyInput = {
+    id?: number
+    defaultDurationMinutes?: number
+    additionalFieldLabel?: string
+    nearCompletionThresholdMinutes?: number
+    updatedAt?: Date | string
+  }
+
+  export type TumblingConfigurationUpdateManyMutationInput = {
+    defaultDurationMinutes?: IntFieldUpdateOperationsInput | number
+    additionalFieldLabel?: StringFieldUpdateOperationsInput | string
+    nearCompletionThresholdMinutes?: IntFieldUpdateOperationsInput | number
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TumblingConfigurationUncheckedUpdateManyInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    defaultDurationMinutes?: IntFieldUpdateOperationsInput | number
+    additionalFieldLabel?: StringFieldUpdateOperationsInput | string
+    nearCompletionThresholdMinutes?: IntFieldUpdateOperationsInput | number
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -6188,6 +10257,351 @@ export namespace Prisma {
     sortOrder?: SortOrder
   }
 
+  export type EnumTumblingContainerSideFilter<$PrismaModel = never> = {
+    equals?: $Enums.TumblingContainerSide | EnumTumblingContainerSideFieldRefInput<$PrismaModel>
+    in?: $Enums.TumblingContainerSide[]
+    notIn?: $Enums.TumblingContainerSide[]
+    not?: NestedEnumTumblingContainerSideFilter<$PrismaModel> | $Enums.TumblingContainerSide
+  }
+
+  export type TumblingProcessListRelationFilter = {
+    every?: TumblingProcessWhereInput
+    some?: TumblingProcessWhereInput
+    none?: TumblingProcessWhereInput
+  }
+
+  export type TumblingProcessOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type TumblingContainerOrderByRelevanceInput = {
+    fields: TumblingContainerOrderByRelevanceFieldEnum | TumblingContainerOrderByRelevanceFieldEnum[]
+    sort: SortOrder
+    search: string
+  }
+
+  export type TumblingContainerStationNumberSideCompoundUniqueInput = {
+    stationNumber: number
+    side: $Enums.TumblingContainerSide
+  }
+
+  export type TumblingContainerCountOrderByAggregateInput = {
+    id?: SortOrder
+    stationNumber?: SortOrder
+    side?: SortOrder
+    displayName?: SortOrder
+    isActive?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type TumblingContainerAvgOrderByAggregateInput = {
+    id?: SortOrder
+    stationNumber?: SortOrder
+  }
+
+  export type TumblingContainerMaxOrderByAggregateInput = {
+    id?: SortOrder
+    stationNumber?: SortOrder
+    side?: SortOrder
+    displayName?: SortOrder
+    isActive?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type TumblingContainerMinOrderByAggregateInput = {
+    id?: SortOrder
+    stationNumber?: SortOrder
+    side?: SortOrder
+    displayName?: SortOrder
+    isActive?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type TumblingContainerSumOrderByAggregateInput = {
+    id?: SortOrder
+    stationNumber?: SortOrder
+  }
+
+  export type EnumTumblingContainerSideWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.TumblingContainerSide | EnumTumblingContainerSideFieldRefInput<$PrismaModel>
+    in?: $Enums.TumblingContainerSide[]
+    notIn?: $Enums.TumblingContainerSide[]
+    not?: NestedEnumTumblingContainerSideWithAggregatesFilter<$PrismaModel> | $Enums.TumblingContainerSide
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumTumblingContainerSideFilter<$PrismaModel>
+    _max?: NestedEnumTumblingContainerSideFilter<$PrismaModel>
+  }
+
+  export type EnumTumblingProcessStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.TumblingProcessStatus | EnumTumblingProcessStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.TumblingProcessStatus[]
+    notIn?: $Enums.TumblingProcessStatus[]
+    not?: NestedEnumTumblingProcessStatusFilter<$PrismaModel> | $Enums.TumblingProcessStatus
+  }
+
+  export type DateTimeNullableFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | null
+    notIn?: Date[] | string[] | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
+  }
+
+  export type EnumTumblingCompletionTypeNullableFilter<$PrismaModel = never> = {
+    equals?: $Enums.TumblingCompletionType | EnumTumblingCompletionTypeFieldRefInput<$PrismaModel> | null
+    in?: $Enums.TumblingCompletionType[] | null
+    notIn?: $Enums.TumblingCompletionType[] | null
+    not?: NestedEnumTumblingCompletionTypeNullableFilter<$PrismaModel> | $Enums.TumblingCompletionType | null
+  }
+  export type JsonFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue
+    lte?: InputJsonValue
+    gt?: InputJsonValue
+    gte?: InputJsonValue
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
+
+  export type IntNullableFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | null
+    notIn?: number[] | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableFilter<$PrismaModel> | number | null
+  }
+
+  export type TumblingContainerScalarRelationFilter = {
+    is?: TumblingContainerWhereInput
+    isNot?: TumblingContainerWhereInput
+  }
+
+  export type TumblingProcessOrderByRelevanceInput = {
+    fields: TumblingProcessOrderByRelevanceFieldEnum | TumblingProcessOrderByRelevanceFieldEnum[]
+    sort: SortOrder
+    search: string
+  }
+
+  export type TumblingProcessCountOrderByAggregateInput = {
+    id?: SortOrder
+    processCode?: SortOrder
+    containerId?: SortOrder
+    status?: SortOrder
+    durationMinutes?: SortOrder
+    startedAt?: SortOrder
+    expectedCompletionAt?: SortOrder
+    completedAt?: SortOrder
+    stoppedAt?: SortOrder
+    completionType?: SortOrder
+    reason?: SortOrder
+    remarks?: SortOrder
+    startedByName?: SortOrder
+    authorizedByCode?: SortOrder
+    authorizedByName?: SortOrder
+    products?: SortOrder
+    events?: SortOrder
+    activeSlotContainerId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type TumblingProcessAvgOrderByAggregateInput = {
+    id?: SortOrder
+    containerId?: SortOrder
+    durationMinutes?: SortOrder
+    activeSlotContainerId?: SortOrder
+  }
+
+  export type TumblingProcessMaxOrderByAggregateInput = {
+    id?: SortOrder
+    processCode?: SortOrder
+    containerId?: SortOrder
+    status?: SortOrder
+    durationMinutes?: SortOrder
+    startedAt?: SortOrder
+    expectedCompletionAt?: SortOrder
+    completedAt?: SortOrder
+    stoppedAt?: SortOrder
+    completionType?: SortOrder
+    reason?: SortOrder
+    remarks?: SortOrder
+    startedByName?: SortOrder
+    authorizedByCode?: SortOrder
+    authorizedByName?: SortOrder
+    activeSlotContainerId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type TumblingProcessMinOrderByAggregateInput = {
+    id?: SortOrder
+    processCode?: SortOrder
+    containerId?: SortOrder
+    status?: SortOrder
+    durationMinutes?: SortOrder
+    startedAt?: SortOrder
+    expectedCompletionAt?: SortOrder
+    completedAt?: SortOrder
+    stoppedAt?: SortOrder
+    completionType?: SortOrder
+    reason?: SortOrder
+    remarks?: SortOrder
+    startedByName?: SortOrder
+    authorizedByCode?: SortOrder
+    authorizedByName?: SortOrder
+    activeSlotContainerId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type TumblingProcessSumOrderByAggregateInput = {
+    id?: SortOrder
+    containerId?: SortOrder
+    durationMinutes?: SortOrder
+    activeSlotContainerId?: SortOrder
+  }
+
+  export type EnumTumblingProcessStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.TumblingProcessStatus | EnumTumblingProcessStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.TumblingProcessStatus[]
+    notIn?: $Enums.TumblingProcessStatus[]
+    not?: NestedEnumTumblingProcessStatusWithAggregatesFilter<$PrismaModel> | $Enums.TumblingProcessStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumTumblingProcessStatusFilter<$PrismaModel>
+    _max?: NestedEnumTumblingProcessStatusFilter<$PrismaModel>
+  }
+
+  export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | null
+    notIn?: Date[] | string[] | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedDateTimeNullableFilter<$PrismaModel>
+    _max?: NestedDateTimeNullableFilter<$PrismaModel>
+  }
+
+  export type EnumTumblingCompletionTypeNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.TumblingCompletionType | EnumTumblingCompletionTypeFieldRefInput<$PrismaModel> | null
+    in?: $Enums.TumblingCompletionType[] | null
+    notIn?: $Enums.TumblingCompletionType[] | null
+    not?: NestedEnumTumblingCompletionTypeNullableWithAggregatesFilter<$PrismaModel> | $Enums.TumblingCompletionType | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedEnumTumblingCompletionTypeNullableFilter<$PrismaModel>
+    _max?: NestedEnumTumblingCompletionTypeNullableFilter<$PrismaModel>
+  }
+  export type JsonWithAggregatesFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonWithAggregatesFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonWithAggregatesFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonWithAggregatesFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue
+    lte?: InputJsonValue
+    gt?: InputJsonValue
+    gte?: InputJsonValue
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedJsonFilter<$PrismaModel>
+    _max?: NestedJsonFilter<$PrismaModel>
+  }
+
+  export type IntNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | null
+    notIn?: number[] | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedIntNullableFilter<$PrismaModel>
+    _max?: NestedIntNullableFilter<$PrismaModel>
+  }
+
+  export type TumblingConfigurationOrderByRelevanceInput = {
+    fields: TumblingConfigurationOrderByRelevanceFieldEnum | TumblingConfigurationOrderByRelevanceFieldEnum[]
+    sort: SortOrder
+    search: string
+  }
+
+  export type TumblingConfigurationCountOrderByAggregateInput = {
+    id?: SortOrder
+    defaultDurationMinutes?: SortOrder
+    additionalFieldLabel?: SortOrder
+    nearCompletionThresholdMinutes?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type TumblingConfigurationAvgOrderByAggregateInput = {
+    id?: SortOrder
+    defaultDurationMinutes?: SortOrder
+    nearCompletionThresholdMinutes?: SortOrder
+  }
+
+  export type TumblingConfigurationMaxOrderByAggregateInput = {
+    id?: SortOrder
+    defaultDurationMinutes?: SortOrder
+    additionalFieldLabel?: SortOrder
+    nearCompletionThresholdMinutes?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type TumblingConfigurationMinOrderByAggregateInput = {
+    id?: SortOrder
+    defaultDurationMinutes?: SortOrder
+    additionalFieldLabel?: SortOrder
+    nearCompletionThresholdMinutes?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type TumblingConfigurationSumOrderByAggregateInput = {
+    id?: SortOrder
+    defaultDurationMinutes?: SortOrder
+    nearCompletionThresholdMinutes?: SortOrder
+  }
+
   export type StringFieldUpdateOperationsInput = {
     set?: string
   }
@@ -6210,6 +10624,86 @@ export namespace Prisma {
 
   export type NullableStringFieldUpdateOperationsInput = {
     set?: string | null
+  }
+
+  export type TumblingProcessCreateNestedManyWithoutContainerInput = {
+    create?: XOR<TumblingProcessCreateWithoutContainerInput, TumblingProcessUncheckedCreateWithoutContainerInput> | TumblingProcessCreateWithoutContainerInput[] | TumblingProcessUncheckedCreateWithoutContainerInput[]
+    connectOrCreate?: TumblingProcessCreateOrConnectWithoutContainerInput | TumblingProcessCreateOrConnectWithoutContainerInput[]
+    createMany?: TumblingProcessCreateManyContainerInputEnvelope
+    connect?: TumblingProcessWhereUniqueInput | TumblingProcessWhereUniqueInput[]
+  }
+
+  export type TumblingProcessUncheckedCreateNestedManyWithoutContainerInput = {
+    create?: XOR<TumblingProcessCreateWithoutContainerInput, TumblingProcessUncheckedCreateWithoutContainerInput> | TumblingProcessCreateWithoutContainerInput[] | TumblingProcessUncheckedCreateWithoutContainerInput[]
+    connectOrCreate?: TumblingProcessCreateOrConnectWithoutContainerInput | TumblingProcessCreateOrConnectWithoutContainerInput[]
+    createMany?: TumblingProcessCreateManyContainerInputEnvelope
+    connect?: TumblingProcessWhereUniqueInput | TumblingProcessWhereUniqueInput[]
+  }
+
+  export type EnumTumblingContainerSideFieldUpdateOperationsInput = {
+    set?: $Enums.TumblingContainerSide
+  }
+
+  export type TumblingProcessUpdateManyWithoutContainerNestedInput = {
+    create?: XOR<TumblingProcessCreateWithoutContainerInput, TumblingProcessUncheckedCreateWithoutContainerInput> | TumblingProcessCreateWithoutContainerInput[] | TumblingProcessUncheckedCreateWithoutContainerInput[]
+    connectOrCreate?: TumblingProcessCreateOrConnectWithoutContainerInput | TumblingProcessCreateOrConnectWithoutContainerInput[]
+    upsert?: TumblingProcessUpsertWithWhereUniqueWithoutContainerInput | TumblingProcessUpsertWithWhereUniqueWithoutContainerInput[]
+    createMany?: TumblingProcessCreateManyContainerInputEnvelope
+    set?: TumblingProcessWhereUniqueInput | TumblingProcessWhereUniqueInput[]
+    disconnect?: TumblingProcessWhereUniqueInput | TumblingProcessWhereUniqueInput[]
+    delete?: TumblingProcessWhereUniqueInput | TumblingProcessWhereUniqueInput[]
+    connect?: TumblingProcessWhereUniqueInput | TumblingProcessWhereUniqueInput[]
+    update?: TumblingProcessUpdateWithWhereUniqueWithoutContainerInput | TumblingProcessUpdateWithWhereUniqueWithoutContainerInput[]
+    updateMany?: TumblingProcessUpdateManyWithWhereWithoutContainerInput | TumblingProcessUpdateManyWithWhereWithoutContainerInput[]
+    deleteMany?: TumblingProcessScalarWhereInput | TumblingProcessScalarWhereInput[]
+  }
+
+  export type TumblingProcessUncheckedUpdateManyWithoutContainerNestedInput = {
+    create?: XOR<TumblingProcessCreateWithoutContainerInput, TumblingProcessUncheckedCreateWithoutContainerInput> | TumblingProcessCreateWithoutContainerInput[] | TumblingProcessUncheckedCreateWithoutContainerInput[]
+    connectOrCreate?: TumblingProcessCreateOrConnectWithoutContainerInput | TumblingProcessCreateOrConnectWithoutContainerInput[]
+    upsert?: TumblingProcessUpsertWithWhereUniqueWithoutContainerInput | TumblingProcessUpsertWithWhereUniqueWithoutContainerInput[]
+    createMany?: TumblingProcessCreateManyContainerInputEnvelope
+    set?: TumblingProcessWhereUniqueInput | TumblingProcessWhereUniqueInput[]
+    disconnect?: TumblingProcessWhereUniqueInput | TumblingProcessWhereUniqueInput[]
+    delete?: TumblingProcessWhereUniqueInput | TumblingProcessWhereUniqueInput[]
+    connect?: TumblingProcessWhereUniqueInput | TumblingProcessWhereUniqueInput[]
+    update?: TumblingProcessUpdateWithWhereUniqueWithoutContainerInput | TumblingProcessUpdateWithWhereUniqueWithoutContainerInput[]
+    updateMany?: TumblingProcessUpdateManyWithWhereWithoutContainerInput | TumblingProcessUpdateManyWithWhereWithoutContainerInput[]
+    deleteMany?: TumblingProcessScalarWhereInput | TumblingProcessScalarWhereInput[]
+  }
+
+  export type TumblingContainerCreateNestedOneWithoutProcessesInput = {
+    create?: XOR<TumblingContainerCreateWithoutProcessesInput, TumblingContainerUncheckedCreateWithoutProcessesInput>
+    connectOrCreate?: TumblingContainerCreateOrConnectWithoutProcessesInput
+    connect?: TumblingContainerWhereUniqueInput
+  }
+
+  export type EnumTumblingProcessStatusFieldUpdateOperationsInput = {
+    set?: $Enums.TumblingProcessStatus
+  }
+
+  export type NullableDateTimeFieldUpdateOperationsInput = {
+    set?: Date | string | null
+  }
+
+  export type NullableEnumTumblingCompletionTypeFieldUpdateOperationsInput = {
+    set?: $Enums.TumblingCompletionType | null
+  }
+
+  export type NullableIntFieldUpdateOperationsInput = {
+    set?: number | null
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
+  }
+
+  export type TumblingContainerUpdateOneRequiredWithoutProcessesNestedInput = {
+    create?: XOR<TumblingContainerCreateWithoutProcessesInput, TumblingContainerUncheckedCreateWithoutProcessesInput>
+    connectOrCreate?: TumblingContainerCreateOrConnectWithoutProcessesInput
+    upsert?: TumblingContainerUpsertWithoutProcessesInput
+    connect?: TumblingContainerWhereUniqueInput
+    update?: XOR<XOR<TumblingContainerUpdateToOneWithWhereWithoutProcessesInput, TumblingContainerUpdateWithoutProcessesInput>, TumblingContainerUncheckedUpdateWithoutProcessesInput>
   }
 
   export type NestedIntFilter<$PrismaModel = never> = {
@@ -6363,6 +10857,368 @@ export namespace Prisma {
     gt?: number | IntFieldRefInput<$PrismaModel>
     gte?: number | IntFieldRefInput<$PrismaModel>
     not?: NestedIntNullableFilter<$PrismaModel> | number | null
+  }
+
+  export type NestedEnumTumblingContainerSideFilter<$PrismaModel = never> = {
+    equals?: $Enums.TumblingContainerSide | EnumTumblingContainerSideFieldRefInput<$PrismaModel>
+    in?: $Enums.TumblingContainerSide[]
+    notIn?: $Enums.TumblingContainerSide[]
+    not?: NestedEnumTumblingContainerSideFilter<$PrismaModel> | $Enums.TumblingContainerSide
+  }
+
+  export type NestedEnumTumblingContainerSideWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.TumblingContainerSide | EnumTumblingContainerSideFieldRefInput<$PrismaModel>
+    in?: $Enums.TumblingContainerSide[]
+    notIn?: $Enums.TumblingContainerSide[]
+    not?: NestedEnumTumblingContainerSideWithAggregatesFilter<$PrismaModel> | $Enums.TumblingContainerSide
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumTumblingContainerSideFilter<$PrismaModel>
+    _max?: NestedEnumTumblingContainerSideFilter<$PrismaModel>
+  }
+
+  export type NestedEnumTumblingProcessStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.TumblingProcessStatus | EnumTumblingProcessStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.TumblingProcessStatus[]
+    notIn?: $Enums.TumblingProcessStatus[]
+    not?: NestedEnumTumblingProcessStatusFilter<$PrismaModel> | $Enums.TumblingProcessStatus
+  }
+
+  export type NestedDateTimeNullableFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | null
+    notIn?: Date[] | string[] | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
+  }
+
+  export type NestedEnumTumblingCompletionTypeNullableFilter<$PrismaModel = never> = {
+    equals?: $Enums.TumblingCompletionType | EnumTumblingCompletionTypeFieldRefInput<$PrismaModel> | null
+    in?: $Enums.TumblingCompletionType[] | null
+    notIn?: $Enums.TumblingCompletionType[] | null
+    not?: NestedEnumTumblingCompletionTypeNullableFilter<$PrismaModel> | $Enums.TumblingCompletionType | null
+  }
+
+  export type NestedEnumTumblingProcessStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.TumblingProcessStatus | EnumTumblingProcessStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.TumblingProcessStatus[]
+    notIn?: $Enums.TumblingProcessStatus[]
+    not?: NestedEnumTumblingProcessStatusWithAggregatesFilter<$PrismaModel> | $Enums.TumblingProcessStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumTumblingProcessStatusFilter<$PrismaModel>
+    _max?: NestedEnumTumblingProcessStatusFilter<$PrismaModel>
+  }
+
+  export type NestedDateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | null
+    notIn?: Date[] | string[] | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedDateTimeNullableFilter<$PrismaModel>
+    _max?: NestedDateTimeNullableFilter<$PrismaModel>
+  }
+
+  export type NestedEnumTumblingCompletionTypeNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.TumblingCompletionType | EnumTumblingCompletionTypeFieldRefInput<$PrismaModel> | null
+    in?: $Enums.TumblingCompletionType[] | null
+    notIn?: $Enums.TumblingCompletionType[] | null
+    not?: NestedEnumTumblingCompletionTypeNullableWithAggregatesFilter<$PrismaModel> | $Enums.TumblingCompletionType | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedEnumTumblingCompletionTypeNullableFilter<$PrismaModel>
+    _max?: NestedEnumTumblingCompletionTypeNullableFilter<$PrismaModel>
+  }
+  export type NestedJsonFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<NestedJsonFilterBase<$PrismaModel>>, Exclude<keyof Required<NestedJsonFilterBase<$PrismaModel>>, 'path'>>,
+        Required<NestedJsonFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<NestedJsonFilterBase<$PrismaModel>>, 'path'>>
+
+  export type NestedJsonFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue
+    lte?: InputJsonValue
+    gt?: InputJsonValue
+    gte?: InputJsonValue
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
+
+  export type NestedIntNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | null
+    notIn?: number[] | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedIntNullableFilter<$PrismaModel>
+    _max?: NestedIntNullableFilter<$PrismaModel>
+  }
+
+  export type NestedFloatNullableFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | null
+    notIn?: number[] | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableFilter<$PrismaModel> | number | null
+  }
+
+  export type TumblingProcessCreateWithoutContainerInput = {
+    processCode: string
+    status?: $Enums.TumblingProcessStatus
+    durationMinutes?: number
+    startedAt?: Date | string | null
+    expectedCompletionAt?: Date | string | null
+    completedAt?: Date | string | null
+    stoppedAt?: Date | string | null
+    completionType?: $Enums.TumblingCompletionType | null
+    reason?: string | null
+    remarks?: string | null
+    startedByName?: string | null
+    authorizedByCode?: string | null
+    authorizedByName?: string | null
+    products?: JsonNullValueInput | InputJsonValue
+    events?: JsonNullValueInput | InputJsonValue
+    activeSlotContainerId?: number | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type TumblingProcessUncheckedCreateWithoutContainerInput = {
+    id?: number
+    processCode: string
+    status?: $Enums.TumblingProcessStatus
+    durationMinutes?: number
+    startedAt?: Date | string | null
+    expectedCompletionAt?: Date | string | null
+    completedAt?: Date | string | null
+    stoppedAt?: Date | string | null
+    completionType?: $Enums.TumblingCompletionType | null
+    reason?: string | null
+    remarks?: string | null
+    startedByName?: string | null
+    authorizedByCode?: string | null
+    authorizedByName?: string | null
+    products?: JsonNullValueInput | InputJsonValue
+    events?: JsonNullValueInput | InputJsonValue
+    activeSlotContainerId?: number | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type TumblingProcessCreateOrConnectWithoutContainerInput = {
+    where: TumblingProcessWhereUniqueInput
+    create: XOR<TumblingProcessCreateWithoutContainerInput, TumblingProcessUncheckedCreateWithoutContainerInput>
+  }
+
+  export type TumblingProcessCreateManyContainerInputEnvelope = {
+    data: TumblingProcessCreateManyContainerInput | TumblingProcessCreateManyContainerInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type TumblingProcessUpsertWithWhereUniqueWithoutContainerInput = {
+    where: TumblingProcessWhereUniqueInput
+    update: XOR<TumblingProcessUpdateWithoutContainerInput, TumblingProcessUncheckedUpdateWithoutContainerInput>
+    create: XOR<TumblingProcessCreateWithoutContainerInput, TumblingProcessUncheckedCreateWithoutContainerInput>
+  }
+
+  export type TumblingProcessUpdateWithWhereUniqueWithoutContainerInput = {
+    where: TumblingProcessWhereUniqueInput
+    data: XOR<TumblingProcessUpdateWithoutContainerInput, TumblingProcessUncheckedUpdateWithoutContainerInput>
+  }
+
+  export type TumblingProcessUpdateManyWithWhereWithoutContainerInput = {
+    where: TumblingProcessScalarWhereInput
+    data: XOR<TumblingProcessUpdateManyMutationInput, TumblingProcessUncheckedUpdateManyWithoutContainerInput>
+  }
+
+  export type TumblingProcessScalarWhereInput = {
+    AND?: TumblingProcessScalarWhereInput | TumblingProcessScalarWhereInput[]
+    OR?: TumblingProcessScalarWhereInput[]
+    NOT?: TumblingProcessScalarWhereInput | TumblingProcessScalarWhereInput[]
+    id?: IntFilter<"TumblingProcess"> | number
+    processCode?: StringFilter<"TumblingProcess"> | string
+    containerId?: IntFilter<"TumblingProcess"> | number
+    status?: EnumTumblingProcessStatusFilter<"TumblingProcess"> | $Enums.TumblingProcessStatus
+    durationMinutes?: IntFilter<"TumblingProcess"> | number
+    startedAt?: DateTimeNullableFilter<"TumblingProcess"> | Date | string | null
+    expectedCompletionAt?: DateTimeNullableFilter<"TumblingProcess"> | Date | string | null
+    completedAt?: DateTimeNullableFilter<"TumblingProcess"> | Date | string | null
+    stoppedAt?: DateTimeNullableFilter<"TumblingProcess"> | Date | string | null
+    completionType?: EnumTumblingCompletionTypeNullableFilter<"TumblingProcess"> | $Enums.TumblingCompletionType | null
+    reason?: StringNullableFilter<"TumblingProcess"> | string | null
+    remarks?: StringNullableFilter<"TumblingProcess"> | string | null
+    startedByName?: StringNullableFilter<"TumblingProcess"> | string | null
+    authorizedByCode?: StringNullableFilter<"TumblingProcess"> | string | null
+    authorizedByName?: StringNullableFilter<"TumblingProcess"> | string | null
+    products?: JsonFilter<"TumblingProcess">
+    events?: JsonFilter<"TumblingProcess">
+    activeSlotContainerId?: IntNullableFilter<"TumblingProcess"> | number | null
+    createdAt?: DateTimeFilter<"TumblingProcess"> | Date | string
+    updatedAt?: DateTimeFilter<"TumblingProcess"> | Date | string
+  }
+
+  export type TumblingContainerCreateWithoutProcessesInput = {
+    stationNumber: number
+    side: $Enums.TumblingContainerSide
+    displayName: string
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type TumblingContainerUncheckedCreateWithoutProcessesInput = {
+    id?: number
+    stationNumber: number
+    side: $Enums.TumblingContainerSide
+    displayName: string
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type TumblingContainerCreateOrConnectWithoutProcessesInput = {
+    where: TumblingContainerWhereUniqueInput
+    create: XOR<TumblingContainerCreateWithoutProcessesInput, TumblingContainerUncheckedCreateWithoutProcessesInput>
+  }
+
+  export type TumblingContainerUpsertWithoutProcessesInput = {
+    update: XOR<TumblingContainerUpdateWithoutProcessesInput, TumblingContainerUncheckedUpdateWithoutProcessesInput>
+    create: XOR<TumblingContainerCreateWithoutProcessesInput, TumblingContainerUncheckedCreateWithoutProcessesInput>
+    where?: TumblingContainerWhereInput
+  }
+
+  export type TumblingContainerUpdateToOneWithWhereWithoutProcessesInput = {
+    where?: TumblingContainerWhereInput
+    data: XOR<TumblingContainerUpdateWithoutProcessesInput, TumblingContainerUncheckedUpdateWithoutProcessesInput>
+  }
+
+  export type TumblingContainerUpdateWithoutProcessesInput = {
+    stationNumber?: IntFieldUpdateOperationsInput | number
+    side?: EnumTumblingContainerSideFieldUpdateOperationsInput | $Enums.TumblingContainerSide
+    displayName?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TumblingContainerUncheckedUpdateWithoutProcessesInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    stationNumber?: IntFieldUpdateOperationsInput | number
+    side?: EnumTumblingContainerSideFieldUpdateOperationsInput | $Enums.TumblingContainerSide
+    displayName?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TumblingProcessCreateManyContainerInput = {
+    id?: number
+    processCode: string
+    status?: $Enums.TumblingProcessStatus
+    durationMinutes?: number
+    startedAt?: Date | string | null
+    expectedCompletionAt?: Date | string | null
+    completedAt?: Date | string | null
+    stoppedAt?: Date | string | null
+    completionType?: $Enums.TumblingCompletionType | null
+    reason?: string | null
+    remarks?: string | null
+    startedByName?: string | null
+    authorizedByCode?: string | null
+    authorizedByName?: string | null
+    products?: JsonNullValueInput | InputJsonValue
+    events?: JsonNullValueInput | InputJsonValue
+    activeSlotContainerId?: number | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type TumblingProcessUpdateWithoutContainerInput = {
+    processCode?: StringFieldUpdateOperationsInput | string
+    status?: EnumTumblingProcessStatusFieldUpdateOperationsInput | $Enums.TumblingProcessStatus
+    durationMinutes?: IntFieldUpdateOperationsInput | number
+    startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    expectedCompletionAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    stoppedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    completionType?: NullableEnumTumblingCompletionTypeFieldUpdateOperationsInput | $Enums.TumblingCompletionType | null
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    remarks?: NullableStringFieldUpdateOperationsInput | string | null
+    startedByName?: NullableStringFieldUpdateOperationsInput | string | null
+    authorizedByCode?: NullableStringFieldUpdateOperationsInput | string | null
+    authorizedByName?: NullableStringFieldUpdateOperationsInput | string | null
+    products?: JsonNullValueInput | InputJsonValue
+    events?: JsonNullValueInput | InputJsonValue
+    activeSlotContainerId?: NullableIntFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TumblingProcessUncheckedUpdateWithoutContainerInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    processCode?: StringFieldUpdateOperationsInput | string
+    status?: EnumTumblingProcessStatusFieldUpdateOperationsInput | $Enums.TumblingProcessStatus
+    durationMinutes?: IntFieldUpdateOperationsInput | number
+    startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    expectedCompletionAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    stoppedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    completionType?: NullableEnumTumblingCompletionTypeFieldUpdateOperationsInput | $Enums.TumblingCompletionType | null
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    remarks?: NullableStringFieldUpdateOperationsInput | string | null
+    startedByName?: NullableStringFieldUpdateOperationsInput | string | null
+    authorizedByCode?: NullableStringFieldUpdateOperationsInput | string | null
+    authorizedByName?: NullableStringFieldUpdateOperationsInput | string | null
+    products?: JsonNullValueInput | InputJsonValue
+    events?: JsonNullValueInput | InputJsonValue
+    activeSlotContainerId?: NullableIntFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TumblingProcessUncheckedUpdateManyWithoutContainerInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    processCode?: StringFieldUpdateOperationsInput | string
+    status?: EnumTumblingProcessStatusFieldUpdateOperationsInput | $Enums.TumblingProcessStatus
+    durationMinutes?: IntFieldUpdateOperationsInput | number
+    startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    expectedCompletionAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    stoppedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    completionType?: NullableEnumTumblingCompletionTypeFieldUpdateOperationsInput | $Enums.TumblingCompletionType | null
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    remarks?: NullableStringFieldUpdateOperationsInput | string | null
+    startedByName?: NullableStringFieldUpdateOperationsInput | string | null
+    authorizedByCode?: NullableStringFieldUpdateOperationsInput | string | null
+    authorizedByName?: NullableStringFieldUpdateOperationsInput | string | null
+    products?: JsonNullValueInput | InputJsonValue
+    events?: JsonNullValueInput | InputJsonValue
+    activeSlotContainerId?: NullableIntFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
 
