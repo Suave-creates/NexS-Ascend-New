@@ -4,9 +4,14 @@
 #   docker compose up --build
 #
 # One env file (.env.docker) drives BOTH services. The bundled MySQL serves the
-# Prisma-modeled schemas for a self-contained run; raw-SQL warehouse queries
-# (NexS_DB, NexS_DB_PICKING, bosch) hit EXTERNAL data in production — point those
-# at the real databases in .env.docker.
+# Prisma-modeled schemas for a self-contained run; raw-SQL warehouse queries hit
+# EXTERNAL data in production:
+#   - bosch — still a static host/user/password, set directly in .env.docker.
+#   - NexS_DB / NexS_DB_PICKING — routed through the Adaptive PAM CLI in
+#     production instead of a static credential/IP (set NEXS_DB_ADAPTIVE_ENDPOINT
+#     / NEXS_DB_PICKING_ADAPTIVE_ENDPOINT; see .env.docker.example and
+#     src/utils/adaptiveExecPool.ts). Adaptive login is one-time/browser-based -
+#     the adaptive_token volume below persists it across container restarts.
 
 services:
   db:
@@ -46,6 +51,10 @@ services:
       # Named volume: seeded from the image's /app/data AND keeps the image's
       # nextjs:nodejs ownership (a host bind mount would mask + break writes).
       - app_data:/app/data
+      # Persists the one-time `adaptive login` browser session across
+      # restarts/redeploys. Unused (empty) unless NEXS_DB_ADAPTIVE_ENDPOINT /
+      # NEXS_DB_PICKING_ADAPTIVE_ENDPOINT are set - harmless in local dev.
+      - adaptive_token:/home/nextjs/.adaptive
       # --- NDD-RCA runtime secrets (optional feature). Create these files and
       #     uncomment to enable the ndd-rca pipeline. Token caches must be RW. ---
       # - ./secrets/gcreds.json:/app/src/app/api/packing-dispatch/ndd-rca/NDD-RCA/gcreds.json:ro
@@ -55,3 +64,4 @@ services:
 volumes:
   db_data:
   app_data:
+  adaptive_token:

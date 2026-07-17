@@ -1,10 +1,12 @@
-import mysql from "mysql2/promise";
+import { createNexsPool } from "./adaptiveExecPool";
 
-export const nexsPickingPool = mysql.createPool({
-  uri: process.env.NexS_DB_PICKING!,
+// Production: set NEXS_DB_PICKING_ADAPTIVE_ENDPOINT to route through the
+// Adaptive PAM CLI instead of a static prod credential/IP. Local dev
+// (NexS_DB_PICKING pointed at the bundled docker MySQL) is untouched - see
+// adaptiveExecPool.ts.
+export const nexsPickingPool = createNexsPool({
+  adaptiveEndpointEnv: "NEXS_DB_PICKING_ADAPTIVE_ENDPOINT",
+  fallbackUriEnv: "NexS_DB_PICKING",
+  label: "NexS_DB_PICKING",
   connectionLimit: 6,
-  waitForConnections: true,
-  queueLimit: 0,
-  enableKeepAlive: true,
-  keepAliveInitialDelay: 0,
 });

@@ -48,7 +48,8 @@ ENV NODE_ENV=production \
     HOSTNAME=0.0.0.0 \
     PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium \
     PUPPETEER_SKIP_DOWNLOAD=true \
-    NDD_RCA_PYTHON=/opt/venv/bin/python
+    NDD_RCA_PYTHON=/opt/venv/bin/python \
+    HOME=/home/nextjs
 
 # Runtime system deps:
 #  - openssl               : Prisma
@@ -66,8 +67,21 @@ RUN python3 -m venv /opt/venv \
  && /opt/venv/bin/pip install --no-cache-dir --upgrade pip \
  && /opt/venv/bin/pip install --no-cache-dir -r requirement.txt
 
-# Non-root runtime user.
-RUN groupadd -r nodejs && useradd -r -g nodejs -m nextjs
+# Non-root runtime user. -d pins the home dir so it matches the adaptive_token
+# volume mount in docker-compose.yml (see below) rather than relying on
+# whatever useradd's system-account default happens to be.
+RUN groupadd -r nodejs && useradd -r -g nodejs -m -d /home/nextjs nextjs
+
+# --- Adaptive PAM CLI (warehouse DB access - see src/utils/adaptiveExecPool.ts) ---
+# TODO: install the Linux `adaptive` CLI binary here so it ends up on PATH as
+# `adaptive` (or set ADAPTIVE_BIN to wherever it lands). Source not yet known -
+# ask whoever owns Adaptive at Lenskart for the internal registry image,
+# package, or download step other services already use to get this binary
+# into a Linux container, then replace this comment with the real RUN/COPY
+# step. Until this is filled in, NEXS_DB_ADAPTIVE_ENDPOINT /
+# NEXS_DB_PICKING_ADAPTIVE_ENDPOINT will fail at request time with
+# "adaptive: command not found" - local dev (NexS_DB/NexS_DB_PICKING pointed
+# at the bundled MySQL) is unaffected either way.
 
 # --- Next.js standalone output ---
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
