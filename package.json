@@ -4,8 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "next build",
-    "start": "next start -p 3069",
+    "build": "next build && node scripts/prepare-standalone.cjs",
+    "start": "node scripts/start-standalone.cjs",
     "lint": "next lint"
   },
   "dependencies": {

@@ -8,5 +8,5 @@ export const nexsPickingPool = createNexsPool({
   adaptiveEndpointEnv: "NEXS_DB_PICKING_ADAPTIVE_ENDPOINT",
   fallbackUriEnv: "NexS_DB_PICKING",
   label: "NexS_DB_PICKING",
-  connectionLimit: 6,
+  connectionLimit: 2,
 });

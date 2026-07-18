@@ -37,6 +37,8 @@ Store.xlsx
 **/credentials.json
 **/token.json
 **/__pycache__
-src/app/api/packing-dispatch/ndd-rca/NDD-RCA/gcreds.json
-src/app/api/packing-dispatch/ndd-rca/NDD-RCA/gsheet_token.json
-src/app/api/packing-dispatch/ndd-rca/NDD-RCA/pbi_token_cache.json
+src/utils/resources/bigquery/credentials.json
+src/utils/resources/bigquery/token.json
+src/utils/resources/google/gcreds.json
+src/utils/resources/google/gsheet_token.json
+src/utils/resources/power-bi/pbi_token_cache.json

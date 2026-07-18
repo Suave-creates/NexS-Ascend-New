@@ -192,9 +192,16 @@ export async function GET(req: Request) {
       records = result.rows;
       headers = result.columns;
     } else {
-      const [rows] = await nexsPool.query<RowDataPacket[]>(mysqlSql(dump.sql));
-      records = rows as Record<string, unknown>[];
-      headers = records.length ? Object.keys(records[0]) : [];
+      const database = dump.sql.includes('.nexs_ims.') ? 'nexs_ims' : 'nexs_cid';
+      const connection = await nexsPool.getConnection();
+      try {
+        await connection.changeUser({ database });
+        const [rows] = await connection.query<RowDataPacket[]>(mysqlSql(dump.sql));
+        records = rows as Record<string, unknown>[];
+        headers = records.length ? Object.keys(records[0]) : [];
+      } finally {
+        connection.release();
+      }
     }
     const csv = [
       headers.map(csvCell).join(','),

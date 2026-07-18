@@ -84,9 +84,11 @@ function runExec(endpoint: string, sql: string, label: string): Promise<string> 
             );
             return;
           }
+          const outputTail = stdout.trim().slice(-4000);
           const cause = err.killed
             ? `timed out after ${EXEC_TIMEOUT_MS}ms`
-            : stderr.trim() || err.message;
+            : stderr.trim() || outputTail ||
+              `${err.message} (exit code ${err.code ?? 'unknown'}, signal ${err.signal ?? 'none'})`;
           reject(new Error(`[${label}] adaptive exec failed for "${endpoint}": ${cause}`));
           return;
         }

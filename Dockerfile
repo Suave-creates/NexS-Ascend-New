@@ -97,6 +97,9 @@ COPY --from=builder --chown=nextjs:nodejs /app/node_modules/.bin/prisma ./node_m
 
 # --- NDD-RCA python scripts (spawned with cwd = this dir) ---
 COPY --from=builder --chown=nextjs:nodejs /app/src/app/api/packing-dispatch/ndd-rca/NDD-RCA ./src/app/api/packing-dispatch/ndd-rca/NDD-RCA
+# Central auth helpers. Secret JSON/cache files are excluded by .dockerignore
+# and must be mounted at runtime (see docker-compose.yml).
+COPY --from=builder --chown=nextjs:nodejs /app/src/utils/resources ./src/utils/resources
 
 # Writable runtime data dir (flash-rules.json, auto-release-lock.json).
 COPY --from=builder --chown=nextjs:nodejs /app/data ./data
