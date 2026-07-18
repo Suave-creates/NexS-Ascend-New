@@ -33,7 +33,7 @@ const AUTH_WARNING_COOLDOWN_MS = 60_000;
 // from `adaptive exec` (only successful runs), so this is inferred from the
 // CLI's general error vocabulary, not confirmed against a real expiry.
 const AUTH_FAILURE_PATTERN =
-  /not logged in|login required|please\s+(run|use)\b.*login|token\s+.*(expired|invalid|revoked)|unauthenticated|unauthorized|session\s+.*(expired|not found)/i;
+  /not logged in|login required|please\s+(run|use)\b.*login|invalid credentials|token\s+.*(expired|invalid|revoked)|unauthenticated|unauthorized|session\s+.*(expired|not found)/i;
 
 const SQL_ERROR_PATTERN = /^ERROR\s+\d+\s*\(\w+\)/m;
 
