@@ -1,4 +1,6 @@
 import { NextResponse } from 'next/server';
+import type { RowDataPacket } from 'mysql2';
+import { nexsPool } from '@/utils/nexsPool';
 import {
   BIGQUERY_DATA_PROJECT_ID,
   runBigQuery,
@@ -45,7 +47,19 @@ function availableInventory(facility: string, owner: string): string {
       AND (wi.quantity - IFNULL(wbi.quantity, 0)) <> 0`).join('\nUNION ALL\n');
 }
 
-const QUERIES: Record<string, { name: string; sql: string }> = {
+type QuerySource = 'adaptive' | 'bigquery';
+type DumpQuery = { name: string; sql: string };
+
+// The only dumps authorized to use BigQuery. Everything else is Adaptive.
+// Keep backend selection in this single allowlist so a query definition can
+// never accidentally opt itself into BigQuery.
+const BIGQUERY_DUMP_IDS = new Set([
+  'asrs-tote',
+  'egl-manual',
+  'reserve-inventory',
+]);
+
+const QUERIES: Record<string, DumpQuery> = {
   'asrs-tote': {
     name: 'ASRS_Tote_Dump',
     sql: `SELECT pid, location, COUNT(*) AS barcode_count,
@@ -151,6 +165,12 @@ const QUERIES: Record<string, { name: string; sql: string }> = {
   },
 };
 
+// Query definitions use BigQuery's fully-qualified table form. Adaptive/MySQL
+// accepts the same SQL after reducing `project.dataset.table` to dataset.table.
+function mysqlSql(sql: string): string {
+  return sql.replace(/`[^`]+\.([^.]+)\.([^`]+)`/g, '$1.$2');
+}
+
 function csvCell(value: unknown): string {
   const text = value == null ? '' : String(value);
   return `"${text.replace(/"/g, '""')}"`;
@@ -162,9 +182,20 @@ export async function GET(req: Request) {
   if (!dump) return NextResponse.json({ error: 'Unknown dump' }, { status: 400 });
 
   try {
-    const result = await runBigQuery(dump.sql);
-    const records = result.rows;
-    const headers = result.columns;
+    const source: QuerySource = BIGQUERY_DUMP_IDS.has(id) ? 'bigquery' : 'adaptive';
+    console.info(`[grafana-dumps:${id}] source=${source}`);
+    let records: Record<string, unknown>[];
+    let headers: string[];
+
+    if (source === 'bigquery') {
+      const result = await runBigQuery(dump.sql);
+      records = result.rows;
+      headers = result.columns;
+    } else {
+      const [rows] = await nexsPool.query<RowDataPacket[]>(mysqlSql(dump.sql));
+      records = rows as Record<string, unknown>[];
+      headers = records.length ? Object.keys(records[0]) : [];
+    }
     const csv = [
       headers.map(csvCell).join(','),
       ...records.map((row) => headers.map((header) => csvCell(row[header])).join(',')),
@@ -177,6 +208,7 @@ export async function GET(req: Request) {
         'Content-Disposition': `attachment; filename="${dump.name}_${stamp}.csv"`,
         'Cache-Control': 'no-store',
         'X-Row-Count': String(records.length),
+        'X-Query-Source': source,
       },
     });
   } catch (error) {
