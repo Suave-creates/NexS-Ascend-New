@@ -49,7 +49,7 @@ export default function ConsolidateHistoryPage() {
     try {
       const params = new URLSearchParams({ page: String(p), limit: String(LIMIT) });
       if (query) params.set('q', query);
-      const res = await fetch(`/api/consolidate-ptl/history?${params}`);
+      const res = await fetch(`/api/cl-cls/consolidate-ptl/history?${params}`);
       const d = await res.json();
       if (!res.ok) throw new Error(d.error || `HTTP ${res.status}`);
       setRows(d.rows || []);
@@ -77,7 +77,7 @@ export default function ConsolidateHistoryPage() {
       <style dangerouslySetInnerHTML={{ __html: CSS }} />
 
       <header className="cslh-header">
-        <Link href="/consolidate-ptl" className="back">← ConsolidAte PTL</Link>
+        <Link href="/cl-cls/consolidate-ptl" className="back">← ConsolidAte PTL</Link>
         <h1>History</h1>
         <small>Released consolidations · survives Master Reset</small>
         <span className="spacer" />

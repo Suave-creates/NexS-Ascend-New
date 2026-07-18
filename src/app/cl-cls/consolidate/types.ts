@@ -1,4 +1,4 @@
-// src/app/consolidate/types.ts
+// src/app/cl-cls/consolidate/types.ts
 
 export type SlotStatus = 'FREE' | 'CONSOLIDATING' | 'COMPLETE' | 'RELEASED';
 export type OperatorColor = 'YELLOW' | 'BLUE' | 'GREEN' | 'PINK' | 'RED';

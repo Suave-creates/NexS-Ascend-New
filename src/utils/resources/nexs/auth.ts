@@ -1,4 +1,4 @@
-// src/utils/nexsAuth.ts
+// src/utils/resources/nexs/auth.ts
 //
 // Server-side NexS authentication: logs in to the NexS auth API with stored
 // credentials, obtains a `jwt-token`, caches it, and auto-refreshes before it

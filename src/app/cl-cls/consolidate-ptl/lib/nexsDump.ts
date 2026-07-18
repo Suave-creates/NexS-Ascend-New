@@ -107,7 +107,7 @@ export async function loadOrderQcDump(ctx: DumpContext): Promise<DumpResult> {
 
 /** Push a full snapshot to the ingest endpoint (upsert + reconcile). */
 export async function syncDump(rows: Record<string, unknown>[]) {
-  const res = await fetch('/api/consolidate-ptl/qc-sync', {
+  const res = await fetch('/api/cl-cls/consolidate-ptl/qc-sync', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ rows }),

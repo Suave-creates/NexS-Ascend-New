@@ -20,7 +20,7 @@ import {
   FiMenu,
   FiDownload,
   FiGrid,
-  FiZap,
+  FiDatabase,
 } from 'react-icons/fi';
 import { cn } from '@/lib/cn';
 
@@ -40,8 +40,17 @@ export default function Sidebar() {
 
   const navItems: NavItem[] = [
     { href: '/', icon: FiHome, label: 'Home' },
-    { href: '/consolidate', icon: FiGrid, label: 'ConsolidAte' },
-    { href: '/consolidate-ptl', icon: FiZap, label: 'ConsolidAte PTL' },
+    { href: '/grafana-dumps', icon: FiDatabase, label: 'Grafana Dumps' },
+
+    {
+      icon: FiGrid,
+      label: 'CL-CLs',
+      children: [
+        { href: '/cl-cls/consolidate', label: 'ConsolidAte' },
+        { href: '/cl-cls/consolidate-ptl', label: 'ConsolidAte PTL' },
+        { href: '/cl-cls/kitne-parcel-the-cl-cls', label: 'Kitne Parcel The?' },
+      ],
+    },
 
     {
       icon: FiLayers,
@@ -103,7 +112,6 @@ export default function Sidebar() {
         { href: '/packing-dispatch/ndd-shipment', label: 'NDD Shipment' },
         { href: '/packing-dispatch/ndd-rca', label: 'NDD RCA' },
         { href: '/packing-dispatch/kitne-parcel-the', label: 'Kinte parcel the' },
-        { href: '/packing-dispatch/kitne-parcel-the-cl-cls', label: 'कितने पार्सल थे' },
         { href: '/packing-dispatch/upload', label: 'Excel Upload' },
       ],
     },

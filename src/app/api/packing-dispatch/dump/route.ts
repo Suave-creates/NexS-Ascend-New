@@ -83,7 +83,15 @@ export async function GET(req: Request) {
     // and inlined because MySQL won't accept a placeholder for the INTERVAL unit.
     const [rows] = await nexsPool.query<RowDataPacket[]>(
       `
-        SELECT *
+        SELECT
+          store_code,
+          soft_courier,
+          channel,
+          order_priroity,
+          order_created_at,
+          updated_at,
+          shipment_id,
+          increment_id
         FROM wms.store_order_consolidation
         WHERE shipment_status = 'INVOICED'
           AND box_status = 'UNASSIGNED'

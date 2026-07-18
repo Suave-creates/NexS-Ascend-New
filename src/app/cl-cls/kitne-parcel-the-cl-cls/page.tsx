@@ -34,7 +34,7 @@ export default function KitneParcelTheClClsPage() {
     }
     setBusy(true);
     try {
-      const res = await fetch('/api/packing-dispatch/kitne-parcel-the-cl-cls', {
+      const res = await fetch('/api/cl-cls/kitne-parcel-the-cl-cls', {
         method: 'POST',
         headers: { 'Content-Type': 'text/plain' },
         body: input,

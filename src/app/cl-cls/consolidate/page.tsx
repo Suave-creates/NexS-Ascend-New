@@ -1,14 +1,18 @@
 'use client';
 
-// ConsolidAte — scanner-ONLY consolidation console (Tray Releaser look).
-// NEW put-to-light flow (no per-item location scan):
+// ConsolidAte — scanner-ONLY consolidation console (no physical PTL hardware;
+// see /consolidate-ptl for the hardware-driven variant this was replicated
+// from). Same put-to-light-STYLE flow, purely on-screen:
 //   Scan item      -> its slot glows (operator colour); it becomes "pending".
-//   Scan next item -> the previous item is CONFIRMED PLACED (its light off),
+//   Scan next item -> the previous item is CONFIRMED PLACED (its glow off),
 //                     the new item's slot glows. Repeat.
 //   Order complete -> that slot turns GREEN; scan its LOCATION barcode once to
-//                     release it (light off, ready-to-ship).
-// One ONE scan field handles both: a value matching a slot barcode = release,
-// anything else = an item scan. Dump sync + grid refresh run in the background.
+//                     release it (glow off, ready-to-ship).
+// The operator picks BOTH a rack (1-10, 20 slots each) and a Ranger colour
+// before scanning — a brand-new package claims a slot strictly within the
+// chosen rack. One scan field handles both: a value matching a slot barcode
+// = release, anything else = an item scan. Dump sync + grid refresh run in
+// the background.
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
@@ -18,6 +22,7 @@ import type { Slot, Stats, OperatorColor } from './types';
 
 const DUMP_INTERVAL_MS = 300_000; // 5 min — poll NexS Order QC dump (paginates per run)
 const GRID_INTERVAL_MS = 3_000;   // local DB grid read only (cheap)
+const RACKS = Array.from({ length: 10 }, (_, i) => i + 1); // Rack 1 (1-20) .. Rack 10 (181-200)
 
 // Power Ranger operator colours. GREEN is reserved for a completed/ready slot,
 // so it is not offered as an operator glow colour (would be ambiguous).
@@ -58,14 +63,19 @@ export default function ConsolidatePage() {
   currentRef.current = current;
   const slotsRef = useRef<Slot[]>([]);
   slotsRef.current = slots;
+  const rackRef = useRef(1);
 
   const [color, setColor] = useState<OperatorColor>('BLUE');
+  const [rack, setRack] = useState(1);
+  rackRef.current = rack;
   const facility = (typeof window !== 'undefined' && localStorage.getItem('consolidate.facility')) || 'NXS1';
   const workstation = (typeof window !== 'undefined' && localStorage.getItem('consolidate.workstation')) || 'QC01';
 
   useEffect(() => {
     const c = localStorage.getItem('consolidate.color') as OperatorColor | null;
     if (c) setColor(c);
+    const r = Number(localStorage.getItem('consolidate.rack'));
+    if (r >= 1 && r <= RACKS.length) setRack(r);
   }, []);
 
   const chooseColor = (c: OperatorColor) => {
@@ -80,6 +90,14 @@ export default function ConsolidatePage() {
     setColor(c);
     localStorage.setItem('consolidate.color', c);
     // input onBlur -> keepFocus refocuses the scan field after the click.
+  };
+
+  const chooseRack = (r: number) => {
+    // Unlike colour, the rack only affects where a BRAND-NEW package claims a
+    // slot — an in-progress order keeps its already-assigned slot regardless
+    // of which rack is selected now, so switching racks mid-order is safe.
+    setRack(r);
+    localStorage.setItem('consolidate.rack', String(r));
   };
 
   const addLog = useCallback((msg: string, kind: 'ok' | 'err' | 'info' = 'info') => {
@@ -100,7 +118,7 @@ export default function ConsolidatePage() {
     gridBusy.current = true;
     const startedAt = Date.now();
     try {
-      const res = await fetch('/api/consolidate-ptl/locations');
+      const res = await fetch('/api/cl-cls/consolidate/locations');
       const d = await res.json();
       // Don't let a poll that STARTED before an optimistic scan update overwrite
       // it with pre-scan data — a mutation since this fetch began means it's stale.
@@ -145,25 +163,30 @@ export default function ConsolidatePage() {
   // ---- ITEM scan: glow this item's slot, confirm the previous pending item ----
   const scanItem = async (barcode: string) => {
     try {
-      const res = await fetch('/api/consolidate-ptl/scan-barcode', {
+      const res = await fetch('/api/cl-cls/consolidate/scan-barcode', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ barcode, operatorColor: color }),
+        body: JSON.stringify({ barcode, operatorColor: color, rackNumber: rackRef.current }),
       });
       if (res.status === 404) { addLog(`${barcode}: not in QC dump`, 'err'); return; }
       const d = await res.json();
-      if (!res.ok || !d.location) { addLog(`${barcode}: ${d.error || 'failed'}`, 'err'); return; }
+      if (!res.ok || !d.location) {
+        if (d.error === 'RACK_FULL') { addLog(`Rack ${rackRef.current} is full — pick another rack`, 'err'); return; }
+        if (d.error === 'INVALID_RACK') { addLog(`Rack ${rackRef.current} doesn't exist — pick another rack`, 'err'); return; }
+        addLog(`${barcode}: ${d.error || 'failed'}`, 'err');
+        return;
+      }
 
       const dimmed: number[] = d.dimmed || [];
       const greened: number[] = d.greened || [];
       const dual: { locationNumber: number; colors: OperatorColor[] }[] = d.dual || [];
       const activeColors: OperatorColor[] = d.activeColors || [color];
       const locId = d.location.id as number;
-      // Optimistic lights: active slot amber/green (with its full set of
-      // active colours, not just this operator's — a shared slot may already
-      // have another operator's own live pending item), previous pending(s)
-      // dark, any newly-completed slots green, any dual-color slots kept ON
-      // with their other operator's colour. refreshGrid() reconciles from the DB.
+      // Optimistic glow: active slot amber/green (with its full set of active
+      // colours, not just this operator's — a shared slot may already have
+      // another operator's own live pending item), previous pending(s) dark,
+      // any newly-completed slots green, any dual-color slots kept ON with
+      // their other operator's colour. refreshGrid() reconciles from the DB.
       setSlots((prev) => prev.map((s) => {
         if (s.id === locId) {
           return {
@@ -203,7 +226,7 @@ export default function ConsolidatePage() {
   // ---- LOCATION scan: release a completed (green) slot ----
   const release = async (locationBarcode: string, slot: Slot) => {
     try {
-      const res = await fetch('/api/consolidate-ptl/complete-location', {
+      const res = await fetch('/api/cl-cls/consolidate/complete-location', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ locationBarcode }),
@@ -222,7 +245,7 @@ export default function ConsolidatePage() {
       addLog(`RELEASED slot #${slot.locationNumber}${d.shippingPackageId ? ` — ${d.shippingPackageId}` : ''} — ready to ship`, 'ok');
       setSlots((prev) => prev.map((s) =>
         s.locationNumber === slot.locationNumber
-          ? { ...s, lightState: 'OFF', status: 'FREE', shippingPackageId: null, operatorColor: null, expected: 0, accounted: 0 }
+          ? { ...s, lightState: 'OFF', status: 'FREE', shippingPackageId: null, operatorColor: null, operatorColors: [], expected: 0, accounted: 0 }
           : s));
       lastMutateAt.current = Date.now();
       if (currentRef.current?.slotNumber === slot.locationNumber) setCurrent(null);
@@ -253,18 +276,18 @@ export default function ConsolidatePage() {
   const RESET_PASSWORD = '0000';
   const resetBoard = async () => {
     if (busy.current) return;
-    const pw = window.prompt('Enter password to reset the ENTIRE board:\n\nThis clears ALL in-progress consolidations and turns every light off. Order QC history is kept.');
+    const pw = window.prompt('Enter password to reset the ENTIRE board:\n\nThis clears ALL in-progress consolidations. Order QC history is kept.');
     if (pw === null) { focusActive(); return; }
     if (pw !== RESET_PASSWORD) { addLog('Master reset: wrong password', 'err'); focusActive(); return; }
     busy.current = true;
     try {
-      const res = await fetch('/api/consolidate-ptl/master-reset', { method: 'POST' });
+      const res = await fetch('/api/cl-cls/consolidate/master-reset', { method: 'POST' });
       const d = await res.json().catch(() => ({}));
       if (!res.ok) { addLog(`Master reset failed: ${d.error || res.status}`, 'err'); return; }
       setCurrent(null);
       setSlots((prev) => prev.map((s) => ({
         ...s, lightState: 'OFF', status: 'FREE', shippingPackageId: null,
-        operatorColor: null, expected: 0, accounted: 0,
+        operatorColor: null, operatorColors: [], expected: 0, accounted: 0,
       })));
       lastMutateAt.current = Date.now();
       addLog('Master reset — board cleared', 'ok');
@@ -307,7 +330,7 @@ export default function ConsolidatePage() {
       </div>
 
       <header className="csl-header">
-        <div className="brand"><span className="glyph">◆</span><h1>ConsolidAte PTL</h1><small>Order QC → PTL</small></div>
+        <div className="brand"><span className="glyph">◆</span><h1>ConsolidAte</h1><small>Order QC → Consolidation</small></div>
         <span className="spacer" />
         <span className="stat"><b>{dump.total}</b> dump</span>
         <span className="stat"><b className="amber">{stats?.consolidating ?? 0}</b> consolidating</span>
@@ -316,10 +339,10 @@ export default function ConsolidatePage() {
         <span className={'pill ' + (dump.error ? 'err' : dump.syncing ? 'warn' : 'ok')}>
           {dump.error ? 'sync error' : dump.syncing ? 'syncing…' : `synced ${dump.last ?? '—'}`}
         </span>
-        <Link href="/consolidate-ptl/history" className="csl-history" title="Released consolidations — survives Master Reset">
+        <Link href="/cl-cls/consolidate/history" className="csl-history" title="Released consolidations — survives Master Reset">
           History
         </Link>
-        <button type="button" className="csl-reset" onClick={resetBoard} onBlur={keepFocus} title="Clear ALL slots & lights (recover a stuck slot)">
+        <button type="button" className="csl-reset" onClick={resetBoard} onBlur={keepFocus} title="Clear ALL slots (recover a stuck slot)">
           ⟲ Reset
         </button>
       </header>
@@ -328,7 +351,25 @@ export default function ConsolidatePage() {
 
       <div className="csl-body">
         <section className="csl-console">
-          {/* Power Ranger operator picker (one-time per shift; not part of the scan loop) */}
+          {/* Rack + Ranger pickers (one-time per shift/relocation; not part of the scan loop).
+              Rack is TAP BUTTONS, not a native <select>: the scan field auto-refocuses
+              (autoarming), which yanks focus back and snaps a dropdown shut before you can
+              pick — a single-tap button completes before the refocus, same as the Rangers. */}
+          <div className="csl-rangers csl-racks">
+            <span className="lbl">Rack</span>
+            {RACKS.map((r) => (
+              <button
+                key={r}
+                type="button"
+                className={'rackbtn' + (rack === r ? ' on' : '')}
+                onClick={() => chooseRack(r)}
+                aria-pressed={rack === r}
+                title={`Rack ${r} · slots ${(r - 1) * 20 + 1}-${r * 20}`}
+              >
+                {r}
+              </button>
+            ))}
+          </div>
           <div className="csl-rangers">
             <span className="lbl">Ranger</span>
             {RANGERS.map((r) => (
@@ -395,10 +436,14 @@ export default function ConsolidatePage() {
         </section>
 
         <section className="csl-gridwrap">
-          <div className="csl-gridhead">PTL grid · <b>{stats?.totalSlots ?? slots.length}</b> slots</div>
+          <div className="csl-gridhead">All racks · <b>{stats?.totalSlots ?? slots.length}</b> slots · loading into <b className="gold">Rack {rack}</b></div>
           {slots.length === 0
             ? <div className="csl-noslots">No slots — run scripts/seed-consolidate-grid.cjs</div>
-            : <ConsolidateGrid slots={slots} highlightLocationId={current ? slots.find((s) => s.locationNumber === current.slotNumber)?.id ?? null : null} />}
+            : <ConsolidateGrid
+                slots={slots}
+                selectedRack={rack}
+                highlightLocationId={current ? slots.find((s) => s.locationNumber === current.slotNumber)?.id ?? null : null}
+              />}
         </section>
       </div>
     </div>
@@ -454,6 +499,11 @@ const CSS = `
 @keyframes cslpulse{ 0%,100%{ box-shadow:var(--shadow);} 50%{ box-shadow:var(--shadow),0 0 26px -2px rgba(70,211,154,.4);} }
 .csl-rangers{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
 .csl-rangers .lbl{ font-size:10px; text-transform:uppercase; letter-spacing:1.6px; color:var(--muted); font-weight:700; margin-right:2px; }
+.csl-root .rackbtn{ min-width:36px; height:34px; padding:0 9px; border-radius:10px; font:inherit; font-weight:700; font-size:13px;
+  font-variant-numeric:tabular-nums; cursor:pointer; color:var(--text-2); background:rgba(255,255,255,.02);
+  border:1px solid var(--line-strong); transition:all .14s ease; }
+.csl-root .rackbtn:hover{ border-color:var(--gold); color:var(--text); }
+.csl-root .rackbtn.on{ color:#0b0d11; background:var(--gold); border-color:var(--gold); font-weight:800; box-shadow:0 6px 18px -6px var(--gold); }
 .csl-root .ranger{ display:inline-flex; align-items:center; gap:8px; padding:7px 14px; border-radius:999px; font:inherit;
   font-weight:600; font-size:12.5px; letter-spacing:.2px; cursor:pointer; color:var(--text-2);
   background:rgba(255,255,255,.02); border:1px solid var(--line-strong); transition:all .14s ease; }
@@ -488,10 +538,14 @@ const CSS = `
 .csl-gridwrap{ background:var(--bg-1); border:1px solid var(--line); border-radius:16px; padding:20px 22px; overflow:auto; box-shadow:var(--shadow); }
 .csl-gridhead{ font-size:10px; text-transform:uppercase; letter-spacing:1.6px; color:var(--muted); font-weight:700; margin-bottom:18px; }
 .csl-gridhead b{ color:var(--text); }
+.csl-gridhead b.gold{ color:var(--gold-hi); }
 .csl-noslots{ color:var(--muted); text-align:center; padding:48px 0; font-size:13px; }
 .csl-grids{ display:flex; flex-wrap:wrap; gap:28px; }
 .csl-rack{ width:290px; }
 .csl-rack h3{ font-size:11px; color:var(--text-2); margin:0 0 11px; font-weight:700; text-transform:uppercase; letter-spacing:1.2px; }
+.csl-rack.sel h3{ color:var(--gold-hi); }
+.csl-rack .loadhere{ margin-left:8px; font-size:8px; padding:2px 7px; border-radius:999px; background:rgba(217,183,90,.14);
+  border:1px solid rgba(217,183,90,.4); color:var(--gold-hi); letter-spacing:1px; vertical-align:middle; }
 .csl-grid{ display:grid; grid-template-columns:repeat(5,1fr); gap:7px; }
 .csl-slot{ aspect-ratio:1; border-radius:12px; border:1px solid var(--line); background:var(--bg-2);
   display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; position:relative; color:var(--muted); transition:all .15s ease; }
@@ -512,9 +566,9 @@ const CSS = `
 }
 
 /* ---- HHD (hand-held device) mode — 4.6"–5.8" scanner screens ----
-   Physical PTL lights already guide the operator, so the on-screen grid is
-   dropped in favour of: the location to go to, the current order's progress,
-   and an unmissable full-screen flash on completion. */
+   No physical light here either, so the on-screen grid is dropped in favour
+   of: the location to go to, the current order's progress, and an
+   unmissable full-screen flash on completion. */
 .csl-hhdcard{ display:none; }
 .csl-flash{ display:none; }
 
@@ -527,8 +581,10 @@ const CSS = `
   .csl-reset, .csl-history{ display:none; }
   .csl-alert{ margin:10px 12px 0; font-size:12px; }
   .csl-rangers .lbl{ display:none; }
+  .csl-racks .lbl{ display:inline; }               /* keep "Rack" — bare numbers are ambiguous on HHD */
   .csl-root .ranger{ padding:9px; }
   .csl-root .ranger .nm{ display:none; }
+  .csl-root .rackbtn{ min-width:42px; height:40px; font-size:15px; }  /* bigger tap target on HHD */
   .csl-banner{ font-size:13px; padding:13px 14px; }
   .csl-gridwrap{ display:none; }
   .csl-body{ padding:10px; gap:10px; }

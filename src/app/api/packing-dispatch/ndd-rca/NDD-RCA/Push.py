@@ -127,8 +127,9 @@ GROUP BY fitting_id
 QCF_COLS = ["M", "N", "O", "P", "R", "T", "V", "X", "Z"]
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-CREDS = os.path.join(HERE, "gcreds.json")
-TOKEN = os.path.join(HERE, "gsheet_token.json")
+RESOURCE_ROOT = os.path.abspath(os.path.join(HERE, "../../../../../..", "src", "utils", "resources"))
+CREDS = os.path.join(RESOURCE_ROOT, "google", "gcreds.json")
+TOKEN = os.path.join(RESOURCE_ROOT, "google", "gsheet_token.json")
 # Drive scope is needed to upload the finished workbook. The original token was minted
 # for Sheets only; adding the scope forces a one-time re-consent (a refresh never widens
 # scope). After the next browser sign-in the new token carries both.

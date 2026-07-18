@@ -8,6 +8,10 @@ import json as json_module
 from datetime import date, timedelta
 import pandas as pd
 
+# Authentication helpers live centrally, outside the API route tree.
+HERE = os.path.dirname(os.path.abspath(__file__))
+RESOURCE_ROOT = os.path.abspath(os.path.join(HERE, "../../../../../..", "src", "utils", "resources"))
+sys.path.insert(0, os.path.join(RESOURCE_ROOT, "power-bi"))
 from pbi_auth import get_token
 
 import importlib

@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getNexsToken, invalidateNexsToken } from '@/utils/nexsAuth';
+import { getNexsToken, invalidateNexsToken } from '@/utils/resources/nexs/auth';
 import prisma from '@/utils/prisma';
 
 export const runtime = 'nodejs';
@@ -52,16 +52,14 @@ export async function POST(req: Request) {
       if (value) headers[name] = value;
     }
 
-    // Match location-blank-check: prefer a browser NexS session when present,
-    // otherwise mint a service-specific token and retry once after a 401.
+    // IMS getHistory currently serves this request without a service token.
+    // Forward a real browser NexS cookie when available, but do not attempt a
+    // login with a guessed app id: `nexs_ims` is not a valid auth app and that
+    // produced a misleading 403 log even though this API call succeeded.
     const browserCookie = req.headers.get('cookie');
     const usingBrowserCookie = !!browserCookie?.includes('jwt-token');
-    const imsApp = process.env.NEXS_IMS_APP_ID || 'nexs_ims';
-    let cookie: string | null = usingBrowserCookie ? browserCookie : null;
-    if (!cookie) {
-      const token = await getNexsToken(imsApp);
-      if (token) cookie = `jwt-token=${token}`;
-    }
+    const imsApp = process.env.NEXS_IMS_APP_ID?.trim() || null;
+    const cookie: string | null = usingBrowserCookie ? browserCookie : null;
 
     const callNexs = (authCookie: string | null) => {
       const requestHeaders = { ...headers };
@@ -81,10 +79,16 @@ export async function POST(req: Request) {
     let nexsResponse: Response;
     try {
       nexsResponse = await callNexs(cookie);
-      if (nexsResponse.status === 401 && !usingBrowserCookie) {
-        invalidateNexsToken(imsApp);
-        const freshToken = await getNexsToken(imsApp, true);
-        if (freshToken) nexsResponse = await callNexs(`jwt-token=${freshToken}`);
+      // Only use server login as an explicit, configured fallback after IMS
+      // actually rejects the unauthenticated request.
+      if (nexsResponse.status === 401 && !usingBrowserCookie && imsApp) {
+        const token = await getNexsToken(imsApp);
+        if (token) nexsResponse = await callNexs(`jwt-token=${token}`);
+        if (nexsResponse.status === 401) {
+          invalidateNexsToken(imsApp);
+          const freshToken = await getNexsToken(imsApp, true);
+          if (freshToken) nexsResponse = await callNexs(`jwt-token=${freshToken}`);
+        }
       }
     } catch (error) {
       return jsonError(`NexS network error: ${(error as Error).message}`, 502);

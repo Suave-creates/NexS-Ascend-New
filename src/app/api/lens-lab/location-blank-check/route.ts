@@ -11,7 +11,7 @@
 // response shape) is unchanged.
 
 import { NextResponse } from 'next/server';
-import { getNexsToken, invalidateNexsToken } from '@/utils/nexsAuth';
+import { getNexsToken, invalidateNexsToken } from '@/utils/resources/nexs/auth';
 import { prismaLensLab } from '@/utils/prismaLensLab';
 
 export const runtime = 'nodejs';

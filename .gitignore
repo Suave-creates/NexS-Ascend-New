@@ -34,14 +34,12 @@ yarn-error.log*
 .env*
 !.env.docker.example
 
-# secrets (BigQuery OAuth for infocorner/numbers) — provide locally, never commit
-/src/app/infocorner/numbers/credentials.json
-/src/app/infocorner/numbers/token.json
-
-# secrets / token caches for the NDD-RCA python pipeline — provide locally
-/src/app/api/packing-dispatch/ndd-rca/NDD-RCA/gcreds.json
-/src/app/api/packing-dispatch/ndd-rca/NDD-RCA/gsheet_token.json
-/src/app/api/packing-dispatch/ndd-rca/NDD-RCA/pbi_token_cache.json
+# centralized auth resources — helper code may be committed; secrets never are
+/src/utils/resources/bigquery/credentials.json
+/src/utils/resources/bigquery/token.json
+/src/utils/resources/google/gcreds.json
+/src/utils/resources/google/gsheet_token.json
+/src/utils/resources/power-bi/pbi_token_cache.json
 **/__pycache__/
 
 # vercel

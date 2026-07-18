@@ -8,7 +8,7 @@
 // Colocated with fetch-trays under /api/packing-dispatch/nexs-proxy/.
 
 import { NextResponse } from 'next/server';
-import { getNexsToken, invalidateNexsToken } from '@/utils/nexsAuth';
+import { getNexsToken, invalidateNexsToken } from '@/utils/resources/nexs/auth';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';

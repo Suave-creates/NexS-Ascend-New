@@ -26,7 +26,10 @@ const format = (
 ).format;
 
 const ADAPTIVE_BIN = process.env.ADAPTIVE_BIN || "adaptive";
-const EXEC_TIMEOUT_MS = Number(process.env.ADAPTIVE_EXEC_TIMEOUT_MS || 30_000);
+// Large read-only reports can spend more than 30 seconds producing and
+// transporting the MySQL text table through Adaptive. Callers can still tune
+// this per deployment, but the default must accommodate those report routes.
+const EXEC_TIMEOUT_MS = Number(process.env.ADAPTIVE_EXEC_TIMEOUT_MS || 90_000);
 const AUTH_WARNING_COOLDOWN_MS = 60_000;
 
 // Best-effort heuristic - we have not observed a real expired-token message
@@ -59,7 +62,9 @@ function runExec(endpoint: string, sql: string, label: string): Promise<string> 
     execFile(
       ADAPTIVE_BIN,
       ["exec", endpoint, "-c", sql],
-      { timeout: EXEC_TIMEOUT_MS, maxBuffer: 32 * 1024 * 1024 },
+      // Heavy inventory dumps can legitimately exceed the default child-process
+      // buffer because Adaptive renders the full result as a MySQL text table.
+      { timeout: EXEC_TIMEOUT_MS, maxBuffer: 256 * 1024 * 1024 },
       (err, stdout, stderr) => {
         const combined = `${stdout}\n${stderr}`;
 
@@ -79,11 +84,10 @@ function runExec(endpoint: string, sql: string, label: string): Promise<string> 
             );
             return;
           }
-          reject(
-            new Error(
-              `[${label}] adaptive exec failed for "${endpoint}": ${stderr.trim() || err.message}`
-            )
-          );
+          const cause = err.killed
+            ? `timed out after ${EXEC_TIMEOUT_MS}ms`
+            : stderr.trim() || err.message;
+          reject(new Error(`[${label}] adaptive exec failed for "${endpoint}": ${cause}`));
           return;
         }
 
