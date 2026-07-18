@@ -151,10 +151,16 @@ function MatchToastItem({ toast, onDone }: { toast: MatchToast; onDone: () => vo
 // ─── Scan Row ─────────────────────────────────────────────────────────────────
 
 function ScanRow({ item, isNew }: { item: ScannedItem; isNew: boolean }) {
+  const normalizedCondition = item.condition?.trim().toUpperCase();
+  const normalizedStatus = item.status?.trim().toUpperCase();
+  const isBadStatus =
+    normalizedCondition === 'BAD' ||
+    (normalizedStatus !== 'AVAILABLE' && normalizedStatus !== 'RELEASED');
+
   return (
     <TR
-      tone={item.isMatched ? 'gold' : undefined}
-      className={cn(!item.isMatched && item.isPreScanned && 'bg-brand-50 hover:bg-brand-50')}
+      tone={isBadStatus ? 'danger' : item.isMatched ? 'gold' : undefined}
+      className={cn(!isBadStatus && !item.isMatched && item.isPreScanned && 'bg-brand-50 hover:bg-brand-50')}
       style={{ animation: isNew ? 'rowSlide 0.4s cubic-bezier(0.22,1,0.36,1)' : undefined }}
     >
       <TD className="w-8 text-center">

@@ -23,8 +23,11 @@ import {
 } from '@/components/ui';
 import { cn } from '@/lib/cn';
 
+type StockOutMode = 'barcode' | 'location';
+
 interface LogEntry {
-  barcode: string;
+  value: string;
+  mode: StockOutMode;
   deletedCount: number;
   time: string;
   timestamp: string;
@@ -51,6 +54,7 @@ const TOAST_TONES: Record<Exclude<ToastType, 'idle'>, 'notice' | 'success' | 'er
 
 export default function StockOutModule() {
   const [barcode, setBarcode] = useState('');
+  const [mode, setMode] = useState<StockOutMode>('barcode');
   const [continuous, setContinuous] = useState(false);
   const [log, setLog] = useState<LogEntry[]>([]);
   const [toast, setToast] = useState<ToastState>({ type: 'idle', message: '' });
@@ -76,17 +80,21 @@ export default function StockOutModule() {
       return;
     }
 
-    // Extract last 12 characters (right 12 of input string)
-    const finalBarcode = trimmed.slice(-12);
+    // Only barcodes use the link-barcode rightmost-12 rule. Locations remain whole.
+    const finalValue = mode === 'barcode' ? trimmed.slice(-12) : trimmed;
 
     setIsLoading(true);
-    setToast({ type: 'loading', message: `Processing stock-out for ${finalBarcode}…` });
+    setToast({ type: 'loading', message: `Processing ${mode} stock-out for ${finalValue}…` });
 
     try {
       const res = await fetch('/api/asrs/pid-hunted-stock-out', {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ barcode: finalBarcode }),
+        body: JSON.stringify(
+          mode === 'location'
+            ? { mode, scan_location: finalValue }
+            : { mode, barcode: finalValue },
+        ),
       });
 
       const data: StockOutResponse = await res.json();
@@ -97,12 +105,13 @@ export default function StockOutModule() {
         setStatDeleted((s) => s + count);
         setToast({
           type: 'success',
-          message: `Stocked out "${finalBarcode}" — ${count} record(s) deleted`,
+          message: `Stocked out ${mode} "${finalValue}" — ${count} record(s) deleted`,
         });
 
         const now = new Date();
         const entry: LogEntry = {
-          barcode: finalBarcode,
+          value: finalValue,
+          mode,
           deletedCount: count,
           time: now.toLocaleTimeString([], {
             hour: '2-digit',
@@ -126,7 +135,7 @@ export default function StockOutModule() {
         inputRef.current?.focus();
       }
     }
-  }, [barcode, continuous, focusInput]);
+  }, [barcode, continuous, focusInput, mode]);
 
   // Auto-submit after 150ms of barcode input
   useEffect(() => {
@@ -155,8 +164,8 @@ export default function StockOutModule() {
 
   const exportCSV = () => {
     if (!log.length) return;
-    const header = ['Barcode', 'Records Deleted', 'Time', 'Timestamp'];
-    const rows = log.map((e) => [e.barcode, e.deletedCount, e.time, e.timestamp]);
+    const header = ['Mode', 'Value', 'Records Deleted', 'Time', 'Timestamp'];
+    const rows = log.map((e) => [e.mode, e.value, e.deletedCount, e.time, e.timestamp]);
     const csv = [header, ...rows]
       .map((r) => r.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(','))
       .join('\n');
@@ -181,7 +190,7 @@ export default function StockOutModule() {
     <div className="mx-auto max-w-2xl space-y-6">
       <PageHeader
         title="Stock-Out Module"
-        subtitle="Scan a barcode to remove all matching inventory records"
+        subtitle="Stock out one barcode or every record at a scan location"
         actions={
           <>
             <Button
@@ -199,7 +208,30 @@ export default function StockOutModule() {
       {/* Scan area */}
       <Card>
         <CardBody className="space-y-4">
-          <Field label="Barcode">
+          <div className="flex rounded-lg border border-gray-200 bg-gray-50 p-1">
+            <Button
+              type="button"
+              size="sm"
+              variant={mode === 'barcode' ? 'primary' : 'ghost'}
+              className="flex-1"
+              onClick={() => { setMode('barcode'); setBarcode(''); focusInput(); }}
+              disabled={isLoading}
+            >
+              Barcode
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              variant={mode === 'location' ? 'primary' : 'ghost'}
+              className="flex-1"
+              onClick={() => { setMode('location'); setBarcode(''); focusInput(); }}
+              disabled={isLoading}
+            >
+              Scan Location
+            </Button>
+          </div>
+
+          <Field label={mode === 'location' ? 'Scan Location' : 'Barcode'}>
             <div
               className={cn(
                 'flex items-center gap-3 rounded-xl border-2 border-dashed border-gray-200 bg-white px-4 py-3 transition',
@@ -216,7 +248,7 @@ export default function StockOutModule() {
                 onChange={(e) => setBarcode(e.target.value)}
                 onKeyDown={handleKeyDown}
                 disabled={isLoading}
-                placeholder="Scan or type barcode…"
+                placeholder={mode === 'location' ? 'Scan or type the full location…' : 'Scan or type barcode…'}
                 className="border-0 bg-transparent px-0 font-mono text-xl font-semibold text-brand-700 shadow-none focus:ring-0"
                 autoComplete="off"
                 autoCorrect="off"
@@ -229,7 +261,7 @@ export default function StockOutModule() {
                 loading={isLoading}
                 className="flex-shrink-0 whitespace-nowrap"
               >
-                {isLoading ? 'Processing…' : 'Stock Out'}
+                {isLoading ? 'Processing…' : mode === 'location' ? 'Stock Out Location' : 'Stock Out'}
               </Button>
             </div>
           </Field>
@@ -252,13 +284,13 @@ export default function StockOutModule() {
       <div className="grid grid-cols-3 gap-4">
         <StatCard tone="navy" label="Session scans" value={statScans} />
         <StatCard tone="danger" label="Records deleted" value={statDeleted} />
-        <StatCard tone="good" label="Barcodes logged" value={log.length} />
+        <StatCard tone="good" label="Actions logged" value={log.length} />
       </div>
 
       {/* Log */}
       <Card>
         <CardHeader>
-          <h2 className="text-sm font-semibold text-brand-700">Deleted Barcodes</h2>
+          <h2 className="text-sm font-semibold text-brand-700">Stock-out Log</h2>
           <div className="flex gap-2">
             <Button size="sm" variant="outline" onClick={clearLog} disabled={!log.length}>
               Clear
@@ -272,21 +304,23 @@ export default function StockOutModule() {
         <div className="max-h-[320px] overflow-y-auto">
           {log.length === 0 ? (
             <div className="px-4 py-10 text-center text-sm text-gray-500">
-              No barcodes stocked out yet
+              Nothing stocked out yet
             </div>
           ) : (
             <Table>
               <THead>
                 <TR>
-                  <TH>Barcode</TH>
+                  <TH>Mode</TH>
+                  <TH>Value</TH>
                   <TH>Records Deleted</TH>
                   <TH className="text-right">Time</TH>
                 </TR>
               </THead>
               <TBody>
                 {log.map((entry, i) => (
-                  <TR key={`${entry.barcode}-${i}`}>
-                    <TD className="font-mono font-semibold text-brand-700">{entry.barcode}</TD>
+                  <TR key={`${entry.mode}-${entry.value}-${i}`}>
+                    <TD><Badge tone={entry.mode === 'location' ? 'gold' : 'navy'}>{entry.mode}</Badge></TD>
+                    <TD className="font-mono font-semibold text-brand-700">{entry.value}</TD>
                     <TD>
                       <Badge tone="danger">-{entry.deletedCount} records</Badge>
                     </TD>
