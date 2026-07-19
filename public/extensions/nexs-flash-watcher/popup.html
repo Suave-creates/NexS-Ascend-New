@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NexS Flash Watcher</title>
+    <style>
+      :root { color-scheme: dark; }
+      * { box-sizing: border-box; }
+      body {
+        width: 340px; margin: 0; padding: 20px;
+        font-family: "Inter", -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+        color: #eef1f6;
+        background: linear-gradient(180deg, #111827, #0b0f1a);
+      }
+      h1 { font-size: 17px; margin: 0 0 2px; }
+      .eyebrow { font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: #6b8afd; margin: 0 0 12px; }
+      label { display: block; font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: #8b93a7; margin: 14px 0 6px; }
+      input[type="text"], input[type="number"] {
+        width: 100%; padding: 10px 11px; font-size: 13px; color: #eef1f6;
+        background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.12);
+        border-radius: 9px; font-family: "SF Mono", Consolas, Menlo, monospace;
+      }
+      input:focus { outline: none; border-color: #4d7bfe; box-shadow: 0 0 0 3px rgba(77,123,254,0.18); }
+      .row { display: flex; gap: 9px; margin-top: 14px; }
+      button {
+        flex: 1; padding: 11px; font-size: 12px; font-weight: 700; letter-spacing: 0.6px;
+        text-transform: uppercase; border-radius: 9px; cursor: pointer; border: 1px solid transparent;
+        transition: transform 0.1s ease, background 0.15s ease;
+      }
+      button:active { transform: translateY(1px); }
+      #save { color: #08122c; background: linear-gradient(135deg, #a9c2ff, #4d7bfe); }
+      #sync, #test { color: #cdd7ff; background: transparent; border-color: rgba(120,150,255,0.4); }
+      #sync:hover, #test:hover { background: rgba(120,150,255,0.12); }
+      .status { margin-top: 14px; font-size: 12px; line-height: 1.5; color: #9aa4bd; min-height: 34px; }
+      .status b { color: #eef1f6; }
+      .ok { color: #7ee0a4; }
+      .err { color: #ff9b9b; }
+      .hint { font-size: 11px; color: #6b7488; margin-top: 4px; line-height: 1.5; }
+      a { color: #6b8afd; }
+    </style>
+  </head>
+  <body>
+    <p class="eyebrow">Lenskart · NexS</p>
+    <h1>Flash Watcher</h1>
+
+    <label for="url">Rules URL</label>
+    <input id="url" type="text" spellcheck="false" placeholder="http://192.168.27.132:3069/api/flash-rules" />
+    <div class="hint">Defaults to NexS Ascend (<code>app.nexs.lenskart.com/api/flash-rules</code>). Only change this if Ascend is hosted elsewhere.</div>
+
+    <label for="interval">Sync every (minutes)</label>
+    <input id="interval" type="number" min="1" value="5" />
+
+    <div class="row">
+      <button id="save">Save</button>
+      <button id="sync">Sync now</button>
+    </div>
+    <div class="row">
+      <button id="test">Test flash</button>
+    </div>
+
+    <div class="status" id="status"></div>
+
+    <script src="popup.js"></script>
+  </body>
+</html>

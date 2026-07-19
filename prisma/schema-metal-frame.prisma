@@ -1,0 +1,208 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/metal_frame"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL_MF")
+}
+
+model Plating {
+  id Int @id @default(autoincrement())
+
+  modelId        String
+  size           String
+  finish         String
+  categoryOfWork String // Required field
+
+  totalQuantity Int @default(0)
+  qcQuantity    Int @default(0)
+  ngQuantity    Int @default(0)
+
+  copperRejection Int @default(0)
+  nickelRejection Int @default(0)
+  lineRejection   Int @default(0)
+  fqcRejection    Int @default(0)
+
+  updatedAt DateTime @updatedAt
+
+  @@index([modelId])
+  @@index([size])
+  @@index([finish])
+  @@index([categoryOfWork])
+}
+
+// ---------------------------------------------------------------------------
+// Fitting line — continuous barcode scanning. The six operation Person IDs and
+// the line number are static "line setup" (change only when the crew changes).
+// ---------------------------------------------------------------------------
+model FittingScan {
+  id             Int      @id @default(autoincrement())
+  barcode        String
+  lineNumber     String   @map("line_number")
+  nosePadPid     String   @map("nose_pad_pid")
+  tipFittingPid  String   @map("tip_fitting_pid")
+  lensFittingPid String   @map("lens_fitting_pid")
+  tipBendingPid  String   @map("tip_bending_pid")
+  frontAlignPid  String   @map("front_align_pid")
+  frameAlignPid  String   @map("frame_align_pid")
+  isRework       Boolean  @default(false) @map("is_rework")
+  timestamp      DateTime @default(now())
+
+  @@index([barcode], map: "idx_FittingScan_barcode")
+  @@index([lineNumber, timestamp], map: "idx_FittingScan_line_ts")
+  @@index([timestamp], map: "idx_FittingScan_ts")
+  @@map("FittingScan")
+}
+
+// ---------------------------------------------------------------------------
+// QC verdicts. `reason` holds the fail-reason label (null on PASS).
+// `qcStation` identifies the QC station / line the verdict was recorded at.
+// ---------------------------------------------------------------------------
+model QcScan {
+  id        Int      @id @default(autoincrement())
+  barcode   String
+  qcPerson  String   @map("qc_person")
+  qcStation String   @map("qc_station")
+  status    String // 'PASS' | 'FAIL'
+  reason    String? // fail reason label; null when status = PASS
+  timestamp DateTime @default(now())
+
+  @@index([barcode], map: "idx_QcScan_barcode")
+  @@index([status, timestamp], map: "idx_QcScan_status_ts")
+  @@index([reason], map: "idx_QcScan_reason")
+  @@index([qcStation, timestamp], map: "idx_QcScan_station_ts")
+  @@index([timestamp], map: "idx_QcScan_ts")
+  @@map("QcScan")
+}
+
+// ---------------------------------------------------------------------------
+// QC fail-reason layout — DB-backed so a supervisor's edit (rename, hotkey,
+// featured flag, order) applies to every QC station at once. `hotkey` is a
+// single char (1-9, 0, A-Z). `featured` reasons render as big buttons.
+// ---------------------------------------------------------------------------
+model QcReason {
+  id        Int      @id @default(autoincrement())
+  label     String
+  hotkey    String   @default("")
+  featured  Boolean  @default(false)
+  sortOrder Int      @default(0) @map("sort_order")
+  active    Boolean  @default(true)
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([active, sortOrder], map: "idx_QcReason_active_sort")
+  @@map("QcReason")
+}
+
+// ---------------------------------------------------------------------------
+// Tumbling Process Management — 3 tables total.
+//
+// TumblingContainer: 44 static rows (22 stations x Left/Right). A "station"
+//   is just a `stationNumber` shared by its two container rows — there is no
+//   separate Station table.
+//
+// TumblingProcess: the whole transactional record. Products and the
+//   immutable event timeline are stored as JSON columns on the process row
+//   itself (not child tables) since they are always read/written together
+//   with their process and never queried independently at scale. One active
+//   (DRAFT/RUNNING) process per container is enforced with a real unique DB
+//   constraint via `activeSlotContainerId` (set to the container's id while
+//   active, cleared to null on any terminal transition), not app logic alone.
+//
+// TumblingConfiguration: a single settings row (fixed id = 1).
+//
+// Authorization for Complete Early / Stop / Settings reuses the existing
+// `User`/bcrypt credential store directly (read-only cross-client lookup, no
+// cross-schema Prisma relation) — there is no separate role/permission table.
+// ---------------------------------------------------------------------------
+enum TumblingContainerSide {
+  LEFT
+  RIGHT
+}
+
+enum TumblingProcessStatus {
+  DRAFT
+  RUNNING
+  COMPLETED
+  COMPLETED_EARLY
+  STOPPED
+  CANCELLED
+}
+
+enum TumblingCompletionType {
+  AUTOMATIC
+  EARLY
+  STOPPED
+}
+
+model TumblingContainer {
+  id            Int                   @id @default(autoincrement())
+  stationNumber Int
+  side          TumblingContainerSide
+  displayName   String
+  isActive      Boolean               @default(true)
+  createdAt     DateTime              @default(now())
+  updatedAt     DateTime              @updatedAt
+
+  processes TumblingProcess[]
+
+  @@unique([stationNumber, side])
+  @@index([stationNumber])
+  @@map("TumblingContainer")
+}
+
+model TumblingProcess {
+  id          Int                   @id @default(autoincrement())
+  processCode String                @unique
+  containerId Int
+  status      TumblingProcessStatus @default(DRAFT)
+
+  // Stored per-process (not read from config at completion time) so
+  // historical records stay accurate if the configured default changes.
+  durationMinutes Int @default(720)
+
+  startedAt            DateTime?
+  expectedCompletionAt DateTime?
+  completedAt          DateTime?
+  stoppedAt            DateTime?
+
+  completionType TumblingCompletionType?
+  // Reused for both the Stop reason and the Complete-Early reason.
+  reason         String?
+  remarks        String?                 @db.Text
+
+  startedByName    String?
+  authorizedByCode String?
+  authorizedByName String?
+
+  // [{ pid, sheetCode, modelNumber, additionalReference }]
+  products Json @default("[]")
+  // Immutable, append-only: [{ type, at, by, authorizedBy, reason, remarks }]
+  events   Json @default("[]")
+
+  // Non-null only while status is DRAFT/RUNNING; unique so the DB itself
+  // rejects a second concurrent active process in the same container.
+  activeSlotContainerId Int? @unique
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  container TumblingContainer @relation(fields: [containerId], references: [id])
+
+  @@index([status])
+  @@index([containerId])
+  @@index([startedAt])
+  @@index([expectedCompletionAt])
+  @@map("TumblingProcess")
+}
+
+model TumblingConfiguration {
+  id                             Int      @id @default(autoincrement())
+  defaultDurationMinutes         Int      @default(720)
+  additionalFieldLabel           String   @default("Additional Reference")
+  nearCompletionThresholdMinutes Int      @default(60)
+  updatedAt                      DateTime @updatedAt
+
+  @@map("TumblingConfiguration")
+}
