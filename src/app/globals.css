@@ -1,0 +1,68 @@
+@import "tailwindcss";
+
+/* =============================================================================
+   NexS Ascend — unified design tokens (Tailwind v4 @theme)
+   Brand navy is anchored at brand-700 (#1f295c), the color already used across
+   the app. Semantic feedback uses Tailwind's built-in red/green/amber/blue.
+   ========================================================================== */
+@theme {
+  --color-brand-50: #f3f4f9;
+  --color-brand-100: #e1e4f0;
+  --color-brand-200: #c4cae2;
+  --color-brand-300: #9da6cd;
+  --color-brand-400: #6c79aa;
+  --color-brand-500: #465487;
+  --color-brand-600: #2e3b6c;
+  --color-brand-700: #1f295c;
+  --color-brand-800: #19214a;
+  --color-brand-900: #121838;
+
+  /* Semantic highlight palette (mirrors infocorner/tracer-pro) — for status
+     badges, alerts, attention pills and highlighted table rows. */
+  --color-good-50: #edfaf3;
+  --color-good-600: #1a7a4a;
+  --color-notice-50: #fff3e8;
+  --color-notice-600: #e8650a;
+  --color-danger-50: #fff0ee;
+  --color-danger-600: #c0392b;
+  --color-gold-100: #fffbe6;
+  --color-gold-500: #e8b400;
+  --color-gold-700: #8a6400;
+
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", Roboto, Arial, sans-serif;
+}
+
+@layer base {
+  html,
+  body {
+    height: 100%;
+  }
+  body {
+    font-family: var(--font-sans);
+    color: #111827; /* gray-900 */
+    background-color: #f9fafb; /* gray-50 */
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+}
+
+/* Animations used by the Modal / overlay primitives */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes modalIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}

@@ -1,0 +1,20 @@
+Connecting to mydb at 192.168.27.157:3306 as Hero ...
+  CREATE PackingScan.idx_PackingScan_scanId (scanId)  11846ms
+  CREATE PackingScan.idx_PackingScan_station_ts (stationId, timestamp)  23959ms
+  CREATE DispatchScan.idx_DispatchScan_scanId (scanId)  5935ms
+  CREATE DispatchScan.idx_DispatchScan_station_ts (stationId, timestamp)  5815ms
+  CREATE BulkScan.idx_BulkScan_scanId (scanId)  2687ms
+  CREATE BulkScan.idx_BulkScan_station_ts (stationId, timestamp)  2220ms
+  CREATE FR0Scan.idx_FR0Scan_scanId (scanId)  4323ms
+  CREATE FR0Scan.idx_FR0Scan_station_created (stationId, createdAt)  4281ms
+  CREATE CLScans.idx_CLScans_scanId (scanId)  551ms
+  CREATE CLScans.idx_CLScans_station_created (stationId, createdAt)  458ms
+  CREATE ManualWarehouse.idx_ManualWarehouse_timestamp (timestamp)  113ms
+  CREATE FR0BulkHOTO.idx_FR0BulkHOTO_scanId_ts (scanId, timestamp)  9067ms
+  CREATE CourierHandover.idx_CourierHandover_partner_awb (partner, awb)  28280ms
+  CREATE OperationsMetadata.idx_OperationsMetadata_location_id (location_id)  137ms
+  CREATE scanned_barcode_inventory.idx_sbi_location_scanned (scan_location, scanned_at)  144ms
+  CREATE ndd_shipments.idx_ndd_created_at (created_at)  408ms
+  CREATE ndd_shipments.idx_ndd_awb (awb)  341ms
+
+Phase 'indexes' complete.
