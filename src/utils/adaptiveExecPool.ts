@@ -239,26 +239,44 @@ export interface CreateNexsPoolOptions {
 }
 
 export function createNexsPool(opts: CreateNexsPoolOptions): Pool {
-  const endpoint = process.env[opts.adaptiveEndpointEnv];
+  let pool: Pool | undefined;
 
-  if (endpoint) {
-    console.log(`[${opts.label}] Adaptive CLI bridge active -> endpoint "${endpoint}"`);
-    return new AdaptivePool(endpoint, opts.label, opts.connectionLimit) as unknown as Pool;
-  }
+  const getPool = (): Pool => {
+    if (pool) return pool;
 
-  const uri = process.env[opts.fallbackUriEnv];
-  if (!uri) {
-    throw new Error(
-      `[${opts.label}] Neither ${opts.adaptiveEndpointEnv} nor ${opts.fallbackUriEnv} is set.`
-    );
-  }
+    const endpoint = process.env[opts.adaptiveEndpointEnv];
+    if (endpoint) {
+      console.log(`[${opts.label}] Adaptive CLI bridge active -> endpoint "${endpoint}"`);
+      pool = new AdaptivePool(endpoint, opts.label, opts.connectionLimit) as unknown as Pool;
+      return pool;
+    }
 
-  return mysqlPromise.createPool({
-    uri,
-    connectionLimit: opts.connectionLimit,
-    waitForConnections: true,
-    queueLimit: 0,
-    enableKeepAlive: true,
-    keepAliveInitialDelay: 0,
+    const uri = process.env[opts.fallbackUriEnv];
+    if (!uri) {
+      throw new Error(
+        `[${opts.label}] Neither ${opts.adaptiveEndpointEnv} nor ${opts.fallbackUriEnv} is set.`
+      );
+    }
+
+    pool = mysqlPromise.createPool({
+      uri,
+      connectionLimit: opts.connectionLimit,
+      waitForConnections: true,
+      queueLimit: 0,
+      enableKeepAlive: true,
+      keepAliveInitialDelay: 0,
+    });
+    return pool;
+  };
+
+  // Next.js imports route modules while collecting build metadata. Defer pool
+  // creation so runtime-only credentials are not required (or baked into the
+  // image) during that import. The first real pool operation validates config.
+  return new Proxy({} as Pool, {
+    get(_target, property) {
+      const resolvedPool = getPool();
+      const value = Reflect.get(resolvedPool, property, resolvedPool) as unknown;
+      return typeof value === "function" ? value.bind(resolvedPool) : value;
+    },
   });
 }
