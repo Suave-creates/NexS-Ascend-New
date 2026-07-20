@@ -1,12 +1,9 @@
-import { nexsPool } from '@/utils/nexsPool';
-import mysql from 'mysql2/promise';
+import { BIGQUERY_DATA_PROJECT_ID, runBigQuery } from '@/utils/resources/bigquery/client';
 
 const MAX_LOCATIONS = 100000;
 const CHUNK_SIZE = 1000;
 
 export async function POST(req: Request) {
-  let conn: mysql.PoolConnection | null = null;
-
   try {
     const rawText = await req.text();
 
@@ -36,9 +33,6 @@ export async function POST(req: Request) {
       });
     }
 
-    conn = await nexsPool.getConnection();
-    await conn.changeUser({ database: 'nexs_ims' });
-
     const totalChunks = Math.ceil(barcodes.length / CHUNK_SIZE);
     const encoder = new TextEncoder();
 
@@ -53,10 +47,18 @@ export async function POST(req: Request) {
 
           for (let i = 0; i < barcodes.length; i += CHUNK_SIZE) {
             const chunk = barcodes.slice(i, i + CHUNK_SIZE);
-            const placeholders = chunk.map(() => '?').join(',');
-
-            const [rows]: any = await conn!.execute(
+            const { rows } = await runBigQuery(
               `
+              WITH ranked AS (
+                SELECT
+                  bi.*,
+                  ROW_NUMBER() OVER (
+                    PARTITION BY bi.barcode
+                    ORDER BY bi.updated_at DESC
+                  ) AS rn
+                FROM \`${BIGQUERY_DATA_PROJECT_ID}.nexs_ims.barcode_item_history\` bi
+                WHERE bi.barcode IN UNNEST(@barcodes)
+              )
               SELECT 
                   t.pid,
                   t.barcode,
@@ -68,24 +70,16 @@ export async function POST(req: Request) {
 
                   MAX(CASE WHEN t.rn = 1 THEN t.updated_at END) AS updated_at_latest,
                   MAX(CASE WHEN t.rn = 1 THEN t.status END) AS status,
-                  MAX(CASE WHEN t.rn = 1 THEN t.\`condition\` END) AS \`condition\`,
+                  MAX(CASE WHEN t.rn = 1 THEN t.condition END) AS condition,
                   MAX(CASE WHEN t.rn = 1 THEN t.availability END) AS availability
 
-              FROM (
-                  SELECT 
-                      bi.*,
-                      @rn := IF(@prev = bi.barcode, @rn + 1, 1) AS rn,
-                      @prev := bi.barcode
-                  FROM barcode_item_history bi
-                  CROSS JOIN (SELECT @rn := 0, @prev := '') vars
-                  WHERE bi.barcode IN (${placeholders})
-                  ORDER BY bi.barcode, bi.updated_at DESC
-              ) t
+              FROM ranked t
               WHERE t.rn <= 4
               GROUP BY t.pid, t.barcode
               ORDER BY t.barcode
               `,
-              chunk
+              10000,
+              { barcodes: chunk },
             );
 
             for (const r of rows) {
@@ -119,8 +113,6 @@ export async function POST(req: Request) {
         } catch (err) {
           console.error('Stream error:', err);
           controller.error(err);
-        } finally {
-          if (conn) conn.release();
         }
       },
     });
@@ -133,8 +125,6 @@ export async function POST(req: Request) {
     });
   } catch (err) {
     console.error('Bulk query error:', err);
-    if (conn) conn.release();
-
     return new Response(
       JSON.stringify({ error: 'Processing failed' }),
       { status: 500, headers: { 'Content-Type': 'application/json' } }

@@ -1,8 +1,7 @@
 //src/app/api/infocorner/tracer-pro/route.ts
 
 import { NextResponse } from "next/server";
-import type mysql from "mysql2/promise";
-import { nexsPool } from "@/utils/nexsPool";
+import { BIGQUERY_DATA_PROJECT_ID, runBigQuery } from "@/utils/resources/bigquery/client";
 
 /* =====================================================
    Constants
@@ -48,19 +47,6 @@ function sanitiseTrayIds(raw: unknown): string[] | null {
   return unique.length === 0 ? null : unique;
 }
 
-/**
- * Build a comma-separated list of ? placeholders.
- * Use instead of passing an array to IN (?) which causes
- * ER_NOT_SUPPORTED_YET on older MySQL versions.
- *
- * Usage:
- *   WHERE col IN (${ph(arr)})
- *   params: [...arr]
- */
-function ph(arr: string[]): string {
-  return arr.map(() => "?").join(", ");
-}
-
 function resolveFittingGroup(trayRows: any[], out: Map<string, TrayMeta>): void {
   if (trayRows.length === 0) return;
 
@@ -87,8 +73,6 @@ function resolveFittingGroup(trayRows: any[], out: Map<string, TrayMeta>): void 
    API Handler
 ===================================================== */
 export async function POST(req: Request) {
-  let conn: mysql.PoolConnection | null = null;
-
   try {
     let body: unknown;
     try {
@@ -113,32 +97,25 @@ export async function POST(req: Request) {
       );
     }
 
-    conn = await nexsPool.getConnection();
-
     /* =====================================================
        1 - WMS: latest order item per tray
     ====================================================== */
-    await conn.changeUser({ database: "wms" });
-
-    const [orderRows]: any = await conn.execute(
+    const { rows: orderRows } = await runBigQuery(
       `SELECT
          oi.location_id,
          oi.fitting_id,
          oi.shipping_package_id,
          oi.qc_fail_count,
          oih.order_item_type,
-         DATEDIFF(CURDATE(), DATE(oi.created_at)) AS created_at_days,
+         DATE_DIFF(CURRENT_DATE(), DATE(oi.created_at), DAY) AS created_at_days,
          oi.created_at
-       FROM order_items oi
-       INNER JOIN (
-         SELECT location_id, MAX(id) AS latest_id
-         FROM   order_items
-         WHERE  location_id IN (${ph(trayIds)})
-         GROUP BY location_id
-       ) latest ON latest.latest_id = oi.id
-       LEFT JOIN order_item_header oih
-         ON oih.shipping_package_id = oi.shipping_package_id`,
-      [...trayIds]
+       FROM \`${BIGQUERY_DATA_PROJECT_ID}.wms.order_items\` oi
+       LEFT JOIN \`${BIGQUERY_DATA_PROJECT_ID}.wms.order_item_header\` oih
+         ON oih.shipping_package_id = oi.shipping_package_id
+       WHERE CAST(oi.location_id AS STRING) IN UNNEST(@tray_ids)
+       QUALIFY ROW_NUMBER() OVER (PARTITION BY oi.location_id ORDER BY oi.id DESC) = 1`,
+      10000,
+      { tray_ids: trayIds },
     );
 
     if (!orderRows.length) {
@@ -152,12 +129,13 @@ export async function POST(req: Request) {
       new Set(orderRows.map((r: any) => String(r.fitting_id)))
     );
 
-    const [allFittingRows]: any = await conn.execute(
+    const { rows: allFittingRows } = await runBigQuery(
       `SELECT location_id, fitting_id, qc_fail_count, created_at
-       FROM   order_items
-       WHERE  fitting_id IN (${ph(fittingIds)})
+       FROM \`${BIGQUERY_DATA_PROJECT_ID}.wms.order_items\`
+       WHERE CAST(fitting_id AS STRING) IN UNNEST(@fitting_ids)
        ORDER BY fitting_id ASC, qc_fail_count ASC, created_at ASC`,
-      [...fittingIds]
+      10000,
+      { fitting_ids: fittingIds },
     );
 
     const fittingGroupMap = new Map<string, any[]>();
@@ -175,27 +153,29 @@ export async function POST(req: Request) {
     /* =====================================================
        3 - ORDERQC: reasons + fail-event counts (parallel)
     ====================================================== */
-    const shippingIds: string[] = orderRows.map((r: any) => r.shipping_package_id);
+    const shippingIds = Array.from(new Set(
+      orderRows.map((r: any) => String(r.shipping_package_id)),
+    ));
 
-    await conn.changeUser({ database: "orderqc" });
-
-    const [[qcReasonRows], [qcCountRows]]: any = await Promise.all([
-      conn.execute(
+    const [{ rows: qcReasonRows }, { rows: qcCountRows }] = await Promise.all([
+      runBigQuery(
         `SELECT shipping_package_id, TRIM(UPPER(reason_name)) AS reason_name
-         FROM   qc_status_history
-         WHERE  shipping_package_id IN (${ph(shippingIds)})
+         FROM \`${BIGQUERY_DATA_PROJECT_ID}.orderqc.qc_status_history\`
+         WHERE CAST(shipping_package_id AS STRING) IN UNNEST(@shipping_ids)
            AND  status = 'QCFailed'
          ORDER BY updated_at DESC`,
-        [...shippingIds]
+        10000,
+        { shipping_ids: shippingIds },
       ),
-      conn.execute(
+      runBigQuery(
         `SELECT shipping_package_id,
-                COUNT(DISTINCT DATE(updated_at), HOUR(updated_at)) AS qcf_count
-         FROM   qc_status_history
-         WHERE  shipping_package_id IN (${ph(shippingIds)})
+                COUNT(DISTINCT TIMESTAMP_TRUNC(updated_at, HOUR)) AS qcf_count
+         FROM \`${BIGQUERY_DATA_PROJECT_ID}.orderqc.qc_status_history\`
+         WHERE CAST(shipping_package_id AS STRING) IN UNNEST(@shipping_ids)
            AND  status = 'QCFailed'
          GROUP BY shipping_package_id`,
-        [...shippingIds]
+        10000,
+        { shipping_ids: shippingIds },
       ),
     ]);
 
@@ -219,6 +199,7 @@ export async function POST(req: Request) {
       const trayMeta            = trayMetaMap.get(locationId);
       const reasons             = qcReasonMap.get(r.shipping_package_id) ?? [];
       const qcFailedStatusCount = qcCountMap.get(r.shipping_package_id) ?? 0;
+      const createdAtDays = Number(r.created_at_days ?? 0);
 
       return {
         parent_tray_id: trayMeta?.parent_tray_id ?? locationId,
@@ -230,11 +211,11 @@ export async function POST(req: Request) {
         shipping_package_id: r.shipping_package_id,
         order_item_type:     r.order_item_type ?? "N/A",
 
-        created_at_days:        r.created_at_days ?? 0,
+        created_at_days:        createdAtDays,
         qc_failed_status_count: qcFailedStatusCount,
 
         qc_failed_highlight: qcFailedStatusCount > 2 ? "RED" : "NONE",
-        aged_highlight:      (r.created_at_days ?? 0) > 3 ? "RED" : "NONE",
+        aged_highlight:      createdAtDays > 3 ? "RED" : "NONE",
 
         reasons: reasons.map((reason) => ({
           text:      reason,
@@ -250,9 +231,5 @@ export async function POST(req: Request) {
       { error: "Internal Server Error" },
       { status: 500 }
     );
-  } finally {
-    if (conn) {
-      try { conn.release(); } catch { /* ignore */ }
-    }
   }
 }

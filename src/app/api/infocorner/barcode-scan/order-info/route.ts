@@ -1,12 +1,9 @@
 import { NextResponse } from 'next/server';
-import type mysql from 'mysql2/promise';
-import { nexsPool } from '@/utils/nexsPool';
+import { BIGQUERY_DATA_PROJECT_ID, runBigQuery } from '@/utils/resources/bigquery/client';
 
 export const runtime = 'nodejs';
 
 export async function POST(request: Request) {
-  let conn: mysql.PoolConnection | null = null;
-
   try {
     const rawBody = await request.text();
     let parsed: any;
@@ -23,11 +20,8 @@ export async function POST(request: Request) {
 
     const { mode, payload } = parsed;
 
-    conn = await nexsPool.getConnection();
-    await conn.changeUser({ database: 'wms' });
-
     let query = '';
-    let params: any[] = [];
+    let fittingIds: string[] = [];
 
     if (mode === 'single') {
       const id = String(payload ?? '').trim();
@@ -35,7 +29,7 @@ export async function POST(request: Request) {
 
       query = `
         SELECT 
-          DATE_FORMAT(DATE_ADD(DATE_ADD(action_time, INTERVAL 5 HOUR), INTERVAL 30 MINUTE), '%Y/%m/%d %H:%i:%s') AS action_time,
+          FORMAT_TIMESTAMP('%Y/%m/%d %H:%M:%S', TIMESTAMP_ADD(TIMESTAMP(action_time), INTERVAL 330 MINUTE)) AS action_time,
           product_id,
           barcode,
           shipping_package_id,
@@ -48,11 +42,11 @@ export async function POST(request: Request) {
           qc_fail_count,
           operation,
           hold_reason
-        FROM order_items_history
-        WHERE fitting_id = ?
+        FROM \`${BIGQUERY_DATA_PROJECT_ID}.wms.order_items_history\`
+        WHERE CAST(fitting_id AS STRING) IN UNNEST(@fitting_ids)
         ORDER BY action_time ASC
       `;
-      params = [id];
+      fittingIds = [id];
     }
 
     else {
@@ -95,10 +89,9 @@ export async function POST(request: Request) {
       const allRows: any[] = [];
       for (let i = 0; i < ids.length; i += CHUNK_SIZE) {
         const chunk = ids.slice(i, i + CHUNK_SIZE);
-        const placeholders = chunk.map(() => '?').join(',');
         const chunkQuery = `
           SELECT 
-            DATE_FORMAT(DATE_ADD(DATE_ADD(action_time, INTERVAL 5 HOUR), INTERVAL 30 MINUTE), '%Y/%m/%d %H:%i:%s') AS action_time,
+            FORMAT_TIMESTAMP('%Y/%m/%d %H:%M:%S', TIMESTAMP_ADD(TIMESTAMP(action_time), INTERVAL 330 MINUTE)) AS action_time,
             product_id,
             barcode,
             shipping_package_id,
@@ -111,19 +104,23 @@ export async function POST(request: Request) {
             qc_fail_count,
             operation,
             hold_reason
-          FROM order_items_history
-          WHERE fitting_id IN (${placeholders})
+          FROM \`${BIGQUERY_DATA_PROJECT_ID}.wms.order_items_history\`
+          WHERE CAST(fitting_id AS STRING) IN UNNEST(@fitting_ids)
           ORDER BY fitting_id, action_time ASC
         `;
-        const [chunkRows] = await conn.execute(chunkQuery, chunk);
-        allRows.push(...(chunkRows as any[]));
+        const { rows: chunkRows } = await runBigQuery(
+          chunkQuery,
+          10000,
+          { fitting_ids: chunk },
+        );
+        allRows.push(...chunkRows);
       }
 
       return NextResponse.json({ rows: allRows });
     }
 
     // unreachable for bulk — kept for single path below
-    const [rows] = await conn.execute(query, params);
+    const { rows } = await runBigQuery(query, 10000, { fitting_ids: fittingIds });
 
     return NextResponse.json({ rows });
   } catch (err: any) {
@@ -133,7 +130,5 @@ export async function POST(request: Request) {
       { error: err?.message ?? 'Internal server error' },
       { status: 500 }
     );
-  } finally {
-    if (conn) conn.release();
   }
 }

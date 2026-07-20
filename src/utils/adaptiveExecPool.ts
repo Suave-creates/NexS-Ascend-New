@@ -29,7 +29,7 @@ const ADAPTIVE_BIN = process.env.ADAPTIVE_BIN || "adaptive";
 // Large read-only reports can spend more than 30 seconds producing and
 // transporting the MySQL text table through Adaptive. Callers can still tune
 // this per deployment, but the default must accommodate those report routes.
-const EXEC_TIMEOUT_MS = Number(process.env.ADAPTIVE_EXEC_TIMEOUT_MS || 90_000);
+const EXEC_TIMEOUT_MS = Number(process.env.ADAPTIVE_EXEC_TIMEOUT_MS || 300_000);
 const AUTH_WARNING_COOLDOWN_MS = 60_000;
 
 // Best-effort heuristic - we have not observed a real expired-token message

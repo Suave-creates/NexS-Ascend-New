@@ -1,9 +1,6 @@
-import type mysql from 'mysql2/promise';
-import { nexsPool } from '@/utils/nexsPool';
+import { BIGQUERY_DATA_PROJECT_ID, runBigQuery } from '@/utils/resources/bigquery/client';
 
 export async function POST(req: Request) {
-  let conn: mysql.PoolConnection | null = null;
-
   try {
     const { pids } = await req.json();
 
@@ -26,20 +23,14 @@ export async function POST(req: Request) {
       );
     }
 
-    conn = await nexsPool.getConnection();
-    await conn.changeUser({ database: 'nexs_ims' });
-
-    // Build placeholder string: (?, ?, ?)
-    const placeholders = validPids.map(() => '?').join(',');
-
-    const [rows]: any = await conn.execute(
+    const { rows } = await runBigQuery(
       `
       SELECT 
         pid,
         location,
         barcode
-      FROM barcode_item
-      WHERE pid IN (${placeholders})
+      FROM \`${BIGQUERY_DATA_PROJECT_ID}.nexs_ims.barcode_item\`
+      WHERE CAST(pid AS STRING) IN UNNEST(@pids)
         AND facility = 'NXS1'
         AND \`condition\` = 'GOOD'
         AND status = 'AVAILABLE'
@@ -48,7 +39,8 @@ export async function POST(req: Request) {
       GROUP BY pid, location, barcode
       ORDER BY pid, location, barcode
       `,
-      validPids
+      10000,
+      { pids: validPids },
     );
 
     /* ===============================
@@ -84,7 +76,5 @@ export async function POST(req: Request) {
       JSON.stringify({ error: 'Internal Server Error' }),
       { status: 500, headers: { 'Content-Type': 'application/json' } }
     );
-  } finally {
-    if (conn) conn.release();
   }
 }

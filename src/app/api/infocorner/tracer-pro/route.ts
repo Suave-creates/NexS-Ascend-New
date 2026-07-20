@@ -1,8 +1,7 @@
 //src/app/api/infocorner/tracer-pro/route.ts
 
 import { NextResponse } from "next/server";
-import type mysql from "mysql2/promise";
-import { nexsPool } from "@/utils/nexsPool";
+import { BIGQUERY_DATA_PROJECT_ID, runBigQuery } from "@/utils/resources/bigquery/client";
 
 /* =====================================================
    Constants
@@ -39,8 +38,6 @@ function sanitiseTrayId(raw: unknown): string | null {
    API Handler
 ===================================================== */
 export async function POST(req: Request) {
-  let conn: mysql.PoolConnection | null = null;
-
   try {
     /* ─── Parse & validate body ─── */
     let body: unknown;
@@ -59,14 +56,10 @@ export async function POST(req: Request) {
     }
 
     /* ─── Acquire connection ─── */
-    conn = await nexsPool.getConnection();
-
     /* =====================================================
        1️⃣  WMS – latest order item for this tray
     ====================================================== */
-    await conn.changeUser({ database: "wms" });
-
-    const [baseRows]: any = await conn.execute(
+    const { rows: baseRows } = await runBigQuery(
       `
       SELECT
         oi.location_id,
@@ -74,16 +67,17 @@ export async function POST(req: Request) {
         oi.shipping_package_id,
         oi.qc_fail_count,
         oih.order_item_type,
-        DATEDIFF(CURDATE(), DATE(oi.created_at)) AS created_at_days,
+        DATE_DIFF(CURRENT_DATE(), DATE(oi.created_at), DAY) AS created_at_days,
         oi.created_at
-      FROM order_items oi
-      LEFT JOIN order_item_header oih
+      FROM \`${BIGQUERY_DATA_PROJECT_ID}.wms.order_items\` oi
+      LEFT JOIN \`${BIGQUERY_DATA_PROJECT_ID}.wms.order_item_header\` oih
         ON oih.shipping_package_id = oi.shipping_package_id
-      WHERE oi.location_id = ?
+      WHERE CAST(oi.location_id AS STRING) = @tray_id
       ORDER BY oi.id DESC
       LIMIT 1
       `,
-      [trayId]
+      10,
+      { tray_id: trayId },
     );
 
     if (!baseRows.length) {
@@ -96,17 +90,18 @@ export async function POST(req: Request) {
        2️⃣  WMS – all trays sharing the same fitting
             (single bulk query, no loop)
     ====================================================== */
-    const [fittingRows]: any = await conn.execute(
+    const { rows: fittingRows } = await runBigQuery(
       `
       SELECT
         location_id,
         qc_fail_count,
         created_at
-      FROM order_items
-      WHERE fitting_id = ?
+      FROM \`${BIGQUERY_DATA_PROJECT_ID}.wms.order_items\`
+      WHERE CAST(fitting_id AS STRING) = @fitting_id
       ORDER BY qc_fail_count ASC, created_at ASC
       `,
-      [current.fitting_id]
+      10000,
+      { fitting_id: String(current.fitting_id) },
     );
 
     let parent_tray_id: string = trayId;
@@ -127,28 +122,28 @@ export async function POST(req: Request) {
        3️⃣  ORDERQC – reasons + fail-event count
             (two queries; no loop)
     ====================================================== */
-    await conn.changeUser({ database: "orderqc" });
-
-    const [[reasonRows], [countRows]]: any = await Promise.all([
-      conn.execute(
+    const [{ rows: reasonRows }, { rows: countRows }] = await Promise.all([
+      runBigQuery(
         `
         SELECT TRIM(UPPER(reason_name)) AS reason_name
-        FROM qc_status_history
-        WHERE shipping_package_id = ?
+        FROM \`${BIGQUERY_DATA_PROJECT_ID}.orderqc.qc_status_history\`
+        WHERE CAST(shipping_package_id AS STRING) = @shipping_package_id
           AND status = 'QCFailed'
         ORDER BY updated_at DESC
         `,
-        [current.shipping_package_id]
+        10000,
+        { shipping_package_id: String(current.shipping_package_id) },
       ),
-      conn.execute(
+      runBigQuery(
         `
         SELECT
-          COUNT(DISTINCT DATE(updated_at), HOUR(updated_at)) AS qcf_count
-        FROM qc_status_history
-        WHERE shipping_package_id = ?
+          COUNT(DISTINCT TIMESTAMP_TRUNC(updated_at, HOUR)) AS qcf_count
+        FROM \`${BIGQUERY_DATA_PROJECT_ID}.orderqc.qc_status_history\`
+        WHERE CAST(shipping_package_id AS STRING) = @shipping_package_id
           AND status = 'QCFailed'
         `,
-        [current.shipping_package_id]
+        1,
+        { shipping_package_id: String(current.shipping_package_id) },
       ),
     ]);
 
@@ -158,6 +153,7 @@ export async function POST(req: Request) {
       text: r.reason_name as string,
       highlight: SKY_BLUE_REASONS.has(r.reason_name) ? "SKY_BLUE" : "NONE",
     }));
+    const createdAtDays = Number(current.created_at_days ?? 0);
 
     /* =====================================================
        4️⃣  Assemble response
@@ -174,11 +170,11 @@ export async function POST(req: Request) {
           shipping_package_id: current.shipping_package_id,
           order_item_type:     current.order_item_type ?? "N/A",
 
-          created_at_days:       current.created_at_days ?? 0,
+          created_at_days:       createdAtDays,
           qc_failed_status_count: qcFailedStatusCount,
 
           qc_failed_highlight: qcFailedStatusCount > 2 ? "RED" : "NONE",
-          aged_highlight:      (current.created_at_days ?? 0) > 3 ? "RED" : "NONE",
+          aged_highlight:      createdAtDays > 3 ? "RED" : "NONE",
 
           reasons,
         },
@@ -191,9 +187,5 @@ export async function POST(req: Request) {
       { error: "Internal Server Error" },
       { status: 500 }
     );
-  } finally {
-    if (conn) {
-      try { conn.release(); } catch { /* ignore */ }
-    }
   }
 }

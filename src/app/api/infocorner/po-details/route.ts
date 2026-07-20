@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
-import type mysql from 'mysql2/promise';
-import { nexsPool } from '@/utils/nexsPool';
+import { BIGQUERY_DATA_PROJECT_ID, runBigQuery } from '@/utils/resources/bigquery/client';
 
 export const runtime = 'nodejs';
 
@@ -16,8 +15,6 @@ type PurchaseOrderItemRow = {
 };
 
 export async function POST(req: Request) {
-  let conn: mysql.PoolConnection | null = null;
-
   try {
     const body = await req.json();
     const { po_nums } = body;
@@ -36,14 +33,6 @@ export async function POST(req: Request) {
       );
     }
 
-    /* =====================================================
-       Acquire pooled connection
-    ====================================================== */
-    conn = await nexsPool.getConnection();
-
-    /** ✅ Expand placeholders safely */
-    const placeholders = po_nums.map(() => '?').join(',');
-
     const sql = `
       SELECT
         po_num,
@@ -54,15 +43,17 @@ export async function POST(req: Request) {
         vendor_unit_cost_price,
         created_at,
         updated_at
-      FROM nexs.purchase_order_item
-      WHERE po_num IN (${placeholders})
+      FROM \`${BIGQUERY_DATA_PROJECT_ID}.nexs.purchase_order_item\`
+      WHERE CAST(po_num AS STRING) IN UNNEST(@po_nums)
       ORDER BY po_num, product_id
     `;
 
-    const [rows] = await conn.execute(
+    const { rows: rawRows } = await runBigQuery(
       sql,
-      po_nums
-    ) as [PurchaseOrderItemRow[], any];
+      10000,
+      { po_nums: po_nums.map(String) },
+    );
+    const rows = rawRows as PurchaseOrderItemRow[];
 
     /* =====================================================
        Build CSV
@@ -106,7 +97,5 @@ export async function POST(req: Request) {
       { success: false, error: error?.message || 'Internal Server Error' },
       { status: 500 }
     );
-  } finally {
-    if (conn) conn.release();
   }
 }

@@ -32,6 +32,23 @@ export type BigQueryResult = {
   rows: Record<string, unknown>[];
 };
 
+
+export type BigQueryParameters = Record<string, string | string[]>;
+
+function queryParameters(parameters: BigQueryParameters) {
+  return Object.entries(parameters).map(([name, value]) => Array.isArray(value)
+    ? {
+        name,
+        parameterType: { type: 'ARRAY', arrayType: { type: 'STRING' } },
+        parameterValue: { arrayValues: value.map((item) => ({ value: item })) },
+      }
+    : {
+        name,
+        parameterType: { type: 'STRING' },
+        parameterValue: { value },
+      });
+}
+
 async function accessToken(): Promise<string> {
   let token: TokenFile;
   try {
@@ -71,7 +88,11 @@ function shape(fields: BQField[], rows: BQRow[]): Record<string, unknown>[] {
 }
 
 /** Run Standard SQL and collect every result page. Intended for server-only dump routes. */
-export async function runBigQuery(query: string, maxResults = 10_000): Promise<BigQueryResult> {
+export async function runBigQuery(
+  query: string,
+  maxResults = 10_000,
+  parameters: BigQueryParameters = {},
+): Promise<BigQueryResult> {
   const token = await accessToken();
   const headers = { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' };
   const base = `https://bigquery.googleapis.com/bigquery/v2/projects/${BIGQUERY_PROJECT_ID}`;
@@ -79,7 +100,14 @@ export async function runBigQuery(query: string, maxResults = 10_000): Promise<B
   let response = await fetch(`${base}/queries`, {
     method: 'POST',
     headers,
-    body: JSON.stringify({ query, useLegacySql: false, timeoutMs: 300_000, maxResults }),
+    body: JSON.stringify({
+      query,
+      useLegacySql: false,
+      parameterMode: 'NAMED',
+      queryParameters: queryParameters(parameters),
+      timeoutMs: 300_000,
+      maxResults,
+    }),
     cache: 'no-store',
   }).then((res) => res.json() as Promise<BQResponse>);
   assertResponse(response);
