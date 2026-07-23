@@ -1,10 +1,8 @@
 // src/app/api/consolidate-ptl/qc-sync/route.ts
 //
-// Ingests a FULL snapshot of the "CL: Order QC" dump (all pages the client
-// paginated) and upserts it into qc_dump_entries. Idempotent by barcode, so no
-// entry is ever dropped across cycles. Entries absent from this snapshot are
-// flagged in_dump=false (kept), so a package's expected-barcode set is the UNION
-// seen across cycles.
+// Ingests full CL and CLS Order QC snapshots and upserts qc_dump_entries.
+// Departed entries are retained while their package is active, then purged when
+// no active package needs the accumulated expected-barcode set.
 //
 // Then expected/accounted are refreshed by SET MEMBERSHIP for packages being
 // worked, moving them COMPLETE<->CONSOLIDATING and (re)lighting as needed.
@@ -154,12 +152,21 @@ export async function POST(req: Request) {
       if (lightAfter) await setLight(lightAfter.loc, lightAfter.color);
     }
 
+    const purged = await prismaDispatch.$executeRawUnsafe(
+      `DELETE q FROM qc_dump_entries q
+       LEFT JOIN package_consolidations p
+         ON p.shipping_package_id=q.shipping_package_id
+        AND p.status IN ('PENDING','CONSOLIDATING','COMPLETE')
+       WHERE q.in_dump=0 AND p.id IS NULL`,
+    );
+
     return NextResponse.json({
       success: true,
       received: rows.length,
       upserted: entries.length,
       skipped,
       departed,
+      purged,
       activePackages: active.length,
       reopened,
       autoCompleted,

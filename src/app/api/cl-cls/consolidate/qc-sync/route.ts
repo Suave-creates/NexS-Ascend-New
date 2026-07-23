@@ -2,9 +2,8 @@
 //
 // Ingests a FULL snapshot of the "CL: Order QC" dump into
 // consolidate_qc_dump_entries (independent copy from ConsolidAte PTL's
-// qc_dump_entries). Idempotent by barcode; entries absent from a snapshot are
-// flagged in_dump=false (kept), so a package's expected-barcode set is the
-// UNION seen across cycles.
+// qc_dump_entries). Idempotent by barcode; departed entries are retained while
+// their package is active, then purged when no active package needs them.
 //
 // Then expected/accounted are refreshed by SET MEMBERSHIP for packages being
 // worked, moving them COMPLETE<->CONSOLIDATING. Unlike ConsolidAte PTL (which
@@ -151,12 +150,21 @@ export async function POST(req: Request) {
       });
     }
 
+    const purged = await prismaDispatch.$executeRawUnsafe(
+      `DELETE q FROM consolidate_qc_dump_entries q
+       LEFT JOIN consolidate_packages p
+         ON p.shipping_package_id=q.shipping_package_id
+        AND p.status IN ('PENDING','CONSOLIDATING','COMPLETE')
+       WHERE q.in_dump=0 AND p.id IS NULL`,
+    );
+
     return NextResponse.json({
       success: true,
       received: rows.length,
       upserted: entries.length,
       skipped,
       departed,
+      purged,
       activePackages: active.length,
       reopened,
       autoCompleted,

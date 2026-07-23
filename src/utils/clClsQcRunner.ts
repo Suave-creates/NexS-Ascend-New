@@ -112,7 +112,7 @@ async function loginIfNeeded(page: Page, username: string, password: string) {
   const user = page.locator('input[name="email"]').first();
   const outcome = await Promise.race([
     user.waitFor({ state: 'visible', timeout: 15_000 }).then(() => 'form'),
-    page.waitForURL(url => !/\/login(?:$|[?#])/.test(url.toString()), { timeout: 15_000 }).then(() => 'session'),
+    page.waitForURL((url: URL) => !/\/login(?:$|[?#])/.test(url.toString()), { timeout: 15_000 }).then(() => 'session'),
   ]).catch(() => 'timeout');
   if (outcome === 'session') {
     await page.waitForLoadState('networkidle', { timeout: 15_000 }).catch(() => undefined);
@@ -123,10 +123,21 @@ async function loginIfNeeded(page: Page, username: string, password: string) {
   await user.fill(username);
   await page.locator('input[name="Password"], input[type="password"]').first().fill(password);
   await page.getByRole('button', { name: /^login$/i }).first().click();
-  await page.waitForURL(url => !/\/login(?:$|[?#])/.test(url.toString()), { timeout: 20_000 });
-  await page.waitForLoadState('networkidle', { timeout: 20_000 }).catch(() => undefined);
-  await page.waitForTimeout(2_000); // allow the NexS SPA to persist its token/session
+  // NexS is an SPA and can persist the session without a document navigation.
+  // Waiting for waitForURL's default `load` event therefore burns the whole
+  // timeout even when login succeeded. Continue as soon as either the route
+  // changes or the login form disappears, then verify via the QC route.
+  const loginSucceeded = await Promise.race([
+    page.waitForURL((url: URL) => !/\/login(?:$|[?#])/.test(url.toString()), {
+      timeout: 8_000,
+      waitUntil: 'commit',
+    }).then(() => true),
+    user.waitFor({ state: 'hidden', timeout: 8_000 }).then(() => true),
+  ]).catch(() => false);
+  if (!loginSucceeded) throw new Error('Login did not complete within 8 seconds; check the credentials or NexS availability');
+  await page.waitForTimeout(250); // allow the SPA to finish persisting its token
   await page.goto(process.env.CL_CLS_QC_URL || 'https://app.nexs.lenskart.com/qc', { waitUntil: 'domcontentloaded' });
+  if (/\/login(?:$|[?#])/.test(page.url())) throw new Error('NexS rejected the login credentials');
 }
 
 async function scan(page: Page, locator: ReturnType<Page['locator']>, code: string) {

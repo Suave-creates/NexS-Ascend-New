@@ -134,9 +134,8 @@ enum LocationEventType {
 // ConsolidAte — Order QC dump → PTL package-consolidation pipeline
 // ===========================================================================
 
-// One row per (barcode) seen in the "CL: Order QC" dump. Upserted every poll
-// cycle so entries are never dropped across cycles. inDump flips false when a
-// barcode stops appearing in the live dump.
+// One row per barcode seen in the CL/CLS Order QC dumps. Departed entries are
+// retained while their package is active, then purged by a later sync.
 model QcDumpEntry {
   id                Int       @id @default(autoincrement())
   barcode           String    @unique

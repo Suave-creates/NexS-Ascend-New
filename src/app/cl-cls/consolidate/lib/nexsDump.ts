@@ -13,14 +13,16 @@ const PAGE_SIZE = 35; // matches what the NexS panel sends
 const MAX_PAGES = 500; // safety cap (~17.5k rows)
 const PAGE_DELAY_MS = 500; // pace the proxy — don't hammer NexS with a burst of pages per run
 
-function pageBody(page: number, pageSize: number) {
+type FrTag = 'CL' | 'CLS';
+
+function pageBody(page: number, pageSize: number, frTag: FrTag) {
   return {
     page,
     pageSize,
     globalSearch: '',
     category: 'FULFILLABLE_ORDERS',
     status: 'Order QC',
-    frTag: 'CL',
+    frTag,
     version: 'v3',
     monitorPanelFilters: {
       binaryFilter: {},
@@ -54,12 +56,12 @@ function headers(ctx: DumpContext): HeadersInit {
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
-async function fetchPage(ctx: DumpContext, page: number): Promise<{ rows: Record<string, unknown>[]; total: number }> {
+async function fetchPage(ctx: DumpContext, page: number, frTag: FrTag): Promise<{ rows: Record<string, unknown>[]; total: number }> {
   // Colocated with fetch-trays so the browser sends the same jwt-token cookie.
   const res = await fetch('/api/packing-dispatch/nexs-proxy/order-qc', {
     method: 'POST',
     headers: headers(ctx),
-    body: JSON.stringify(pageBody(page, PAGE_SIZE)),
+    body: JSON.stringify(pageBody(page, PAGE_SIZE, frTag)),
   });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   const json = await res.json();
@@ -81,7 +83,7 @@ export interface DumpResult {
  * Terminates on a short page (page-shortness), so a missing/zero `total` cannot
  * truncate the snapshot after the first page.
  */
-export async function loadOrderQcDump(ctx: DumpContext): Promise<DumpResult> {
+async function loadTaggedOrderQcDump(ctx: DumpContext, frTag: FrTag): Promise<DumpResult> {
   const rows: Record<string, unknown>[] = [];
   let total = 0;
   let page = 0; // NexS pages are 0-indexed (first page is page 0)
@@ -89,10 +91,10 @@ export async function loadOrderQcDump(ctx: DumpContext): Promise<DumpResult> {
   for (; page < MAX_PAGES; page++) {
     let pageRes: { rows: Record<string, unknown>[]; total: number };
     try {
-      pageRes = await fetchPage(ctx, page);
+      pageRes = await fetchPage(ctx, page, frTag);
     } catch {
       await sleep(600);
-      pageRes = await fetchPage(ctx, page); // single retry; throws to caller if it fails again
+      pageRes = await fetchPage(ctx, page, frTag); // single retry; throws to caller if it fails again
     }
     if (pageRes.total > 0) total = pageRes.total;
     rows.push(...pageRes.rows);
@@ -103,6 +105,23 @@ export async function loadOrderQcDump(ctx: DumpContext): Promise<DumpResult> {
   }
 
   return { rows, total: total || rows.length, pages: page };
+}
+
+export async function loadOrderQcDump(ctx: DumpContext): Promise<DumpResult> {
+  const dumps = await Promise.all([
+    loadTaggedOrderQcDump(ctx, 'CL'),
+    loadTaggedOrderQcDump(ctx, 'CLS'),
+  ]);
+  const unique = new Map<string, Record<string, unknown>>();
+  for (const row of dumps.flatMap((dump) => dump.rows)) {
+    const barcode = row['Barcode'];
+    if (barcode !== null && barcode !== undefined && barcode !== '') unique.set(String(barcode), row);
+  }
+  return {
+    rows: [...unique.values()],
+    total: unique.size,
+    pages: dumps.reduce((sum, dump) => sum + dump.pages, 0),
+  };
 }
 
 /** Push a full snapshot to the ingest endpoint (upsert + reconcile). */
