@@ -1,7 +1,7 @@
 // src/app/api/packing-dispatch/dump/route.ts
 //
 // Server-side replacement for the extension's slow dump-api endpoint.
-// Runs the unassigned-orders query DIRECTLY against NexS_DB (wms) and returns
+// Runs the unassigned-orders query in BigQuery (wms) and returns
 // the rows already normalised into the shape the matcher expects.
 //
 //   GET /api/packing-dispatch/dump?facility=NXS1&days=7
@@ -13,8 +13,7 @@
 //     AND facility = '<facility>'
 //     AND updated_at >= NOW() - INTERVAL 7 DAY;
 import { NextResponse } from 'next/server';
-import type { RowDataPacket } from 'mysql2';
-import { nexsPool } from '@/utils/nexsPool';
+import { BIGQUERY_DATA_PROJECT_ID, runBigQuery } from '@/utils/resources/bigquery/client';
 
 // This route hits a live DB and must never be statically cached / pre-rendered.
 export const runtime = 'nodejs';
@@ -79,9 +78,8 @@ export async function GET(req: Request) {
   const t0 = Date.now();
 
   try {
-    // `facility` is parameterised; `days` is coerced to a bounded integer above
-    // and inlined because MySQL won't accept a placeholder for the INTERVAL unit.
-    const [rows] = await nexsPool.query<RowDataPacket[]>(
+    // `days` is a bounded integer before being inlined into the interval.
+    const { rows } = await runBigQuery(
       `
         SELECT
           store_code,
@@ -92,16 +90,17 @@ export async function GET(req: Request) {
           updated_at,
           shipment_id,
           increment_id
-        FROM wms.store_order_consolidation
+        FROM \`${BIGQUERY_DATA_PROJECT_ID}.wms.store_order_consolidation\`
         WHERE shipment_status = 'INVOICED'
           AND box_status = 'UNASSIGNED'
-          AND facility = ?
-          AND updated_at >= NOW() - INTERVAL ${days} DAY
+          AND facility = @facility
+          AND updated_at >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL ${days} DAY)
       `,
-      [facility]
+      100_000,
+      { facility },
     );
 
-    const orders = (rows as Record<string, unknown>[])
+    const orders = rows
       .map(normalize)
       .filter((o) => o.storeCode || o.shipmentId);
 
@@ -113,10 +112,10 @@ export async function GET(req: Request) {
       elapsedMs: Date.now() - t0,
     });
   } catch (error) {
-    console.error('DB error (GET /packing-dispatch/dump):', error);
+    console.error('BigQuery error (GET /packing-dispatch/dump):', error);
     return NextResponse.json(
       {
-        error: 'Failed to load the unassigned-orders dump from NexS_DB.',
+        error: 'Failed to load the unassigned-orders dump from BigQuery.',
         detail: error instanceof Error ? error.message : String(error),
       },
       { status: 500 }

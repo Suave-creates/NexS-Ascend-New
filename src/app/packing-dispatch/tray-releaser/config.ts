@@ -57,8 +57,8 @@ export const NEXS_CONFIG = {
   RETRY_BASE_MS: 600,
 
   // ---- Dump --------------------------------------------------------------
-  // The dump now comes from our own backend, which runs the SQL directly on
-  // NexS_DB. {facility}/{days} are filled in at call time.
+  // The dump comes from our own BigQuery-backed endpoint.
+  // {facility}/{days} are filled in at call time.
   DUMP_ENDPOINT: '/api/packing-dispatch/dump?facility={facility}&days={days}',
   DUMP_DAYS: 7,
 
