@@ -48,6 +48,7 @@ export default function Sidebar() {
       children: [
         { href: '/cl-cls/consolidate', label: 'ConsolidAte' },
         { href: '/cl-cls/consolidate-ptl', label: 'ConsolidAte PTL' },
+        { href: '/cl-cls/qc-auto', label: 'Auto Order QC' },
         { href: '/cl-cls/kitne-parcel-the-cl-cls', label: 'Kitne Parcel The?' },
       ],
     },

@@ -295,6 +295,25 @@ model ConsolidateQcDumpEntry {
   @@map("consolidate_qc_dump_entries")
 }
 
+// Minimal CL/CLS Order-QC automation queue. Credentials are never persisted.
+model ClClsQcQueueEntry {
+  id                Int       @id @default(autoincrement())
+  barcode           String    @unique
+  fittingId         String?   @map("fitting_id")
+  shippingPackageId String    @map("shipping_package_id")
+  state             String    @default("PENDING")
+  attempts          Int       @default(0)
+  lastError         String?   @db.Text @map("last_error")
+  firstSeenAt       DateTime  @default(now()) @map("first_seen_at")
+  lastSeenAt        DateTime  @default(now()) @map("last_seen_at")
+  completedAt       DateTime? @map("completed_at")
+
+  @@index([state, lastSeenAt])
+  @@index([shippingPackageId])
+  @@index([fittingId])
+  @@map("cl_cls_qc_queue_entries")
+}
+
 model ConsolidatePackage {
   id                Int               @id @default(autoincrement())
   shippingPackageId String            @unique @map("shipping_package_id")

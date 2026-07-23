@@ -79,6 +79,11 @@ export type ConsolidateLocation = $Result.DefaultSelection<Prisma.$ConsolidateLo
  */
 export type ConsolidateQcDumpEntry = $Result.DefaultSelection<Prisma.$ConsolidateQcDumpEntryPayload>
 /**
+ * Model ClClsQcQueueEntry
+ * 
+ */
+export type ClClsQcQueueEntry = $Result.DefaultSelection<Prisma.$ClClsQcQueueEntryPayload>
+/**
  * Model ConsolidatePackage
  * 
  */
@@ -434,6 +439,16 @@ export class PrismaClient<
     * ```
     */
   get consolidateQcDumpEntry(): Prisma.ConsolidateQcDumpEntryDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.clClsQcQueueEntry`: Exposes CRUD operations for the **ClClsQcQueueEntry** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more ClClsQcQueueEntries
+    * const clClsQcQueueEntries = await prisma.clClsQcQueueEntry.findMany()
+    * ```
+    */
+  get clClsQcQueueEntry(): Prisma.ClClsQcQueueEntryDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.consolidatePackage`: Exposes CRUD operations for the **ConsolidatePackage** model.
@@ -917,6 +932,7 @@ export namespace Prisma {
     ConsolidateRack: 'ConsolidateRack',
     ConsolidateLocation: 'ConsolidateLocation',
     ConsolidateQcDumpEntry: 'ConsolidateQcDumpEntry',
+    ClClsQcQueueEntry: 'ClClsQcQueueEntry',
     ConsolidatePackage: 'ConsolidatePackage',
     ConsolidatePackageScan: 'ConsolidatePackageScan',
     ConsolidateReleaseHistory: 'ConsolidateReleaseHistory'
@@ -938,7 +954,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "rack" | "location" | "routingAssignment" | "awb" | "placement" | "locationEvent" | "qcDumpEntry" | "packageConsolidation" | "consolidationScan" | "consolidationHistory" | "consolidateRack" | "consolidateLocation" | "consolidateQcDumpEntry" | "consolidatePackage" | "consolidatePackageScan" | "consolidateReleaseHistory"
+      modelProps: "rack" | "location" | "routingAssignment" | "awb" | "placement" | "locationEvent" | "qcDumpEntry" | "packageConsolidation" | "consolidationScan" | "consolidationHistory" | "consolidateRack" | "consolidateLocation" | "consolidateQcDumpEntry" | "clClsQcQueueEntry" | "consolidatePackage" | "consolidatePackageScan" | "consolidateReleaseHistory"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1800,6 +1816,72 @@ export namespace Prisma {
           }
         }
       }
+      ClClsQcQueueEntry: {
+        payload: Prisma.$ClClsQcQueueEntryPayload<ExtArgs>
+        fields: Prisma.ClClsQcQueueEntryFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.ClClsQcQueueEntryFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ClClsQcQueueEntryPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.ClClsQcQueueEntryFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ClClsQcQueueEntryPayload>
+          }
+          findFirst: {
+            args: Prisma.ClClsQcQueueEntryFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ClClsQcQueueEntryPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.ClClsQcQueueEntryFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ClClsQcQueueEntryPayload>
+          }
+          findMany: {
+            args: Prisma.ClClsQcQueueEntryFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ClClsQcQueueEntryPayload>[]
+          }
+          create: {
+            args: Prisma.ClClsQcQueueEntryCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ClClsQcQueueEntryPayload>
+          }
+          createMany: {
+            args: Prisma.ClClsQcQueueEntryCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          delete: {
+            args: Prisma.ClClsQcQueueEntryDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ClClsQcQueueEntryPayload>
+          }
+          update: {
+            args: Prisma.ClClsQcQueueEntryUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ClClsQcQueueEntryPayload>
+          }
+          deleteMany: {
+            args: Prisma.ClClsQcQueueEntryDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.ClClsQcQueueEntryUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.ClClsQcQueueEntryUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ClClsQcQueueEntryPayload>
+          }
+          aggregate: {
+            args: Prisma.ClClsQcQueueEntryAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateClClsQcQueueEntry>
+          }
+          groupBy: {
+            args: Prisma.ClClsQcQueueEntryGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ClClsQcQueueEntryGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.ClClsQcQueueEntryCountArgs<ExtArgs>
+            result: $Utils.Optional<ClClsQcQueueEntryCountAggregateOutputType> | number
+          }
+        }
+      }
       ConsolidatePackage: {
         payload: Prisma.$ConsolidatePackagePayload<ExtArgs>
         fields: Prisma.ConsolidatePackageFieldRefs
@@ -2095,6 +2177,7 @@ export namespace Prisma {
     consolidateRack?: ConsolidateRackOmit
     consolidateLocation?: ConsolidateLocationOmit
     consolidateQcDumpEntry?: ConsolidateQcDumpEntryOmit
+    clClsQcQueueEntry?: ClClsQcQueueEntryOmit
     consolidatePackage?: ConsolidatePackageOmit
     consolidatePackageScan?: ConsolidatePackageScanOmit
     consolidateReleaseHistory?: ConsolidateReleaseHistoryOmit
@@ -15839,6 +15922,981 @@ export namespace Prisma {
 
 
   /**
+   * Model ClClsQcQueueEntry
+   */
+
+  export type AggregateClClsQcQueueEntry = {
+    _count: ClClsQcQueueEntryCountAggregateOutputType | null
+    _avg: ClClsQcQueueEntryAvgAggregateOutputType | null
+    _sum: ClClsQcQueueEntrySumAggregateOutputType | null
+    _min: ClClsQcQueueEntryMinAggregateOutputType | null
+    _max: ClClsQcQueueEntryMaxAggregateOutputType | null
+  }
+
+  export type ClClsQcQueueEntryAvgAggregateOutputType = {
+    id: number | null
+    attempts: number | null
+  }
+
+  export type ClClsQcQueueEntrySumAggregateOutputType = {
+    id: number | null
+    attempts: number | null
+  }
+
+  export type ClClsQcQueueEntryMinAggregateOutputType = {
+    id: number | null
+    barcode: string | null
+    fittingId: string | null
+    shippingPackageId: string | null
+    state: string | null
+    attempts: number | null
+    lastError: string | null
+    firstSeenAt: Date | null
+    lastSeenAt: Date | null
+    completedAt: Date | null
+  }
+
+  export type ClClsQcQueueEntryMaxAggregateOutputType = {
+    id: number | null
+    barcode: string | null
+    fittingId: string | null
+    shippingPackageId: string | null
+    state: string | null
+    attempts: number | null
+    lastError: string | null
+    firstSeenAt: Date | null
+    lastSeenAt: Date | null
+    completedAt: Date | null
+  }
+
+  export type ClClsQcQueueEntryCountAggregateOutputType = {
+    id: number
+    barcode: number
+    fittingId: number
+    shippingPackageId: number
+    state: number
+    attempts: number
+    lastError: number
+    firstSeenAt: number
+    lastSeenAt: number
+    completedAt: number
+    _all: number
+  }
+
+
+  export type ClClsQcQueueEntryAvgAggregateInputType = {
+    id?: true
+    attempts?: true
+  }
+
+  export type ClClsQcQueueEntrySumAggregateInputType = {
+    id?: true
+    attempts?: true
+  }
+
+  export type ClClsQcQueueEntryMinAggregateInputType = {
+    id?: true
+    barcode?: true
+    fittingId?: true
+    shippingPackageId?: true
+    state?: true
+    attempts?: true
+    lastError?: true
+    firstSeenAt?: true
+    lastSeenAt?: true
+    completedAt?: true
+  }
+
+  export type ClClsQcQueueEntryMaxAggregateInputType = {
+    id?: true
+    barcode?: true
+    fittingId?: true
+    shippingPackageId?: true
+    state?: true
+    attempts?: true
+    lastError?: true
+    firstSeenAt?: true
+    lastSeenAt?: true
+    completedAt?: true
+  }
+
+  export type ClClsQcQueueEntryCountAggregateInputType = {
+    id?: true
+    barcode?: true
+    fittingId?: true
+    shippingPackageId?: true
+    state?: true
+    attempts?: true
+    lastError?: true
+    firstSeenAt?: true
+    lastSeenAt?: true
+    completedAt?: true
+    _all?: true
+  }
+
+  export type ClClsQcQueueEntryAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ClClsQcQueueEntry to aggregate.
+     */
+    where?: ClClsQcQueueEntryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ClClsQcQueueEntries to fetch.
+     */
+    orderBy?: ClClsQcQueueEntryOrderByWithRelationInput | ClClsQcQueueEntryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: ClClsQcQueueEntryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ClClsQcQueueEntries from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ClClsQcQueueEntries.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned ClClsQcQueueEntries
+    **/
+    _count?: true | ClClsQcQueueEntryCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: ClClsQcQueueEntryAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: ClClsQcQueueEntrySumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: ClClsQcQueueEntryMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: ClClsQcQueueEntryMaxAggregateInputType
+  }
+
+  export type GetClClsQcQueueEntryAggregateType<T extends ClClsQcQueueEntryAggregateArgs> = {
+        [P in keyof T & keyof AggregateClClsQcQueueEntry]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateClClsQcQueueEntry[P]>
+      : GetScalarType<T[P], AggregateClClsQcQueueEntry[P]>
+  }
+
+
+
+
+  export type ClClsQcQueueEntryGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ClClsQcQueueEntryWhereInput
+    orderBy?: ClClsQcQueueEntryOrderByWithAggregationInput | ClClsQcQueueEntryOrderByWithAggregationInput[]
+    by: ClClsQcQueueEntryScalarFieldEnum[] | ClClsQcQueueEntryScalarFieldEnum
+    having?: ClClsQcQueueEntryScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: ClClsQcQueueEntryCountAggregateInputType | true
+    _avg?: ClClsQcQueueEntryAvgAggregateInputType
+    _sum?: ClClsQcQueueEntrySumAggregateInputType
+    _min?: ClClsQcQueueEntryMinAggregateInputType
+    _max?: ClClsQcQueueEntryMaxAggregateInputType
+  }
+
+  export type ClClsQcQueueEntryGroupByOutputType = {
+    id: number
+    barcode: string
+    fittingId: string | null
+    shippingPackageId: string
+    state: string
+    attempts: number
+    lastError: string | null
+    firstSeenAt: Date
+    lastSeenAt: Date
+    completedAt: Date | null
+    _count: ClClsQcQueueEntryCountAggregateOutputType | null
+    _avg: ClClsQcQueueEntryAvgAggregateOutputType | null
+    _sum: ClClsQcQueueEntrySumAggregateOutputType | null
+    _min: ClClsQcQueueEntryMinAggregateOutputType | null
+    _max: ClClsQcQueueEntryMaxAggregateOutputType | null
+  }
+
+  type GetClClsQcQueueEntryGroupByPayload<T extends ClClsQcQueueEntryGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<ClClsQcQueueEntryGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof ClClsQcQueueEntryGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], ClClsQcQueueEntryGroupByOutputType[P]>
+            : GetScalarType<T[P], ClClsQcQueueEntryGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type ClClsQcQueueEntrySelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    barcode?: boolean
+    fittingId?: boolean
+    shippingPackageId?: boolean
+    state?: boolean
+    attempts?: boolean
+    lastError?: boolean
+    firstSeenAt?: boolean
+    lastSeenAt?: boolean
+    completedAt?: boolean
+  }, ExtArgs["result"]["clClsQcQueueEntry"]>
+
+
+
+  export type ClClsQcQueueEntrySelectScalar = {
+    id?: boolean
+    barcode?: boolean
+    fittingId?: boolean
+    shippingPackageId?: boolean
+    state?: boolean
+    attempts?: boolean
+    lastError?: boolean
+    firstSeenAt?: boolean
+    lastSeenAt?: boolean
+    completedAt?: boolean
+  }
+
+  export type ClClsQcQueueEntryOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "barcode" | "fittingId" | "shippingPackageId" | "state" | "attempts" | "lastError" | "firstSeenAt" | "lastSeenAt" | "completedAt", ExtArgs["result"]["clClsQcQueueEntry"]>
+
+  export type $ClClsQcQueueEntryPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "ClClsQcQueueEntry"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: number
+      barcode: string
+      fittingId: string | null
+      shippingPackageId: string
+      state: string
+      attempts: number
+      lastError: string | null
+      firstSeenAt: Date
+      lastSeenAt: Date
+      completedAt: Date | null
+    }, ExtArgs["result"]["clClsQcQueueEntry"]>
+    composites: {}
+  }
+
+  type ClClsQcQueueEntryGetPayload<S extends boolean | null | undefined | ClClsQcQueueEntryDefaultArgs> = $Result.GetResult<Prisma.$ClClsQcQueueEntryPayload, S>
+
+  type ClClsQcQueueEntryCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<ClClsQcQueueEntryFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: ClClsQcQueueEntryCountAggregateInputType | true
+    }
+
+  export interface ClClsQcQueueEntryDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ClClsQcQueueEntry'], meta: { name: 'ClClsQcQueueEntry' } }
+    /**
+     * Find zero or one ClClsQcQueueEntry that matches the filter.
+     * @param {ClClsQcQueueEntryFindUniqueArgs} args - Arguments to find a ClClsQcQueueEntry
+     * @example
+     * // Get one ClClsQcQueueEntry
+     * const clClsQcQueueEntry = await prisma.clClsQcQueueEntry.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends ClClsQcQueueEntryFindUniqueArgs>(args: SelectSubset<T, ClClsQcQueueEntryFindUniqueArgs<ExtArgs>>): Prisma__ClClsQcQueueEntryClient<$Result.GetResult<Prisma.$ClClsQcQueueEntryPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one ClClsQcQueueEntry that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {ClClsQcQueueEntryFindUniqueOrThrowArgs} args - Arguments to find a ClClsQcQueueEntry
+     * @example
+     * // Get one ClClsQcQueueEntry
+     * const clClsQcQueueEntry = await prisma.clClsQcQueueEntry.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends ClClsQcQueueEntryFindUniqueOrThrowArgs>(args: SelectSubset<T, ClClsQcQueueEntryFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ClClsQcQueueEntryClient<$Result.GetResult<Prisma.$ClClsQcQueueEntryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ClClsQcQueueEntry that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ClClsQcQueueEntryFindFirstArgs} args - Arguments to find a ClClsQcQueueEntry
+     * @example
+     * // Get one ClClsQcQueueEntry
+     * const clClsQcQueueEntry = await prisma.clClsQcQueueEntry.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends ClClsQcQueueEntryFindFirstArgs>(args?: SelectSubset<T, ClClsQcQueueEntryFindFirstArgs<ExtArgs>>): Prisma__ClClsQcQueueEntryClient<$Result.GetResult<Prisma.$ClClsQcQueueEntryPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ClClsQcQueueEntry that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ClClsQcQueueEntryFindFirstOrThrowArgs} args - Arguments to find a ClClsQcQueueEntry
+     * @example
+     * // Get one ClClsQcQueueEntry
+     * const clClsQcQueueEntry = await prisma.clClsQcQueueEntry.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends ClClsQcQueueEntryFindFirstOrThrowArgs>(args?: SelectSubset<T, ClClsQcQueueEntryFindFirstOrThrowArgs<ExtArgs>>): Prisma__ClClsQcQueueEntryClient<$Result.GetResult<Prisma.$ClClsQcQueueEntryPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more ClClsQcQueueEntries that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ClClsQcQueueEntryFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all ClClsQcQueueEntries
+     * const clClsQcQueueEntries = await prisma.clClsQcQueueEntry.findMany()
+     * 
+     * // Get first 10 ClClsQcQueueEntries
+     * const clClsQcQueueEntries = await prisma.clClsQcQueueEntry.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const clClsQcQueueEntryWithIdOnly = await prisma.clClsQcQueueEntry.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends ClClsQcQueueEntryFindManyArgs>(args?: SelectSubset<T, ClClsQcQueueEntryFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ClClsQcQueueEntryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a ClClsQcQueueEntry.
+     * @param {ClClsQcQueueEntryCreateArgs} args - Arguments to create a ClClsQcQueueEntry.
+     * @example
+     * // Create one ClClsQcQueueEntry
+     * const ClClsQcQueueEntry = await prisma.clClsQcQueueEntry.create({
+     *   data: {
+     *     // ... data to create a ClClsQcQueueEntry
+     *   }
+     * })
+     * 
+     */
+    create<T extends ClClsQcQueueEntryCreateArgs>(args: SelectSubset<T, ClClsQcQueueEntryCreateArgs<ExtArgs>>): Prisma__ClClsQcQueueEntryClient<$Result.GetResult<Prisma.$ClClsQcQueueEntryPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many ClClsQcQueueEntries.
+     * @param {ClClsQcQueueEntryCreateManyArgs} args - Arguments to create many ClClsQcQueueEntries.
+     * @example
+     * // Create many ClClsQcQueueEntries
+     * const clClsQcQueueEntry = await prisma.clClsQcQueueEntry.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends ClClsQcQueueEntryCreateManyArgs>(args?: SelectSubset<T, ClClsQcQueueEntryCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a ClClsQcQueueEntry.
+     * @param {ClClsQcQueueEntryDeleteArgs} args - Arguments to delete one ClClsQcQueueEntry.
+     * @example
+     * // Delete one ClClsQcQueueEntry
+     * const ClClsQcQueueEntry = await prisma.clClsQcQueueEntry.delete({
+     *   where: {
+     *     // ... filter to delete one ClClsQcQueueEntry
+     *   }
+     * })
+     * 
+     */
+    delete<T extends ClClsQcQueueEntryDeleteArgs>(args: SelectSubset<T, ClClsQcQueueEntryDeleteArgs<ExtArgs>>): Prisma__ClClsQcQueueEntryClient<$Result.GetResult<Prisma.$ClClsQcQueueEntryPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one ClClsQcQueueEntry.
+     * @param {ClClsQcQueueEntryUpdateArgs} args - Arguments to update one ClClsQcQueueEntry.
+     * @example
+     * // Update one ClClsQcQueueEntry
+     * const clClsQcQueueEntry = await prisma.clClsQcQueueEntry.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends ClClsQcQueueEntryUpdateArgs>(args: SelectSubset<T, ClClsQcQueueEntryUpdateArgs<ExtArgs>>): Prisma__ClClsQcQueueEntryClient<$Result.GetResult<Prisma.$ClClsQcQueueEntryPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more ClClsQcQueueEntries.
+     * @param {ClClsQcQueueEntryDeleteManyArgs} args - Arguments to filter ClClsQcQueueEntries to delete.
+     * @example
+     * // Delete a few ClClsQcQueueEntries
+     * const { count } = await prisma.clClsQcQueueEntry.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends ClClsQcQueueEntryDeleteManyArgs>(args?: SelectSubset<T, ClClsQcQueueEntryDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ClClsQcQueueEntries.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ClClsQcQueueEntryUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many ClClsQcQueueEntries
+     * const clClsQcQueueEntry = await prisma.clClsQcQueueEntry.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends ClClsQcQueueEntryUpdateManyArgs>(args: SelectSubset<T, ClClsQcQueueEntryUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one ClClsQcQueueEntry.
+     * @param {ClClsQcQueueEntryUpsertArgs} args - Arguments to update or create a ClClsQcQueueEntry.
+     * @example
+     * // Update or create a ClClsQcQueueEntry
+     * const clClsQcQueueEntry = await prisma.clClsQcQueueEntry.upsert({
+     *   create: {
+     *     // ... data to create a ClClsQcQueueEntry
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the ClClsQcQueueEntry we want to update
+     *   }
+     * })
+     */
+    upsert<T extends ClClsQcQueueEntryUpsertArgs>(args: SelectSubset<T, ClClsQcQueueEntryUpsertArgs<ExtArgs>>): Prisma__ClClsQcQueueEntryClient<$Result.GetResult<Prisma.$ClClsQcQueueEntryPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of ClClsQcQueueEntries.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ClClsQcQueueEntryCountArgs} args - Arguments to filter ClClsQcQueueEntries to count.
+     * @example
+     * // Count the number of ClClsQcQueueEntries
+     * const count = await prisma.clClsQcQueueEntry.count({
+     *   where: {
+     *     // ... the filter for the ClClsQcQueueEntries we want to count
+     *   }
+     * })
+    **/
+    count<T extends ClClsQcQueueEntryCountArgs>(
+      args?: Subset<T, ClClsQcQueueEntryCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], ClClsQcQueueEntryCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a ClClsQcQueueEntry.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ClClsQcQueueEntryAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends ClClsQcQueueEntryAggregateArgs>(args: Subset<T, ClClsQcQueueEntryAggregateArgs>): Prisma.PrismaPromise<GetClClsQcQueueEntryAggregateType<T>>
+
+    /**
+     * Group by ClClsQcQueueEntry.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ClClsQcQueueEntryGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends ClClsQcQueueEntryGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: ClClsQcQueueEntryGroupByArgs['orderBy'] }
+        : { orderBy?: ClClsQcQueueEntryGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, ClClsQcQueueEntryGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetClClsQcQueueEntryGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the ClClsQcQueueEntry model
+   */
+  readonly fields: ClClsQcQueueEntryFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for ClClsQcQueueEntry.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__ClClsQcQueueEntryClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the ClClsQcQueueEntry model
+   */
+  interface ClClsQcQueueEntryFieldRefs {
+    readonly id: FieldRef<"ClClsQcQueueEntry", 'Int'>
+    readonly barcode: FieldRef<"ClClsQcQueueEntry", 'String'>
+    readonly fittingId: FieldRef<"ClClsQcQueueEntry", 'String'>
+    readonly shippingPackageId: FieldRef<"ClClsQcQueueEntry", 'String'>
+    readonly state: FieldRef<"ClClsQcQueueEntry", 'String'>
+    readonly attempts: FieldRef<"ClClsQcQueueEntry", 'Int'>
+    readonly lastError: FieldRef<"ClClsQcQueueEntry", 'String'>
+    readonly firstSeenAt: FieldRef<"ClClsQcQueueEntry", 'DateTime'>
+    readonly lastSeenAt: FieldRef<"ClClsQcQueueEntry", 'DateTime'>
+    readonly completedAt: FieldRef<"ClClsQcQueueEntry", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * ClClsQcQueueEntry findUnique
+   */
+  export type ClClsQcQueueEntryFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ClClsQcQueueEntry
+     */
+    select?: ClClsQcQueueEntrySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ClClsQcQueueEntry
+     */
+    omit?: ClClsQcQueueEntryOmit<ExtArgs> | null
+    /**
+     * Filter, which ClClsQcQueueEntry to fetch.
+     */
+    where: ClClsQcQueueEntryWhereUniqueInput
+  }
+
+  /**
+   * ClClsQcQueueEntry findUniqueOrThrow
+   */
+  export type ClClsQcQueueEntryFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ClClsQcQueueEntry
+     */
+    select?: ClClsQcQueueEntrySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ClClsQcQueueEntry
+     */
+    omit?: ClClsQcQueueEntryOmit<ExtArgs> | null
+    /**
+     * Filter, which ClClsQcQueueEntry to fetch.
+     */
+    where: ClClsQcQueueEntryWhereUniqueInput
+  }
+
+  /**
+   * ClClsQcQueueEntry findFirst
+   */
+  export type ClClsQcQueueEntryFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ClClsQcQueueEntry
+     */
+    select?: ClClsQcQueueEntrySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ClClsQcQueueEntry
+     */
+    omit?: ClClsQcQueueEntryOmit<ExtArgs> | null
+    /**
+     * Filter, which ClClsQcQueueEntry to fetch.
+     */
+    where?: ClClsQcQueueEntryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ClClsQcQueueEntries to fetch.
+     */
+    orderBy?: ClClsQcQueueEntryOrderByWithRelationInput | ClClsQcQueueEntryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ClClsQcQueueEntries.
+     */
+    cursor?: ClClsQcQueueEntryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ClClsQcQueueEntries from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ClClsQcQueueEntries.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ClClsQcQueueEntries.
+     */
+    distinct?: ClClsQcQueueEntryScalarFieldEnum | ClClsQcQueueEntryScalarFieldEnum[]
+  }
+
+  /**
+   * ClClsQcQueueEntry findFirstOrThrow
+   */
+  export type ClClsQcQueueEntryFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ClClsQcQueueEntry
+     */
+    select?: ClClsQcQueueEntrySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ClClsQcQueueEntry
+     */
+    omit?: ClClsQcQueueEntryOmit<ExtArgs> | null
+    /**
+     * Filter, which ClClsQcQueueEntry to fetch.
+     */
+    where?: ClClsQcQueueEntryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ClClsQcQueueEntries to fetch.
+     */
+    orderBy?: ClClsQcQueueEntryOrderByWithRelationInput | ClClsQcQueueEntryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ClClsQcQueueEntries.
+     */
+    cursor?: ClClsQcQueueEntryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ClClsQcQueueEntries from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ClClsQcQueueEntries.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ClClsQcQueueEntries.
+     */
+    distinct?: ClClsQcQueueEntryScalarFieldEnum | ClClsQcQueueEntryScalarFieldEnum[]
+  }
+
+  /**
+   * ClClsQcQueueEntry findMany
+   */
+  export type ClClsQcQueueEntryFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ClClsQcQueueEntry
+     */
+    select?: ClClsQcQueueEntrySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ClClsQcQueueEntry
+     */
+    omit?: ClClsQcQueueEntryOmit<ExtArgs> | null
+    /**
+     * Filter, which ClClsQcQueueEntries to fetch.
+     */
+    where?: ClClsQcQueueEntryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ClClsQcQueueEntries to fetch.
+     */
+    orderBy?: ClClsQcQueueEntryOrderByWithRelationInput | ClClsQcQueueEntryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing ClClsQcQueueEntries.
+     */
+    cursor?: ClClsQcQueueEntryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ClClsQcQueueEntries from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ClClsQcQueueEntries.
+     */
+    skip?: number
+    distinct?: ClClsQcQueueEntryScalarFieldEnum | ClClsQcQueueEntryScalarFieldEnum[]
+  }
+
+  /**
+   * ClClsQcQueueEntry create
+   */
+  export type ClClsQcQueueEntryCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ClClsQcQueueEntry
+     */
+    select?: ClClsQcQueueEntrySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ClClsQcQueueEntry
+     */
+    omit?: ClClsQcQueueEntryOmit<ExtArgs> | null
+    /**
+     * The data needed to create a ClClsQcQueueEntry.
+     */
+    data: XOR<ClClsQcQueueEntryCreateInput, ClClsQcQueueEntryUncheckedCreateInput>
+  }
+
+  /**
+   * ClClsQcQueueEntry createMany
+   */
+  export type ClClsQcQueueEntryCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many ClClsQcQueueEntries.
+     */
+    data: ClClsQcQueueEntryCreateManyInput | ClClsQcQueueEntryCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * ClClsQcQueueEntry update
+   */
+  export type ClClsQcQueueEntryUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ClClsQcQueueEntry
+     */
+    select?: ClClsQcQueueEntrySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ClClsQcQueueEntry
+     */
+    omit?: ClClsQcQueueEntryOmit<ExtArgs> | null
+    /**
+     * The data needed to update a ClClsQcQueueEntry.
+     */
+    data: XOR<ClClsQcQueueEntryUpdateInput, ClClsQcQueueEntryUncheckedUpdateInput>
+    /**
+     * Choose, which ClClsQcQueueEntry to update.
+     */
+    where: ClClsQcQueueEntryWhereUniqueInput
+  }
+
+  /**
+   * ClClsQcQueueEntry updateMany
+   */
+  export type ClClsQcQueueEntryUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update ClClsQcQueueEntries.
+     */
+    data: XOR<ClClsQcQueueEntryUpdateManyMutationInput, ClClsQcQueueEntryUncheckedUpdateManyInput>
+    /**
+     * Filter which ClClsQcQueueEntries to update
+     */
+    where?: ClClsQcQueueEntryWhereInput
+    /**
+     * Limit how many ClClsQcQueueEntries to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * ClClsQcQueueEntry upsert
+   */
+  export type ClClsQcQueueEntryUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ClClsQcQueueEntry
+     */
+    select?: ClClsQcQueueEntrySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ClClsQcQueueEntry
+     */
+    omit?: ClClsQcQueueEntryOmit<ExtArgs> | null
+    /**
+     * The filter to search for the ClClsQcQueueEntry to update in case it exists.
+     */
+    where: ClClsQcQueueEntryWhereUniqueInput
+    /**
+     * In case the ClClsQcQueueEntry found by the `where` argument doesn't exist, create a new ClClsQcQueueEntry with this data.
+     */
+    create: XOR<ClClsQcQueueEntryCreateInput, ClClsQcQueueEntryUncheckedCreateInput>
+    /**
+     * In case the ClClsQcQueueEntry was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<ClClsQcQueueEntryUpdateInput, ClClsQcQueueEntryUncheckedUpdateInput>
+  }
+
+  /**
+   * ClClsQcQueueEntry delete
+   */
+  export type ClClsQcQueueEntryDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ClClsQcQueueEntry
+     */
+    select?: ClClsQcQueueEntrySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ClClsQcQueueEntry
+     */
+    omit?: ClClsQcQueueEntryOmit<ExtArgs> | null
+    /**
+     * Filter which ClClsQcQueueEntry to delete.
+     */
+    where: ClClsQcQueueEntryWhereUniqueInput
+  }
+
+  /**
+   * ClClsQcQueueEntry deleteMany
+   */
+  export type ClClsQcQueueEntryDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ClClsQcQueueEntries to delete
+     */
+    where?: ClClsQcQueueEntryWhereInput
+    /**
+     * Limit how many ClClsQcQueueEntries to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * ClClsQcQueueEntry without action
+   */
+  export type ClClsQcQueueEntryDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ClClsQcQueueEntry
+     */
+    select?: ClClsQcQueueEntrySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ClClsQcQueueEntry
+     */
+    omit?: ClClsQcQueueEntryOmit<ExtArgs> | null
+  }
+
+
+  /**
    * Model ConsolidatePackage
    */
 
@@ -19127,6 +20185,22 @@ export namespace Prisma {
   export type ConsolidateQcDumpEntryScalarFieldEnum = (typeof ConsolidateQcDumpEntryScalarFieldEnum)[keyof typeof ConsolidateQcDumpEntryScalarFieldEnum]
 
 
+  export const ClClsQcQueueEntryScalarFieldEnum: {
+    id: 'id',
+    barcode: 'barcode',
+    fittingId: 'fittingId',
+    shippingPackageId: 'shippingPackageId',
+    state: 'state',
+    attempts: 'attempts',
+    lastError: 'lastError',
+    firstSeenAt: 'firstSeenAt',
+    lastSeenAt: 'lastSeenAt',
+    completedAt: 'completedAt'
+  };
+
+  export type ClClsQcQueueEntryScalarFieldEnum = (typeof ClClsQcQueueEntryScalarFieldEnum)[keyof typeof ClClsQcQueueEntryScalarFieldEnum]
+
+
   export const ConsolidatePackageScalarFieldEnum: {
     id: 'id',
     shippingPackageId: 'shippingPackageId',
@@ -19282,6 +20356,17 @@ export namespace Prisma {
   };
 
   export type ConsolidateQcDumpEntryOrderByRelevanceFieldEnum = (typeof ConsolidateQcDumpEntryOrderByRelevanceFieldEnum)[keyof typeof ConsolidateQcDumpEntryOrderByRelevanceFieldEnum]
+
+
+  export const ClClsQcQueueEntryOrderByRelevanceFieldEnum: {
+    barcode: 'barcode',
+    fittingId: 'fittingId',
+    shippingPackageId: 'shippingPackageId',
+    state: 'state',
+    lastError: 'lastError'
+  };
+
+  export type ClClsQcQueueEntryOrderByRelevanceFieldEnum = (typeof ClClsQcQueueEntryOrderByRelevanceFieldEnum)[keyof typeof ClClsQcQueueEntryOrderByRelevanceFieldEnum]
 
 
   export const ConsolidatePackageOrderByRelevanceFieldEnum: {
@@ -20425,6 +21510,86 @@ export namespace Prisma {
     inDump?: BoolWithAggregatesFilter<"ConsolidateQcDumpEntry"> | boolean
     scanned?: BoolWithAggregatesFilter<"ConsolidateQcDumpEntry"> | boolean
     scannedAt?: DateTimeNullableWithAggregatesFilter<"ConsolidateQcDumpEntry"> | Date | string | null
+  }
+
+  export type ClClsQcQueueEntryWhereInput = {
+    AND?: ClClsQcQueueEntryWhereInput | ClClsQcQueueEntryWhereInput[]
+    OR?: ClClsQcQueueEntryWhereInput[]
+    NOT?: ClClsQcQueueEntryWhereInput | ClClsQcQueueEntryWhereInput[]
+    id?: IntFilter<"ClClsQcQueueEntry"> | number
+    barcode?: StringFilter<"ClClsQcQueueEntry"> | string
+    fittingId?: StringNullableFilter<"ClClsQcQueueEntry"> | string | null
+    shippingPackageId?: StringFilter<"ClClsQcQueueEntry"> | string
+    state?: StringFilter<"ClClsQcQueueEntry"> | string
+    attempts?: IntFilter<"ClClsQcQueueEntry"> | number
+    lastError?: StringNullableFilter<"ClClsQcQueueEntry"> | string | null
+    firstSeenAt?: DateTimeFilter<"ClClsQcQueueEntry"> | Date | string
+    lastSeenAt?: DateTimeFilter<"ClClsQcQueueEntry"> | Date | string
+    completedAt?: DateTimeNullableFilter<"ClClsQcQueueEntry"> | Date | string | null
+  }
+
+  export type ClClsQcQueueEntryOrderByWithRelationInput = {
+    id?: SortOrder
+    barcode?: SortOrder
+    fittingId?: SortOrderInput | SortOrder
+    shippingPackageId?: SortOrder
+    state?: SortOrder
+    attempts?: SortOrder
+    lastError?: SortOrderInput | SortOrder
+    firstSeenAt?: SortOrder
+    lastSeenAt?: SortOrder
+    completedAt?: SortOrderInput | SortOrder
+    _relevance?: ClClsQcQueueEntryOrderByRelevanceInput
+  }
+
+  export type ClClsQcQueueEntryWhereUniqueInput = Prisma.AtLeast<{
+    id?: number
+    barcode?: string
+    AND?: ClClsQcQueueEntryWhereInput | ClClsQcQueueEntryWhereInput[]
+    OR?: ClClsQcQueueEntryWhereInput[]
+    NOT?: ClClsQcQueueEntryWhereInput | ClClsQcQueueEntryWhereInput[]
+    fittingId?: StringNullableFilter<"ClClsQcQueueEntry"> | string | null
+    shippingPackageId?: StringFilter<"ClClsQcQueueEntry"> | string
+    state?: StringFilter<"ClClsQcQueueEntry"> | string
+    attempts?: IntFilter<"ClClsQcQueueEntry"> | number
+    lastError?: StringNullableFilter<"ClClsQcQueueEntry"> | string | null
+    firstSeenAt?: DateTimeFilter<"ClClsQcQueueEntry"> | Date | string
+    lastSeenAt?: DateTimeFilter<"ClClsQcQueueEntry"> | Date | string
+    completedAt?: DateTimeNullableFilter<"ClClsQcQueueEntry"> | Date | string | null
+  }, "id" | "barcode">
+
+  export type ClClsQcQueueEntryOrderByWithAggregationInput = {
+    id?: SortOrder
+    barcode?: SortOrder
+    fittingId?: SortOrderInput | SortOrder
+    shippingPackageId?: SortOrder
+    state?: SortOrder
+    attempts?: SortOrder
+    lastError?: SortOrderInput | SortOrder
+    firstSeenAt?: SortOrder
+    lastSeenAt?: SortOrder
+    completedAt?: SortOrderInput | SortOrder
+    _count?: ClClsQcQueueEntryCountOrderByAggregateInput
+    _avg?: ClClsQcQueueEntryAvgOrderByAggregateInput
+    _max?: ClClsQcQueueEntryMaxOrderByAggregateInput
+    _min?: ClClsQcQueueEntryMinOrderByAggregateInput
+    _sum?: ClClsQcQueueEntrySumOrderByAggregateInput
+  }
+
+  export type ClClsQcQueueEntryScalarWhereWithAggregatesInput = {
+    AND?: ClClsQcQueueEntryScalarWhereWithAggregatesInput | ClClsQcQueueEntryScalarWhereWithAggregatesInput[]
+    OR?: ClClsQcQueueEntryScalarWhereWithAggregatesInput[]
+    NOT?: ClClsQcQueueEntryScalarWhereWithAggregatesInput | ClClsQcQueueEntryScalarWhereWithAggregatesInput[]
+    id?: IntWithAggregatesFilter<"ClClsQcQueueEntry"> | number
+    barcode?: StringWithAggregatesFilter<"ClClsQcQueueEntry"> | string
+    fittingId?: StringNullableWithAggregatesFilter<"ClClsQcQueueEntry"> | string | null
+    shippingPackageId?: StringWithAggregatesFilter<"ClClsQcQueueEntry"> | string
+    state?: StringWithAggregatesFilter<"ClClsQcQueueEntry"> | string
+    attempts?: IntWithAggregatesFilter<"ClClsQcQueueEntry"> | number
+    lastError?: StringNullableWithAggregatesFilter<"ClClsQcQueueEntry"> | string | null
+    firstSeenAt?: DateTimeWithAggregatesFilter<"ClClsQcQueueEntry"> | Date | string
+    lastSeenAt?: DateTimeWithAggregatesFilter<"ClClsQcQueueEntry"> | Date | string
+    completedAt?: DateTimeNullableWithAggregatesFilter<"ClClsQcQueueEntry"> | Date | string | null
   }
 
   export type ConsolidatePackageWhereInput = {
@@ -21757,6 +22922,94 @@ export namespace Prisma {
     inDump?: BoolFieldUpdateOperationsInput | boolean
     scanned?: BoolFieldUpdateOperationsInput | boolean
     scannedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type ClClsQcQueueEntryCreateInput = {
+    barcode: string
+    fittingId?: string | null
+    shippingPackageId: string
+    state?: string
+    attempts?: number
+    lastError?: string | null
+    firstSeenAt?: Date | string
+    lastSeenAt?: Date | string
+    completedAt?: Date | string | null
+  }
+
+  export type ClClsQcQueueEntryUncheckedCreateInput = {
+    id?: number
+    barcode: string
+    fittingId?: string | null
+    shippingPackageId: string
+    state?: string
+    attempts?: number
+    lastError?: string | null
+    firstSeenAt?: Date | string
+    lastSeenAt?: Date | string
+    completedAt?: Date | string | null
+  }
+
+  export type ClClsQcQueueEntryUpdateInput = {
+    barcode?: StringFieldUpdateOperationsInput | string
+    fittingId?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingPackageId?: StringFieldUpdateOperationsInput | string
+    state?: StringFieldUpdateOperationsInput | string
+    attempts?: IntFieldUpdateOperationsInput | number
+    lastError?: NullableStringFieldUpdateOperationsInput | string | null
+    firstSeenAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    lastSeenAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type ClClsQcQueueEntryUncheckedUpdateInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    barcode?: StringFieldUpdateOperationsInput | string
+    fittingId?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingPackageId?: StringFieldUpdateOperationsInput | string
+    state?: StringFieldUpdateOperationsInput | string
+    attempts?: IntFieldUpdateOperationsInput | number
+    lastError?: NullableStringFieldUpdateOperationsInput | string | null
+    firstSeenAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    lastSeenAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type ClClsQcQueueEntryCreateManyInput = {
+    id?: number
+    barcode: string
+    fittingId?: string | null
+    shippingPackageId: string
+    state?: string
+    attempts?: number
+    lastError?: string | null
+    firstSeenAt?: Date | string
+    lastSeenAt?: Date | string
+    completedAt?: Date | string | null
+  }
+
+  export type ClClsQcQueueEntryUpdateManyMutationInput = {
+    barcode?: StringFieldUpdateOperationsInput | string
+    fittingId?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingPackageId?: StringFieldUpdateOperationsInput | string
+    state?: StringFieldUpdateOperationsInput | string
+    attempts?: IntFieldUpdateOperationsInput | number
+    lastError?: NullableStringFieldUpdateOperationsInput | string | null
+    firstSeenAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    lastSeenAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type ClClsQcQueueEntryUncheckedUpdateManyInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    barcode?: StringFieldUpdateOperationsInput | string
+    fittingId?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingPackageId?: StringFieldUpdateOperationsInput | string
+    state?: StringFieldUpdateOperationsInput | string
+    attempts?: IntFieldUpdateOperationsInput | number
+    lastError?: NullableStringFieldUpdateOperationsInput | string | null
+    firstSeenAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    lastSeenAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type ConsolidatePackageCreateInput = {
@@ -23147,6 +24400,61 @@ export namespace Prisma {
 
   export type ConsolidateQcDumpEntrySumOrderByAggregateInput = {
     id?: SortOrder
+  }
+
+  export type ClClsQcQueueEntryOrderByRelevanceInput = {
+    fields: ClClsQcQueueEntryOrderByRelevanceFieldEnum | ClClsQcQueueEntryOrderByRelevanceFieldEnum[]
+    sort: SortOrder
+    search: string
+  }
+
+  export type ClClsQcQueueEntryCountOrderByAggregateInput = {
+    id?: SortOrder
+    barcode?: SortOrder
+    fittingId?: SortOrder
+    shippingPackageId?: SortOrder
+    state?: SortOrder
+    attempts?: SortOrder
+    lastError?: SortOrder
+    firstSeenAt?: SortOrder
+    lastSeenAt?: SortOrder
+    completedAt?: SortOrder
+  }
+
+  export type ClClsQcQueueEntryAvgOrderByAggregateInput = {
+    id?: SortOrder
+    attempts?: SortOrder
+  }
+
+  export type ClClsQcQueueEntryMaxOrderByAggregateInput = {
+    id?: SortOrder
+    barcode?: SortOrder
+    fittingId?: SortOrder
+    shippingPackageId?: SortOrder
+    state?: SortOrder
+    attempts?: SortOrder
+    lastError?: SortOrder
+    firstSeenAt?: SortOrder
+    lastSeenAt?: SortOrder
+    completedAt?: SortOrder
+  }
+
+  export type ClClsQcQueueEntryMinOrderByAggregateInput = {
+    id?: SortOrder
+    barcode?: SortOrder
+    fittingId?: SortOrder
+    shippingPackageId?: SortOrder
+    state?: SortOrder
+    attempts?: SortOrder
+    lastError?: SortOrder
+    firstSeenAt?: SortOrder
+    lastSeenAt?: SortOrder
+    completedAt?: SortOrder
+  }
+
+  export type ClClsQcQueueEntrySumOrderByAggregateInput = {
+    id?: SortOrder
+    attempts?: SortOrder
   }
 
   export type EnumConsolidateStatusFilter<$PrismaModel = never> = {
