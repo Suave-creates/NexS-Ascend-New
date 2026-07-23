@@ -52,3 +52,9 @@ next-env.d.ts
 
 # Drive-synced reference extension (not part of the app)
 /DO Dashboardv2/
+
+# QC automation browser profile & dev logs (runtime artifacts, not source)
+/data/cl-cls-qc-profile/
+qc-dev.err.log
+qc-dev.out.log
+*.tmp[0-9]*
