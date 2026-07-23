@@ -57,11 +57,12 @@ services:
       - adaptive_token:/home/nextjs/.adaptive
       # --- NDD-RCA runtime secrets (optional feature). Create these files and
       #     uncomment to enable the ndd-rca pipeline. Token caches must be RW. ---
-      # - ./secrets/bigquery-credentials.json:/app/src/utils/resources/bigquery/credentials.json:ro
-      # - ./secrets/bigquery-token.json:/app/src/utils/resources/bigquery/token.json:ro
-      # - ./secrets/gcreds.json:/app/src/utils/resources/google/gcreds.json:ro
-      # - ./secrets/gsheet_token.json:/app/src/utils/resources/google/gsheet_token.json
-      # - ./secrets/pbi_token_cache.json:/app/src/utils/resources/power-bi/pbi_token_cache.json
+      # BigQuery credentials/token are generated locally and excluded from Git.
+      - ./src/utils/resources/bigquery/credentials.json:/app/src/utils/resources/bigquery/credentials.json:ro
+      - ./src/utils/resources/bigquery/token.json:/app/src/utils/resources/bigquery/token.json:ro
+      - ./secrets/gcreds.json:/app/src/utils/resources/google/gcreds.json:ro
+      - ./secrets/gsheet_token.json:/app/src/utils/resources/google/gsheet_token.json
+      - ./secrets/pbi_token_cache.json:/app/src/utils/resources/power-bi/pbi_token_cache.json
 
 volumes:
   db_data:
