@@ -57,9 +57,14 @@ async function run(status: QcRunStatus, username: string, password: string, ship
       data: { state: 'RUNNING' },
     });
 
+    const executablePath = process.env.CL_CLS_QC_EXECUTABLE_PATH || process.env.PUPPETEER_EXECUTABLE_PATH;
+    const channel = process.env.CL_CLS_QC_BROWSER_CHANNEL;
     browser = await chromium.launch({
-      headless: process.env.CL_CLS_QC_HEADLESS === 'true',
-      channel: process.env.CL_CLS_QC_BROWSER_CHANNEL || 'chrome',
+      // Production containers have no display server; headed mode remains an
+      // explicit local-development opt-in with CL_CLS_QC_HEADLESS=false.
+      headless: process.env.CL_CLS_QC_HEADLESS !== 'false',
+      ...(executablePath ? { executablePath } : {}),
+      ...(channel ? { channel } : {}),
     });
     context = await browser.newContext({ viewport: { width: 1500, height: 850 } });
     const page = await context.newPage();
