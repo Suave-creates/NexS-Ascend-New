@@ -18505,6 +18505,7 @@ export namespace Prisma {
     condition: string | null
     availability: string | null
     scanLocation: string | null
+    nexsLocation: string | null
     scannedAt: Date | null
   }
 
@@ -18516,6 +18517,7 @@ export namespace Prisma {
     condition: string | null
     availability: string | null
     scanLocation: string | null
+    nexsLocation: string | null
     scannedAt: Date | null
   }
 
@@ -18527,6 +18529,7 @@ export namespace Prisma {
     condition: number
     availability: number
     scanLocation: number
+    nexsLocation: number
     scannedAt: number
     _all: number
   }
@@ -18548,6 +18551,7 @@ export namespace Prisma {
     condition?: true
     availability?: true
     scanLocation?: true
+    nexsLocation?: true
     scannedAt?: true
   }
 
@@ -18559,6 +18563,7 @@ export namespace Prisma {
     condition?: true
     availability?: true
     scanLocation?: true
+    nexsLocation?: true
     scannedAt?: true
   }
 
@@ -18570,6 +18575,7 @@ export namespace Prisma {
     condition?: true
     availability?: true
     scanLocation?: true
+    nexsLocation?: true
     scannedAt?: true
     _all?: true
   }
@@ -18668,6 +18674,7 @@ export namespace Prisma {
     condition: string | null
     availability: string | null
     scanLocation: string
+    nexsLocation: string | null
     scannedAt: Date
     _count: ScannedBarcodeInventoryCountAggregateOutputType | null
     _avg: ScannedBarcodeInventoryAvgAggregateOutputType | null
@@ -18698,6 +18705,7 @@ export namespace Prisma {
     condition?: boolean
     availability?: boolean
     scanLocation?: boolean
+    nexsLocation?: boolean
     scannedAt?: boolean
   }, ExtArgs["result"]["scannedBarcodeInventory"]>
 
@@ -18711,10 +18719,11 @@ export namespace Prisma {
     condition?: boolean
     availability?: boolean
     scanLocation?: boolean
+    nexsLocation?: boolean
     scannedAt?: boolean
   }
 
-  export type ScannedBarcodeInventoryOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "pid" | "barcode" | "status" | "condition" | "availability" | "scanLocation" | "scannedAt", ExtArgs["result"]["scannedBarcodeInventory"]>
+  export type ScannedBarcodeInventoryOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "pid" | "barcode" | "status" | "condition" | "availability" | "scanLocation" | "nexsLocation" | "scannedAt", ExtArgs["result"]["scannedBarcodeInventory"]>
 
   export type $ScannedBarcodeInventoryPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "ScannedBarcodeInventory"
@@ -18727,6 +18736,7 @@ export namespace Prisma {
       condition: string | null
       availability: string | null
       scanLocation: string
+      nexsLocation: string | null
       scannedAt: Date
     }, ExtArgs["result"]["scannedBarcodeInventory"]>
     composites: {}
@@ -19104,6 +19114,7 @@ export namespace Prisma {
     readonly condition: FieldRef<"ScannedBarcodeInventory", 'String'>
     readonly availability: FieldRef<"ScannedBarcodeInventory", 'String'>
     readonly scanLocation: FieldRef<"ScannedBarcodeInventory", 'String'>
+    readonly nexsLocation: FieldRef<"ScannedBarcodeInventory", 'String'>
     readonly scannedAt: FieldRef<"ScannedBarcodeInventory", 'DateTime'>
   }
     
@@ -20370,6 +20381,7 @@ export namespace Prisma {
     condition: string | null
     availability: string | null
     scanLocation: string | null
+    nexsLocation: string | null
     scannedAt: Date | null
     injestedAt: Date | null
   }
@@ -20382,6 +20394,7 @@ export namespace Prisma {
     condition: string | null
     availability: string | null
     scanLocation: string | null
+    nexsLocation: string | null
     scannedAt: Date | null
     injestedAt: Date | null
   }
@@ -20394,6 +20407,7 @@ export namespace Prisma {
     condition: number
     availability: number
     scanLocation: number
+    nexsLocation: number
     scannedAt: number
     injestedAt: number
     _all: number
@@ -20416,6 +20430,7 @@ export namespace Prisma {
     condition?: true
     availability?: true
     scanLocation?: true
+    nexsLocation?: true
     scannedAt?: true
     injestedAt?: true
   }
@@ -20428,6 +20443,7 @@ export namespace Prisma {
     condition?: true
     availability?: true
     scanLocation?: true
+    nexsLocation?: true
     scannedAt?: true
     injestedAt?: true
   }
@@ -20440,6 +20456,7 @@ export namespace Prisma {
     condition?: true
     availability?: true
     scanLocation?: true
+    nexsLocation?: true
     scannedAt?: true
     injestedAt?: true
     _all?: true
@@ -20539,6 +20556,7 @@ export namespace Prisma {
     condition: string | null
     availability: string | null
     scanLocation: string
+    nexsLocation: string | null
     scannedAt: Date
     injestedAt: Date
     _count: ScannedBarcodeInventoryTransferCountAggregateOutputType | null
@@ -20570,6 +20588,7 @@ export namespace Prisma {
     condition?: boolean
     availability?: boolean
     scanLocation?: boolean
+    nexsLocation?: boolean
     scannedAt?: boolean
     injestedAt?: boolean
   }, ExtArgs["result"]["scannedBarcodeInventoryTransfer"]>
@@ -20584,11 +20603,12 @@ export namespace Prisma {
     condition?: boolean
     availability?: boolean
     scanLocation?: boolean
+    nexsLocation?: boolean
     scannedAt?: boolean
     injestedAt?: boolean
   }
 
-  export type ScannedBarcodeInventoryTransferOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "pid" | "barcode" | "status" | "condition" | "availability" | "scanLocation" | "scannedAt" | "injestedAt", ExtArgs["result"]["scannedBarcodeInventoryTransfer"]>
+  export type ScannedBarcodeInventoryTransferOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "pid" | "barcode" | "status" | "condition" | "availability" | "scanLocation" | "nexsLocation" | "scannedAt" | "injestedAt", ExtArgs["result"]["scannedBarcodeInventoryTransfer"]>
 
   export type $ScannedBarcodeInventoryTransferPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "ScannedBarcodeInventoryTransfer"
@@ -20601,6 +20621,7 @@ export namespace Prisma {
       condition: string | null
       availability: string | null
       scanLocation: string
+      nexsLocation: string | null
       scannedAt: Date
       injestedAt: Date
     }, ExtArgs["result"]["scannedBarcodeInventoryTransfer"]>
@@ -20979,6 +21000,7 @@ export namespace Prisma {
     readonly condition: FieldRef<"ScannedBarcodeInventoryTransfer", 'String'>
     readonly availability: FieldRef<"ScannedBarcodeInventoryTransfer", 'String'>
     readonly scanLocation: FieldRef<"ScannedBarcodeInventoryTransfer", 'String'>
+    readonly nexsLocation: FieldRef<"ScannedBarcodeInventoryTransfer", 'String'>
     readonly scannedAt: FieldRef<"ScannedBarcodeInventoryTransfer", 'DateTime'>
     readonly injestedAt: FieldRef<"ScannedBarcodeInventoryTransfer", 'DateTime'>
   }
@@ -22451,6 +22473,7 @@ export namespace Prisma {
     condition: 'condition',
     availability: 'availability',
     scanLocation: 'scanLocation',
+    nexsLocation: 'nexsLocation',
     scannedAt: 'scannedAt'
   };
 
@@ -22476,6 +22499,7 @@ export namespace Prisma {
     condition: 'condition',
     availability: 'availability',
     scanLocation: 'scanLocation',
+    nexsLocation: 'nexsLocation',
     scannedAt: 'scannedAt',
     injestedAt: 'injestedAt'
   };
@@ -22693,7 +22717,8 @@ export namespace Prisma {
     status: 'status',
     condition: 'condition',
     availability: 'availability',
-    scanLocation: 'scanLocation'
+    scanLocation: 'scanLocation',
+    nexsLocation: 'nexsLocation'
   };
 
   export type ScannedBarcodeInventoryOrderByRelevanceFieldEnum = (typeof ScannedBarcodeInventoryOrderByRelevanceFieldEnum)[keyof typeof ScannedBarcodeInventoryOrderByRelevanceFieldEnum]
@@ -22714,7 +22739,8 @@ export namespace Prisma {
     status: 'status',
     condition: 'condition',
     availability: 'availability',
-    scanLocation: 'scanLocation'
+    scanLocation: 'scanLocation',
+    nexsLocation: 'nexsLocation'
   };
 
   export type ScannedBarcodeInventoryTransferOrderByRelevanceFieldEnum = (typeof ScannedBarcodeInventoryTransferOrderByRelevanceFieldEnum)[keyof typeof ScannedBarcodeInventoryTransferOrderByRelevanceFieldEnum]
@@ -23903,6 +23929,7 @@ export namespace Prisma {
     condition?: StringNullableFilter<"ScannedBarcodeInventory"> | string | null
     availability?: StringNullableFilter<"ScannedBarcodeInventory"> | string | null
     scanLocation?: StringFilter<"ScannedBarcodeInventory"> | string
+    nexsLocation?: StringNullableFilter<"ScannedBarcodeInventory"> | string | null
     scannedAt?: DateTimeFilter<"ScannedBarcodeInventory"> | Date | string
   }
 
@@ -23914,6 +23941,7 @@ export namespace Prisma {
     condition?: SortOrderInput | SortOrder
     availability?: SortOrderInput | SortOrder
     scanLocation?: SortOrder
+    nexsLocation?: SortOrderInput | SortOrder
     scannedAt?: SortOrder
     _relevance?: ScannedBarcodeInventoryOrderByRelevanceInput
   }
@@ -23930,6 +23958,7 @@ export namespace Prisma {
     condition?: StringNullableFilter<"ScannedBarcodeInventory"> | string | null
     availability?: StringNullableFilter<"ScannedBarcodeInventory"> | string | null
     scanLocation?: StringFilter<"ScannedBarcodeInventory"> | string
+    nexsLocation?: StringNullableFilter<"ScannedBarcodeInventory"> | string | null
     scannedAt?: DateTimeFilter<"ScannedBarcodeInventory"> | Date | string
   }, "id" | "uniq_barcode_scan">
 
@@ -23941,6 +23970,7 @@ export namespace Prisma {
     condition?: SortOrderInput | SortOrder
     availability?: SortOrderInput | SortOrder
     scanLocation?: SortOrder
+    nexsLocation?: SortOrderInput | SortOrder
     scannedAt?: SortOrder
     _count?: ScannedBarcodeInventoryCountOrderByAggregateInput
     _avg?: ScannedBarcodeInventoryAvgOrderByAggregateInput
@@ -23960,6 +23990,7 @@ export namespace Prisma {
     condition?: StringNullableWithAggregatesFilter<"ScannedBarcodeInventory"> | string | null
     availability?: StringNullableWithAggregatesFilter<"ScannedBarcodeInventory"> | string | null
     scanLocation?: StringWithAggregatesFilter<"ScannedBarcodeInventory"> | string
+    nexsLocation?: StringNullableWithAggregatesFilter<"ScannedBarcodeInventory"> | string | null
     scannedAt?: DateTimeWithAggregatesFilter<"ScannedBarcodeInventory"> | Date | string
   }
 
@@ -24029,6 +24060,7 @@ export namespace Prisma {
     condition?: StringNullableFilter<"ScannedBarcodeInventoryTransfer"> | string | null
     availability?: StringNullableFilter<"ScannedBarcodeInventoryTransfer"> | string | null
     scanLocation?: StringFilter<"ScannedBarcodeInventoryTransfer"> | string
+    nexsLocation?: StringNullableFilter<"ScannedBarcodeInventoryTransfer"> | string | null
     scannedAt?: DateTimeFilter<"ScannedBarcodeInventoryTransfer"> | Date | string
     injestedAt?: DateTimeFilter<"ScannedBarcodeInventoryTransfer"> | Date | string
   }
@@ -24041,6 +24073,7 @@ export namespace Prisma {
     condition?: SortOrderInput | SortOrder
     availability?: SortOrderInput | SortOrder
     scanLocation?: SortOrder
+    nexsLocation?: SortOrderInput | SortOrder
     scannedAt?: SortOrder
     injestedAt?: SortOrder
     _relevance?: ScannedBarcodeInventoryTransferOrderByRelevanceInput
@@ -24058,6 +24091,7 @@ export namespace Prisma {
     condition?: StringNullableFilter<"ScannedBarcodeInventoryTransfer"> | string | null
     availability?: StringNullableFilter<"ScannedBarcodeInventoryTransfer"> | string | null
     scanLocation?: StringFilter<"ScannedBarcodeInventoryTransfer"> | string
+    nexsLocation?: StringNullableFilter<"ScannedBarcodeInventoryTransfer"> | string | null
     scannedAt?: DateTimeFilter<"ScannedBarcodeInventoryTransfer"> | Date | string
     injestedAt?: DateTimeFilter<"ScannedBarcodeInventoryTransfer"> | Date | string
   }, "id" | "uniq_barcode_scan">
@@ -24070,6 +24104,7 @@ export namespace Prisma {
     condition?: SortOrderInput | SortOrder
     availability?: SortOrderInput | SortOrder
     scanLocation?: SortOrder
+    nexsLocation?: SortOrderInput | SortOrder
     scannedAt?: SortOrder
     injestedAt?: SortOrder
     _count?: ScannedBarcodeInventoryTransferCountOrderByAggregateInput
@@ -24090,6 +24125,7 @@ export namespace Prisma {
     condition?: StringNullableWithAggregatesFilter<"ScannedBarcodeInventoryTransfer"> | string | null
     availability?: StringNullableWithAggregatesFilter<"ScannedBarcodeInventoryTransfer"> | string | null
     scanLocation?: StringWithAggregatesFilter<"ScannedBarcodeInventoryTransfer"> | string
+    nexsLocation?: StringNullableWithAggregatesFilter<"ScannedBarcodeInventoryTransfer"> | string | null
     scannedAt?: DateTimeWithAggregatesFilter<"ScannedBarcodeInventoryTransfer"> | Date | string
     injestedAt?: DateTimeWithAggregatesFilter<"ScannedBarcodeInventoryTransfer"> | Date | string
   }
@@ -25301,6 +25337,7 @@ export namespace Prisma {
     condition?: string | null
     availability?: string | null
     scanLocation: string
+    nexsLocation?: string | null
     scannedAt?: Date | string
   }
 
@@ -25312,6 +25349,7 @@ export namespace Prisma {
     condition?: string | null
     availability?: string | null
     scanLocation: string
+    nexsLocation?: string | null
     scannedAt?: Date | string
   }
 
@@ -25323,6 +25361,7 @@ export namespace Prisma {
     condition?: NullableStringFieldUpdateOperationsInput | string | null
     availability?: NullableStringFieldUpdateOperationsInput | string | null
     scanLocation?: StringFieldUpdateOperationsInput | string
+    nexsLocation?: NullableStringFieldUpdateOperationsInput | string | null
     scannedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -25334,6 +25373,7 @@ export namespace Prisma {
     condition?: NullableStringFieldUpdateOperationsInput | string | null
     availability?: NullableStringFieldUpdateOperationsInput | string | null
     scanLocation?: StringFieldUpdateOperationsInput | string
+    nexsLocation?: NullableStringFieldUpdateOperationsInput | string | null
     scannedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -25345,6 +25385,7 @@ export namespace Prisma {
     condition?: string | null
     availability?: string | null
     scanLocation: string
+    nexsLocation?: string | null
     scannedAt?: Date | string
   }
 
@@ -25356,6 +25397,7 @@ export namespace Prisma {
     condition?: NullableStringFieldUpdateOperationsInput | string | null
     availability?: NullableStringFieldUpdateOperationsInput | string | null
     scanLocation?: StringFieldUpdateOperationsInput | string
+    nexsLocation?: NullableStringFieldUpdateOperationsInput | string | null
     scannedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -25367,6 +25409,7 @@ export namespace Prisma {
     condition?: NullableStringFieldUpdateOperationsInput | string | null
     availability?: NullableStringFieldUpdateOperationsInput | string | null
     scanLocation?: StringFieldUpdateOperationsInput | string
+    nexsLocation?: NullableStringFieldUpdateOperationsInput | string | null
     scannedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -25431,6 +25474,7 @@ export namespace Prisma {
     condition?: string | null
     availability?: string | null
     scanLocation: string
+    nexsLocation?: string | null
     scannedAt?: Date | string
     injestedAt?: Date | string
   }
@@ -25443,6 +25487,7 @@ export namespace Prisma {
     condition?: string | null
     availability?: string | null
     scanLocation: string
+    nexsLocation?: string | null
     scannedAt?: Date | string
     injestedAt?: Date | string
   }
@@ -25455,6 +25500,7 @@ export namespace Prisma {
     condition?: NullableStringFieldUpdateOperationsInput | string | null
     availability?: NullableStringFieldUpdateOperationsInput | string | null
     scanLocation?: StringFieldUpdateOperationsInput | string
+    nexsLocation?: NullableStringFieldUpdateOperationsInput | string | null
     scannedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     injestedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -25467,6 +25513,7 @@ export namespace Prisma {
     condition?: NullableStringFieldUpdateOperationsInput | string | null
     availability?: NullableStringFieldUpdateOperationsInput | string | null
     scanLocation?: StringFieldUpdateOperationsInput | string
+    nexsLocation?: NullableStringFieldUpdateOperationsInput | string | null
     scannedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     injestedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -25479,6 +25526,7 @@ export namespace Prisma {
     condition?: string | null
     availability?: string | null
     scanLocation: string
+    nexsLocation?: string | null
     scannedAt?: Date | string
     injestedAt?: Date | string
   }
@@ -25491,6 +25539,7 @@ export namespace Prisma {
     condition?: NullableStringFieldUpdateOperationsInput | string | null
     availability?: NullableStringFieldUpdateOperationsInput | string | null
     scanLocation?: StringFieldUpdateOperationsInput | string
+    nexsLocation?: NullableStringFieldUpdateOperationsInput | string | null
     scannedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     injestedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -25503,6 +25552,7 @@ export namespace Prisma {
     condition?: NullableStringFieldUpdateOperationsInput | string | null
     availability?: NullableStringFieldUpdateOperationsInput | string | null
     scanLocation?: StringFieldUpdateOperationsInput | string
+    nexsLocation?: NullableStringFieldUpdateOperationsInput | string | null
     scannedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     injestedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -26562,6 +26612,7 @@ export namespace Prisma {
     condition?: SortOrder
     availability?: SortOrder
     scanLocation?: SortOrder
+    nexsLocation?: SortOrder
     scannedAt?: SortOrder
   }
 
@@ -26577,6 +26628,7 @@ export namespace Prisma {
     condition?: SortOrder
     availability?: SortOrder
     scanLocation?: SortOrder
+    nexsLocation?: SortOrder
     scannedAt?: SortOrder
   }
 
@@ -26588,6 +26640,7 @@ export namespace Prisma {
     condition?: SortOrder
     availability?: SortOrder
     scanLocation?: SortOrder
+    nexsLocation?: SortOrder
     scannedAt?: SortOrder
   }
 
@@ -26668,6 +26721,7 @@ export namespace Prisma {
     condition?: SortOrder
     availability?: SortOrder
     scanLocation?: SortOrder
+    nexsLocation?: SortOrder
     scannedAt?: SortOrder
     injestedAt?: SortOrder
   }
@@ -26684,6 +26738,7 @@ export namespace Prisma {
     condition?: SortOrder
     availability?: SortOrder
     scanLocation?: SortOrder
+    nexsLocation?: SortOrder
     scannedAt?: SortOrder
     injestedAt?: SortOrder
   }
@@ -26696,6 +26751,7 @@ export namespace Prisma {
     condition?: SortOrder
     availability?: SortOrder
     scanLocation?: SortOrder
+    nexsLocation?: SortOrder
     scannedAt?: SortOrder
     injestedAt?: SortOrder
   }

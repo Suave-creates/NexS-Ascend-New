@@ -13,6 +13,7 @@ type NexsCurrentRecord = {
   status?: string | null;
   condition?: string | null;
   availability?: string | null;
+  location?: string | null;
 };
 
 function jsonError(error: string, status: number) {
@@ -123,6 +124,7 @@ export async function POST(req: Request) {
         condition: current.condition ?? '',
         availability: current.availability ?? '',
         scanLocation,
+        nexsLocation: current.location ?? null,
       },
     });
 
@@ -133,6 +135,7 @@ export async function POST(req: Request) {
       condition: current.condition ?? '',
       availability: current.availability ?? '',
       scan_location: scanLocation,
+      nexs_location: current.location ?? null,
     });
   } catch (error) {
     console.error('[pid-hunter] Processing failed:', error);

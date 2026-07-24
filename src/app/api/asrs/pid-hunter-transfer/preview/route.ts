@@ -29,6 +29,7 @@ export async function POST(req: Request) {
           condition: r.condition,
           availability: r.availability,
           scan_location: r.scanLocation,
+          nexs_location: r.nexsLocation,
           scanned_at: r.scannedAt,
         })),
       }),

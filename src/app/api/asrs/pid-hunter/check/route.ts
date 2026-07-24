@@ -19,7 +19,7 @@ export async function POST(req: Request) {
 
     // ── READ from source DB ──────────────────────────────────────────────
     const [rows]: any = await conn.execute(
-      `SELECT pid, barcode, status, \`condition\`, availability
+      `SELECT pid, barcode, status, \`condition\`, availability, location
        FROM barcode_item WHERE barcode = ? LIMIT 1`,
       [barcode]
     );
@@ -49,6 +49,7 @@ export async function POST(req: Request) {
           condition:    r.condition,
           availability: r.availability,
           scanLocation: scan_location,
+          nexsLocation: r.location,
         },
       });
     }
@@ -62,6 +63,7 @@ export async function POST(req: Request) {
         condition:     r.condition,
         availability:  r.availability,
         scan_location,
+        nexs_location:  r.location,
         alreadyExists,          // ← frontend reads this
       }),
       { status: 200 }

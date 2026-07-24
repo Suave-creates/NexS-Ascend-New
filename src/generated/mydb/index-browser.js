@@ -299,6 +299,7 @@ exports.Prisma.ScannedBarcodeInventoryScalarFieldEnum = {
   condition: 'condition',
   availability: 'availability',
   scanLocation: 'scanLocation',
+  nexsLocation: 'nexsLocation',
   scannedAt: 'scannedAt'
 };
 
@@ -318,6 +319,7 @@ exports.Prisma.ScannedBarcodeInventoryTransferScalarFieldEnum = {
   condition: 'condition',
   availability: 'availability',
   scanLocation: 'scanLocation',
+  nexsLocation: 'nexsLocation',
   scannedAt: 'scannedAt',
   injestedAt: 'injestedAt'
 };
@@ -472,7 +474,8 @@ exports.Prisma.ScannedBarcodeInventoryOrderByRelevanceFieldEnum = {
   status: 'status',
   condition: 'condition',
   availability: 'availability',
-  scanLocation: 'scanLocation'
+  scanLocation: 'scanLocation',
+  nexsLocation: 'nexsLocation'
 };
 
 exports.Prisma.CLScanOrderByRelevanceFieldEnum = {
@@ -487,7 +490,8 @@ exports.Prisma.ScannedBarcodeInventoryTransferOrderByRelevanceFieldEnum = {
   status: 'status',
   condition: 'condition',
   availability: 'availability',
-  scanLocation: 'scanLocation'
+  scanLocation: 'scanLocation',
+  nexsLocation: 'nexsLocation'
 };
 
 exports.Prisma.NddShipmentOrderByRelevanceFieldEnum = {

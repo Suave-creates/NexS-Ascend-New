@@ -18,6 +18,7 @@ interface ScannedItem {
   condition: string;
   availability: string;
   scan_location: string;
+  nexs_location: string | null;
   scannedAt: Date;
   isMatched: boolean;     // matched against target PID list this session
   isPreScanned: boolean;  // already existed in DB (backend signals alreadyExists)
@@ -63,11 +64,15 @@ function availTone(avail: string): 'good' | 'danger' {
   return 'danger';
 }
 
+function isAsrsTrayLocation(location: string | null): boolean {
+  return location?.trim().toUpperCase().startsWith('NXS1-ASRS-T') ?? false;
+}
+
 function downloadCSV(items: ScannedItem[]) {
-  const headers = ['Barcode', 'PID', 'Status', 'Condition', 'Availability', 'Scan Location', 'Scanned At', 'Target Match', 'Pre-Scanned'];
+  const headers = ['Barcode', 'PID', 'Status', 'Condition', 'Availability', 'NexS Location', 'Scan Location', 'Scanned At', 'Target Match', 'Pre-Scanned'];
   const rows = items.map((i) => [
     i.barcode, i.pid, i.status, i.condition, i.availability,
-    i.scan_location, i.scannedAt.toISOString(),
+    i.nexs_location ?? '', i.scan_location, i.scannedAt.toISOString(),
     i.isMatched ? 'YES' : 'NO',
     i.isPreScanned ? 'YES' : 'NO',
   ]);
@@ -156,6 +161,7 @@ function ScanRow({ item, isNew }: { item: ScannedItem; isNew: boolean }) {
   const isBadStatus =
     normalizedCondition === 'BAD' ||
     (normalizedStatus !== 'AVAILABLE' && normalizedStatus !== 'RELEASED');
+  const highlightNexsLocation = isAsrsTrayLocation(item.nexs_location);
 
   return (
     <TR
@@ -185,6 +191,16 @@ function ScanRow({ item, isNew }: { item: ScannedItem; isNew: boolean }) {
       <TD className="text-xs">{item.condition}</TD>
       <TD>
         <Badge tone={availTone(item.availability)}>{item.availability}</Badge>
+      </TD>
+      <TD>
+        <span className={cn(
+          'font-mono text-xs font-semibold',
+          highlightNexsLocation
+            ? 'rounded bg-[#39ff14] px-2 py-1 text-black shadow-[0_0_12px_rgba(57,255,20,0.8)]'
+            : 'text-gray-700',
+        )}>
+          {item.nexs_location || '—'}
+        </span>
       </TD>
     </TR>
   );
@@ -279,7 +295,7 @@ export default function BarcodeScannerPage() {
       const item: ScannedItem = {
         pid, barcode: data.barcode, status: data.status,
         condition: data.condition, availability: data.availability,
-        scan_location: data.scan_location, scannedAt: new Date(),
+        scan_location: data.scan_location, nexs_location: data.nexs_location ?? null, scannedAt: new Date(),
         isMatched, isPreScanned,
       };
 
@@ -579,6 +595,14 @@ export default function BarcodeScannerPage() {
                 <div className="flex-shrink-0 text-right">
                   <div className="mb-1 text-[10px] font-bold uppercase tracking-wider text-white/40">Location</div>
                   <div className="font-mono text-sm font-semibold">{scannedItems[0].scan_location}</div>
+                  <div className={cn(
+                    'mt-1 font-mono text-xs font-semibold',
+                    isAsrsTrayLocation(scannedItems[0].nexs_location)
+                      ? 'rounded bg-[#39ff14] px-2 py-1 text-black shadow-[0_0_12px_rgba(57,255,20,0.8)]'
+                      : 'text-white/70',
+                  )}>
+                    NexS: {scannedItems[0].nexs_location || '—'}
+                  </div>
                   <div className="mt-1 text-[10px] text-white/40">{scannedItems[0].scannedAt.toLocaleTimeString()}</div>
                 </div>
               </CardBody>
@@ -637,6 +661,7 @@ export default function BarcodeScannerPage() {
                       <TH>Status</TH>
                       <TH>Condition</TH>
                       <TH>Availability</TH>
+                      <TH>NexS Location</TH>
                     </TR>
                   </THead>
                   <TBody>
