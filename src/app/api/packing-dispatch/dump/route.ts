@@ -94,7 +94,7 @@ export async function GET(req: Request) {
         WHERE shipment_status = 'INVOICED'
           AND box_status = 'UNASSIGNED'
           AND facility = @facility
-          AND updated_at >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL ${days} DAY)
+          AND TIMESTAMP(updated_at) >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL ${days} DAY)
       `,
       100_000,
       { facility },

@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getQcRunStatus, startQcRun } from '@/utils/clClsQcRunner';
+import { getQcRunStatus, getQcSessionStatus, startQcRun } from '@/utils/clClsQcRunner';
 import { prismaDispatch } from '@/utils/prismaDispatch';
 
 export const runtime = 'nodejs';
@@ -11,7 +11,7 @@ export async function GET(req: Request) {
     where: { state: 'FAILED' }, orderBy: { lastSeenAt: 'asc' },
     select: { barcode: true, fittingId: true, shippingPackageId: true, attempts: true, lastError: true },
   });
-  return NextResponse.json({ ...getQcRunStatus(runId), latestFailure });
+  return NextResponse.json({ ...getQcRunStatus(runId), ...getQcSessionStatus(), latestFailure });
 }
 
 export async function POST(req: Request) {
@@ -24,7 +24,6 @@ export async function POST(req: Request) {
   const shippingPackageIds: string[] = [
     ...new Set<string>(rawPackages.map((value: unknown) => String(value).trim()).filter(Boolean)),
   ];
-  if (!username || !password) return NextResponse.json({ error: 'Employee code and password are required' }, { status: 400 });
   if (!shippingPackageIds.length) return NextResponse.json({ error: 'At least one Shipping Package ID is required' }, { status: 400 });
   if (shippingPackageIds.length > 500) return NextResponse.json({ error: 'Maximum 500 Shipping Package IDs per run' }, { status: 400 });
   try { return NextResponse.json(startQcRun(username, password, shippingPackageIds), { status: 202 }); }

@@ -9,6 +9,7 @@ const FRESH_MS = 5 * 60_000;
 export type CentralDumpStatus = {
   running: boolean; loaded: number; total: number; stored: number; removed: number;
   error: string | null; startedAt: string | null; completedAt: string | null;
+  lastSuccessfulAt: string | null;
 };
 
 const globalState = globalThis as typeof globalThis & {
@@ -20,16 +21,16 @@ const globalState = globalThis as typeof globalThis & {
 function state(): CentralDumpStatus {
   return globalState.clClsCentralDumpStatus ||= {
     running: false, loaded: 0, total: 0, stored: 0, removed: 0,
-    error: null, startedAt: null, completedAt: null,
+    error: null, startedAt: null, completedAt: null, lastSuccessfulAt: null,
   };
 }
 
 export function getCentralDumpStatus() { return { ...state() }; }
 
-export function ensureCentralDump() {
+export function ensureCentralDump(force = false) {
   const s = state();
   const completed = s.completedAt ? new Date(s.completedAt).getTime() : 0;
-  if (s.running || (completed && Date.now() - completed < FRESH_MS)) return getCentralDumpStatus();
+  if (s.running || (!force && completed && Date.now() - completed < FRESH_MS)) return getCentralDumpStatus();
   s.running = true; s.loaded = 0; s.total = 0; s.stored = 0; s.removed = 0;
   s.error = null; s.startedAt = new Date().toISOString();
   globalState.clClsCentralDumpPromise = refresh().finally(() => { globalState.clClsCentralDumpPromise = null; });
@@ -112,6 +113,7 @@ async function refresh() {
     }
     const removed = await prismaDispatch.clClsQcQueueEntry.deleteMany({ where: { lastSeenAt: { lt: stamp }, state: { not: 'RUNNING' } } });
     s.loaded = allRows.length; s.stored = entries.length; s.removed = removed.count;
+    s.lastSuccessfulAt = new Date().toISOString();
   } catch (error) {
     s.error = error instanceof Error ? error.message : String(error);
   } finally {

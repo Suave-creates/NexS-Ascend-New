@@ -5,4 +5,7 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 export async function GET() { return NextResponse.json(getCentralDumpStatus()); }
-export async function POST() { return NextResponse.json(ensureCentralDump(), { status: 202 }); }
+export async function POST(req: Request) {
+  const force = new URL(req.url).searchParams.get('force') === 'true';
+  return NextResponse.json(ensureCentralDump(force), { status: 202 });
+}

@@ -12,6 +12,20 @@ export type QcRunStatus = {
 const runs = new Map<string, QcRunStatus>();
 const activePackages = new Set<string>();
 
+type ReusableSession = {
+  username: string; password: string; browser: Browser; context: BrowserContext; page: Page;
+};
+const qcGlobal = globalThis as typeof globalThis & {
+  clClsQcSession?: ReusableSession | null;
+  clClsQcSessionBusy?: boolean;
+};
+
+export function getQcSessionStatus() {
+  const session = qcGlobal.clClsQcSession;
+  const sessionReady = !!session && !session.page.isClosed() && session.browser.isConnected();
+  return { sessionReady, sessionUsername: sessionReady ? session!.username : null };
+}
+
 function emptyStatus(): QcRunStatus {
   return { runId: null, credentialsVerified: false, running: false, total: 0, completed: 0, failed: 0, current: null,
     message: 'Ready', startedAt: null, finishedAt: null };
@@ -22,6 +36,11 @@ export function getQcRunStatus(runId?: string | null) {
 }
 
 export function startQcRun(username: string, password: string, shippingPackageIds: string[]) {
+  const cached = qcGlobal.clClsQcSession;
+  const resolvedUsername = username || cached?.username || '';
+  const resolvedPassword = password || (cached?.username === resolvedUsername ? cached.password : '');
+  if (!resolvedUsername || !resolvedPassword) throw new Error('Employee code and password are required for the first run');
+  if (qcGlobal.clClsQcSessionBusy) throw new Error('The reusable QC browser session is already running another batch');
   const overlaps = shippingPackageIds.filter(id => activePackages.has(id));
   if (overlaps.length) throw new Error(`${overlaps.length} selected package(s) are already running in another session`);
   shippingPackageIds.forEach(id => activePackages.add(id));
@@ -30,7 +49,9 @@ export function startQcRun(username: string, password: string, shippingPackageId
   status = { ...emptyStatus(), running: true, message: 'Starting Chrome…', startedAt: new Date().toISOString() };
   status.runId = runId;
   runs.set(runId, status);
-  void run(status, username, password, shippingPackageIds).finally(() => {
+  qcGlobal.clClsQcSessionBusy = true;
+  void run(status, resolvedUsername, resolvedPassword, shippingPackageIds).finally(() => {
+    qcGlobal.clClsQcSessionBusy = false;
     shippingPackageIds.forEach(id => activePackages.delete(id));
     setTimeout(() => runs.delete(runId), 6 * 60 * 60_000);
   });
@@ -38,8 +59,6 @@ export function startQcRun(username: string, password: string, shippingPackageId
 }
 
 async function run(status: QcRunStatus, username: string, password: string, shippingPackageIds: string[]) {
-  let context: BrowserContext | null = null;
-  let browser: Browser | null = null;
   try {
     const jobs = await prismaDispatch.clClsQcQueueEntry.findMany({
       // RUNNING rows are safe to retry after a server/process restart. Active
@@ -57,22 +76,7 @@ async function run(status: QcRunStatus, username: string, password: string, ship
       data: { state: 'RUNNING' },
     });
 
-    const executablePath = process.env.CL_CLS_QC_EXECUTABLE_PATH || process.env.PUPPETEER_EXECUTABLE_PATH;
-    const channel = process.env.CL_CLS_QC_BROWSER_CHANNEL;
-    browser = await chromium.launch({
-      // Production containers have no display server; headed mode remains an
-      // explicit local-development opt-in with CL_CLS_QC_HEADLESS=false.
-      headless: process.env.CL_CLS_QC_HEADLESS !== 'false',
-      ...(executablePath ? { executablePath } : {}),
-      ...(channel ? { channel } : {}),
-    });
-    context = await browser.newContext({ viewport: { width: 1500, height: 850 } });
-    const page = await context.newPage();
-    // Enter through the QC app: NexS renders its login form only after the app
-    // bootstrap redirects unauthenticated users to /login.
-    await page.goto(process.env.CL_CLS_QC_URL || 'https://app.nexs.lenskart.com/qc', { waitUntil: 'domcontentloaded' });
-    await page.waitForURL(/\/login(?:$|[?#])/, { timeout: 15_000 }).catch(() => undefined);
-    await loginIfNeeded(page, username, password);
+    const { page } = await reusableSession(username, password);
     status.credentialsVerified = true;
     status.message = 'Credentials verified · preparing QC';
     await selectWorkstation(page);
@@ -102,8 +106,41 @@ async function run(status: QcRunStatus, username: string, password: string, ship
     status.message = error instanceof Error ? error.message : String(error);
   } finally {
     status.running = false; status.current = null; status.finishedAt = new Date().toISOString();
-    await context?.close().catch(() => undefined);
-    await browser?.close().catch(() => undefined);
+  }
+}
+
+async function reusableSession(username: string, password: string): Promise<ReusableSession> {
+  let session = qcGlobal.clClsQcSession;
+  if (session && (session.username !== username || session.page.isClosed() || !session.browser.isConnected())) {
+    await session.context.close().catch(() => undefined);
+    await session.browser.close().catch(() => undefined);
+    qcGlobal.clClsQcSession = null;
+    session = null;
+  }
+  if (!session) {
+    const executablePath = process.env.CL_CLS_QC_EXECUTABLE_PATH || process.env.PUPPETEER_EXECUTABLE_PATH;
+    const channel = process.env.CL_CLS_QC_BROWSER_CHANNEL;
+    const browser = await chromium.launch({
+      headless: process.env.CL_CLS_QC_HEADLESS !== 'false',
+      ...(executablePath ? { executablePath } : {}),
+      ...(channel ? { channel } : {}),
+    });
+    const context = await browser.newContext({ viewport: { width: 1500, height: 850 } });
+    session = { username, password, browser, context, page: await context.newPage() };
+    qcGlobal.clClsQcSession = session;
+  } else {
+    session.password = password;
+  }
+  try {
+    await session.page.goto(process.env.CL_CLS_QC_URL || 'https://app.nexs.lenskart.com/qc', { waitUntil: 'domcontentloaded' });
+    await session.page.waitForURL(/\/login(?:$|[?#])/, { timeout: 2_000 }).catch(() => undefined);
+    await loginIfNeeded(session.page, session.username, session.password);
+    return session;
+  } catch (error) {
+    await session.context.close().catch(() => undefined);
+    await session.browser.close().catch(() => undefined);
+    qcGlobal.clClsQcSession = null;
+    throw error;
   }
 }
 

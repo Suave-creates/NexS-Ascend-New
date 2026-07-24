@@ -1,7 +1,7 @@
 export type DumpProgress = { loaded: number; total: number; page: number };
 
-export async function syncAutoQcDump(onProgress?: (progress: DumpProgress) => void) {
-  await fetch('/api/cl-cls/qc-auto/dump', { method: 'POST' });
+export async function syncAutoQcDump(onProgress?: (progress: DumpProgress) => void, force = false) {
+  await fetch(`/api/cl-cls/qc-auto/dump${force ? '?force=true' : ''}`, { method: 'POST' });
   for (;;) {
     const response = await fetch('/api/cl-cls/qc-auto/dump', { cache: 'no-store' });
     if (!response.ok) throw new Error(`Central dump status failed: HTTP ${response.status}`);
