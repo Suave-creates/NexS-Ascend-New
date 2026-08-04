@@ -202,10 +202,10 @@ export default function MasterSegregatorPage() {
             </div>
           ) : (
             <div className="result-panel">
-              <div className={`decision ${result.masterInOmt ? 'good' : 'resorter'}`}>
-                <span>{result.masterInOmt ? 'OMT rack match' : 'Do not putaway'}</span>
-                <strong>{result.masterInOmt ? result.masterTrayId : 'RESORTER'}</strong>
-                {result.masterInOmt ? (
+              {result.masterInOmt && (
+                <div className="decision good">
+                  <span>OMT rack match</span>
+                  <strong>{result.masterTrayId}</strong>
                   <div className="location-row">
                     <span><small>Rack</small><b>{String(result.rackNumber).padStart(2, '0')}</b></span>
                     <i />
@@ -213,10 +213,8 @@ export default function MasterSegregatorPage() {
                     <i />
                     <span><small>Tray level</small><b>{result.stackLevel}</b></span>
                   </div>
-                ) : (
-                  <small className="resorter-copy">Master {result.masterTrayId} is not in OMT. Resorter 1/2 will be added when its database is connected.</small>
-                )}
-              </div>
+                </div>
+              )}
 
               <div className="metrics-grid">
                 <article className={result.priority.toUpperCase().includes('NEXT') ? 'priority next' : 'priority'}><small>Priority</small><b>{result.priority}</b></article>
@@ -231,6 +229,14 @@ export default function MasterSegregatorPage() {
                 <span><small>Shipment ID</small><b>{result.shipmentId}</b></span>
                 <span><small>Lookup</small><b>{result.lookupMs} ms</b></span>
               </div>
+
+              {!result.masterInOmt && (
+                <div className="decision resorter">
+                  <span>Do not putaway</span>
+                  <strong>RESORTER</strong>
+                  <small className="resorter-copy">Master {result.masterTrayId} is not in OMT. Resorter 1/2 will be added when its database is connected.</small>
+                </div>
+              )}
             </div>
           )}
 
