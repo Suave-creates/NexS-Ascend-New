@@ -1,4 +1,4 @@
-//src/app/api/infocorner/tracer-pro/route.ts
+// src/app/api/omt/tracer-pro/route.ts
 
 import { NextResponse } from "next/server";
 import { BIGQUERY_DATA_PROJECT_ID, runBigQuery } from "@/utils/resources/bigquery/client";

@@ -21,6 +21,7 @@ import {
   FiDownload,
   FiGrid,
   FiDatabase,
+  FiBox,
 } from 'react-icons/fi';
 import { cn } from '@/lib/cn';
 
@@ -50,6 +51,17 @@ export default function Sidebar() {
         { href: '/cl-cls/consolidate-ptl', label: 'ConsolidAte PTL' },
         { href: '/cl-cls/qc-auto', label: 'Auto Order QC' },
         { href: '/cl-cls/kitne-parcel-the-cl-cls', label: 'Kitne Parcel The?' },
+      ],
+    },
+
+    {
+      icon: FiBox,
+      label: 'OMT',
+      children: [
+        { href: '/omt/master-segregator', label: 'Master Segregator' },
+        { href: '/omt/tray-putaway', label: 'Tray Putaway' },
+        { href: '/omt/marry-tray', label: 'Marry Tray' },
+        { href: '/omt/tracer-pro', label: 'Tracer Pro MQCF' },
       ],
     },
 
@@ -141,7 +153,6 @@ export default function Sidebar() {
         { href: '/infocorner/barcode-details', label: 'Barcode Details' },
         { href: '/infocorner/plant-pid-finder', label: 'Plant PID Finder' },
         { href: '/infocorner/QCF-information-corner', label: 'QCF Logs' },
-        { href: '/infocorner/tracer-pro', label: 'Tracer pro MQCF' },
         { href: '/infocorner/sync-time-inventory', label: 'Sync Time Inventory' },
         { href: '/infocorner/order-created-when', label: 'Order Created When' },
         { href: '/infocorner/sync-time-location', label: 'Sync-time  Location' },
