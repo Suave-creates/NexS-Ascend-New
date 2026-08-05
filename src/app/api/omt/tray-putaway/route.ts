@@ -1,5 +1,10 @@
 import { createHmac, timingSafeEqual } from 'node:crypto';
 import { NextResponse } from 'next/server';
+import {
+  databaseErrorCode,
+  isDatabaseUnavailableError,
+  withDatabaseConnectionRetry,
+} from '@/utils/databaseRetry';
 import { prismaDispatch } from '@/utils/prismaDispatch';
 import { fetchOmtTrayDetails, OmtNexsError, type OmtTrayDetails } from '@/utils/resources/nexs/omt';
 
@@ -11,6 +16,12 @@ const POSITIONS_PER_RACK = 20;
 const TRAYS_PER_POSITION = 5;
 const TRAY_ID_PATTERN = /^[A-Z]{2}\d{5}$/;
 const LOOKUP_TOKEN_TTL_MS = 10 * 60 * 1000;
+const TABLE_CHECK_INTERVAL_MS = readBoundedInteger(
+  process.env.OMT_TABLE_CHECK_INTERVAL_MS,
+  60_000,
+  5_000,
+  60 * 60 * 1000,
+);
 
 type PutawayRow = {
   position_barcode: string;
@@ -44,6 +55,13 @@ type ActivityLog = {
 };
 
 let tableReady = false;
+let lastTableCheckAt = 0;
+let tableCheckPromise: Promise<void> | null = null;
+
+function readBoundedInteger(value: string | undefined, fallback: number, minimum: number, maximum: number) {
+  const parsed = Number(value);
+  return Number.isInteger(parsed) && parsed >= minimum && parsed <= maximum ? parsed : fallback;
+}
 
 function isMissingTable(error: unknown) {
   const value = error as { code?: string; meta?: { code?: string; message?: string }; message?: string };
@@ -111,11 +129,14 @@ async function logActivity(entry: ActivityLog) {
   }
 }
 
-async function ensureTable() {
+async function checkOrCreateTables() {
+  if (tableReady && Date.now() - lastTableCheckAt < TABLE_CHECK_INTERVAL_MS) return;
+
   if (tableReady) {
     try {
       await prismaDispatch.$queryRawUnsafe('SELECT 1 FROM omt_tray_putaway LIMIT 0');
       await prismaDispatch.$queryRawUnsafe('SELECT 1 FROM omt_activity_logs LIMIT 0');
+      lastTableCheckAt = Date.now();
       return;
     } catch (error) {
       if (!isMissingTable(error)) throw error;
@@ -190,6 +211,41 @@ async function ensureTable() {
     WHERE position_barcode REGEXP '^NXS1-OMT-[0-9]{3,4}$'
   `);
   tableReady = true;
+  lastTableCheckAt = Date.now();
+}
+
+async function ensureTable() {
+  if (!tableCheckPromise) {
+    tableCheckPromise = withDatabaseConnectionRetry(checkOrCreateTables, 'dispatch');
+  }
+
+  const currentCheck = tableCheckPromise;
+  try {
+    await currentCheck;
+  } finally {
+    if (tableCheckPromise === currentCheck) tableCheckPromise = null;
+  }
+}
+
+function unavailableResponse(error: unknown, operation: string) {
+  if (!isDatabaseUnavailableError(error)) return null;
+
+  console.error(`[omt/tray-putaway:${operation}] database unavailable`, {
+    code: databaseErrorCode(error),
+  });
+  return NextResponse.json(
+    {
+      error: 'Database temporarily unavailable. Please retry in a few seconds.',
+      code: 'DATABASE_UNAVAILABLE',
+    },
+    {
+      status: 503,
+      headers: {
+        'Cache-Control': 'no-store',
+        'Retry-After': '3',
+      },
+    },
+  );
 }
 
 function normalizePosition(raw: unknown) {
@@ -282,6 +338,8 @@ export async function GET() {
     await ensureTable();
     return NextResponse.json({ positions: await readPositions() });
   } catch (error) {
+    const unavailable = unavailableResponse(error, 'GET');
+    if (unavailable) return unavailable;
     console.error('omt/tray-putaway GET error:', error);
     return NextResponse.json({ error: 'Unable to load tray putaway' }, { status: 500 });
   }
@@ -526,6 +584,8 @@ export async function POST(request: Request) {
     });
     return NextResponse.json(result);
   } catch (error) {
+    const unavailable = unavailableResponse(error, 'POST');
+    if (unavailable) return unavailable;
     console.error('omt/tray-putaway POST error:', error);
     await logActivity({
       eventType: 'PUTAWAY', operatorId, result: 'ERROR', trayBarcode,
@@ -675,6 +735,8 @@ export async function DELETE(request: Request) {
     });
     return NextResponse.json(result);
   } catch (error) {
+    const unavailable = unavailableResponse(error, 'DELETE');
+    if (unavailable) return unavailable;
     console.error('omt/tray-putaway DELETE error:', error);
     await logActivity({
       eventType: 'REMOVE_TRAY', operatorId, result: 'ERROR', trayBarcode,

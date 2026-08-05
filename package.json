@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build && node scripts/prepare-standalone.cjs",
+    "db:check": "node scripts/check-database.cjs",
     "start": "node scripts/start-standalone.cjs",
     "lint": "next lint"
   },
