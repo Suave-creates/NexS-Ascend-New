@@ -81,7 +81,7 @@ export default function MasterSegregatorPage() {
     setTrayValue('');
     setResult(null);
     setPhase('LOADING');
-    setMessage(`Checking ${trayId} across NexS WMS, order header and OMT racks…`);
+    setMessage(`Checking ${trayId} across NexS WMS order details and OMT racks…`);
 
     try {
       const response = await fetch('/api/omt/master-segregator', {

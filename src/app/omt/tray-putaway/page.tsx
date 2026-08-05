@@ -34,6 +34,26 @@ type StoredPosition = {
   trays: string[];
 };
 
+type PutawayDetails = {
+  scannedTrayId: string;
+  fittingId: string;
+  shipmentId: string;
+  priority: string;
+  priorityClassification: string;
+  orderDate: string;
+  orderAge: string;
+  orderAgeDays: number | null;
+  orderMode: 'JIT' | 'REGULAR';
+  rawOrderType: string;
+  maxQcfCount: number;
+  parentTrayId: string;
+  childTrayId: string;
+  trayRole: 'PARENT' | 'CHILD' | 'UNKNOWN';
+  relatedTrayIds: string[];
+  lookupMs: number;
+  lookupToken: string;
+};
+
 function pad(value: number) {
   return String(value).padStart(2, '0');
 }
@@ -79,6 +99,7 @@ export default function TrayPutawayPage() {
   const [operatorId, setOperatorId] = useState('');
   const [selectedRack, setSelectedRack] = useState(1);
   const [activeBarcode, setActiveBarcode] = useState<string | null>(null);
+  const [pendingTray, setPendingTray] = useState<PutawayDetails | null>(null);
   const [scanValue, setScanValue] = useState('');
   const [removeScanValue, setRemoveScanValue] = useState('');
   const [removeMessage, setRemoveMessage] = useState('Scan a tray to remove it from its current position.');
@@ -88,7 +109,7 @@ export default function TrayPutawayPage() {
   const [activities, setActivities] = useState<Activity[]>([]);
   const [feedback, setFeedback] = useState<Feedback>({
     title: 'Ready for putaway',
-    detail: 'Scan a position barcode to begin.',
+    detail: 'Scan the parent tray to verify its details.',
     tone: 'info',
   });
   const scanRef = useRef<HTMLInputElement>(null);
@@ -189,37 +210,8 @@ export default function TrayPutawayPage() {
     ].slice(0, 30));
   }, []);
 
-  const selectPosition = useCallback((barcode: string) => {
-    const position = positions.find((item) => item.barcode === barcode);
-    if (!position) return;
-
-    setSelectedRack(position.rack);
-    setActiveBarcode(position.barcode);
-
-    if (position.trays.length === TRAYS_PER_POSITION) {
-      setFeedback({
-        title: 'Position is already full',
-        detail: `${position.barcode} contains 5 of 5 trays. Scan another position.`,
-        tone: 'error',
-      });
-      addActivity(`${position.barcode} rejected · position full`, 'error');
-      return;
-    }
-
-    const remaining = TRAYS_PER_POSITION - position.trays.length;
-    setFeedback({
-      title: position.trays.length ? 'Continue this stack' : 'Position selected',
-      detail: position.trays.length
-        ? `${position.trays.length} tray${position.trays.length === 1 ? '' : 's'} already stored · add ${remaining} more.`
-        : 'Position is empty · scan the first tray.',
-      tone: 'ok',
-    });
-    addActivity(`${position.barcode} selected · ${position.trays.length}/5 occupied`, 'info');
-  }, [addActivity, positions]);
-
-  const putawayTray = useCallback(async (rawBarcode: string) => {
+  const lookupTray = useCallback(async (rawBarcode: string) => {
     const trayBarcode = rawBarcode.trim().toUpperCase();
-    if (!activePosition) return;
     if (!TRAY_ID_PATTERN.test(trayBarcode)) {
       setFeedback({
         title: 'Invalid tray ID',
@@ -230,37 +222,117 @@ export default function TrayPutawayPage() {
       logRejectedScan(trayBarcode, 'INVALID_TRAY_FORMAT');
       return;
     }
+
+    setFeedback({ title: 'Checking parent tray', detail: `Loading live details for ${trayBarcode}…`, tone: 'info' });
     try {
       const response = await fetch('/api/omt/tray-putaway', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ positionBarcode: activePosition.barcode, trayBarcode, operatorId }),
+        body: JSON.stringify({ action: 'LOOKUP_TRAY', trayBarcode, operatorId }),
       });
       const data = await response.json();
       if (!response.ok) {
         const detail = data.positionBarcode
           ? `${trayBarcode} already exists at ${data.positionBarcode}.`
-          : data.error || 'Tray could not be stored.';
-        setFeedback({ title: data.code === 'INVALID_TRAY_FORMAT' ? 'Invalid tray ID' : 'Putaway rejected', detail, tone: 'error' });
-        addActivity(`${trayBarcode} rejected · ${data.error || 'putaway failed'}`, 'error');
+          : data.error || 'Tray could not be verified.';
+        setPendingTray(null);
+        setFeedback({
+          title: data.code === 'CHILD_TRAY' ? 'Child tray rejected' : 'Putaway rejected',
+          detail,
+          tone: 'error',
+        });
+        addActivity(`${trayBarcode} rejected · ${data.error || 'verification failed'}`, 'error');
         return;
       }
 
+      const details = { ...data.data, lookupToken: data.lookupToken } as PutawayDetails;
+      setPendingTray(details);
+      setFeedback({
+        title: 'Parent tray verified',
+        detail: `${trayBarcode} is ready · now scan its putaway location.`,
+        tone: 'ok',
+      });
+      addActivity(`${trayBarcode} verified as parent · ${details.lookupMs} ms`, 'info');
+    } catch (error) {
+      setPendingTray(null);
+      setFeedback({ title: 'Tray lookup failed', detail: (error as Error).message, tone: 'error' });
+      addActivity(`${trayBarcode} failed · connection error`, 'error');
+    }
+  }, [addActivity, logRejectedScan, operatorId]);
+
+  const putawayAtLocation = useCallback(async (rawPosition: string) => {
+    if (!pendingTray) return;
+    const barcode = parsePositionBarcode(rawPosition);
+    if (!barcode) {
+      setFeedback({
+        title: 'Invalid putaway location',
+        detail: 'Scan a valid location such as NXS1-OMT-01-001.',
+        tone: 'error',
+      });
+      addActivity(`${rawPosition.toUpperCase()} rejected · invalid putaway location`, 'error');
+      logRejectedScan(rawPosition, 'INVALID_POSITION');
+      return;
+    }
+
+    const targetPosition = positions.find((position) => position.barcode === barcode);
+    if (!targetPosition || targetPosition.trays.length >= TRAYS_PER_POSITION) {
+      setFeedback({
+        title: 'Position is already full',
+        detail: `${barcode} contains 5 of 5 trays. Scan another location.`,
+        tone: 'error',
+      });
+      addActivity(`${barcode} rejected · position full`, 'error');
+      return;
+    }
+
+    setFeedback({
+      title: 'Storing parent tray',
+      detail: `${pendingTray.scannedTrayId} → ${barcode}…`,
+      tone: 'info',
+    });
+    try {
+      const response = await fetch('/api/omt/tray-putaway', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'PUTAWAY',
+          positionBarcode: barcode,
+          trayBarcode: pendingTray.scannedTrayId,
+          lookupToken: pendingTray.lookupToken,
+          operatorId,
+        }),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        if (data.code === 'LOOKUP_REQUIRED') setPendingTray(null);
+        const detail = data.positionBarcode
+          ? `${pendingTray.scannedTrayId} already exists at ${data.positionBarcode}.`
+          : data.error || 'Tray could not be stored.';
+        setFeedback({ title: 'Putaway rejected', detail, tone: 'error' });
+        addActivity(`${pendingTray.scannedTrayId} rejected · ${data.error || 'putaway failed'}`, 'error');
+        return;
+      }
+
+      const trayBarcode = pendingTray.scannedTrayId;
       const newCount = Number(data.stackLevel);
       setPositions((current) => current.map((position) => (
-        position.barcode === activePosition.barcode
+        position.barcode === barcode
           ? { ...position, trays: [...position.trays, trayBarcode] }
           : position
       )));
+      const rack = rackFromPositionBarcode(barcode);
+      if (rack) setSelectedRack(rack);
+      setActiveBarcode(barcode);
+      setPendingTray(null);
       setFeedback(newCount === TRAYS_PER_POSITION
-        ? { title: 'Putaway complete', detail: `${activePosition.barcode} is full · scan the next position.`, tone: 'ok' }
-        : { title: 'Tray stored', detail: `${activePosition.barcode} now has ${newCount} of 5 · scan the next tray.`, tone: 'ok' });
-      addActivity(`${trayBarcode} → ${activePosition.barcode} · ${newCount}/5`, 'ok');
+        ? { title: 'Putaway complete', detail: `${barcode} is full · scan the next parent tray.`, tone: 'ok' }
+        : { title: 'Tray stored', detail: `${barcode} now has ${newCount} of 5 · scan the next parent tray.`, tone: 'ok' });
+      addActivity(`${trayBarcode} → ${barcode} · ${newCount}/5`, 'ok');
     } catch (error) {
       setFeedback({ title: 'Putaway failed', detail: (error as Error).message, tone: 'error' });
-      addActivity(`${trayBarcode} failed · connection error`, 'error');
+      addActivity(`${pendingTray.scannedTrayId} failed · connection error`, 'error');
     }
-  }, [activePosition, addActivity, logRejectedScan, operatorId]);
+  }, [addActivity, logRejectedScan, operatorId, pendingTray, positions]);
 
   const handleScan = useCallback(async () => {
     const value = scanValue.trim();
@@ -274,31 +346,19 @@ export default function TrayPutawayPage() {
 
     busyRef.current = true;
     try {
-      const position = parsePositionBarcode(value);
-      if (position) {
-        selectPosition(position);
-      } else if (!activePosition || activePosition.trays.length >= TRAYS_PER_POSITION) {
-        setFeedback({
-          title: 'Position scan required',
-          detail: 'Scan a valid position barcode such as NXS1-OMT-01-001.',
-          tone: 'error',
-        });
-        addActivity(`${value.toUpperCase()} rejected · scan a position first`, 'error');
-        logRejectedScan(value, 'POSITION_SCAN_REQUIRED');
-      } else {
-        await putawayTray(value);
-      }
+      if (pendingTray) await putawayAtLocation(value);
+      else await lookupTray(value);
     } finally {
       busyRef.current = false;
       focusScanner();
     }
-  }, [activePosition, addActivity, focusScanner, logRejectedScan, operatorId, putawayTray, scanValue, selectPosition]);
+  }, [focusScanner, lookupTray, operatorId, pendingTray, putawayAtLocation, scanValue]);
 
-  const finishPosition = () => {
-    if (!activePosition) return;
-    addActivity(`${activePosition.barcode} closed · ${activePosition.trays.length}/5 occupied`, 'info');
-    setActiveBarcode(null);
-    setFeedback({ title: 'Ready for next position', detail: 'Scan a position barcode to continue putaway.', tone: 'info' });
+  const clearPendingTray = () => {
+    if (!pendingTray) return;
+    addActivity(`${pendingTray.scannedTrayId} verification cleared`, 'info');
+    setPendingTray(null);
+    setFeedback({ title: 'Ready for putaway', detail: 'Scan the parent tray to verify its details.', tone: 'info' });
     focusScanner();
   };
 
@@ -372,6 +432,7 @@ export default function TrayPutawayPage() {
 
       setPositions(createPositions());
       setActiveBarcode(null);
+      setPendingTray(null);
       setFeedback({ title: 'Board reset complete', detail: `${data.deleted} stored trays were removed.`, tone: 'ok' });
       setRemoveMessage('All positions are empty. Scan a tray to remove it from its current position.');
       addActivity(`Master Reset complete · ${data.deleted} trays removed`, 'ok');
@@ -385,9 +446,7 @@ export default function TrayPutawayPage() {
   }, [addActivity, focusScanner, operatorId, resetting]);
 
   const activeCount = activePosition?.trays.length ?? 0;
-  const scannerLabel = !activePosition || activeCount === TRAYS_PER_POSITION
-    ? 'Scan position barcode'
-    : 'Scan tray barcode';
+  const scannerLabel = pendingTray ? 'Scan putaway location' : 'Scan parent tray';
 
   return (
     <div className="omt-root">
@@ -444,10 +503,16 @@ export default function TrayPutawayPage() {
             <span><b>{feedback.title}</b><small>{feedback.detail}</small></span>
           </div>
 
-          <div className={`position-hero ${activePosition ? 'active' : ''} ${activeCount === TRAYS_PER_POSITION ? 'complete' : ''}`}>
-            {activePosition ? (
+          <div className={`position-hero ${pendingTray || activePosition ? 'active' : ''} ${activeCount === TRAYS_PER_POSITION ? 'complete' : ''}`}>
+            {pendingTray ? (
               <>
-                <span className="hero-kicker">Active position</span>
+                <span className="hero-kicker">Verified parent tray</span>
+                <strong className="pending-tray-id">{pendingTray.scannedTrayId}</strong>
+                <small className="idle-copy">Scan the putaway location to store this tray</small>
+              </>
+            ) : activePosition ? (
+              <>
+                <span className="hero-kicker">Last putaway position</span>
                 <div className="hero-location">
                   <span className="rack-label">Rack <b>{pad(activePosition.rack)}</b></span>
                   <strong>{positionLabel(activePosition.position)}</strong>
@@ -457,11 +522,28 @@ export default function TrayPutawayPage() {
             ) : (
               <>
                 <span className="scan-glyph" aria-hidden="true"><i /><i /><i /><i /></span>
-                <strong className="idle-title">Scan a position</strong>
-                <small className="idle-copy">The position scan selects its rack automatically</small>
+                <strong className="idle-title">Scan a parent tray</strong>
+                <small className="idle-copy">Tray details are verified before a location can be scanned</small>
               </>
             )}
           </div>
+
+          {pendingTray && (
+            <section className="putaway-details" aria-label="Verified tray details">
+              <div className="details-metrics">
+                <article><small>Priority</small><b>{pendingTray.priority}</b></article>
+                <article><small>Order age</small><b>{pendingTray.orderAge}</b><em>{pendingTray.orderDate} IST</em></article>
+                <article className={pendingTray.orderMode === 'JIT' ? 'jit' : ''}><small>Order type</small><b>{pendingTray.orderMode}</b><em>{pendingTray.rawOrderType}</em></article>
+                <article className={pendingTray.maxQcfCount > 2 ? 'danger' : ''}><small>Max QCF count</small><b>{pendingTray.maxQcfCount}</b><em>Across fitting shipments</em></article>
+              </div>
+              <div className="details-identity">
+                <span><small>Scanned tray</small><b>{pendingTray.scannedTrayId}</b></span>
+                <span><small>Fitting ID</small><b>{pendingTray.fittingId}</b></span>
+                <span><small>Shipment ID</small><b>{pendingTray.shipmentId}</b></span>
+                <span><small>Lookup</small><b>{pendingTray.lookupMs} ms</b></span>
+              </div>
+            </section>
+          )}
 
           <div className="stack-progress">
             <div className="progress-copy">
@@ -489,7 +571,7 @@ export default function TrayPutawayPage() {
                 autoFocus
                 autoComplete="off"
                 value={scanValue}
-                placeholder={!activePosition || activeCount === TRAYS_PER_POSITION ? 'NXS1-OMT-01-001' : 'CT00003'}
+                placeholder={pendingTray ? 'NXS1-OMT-01-001' : 'CT00003'}
                 onChange={(event) => setScanValue(event.target.value)}
                 onKeyDown={(event) => {
                   if (event.key === 'Enter') {
@@ -504,16 +586,16 @@ export default function TrayPutawayPage() {
             </div>
           </label>
 
-          {activePosition && activeCount < TRAYS_PER_POSITION && (
-            <button type="button" className="finish-button" onClick={finishPosition}>
-              Finish this position with {activeCount}/5
+          {pendingTray && (
+            <button type="button" className="finish-button" onClick={clearPendingTray}>
+              Clear tray &amp; scan again
             </button>
           )}
 
           <div className="workflow-hint">
-            <span><b>1</b> Scan position</span><i />
-            <span><b>2</b> Scan trays</span><i />
-            <span><b>3</b> Stack up to five</span>
+            <span><b>1</b> Scan parent tray</span><i />
+            <span><b>2</b> Verify details</span><i />
+            <span><b>3</b> Scan location</span>
           </div>
         </section>
 
@@ -669,6 +751,7 @@ const CSS = `
 .position-hero{min-height:146px;border:1px dashed var(--line-strong);border-radius:15px;background:radial-gradient(circle at 50% 20%,rgba(217,183,90,.06),transparent 55%),var(--bg-0);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:14px}.position-hero.active{border-style:solid;border-color:rgba(217,183,90,.32)}.position-hero.complete{border-color:rgba(71,213,156,.38);background:radial-gradient(circle at 50% 20%,rgba(71,213,156,.09),transparent 55%),var(--bg-0)}
 .hero-kicker{font-size:8.5px;text-transform:uppercase;letter-spacing:2px;color:var(--muted);font-weight:800}.hero-location{display:flex;align-items:center;gap:16px;margin:1px 0}.hero-location strong{font-size:56px;line-height:1;font-weight:900;letter-spacing:-2px;color:var(--gold-hi);font-variant-numeric:tabular-nums}.complete .hero-location strong{color:var(--green)}.rack-label{display:flex;flex-direction:column;text-align:right;color:var(--muted);font-size:9px;text-transform:uppercase;letter-spacing:1.3px;font-weight:700}.rack-label b{color:var(--text-2);font-size:24px;line-height:1.1;letter-spacing:-.5px}.position-hero code{font:600 9px/1.4 var(--font-inter,"Inter",sans-serif);letter-spacing:1.2px;color:var(--muted)}
 .scan-glyph{position:relative;width:41px;height:41px;margin-bottom:9px}.scan-glyph i{position:absolute;width:15px;height:15px;border-color:var(--gold);border-style:solid}.scan-glyph i:nth-child(1){left:0;top:0;border-width:2px 0 0 2px}.scan-glyph i:nth-child(2){right:0;top:0;border-width:2px 2px 0 0}.scan-glyph i:nth-child(3){left:0;bottom:0;border-width:0 0 2px 2px}.scan-glyph i:nth-child(4){right:0;bottom:0;border-width:0 2px 2px 0}.idle-title{font-size:18px;color:var(--text-2)}.idle-copy{font-size:10px;color:var(--muted)}
+.pending-tray-id{margin:4px 0;color:var(--gold-hi);font-size:34px;line-height:1;letter-spacing:1px}.putaway-details{display:flex;flex-direction:column;gap:8px}.details-metrics,.details-identity{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.details-metrics article,.details-identity span{min-width:0;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--bg-2);display:flex;flex-direction:column}.details-metrics article{min-height:72px}.details-metrics small,.details-identity small{color:var(--muted);font-size:7.5px;font-weight:800;letter-spacing:.65px;text-transform:uppercase}.details-metrics b{margin-top:3px;color:var(--text-2);font-size:13px;line-height:1.2;overflow-wrap:anywhere}.details-metrics em{margin-top:auto;color:var(--muted);font-size:7.5px;font-style:normal}.details-metrics .jit b{color:#a78bfa}.details-metrics .danger{border-color:rgba(241,107,115,.32)}.details-metrics .danger b{color:var(--red)}.details-identity b{margin-top:2px;color:var(--text-2);font-size:9px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .stack-progress{padding:13px;border:1px solid var(--line);border-radius:13px;background:rgba(255,255,255,.015)}.progress-copy{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:9px}.progress-copy span{font-size:9px;color:var(--muted);font-weight:800;letter-spacing:1.3px;text-transform:uppercase}.progress-copy b{font-size:18px;color:var(--text);font-variant-numeric:tabular-nums}.progress-copy em{font-style:normal;font-size:11px;color:var(--muted)}
 .tray-stack{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}.tray-stack span{height:36px;min-width:0;padding:0 4px;border-radius:8px;border:1px solid var(--line);background:var(--bg-0);color:var(--muted);display:flex;align-items:center;justify-content:center;font-size:7px;font-weight:800;text-transform:uppercase;letter-spacing:.25px;transition:all .18s;overflow:hidden}.tray-stack span i{font-style:normal;font-size:7px}.tray-stack span b{display:block;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:8px;font-weight:850;font-variant-numeric:tabular-nums}.tray-stack span.filled{border-color:rgba(217,183,90,.4);background:linear-gradient(180deg,rgba(217,183,90,.18),rgba(217,183,90,.06));color:var(--gold-hi);box-shadow:inset 0 1px rgba(255,255,255,.05)}
 .scan-field{display:flex;flex-direction:column;gap:6px}.scan-field>span{font-size:9px;text-transform:uppercase;letter-spacing:1.5px;color:var(--gold-hi);font-weight:800}.scan-field>div{position:relative;display:flex}.scan-field input{width:100%;height:58px;padding:0 70px 0 43px;border:1px solid var(--gold);border-radius:13px;background:var(--bg-3);color:var(--text);font:650 17px/1 var(--font-inter,"Inter",sans-serif);letter-spacing:.2px;outline:none;box-shadow:0 0 0 4px rgba(217,183,90,.1)}.scan-field input::placeholder{color:#6c727c;font-weight:500}.barcode-icon{position:absolute;left:15px;top:17px;color:var(--gold-hi);font-size:20px;line-height:1;z-index:1}.scan-field button{position:absolute;right:7px;top:7px;height:44px;padding:0 12px;border:0;border-radius:9px;background:var(--gold);color:#17140b;font:800 9px var(--font-inter,"Inter",sans-serif);text-transform:uppercase;letter-spacing:.8px;cursor:pointer}.scan-field button:hover{background:var(--gold-hi)}

@@ -1,14 +1,13 @@
 import { createHmac, timingSafeEqual } from 'node:crypto';
 import { NextResponse } from 'next/server';
 import { prismaDispatch } from '@/utils/prismaDispatch';
-import { BIGQUERY_DATA_PROJECT_ID, runBigQuery } from '@/utils/resources/bigquery/client';
+import { fetchOmtTrayDetails, OmtNexsError } from '@/utils/resources/nexs/omt';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 const TRAY_ID_PATTERN = /^[A-Z]{2}\d{5}$/;
 const TOKEN_TTL_MS = 10 * 60 * 1000;
-const TRACE_CACHE_MS = 30_000;
 const RACK_COUNT = 40;
 const POSITIONS_PER_RACK = 20;
 
@@ -45,10 +44,6 @@ type ActivityLog = {
 };
 
 let tableReady = false;
-const traceCache = new Map<string, {
-  expiresAt: number;
-  result: Awaited<ReturnType<typeof runBigQuery>>;
-}>();
 
 function isMissingTable(error: unknown) {
   const value = error as { code?: string; meta?: { code?: string; message?: string }; message?: string };
@@ -266,76 +261,11 @@ function verifyLookup(token: unknown, childTrayId: string, parentTrayId: string)
   }
 }
 
-async function traceChild(childTrayId: string) {
-  const cached = traceCache.get(childTrayId);
-  if (cached && cached.expiresAt > Date.now()) return cached.result;
-
-  const result = await runBigQuery(
-    `WITH scanned AS (
-       SELECT
-         CAST(oi.location_id AS STRING) AS child_tray_id,
-         CAST(oi.fitting_id AS STRING) AS fitting_id,
-         CAST(oi.shipping_package_id AS STRING) AS shipping_package_id,
-         COALESCE(CAST(oih.order_item_type AS STRING), '') AS order_item_type
-       FROM \`${BIGQUERY_DATA_PROJECT_ID}.wms.order_items\` oi
-       LEFT JOIN \`${BIGQUERY_DATA_PROJECT_ID}.wms.order_item_header\` oih
-         ON oih.shipping_package_id = oi.shipping_package_id
-       WHERE CAST(oi.location_id AS STRING) = @child_tray_id
-       QUALIFY ROW_NUMBER() OVER (ORDER BY oi.id DESC) = 1
-     ),
-     parent_tray AS (
-       SELECT CAST(oi.location_id AS STRING) AS parent_tray_id
-       FROM \`${BIGQUERY_DATA_PROJECT_ID}.wms.order_items\` oi
-       JOIN scanned s ON CAST(oi.fitting_id AS STRING) = s.fitting_id
-       QUALIFY ROW_NUMBER() OVER (
-         PARTITION BY s.fitting_id
-         ORDER BY oi.qc_fail_count ASC, oi.created_at ASC
-       ) = 1
-     ),
-     fitting_shipments AS (
-       SELECT DISTINCT CAST(oi.shipping_package_id AS STRING) AS shipment_id
-       FROM \`${BIGQUERY_DATA_PROJECT_ID}.wms.order_items\` oi
-       JOIN scanned s ON CAST(oi.fitting_id AS STRING) = s.fitting_id
-       WHERE oi.shipping_package_id IS NOT NULL
-     ),
-     qcf_by_shipment AS (
-       SELECT
-         fs.shipment_id,
-         COUNT(DISTINCT TIMESTAMP_TRUNC(q.updated_at, HOUR)) AS qcf_count
-       FROM fitting_shipments fs
-       LEFT JOIN \`${BIGQUERY_DATA_PROJECT_ID}.orderqc.qc_status_history\` q
-         ON CAST(q.shipping_package_id AS STRING) = fs.shipment_id
-        AND q.status = 'QCFailed'
-       GROUP BY fs.shipment_id
-     ),
-     qcf AS (
-       SELECT COALESCE(MAX(qcf_count), 0) AS qcf_count
-       FROM qcf_by_shipment
-     )
-     SELECT
-       s.child_tray_id,
-       s.fitting_id,
-       s.shipping_package_id,
-       s.order_item_type,
-       p.parent_tray_id,
-       q.qcf_count
-     FROM scanned s
-     CROSS JOIN parent_tray p
-     CROSS JOIN qcf q`,
-    1,
-    { child_tray_id: childTrayId },
-  );
-  traceCache.set(childTrayId, { result, expiresAt: Date.now() + TRACE_CACHE_MS });
-  return result;
-}
-
-async function lookupChild(childTrayId: string) {
+async function lookupChild(request: Request, childTrayId: string) {
   const startedAt = Date.now();
 
-  // Rack state is loaded while BigQuery resolves the relationship. This keeps
-  // the critical scan path to one remote query plus one parallel local query.
-  const [trace, storageRows] = await Promise.all([
-    traceChild(childTrayId),
+  const [details, storageRows] = await Promise.all([
+    fetchOmtTrayDetails(request, childTrayId),
     prismaDispatch.$queryRawUnsafe<StorageRow[]>(
       `SELECT position_barcode, tray_barcode, stack_level
        FROM omt_tray_putaway
@@ -343,13 +273,8 @@ async function lookupChild(childTrayId: string) {
     ),
   ]);
 
-  if (!trace.rows.length) {
-    return { error: 'Child tray not found in WMS', code: 'CHILD_NOT_FOUND', status: 404 } as const;
-  }
-
-  const row = trace.rows[0];
-  const parentTrayId = String(row.parent_tray_id ?? '').toUpperCase();
-  if (!parentTrayId || parentTrayId === childTrayId) {
+  const parentTrayId = details.parentTrayId;
+  if (details.trayRole !== 'CHILD' || parentTrayId === childTrayId) {
     return { error: `${childTrayId} is not a child tray`, code: 'NOT_CHILD_TRAY', status: 409 } as const;
   }
 
@@ -360,17 +285,17 @@ async function lookupChild(childTrayId: string) {
         .map((item) => ({ trayId: item.tray_barcode, stackLevel: Number(item.stack_level) }))
     : [];
   const position = parentStorage ? decodePositionBarcode(parentStorage.position_barcode) : null;
-  const rawOrderType = String(row.order_item_type ?? '').trim();
+  const rawOrderType = details.rawOrderType;
 
   return {
     data: {
       childTrayId,
       parentTrayId,
-      fittingId: String(row.fitting_id ?? ''),
-      shipmentId: String(row.shipping_package_id ?? ''),
-      orderMode: rawOrderType.toUpperCase().includes('JIT') ? 'JIT' : 'REGULAR',
-      rawOrderType: rawOrderType || 'N/A',
-      qcfCount: Number(row.qcf_count ?? 0),
+      fittingId: details.fittingId,
+      shipmentId: details.shipmentId,
+      orderMode: details.orderMode,
+      rawOrderType,
+      qcfCount: details.maxQcfCount,
       available: Boolean(parentStorage),
       positionBarcode: position?.barcode ?? parentStorage?.position_barcode ?? null,
       rackNumber: position?.rackNumber ?? null,
@@ -380,10 +305,10 @@ async function lookupChild(childTrayId: string) {
       lookupToken: parentStorage ? signLookup(
         childTrayId,
         parentTrayId,
-        String(row.fitting_id ?? ''),
-        String(row.shipping_package_id ?? ''),
-        Number(row.qcf_count ?? 0),
-        rawOrderType || 'N/A',
+        details.fittingId,
+        details.shipmentId,
+        details.maxQcfCount,
+        rawOrderType,
       ) : null,
       lookupMs: Date.now() - startedAt,
     },
@@ -499,7 +424,7 @@ export async function POST(request: Request) {
     }
 
     if (action === 'LOOKUP') {
-      const result = await lookupChild(childTrayId);
+      const result = await lookupChild(request, childTrayId);
       if ('error' in result) {
         await logActivity({
           eventType: 'MARRY_LOOKUP', operatorId, result: 'REJECTED', trayBarcode: childTrayId,
@@ -560,6 +485,8 @@ export async function POST(request: Request) {
       eventType: 'MARRY_LOOKUP', operatorId, result: 'ERROR', trayBarcode: scannedChild,
       durationMs: Date.now() - startedAt, metadata: { message: (error as Error).message },
     });
-    return NextResponse.json({ error: 'Unable to process tray marriage' }, { status: 500 });
+    const status = error instanceof OmtNexsError ? error.status : 500;
+    const code = error instanceof OmtNexsError ? error.code : 'MARRY_FAILED';
+    return NextResponse.json({ error: (error as Error).message || 'Unable to process tray marriage', code }, { status });
   }
 }

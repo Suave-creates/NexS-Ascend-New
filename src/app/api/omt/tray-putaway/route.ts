@@ -1,7 +1,7 @@
+import { createHmac, timingSafeEqual } from 'node:crypto';
 import { NextResponse } from 'next/server';
 import { prismaDispatch } from '@/utils/prismaDispatch';
-import { getNexsToken, invalidateNexsToken } from '@/utils/resources/nexs/auth';
-import { BIGQUERY_DATA_PROJECT_ID, runBigQuery } from '@/utils/resources/bigquery/client';
+import { fetchOmtTrayDetails, OmtNexsError, type OmtTrayDetails } from '@/utils/resources/nexs/omt';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -10,6 +10,7 @@ const RACK_COUNT = 40;
 const POSITIONS_PER_RACK = 20;
 const TRAYS_PER_POSITION = 5;
 const TRAY_ID_PATTERN = /^[A-Z]{2}\d{5}$/;
+const LOOKUP_TOKEN_TTL_MS = 10 * 60 * 1000;
 
 type PutawayRow = {
   position_barcode: string;
@@ -17,11 +18,13 @@ type PutawayRow = {
   stack_level: number;
 };
 
-type TrayMetadata = {
+type PutawayLookupToken = {
+  trayBarcode: string;
   fittingId: string;
   shipmentId: string;
   maxQcfCount: number;
   orderType: string;
+  issuedAt: number;
 };
 
 type ActivityLog = {
@@ -221,103 +224,42 @@ function normalizePosition(raw: unknown) {
   return `NXS1-OMT-${String(rack).padStart(2, '0')}-${String(position).padStart(3, '0')}`;
 }
 
-async function fetchTrayMetadata(request: Request, trayBarcode: string): Promise<
-  { data: TrayMetadata } | { error: string; code: string; status: number }
-> {
-  const headers: Record<string, string> = {
-    Accept: 'application/json, text/plain, */*',
-    Origin: 'https://app.nexs.lenskart.com',
-    Referer: 'https://app.nexs.lenskart.com/',
-    'source-domain': 'https://app.nexs.lenskart.com',
-  };
-  for (const name of ['facility-code', 'workstation-id', 'source-domain']) {
-    const value = request.headers.get(name);
-    if (value) headers[name] = value;
-  }
+function tokenSecret() {
+  return process.env.OMT_PUTAWAY_SECRET || process.env.JWT_SECRET || 'omt-putaway-local-secret';
+}
 
-  const browserCookie = request.headers.get('cookie');
-  const usingBrowserCookie = Boolean(browserCookie?.includes('jwt-token'));
-  const wmsApp = process.env.NEXS_WMS_APP_ID || 'nexs_wms';
-  let cookie: string | null = usingBrowserCookie ? browserCookie : null;
-  if (!cookie) {
-    const token = await getNexsToken(wmsApp);
-    if (token) cookie = `jwt-token=${token}`;
-  }
+function signPutawayLookup(details: OmtTrayDetails) {
+  const payload = Buffer.from(JSON.stringify({
+    trayBarcode: details.scannedTrayId,
+    fittingId: details.fittingId,
+    shipmentId: details.shipmentId,
+    maxQcfCount: details.maxQcfCount,
+    orderType: details.rawOrderType,
+    issuedAt: Date.now(),
+  } satisfies PutawayLookupToken)).toString('base64url');
+  const signature = createHmac('sha256', tokenSecret()).update(payload).digest('base64url');
+  return `${payload}.${signature}`;
+}
 
-  const call = (authCookie: string | null) => {
-    const requestHeaders = { ...headers };
-    if (authCookie) requestHeaders.Cookie = authCookie;
-    return fetch(
-      `https://app.nexs.lenskart.com/nexs/wms/api/v1/fittingDetails/${encodeURIComponent(trayBarcode)}`,
-      { method: 'GET', headers: requestHeaders, cache: 'no-store' },
-    );
-  };
+function verifyPutawayLookup(token: unknown, trayBarcode: string): PutawayLookupToken | null {
+  if (typeof token !== 'string') return null;
+  const [payload, suppliedSignature] = token.split('.');
+  if (!payload || !suppliedSignature) return null;
+  const expectedSignature = createHmac('sha256', tokenSecret()).update(payload).digest('base64url');
+  const supplied = Buffer.from(suppliedSignature);
+  const expected = Buffer.from(expectedSignature);
+  if (supplied.length !== expected.length || !timingSafeEqual(supplied, expected)) return null;
 
-  let response: Response;
   try {
-    response = await call(cookie);
-    if (response.status === 401 && !usingBrowserCookie) {
-      invalidateNexsToken(wmsApp);
-      const freshToken = await getNexsToken(wmsApp, true);
-      if (freshToken) response = await call(`jwt-token=${freshToken}`);
-    }
-  } catch (error) {
-    return { error: `NexS network error: ${(error as Error).message}`, code: 'NEXS_UNAVAILABLE', status: 502 };
+    const decoded = JSON.parse(Buffer.from(payload, 'base64url').toString('utf8')) as PutawayLookupToken;
+    return decoded.trayBarcode === trayBarcode
+      && Date.now() - decoded.issuedAt <= LOOKUP_TOKEN_TTL_MS
+      && decoded.issuedAt <= Date.now()
+      ? decoded
+      : null;
+  } catch {
+    return null;
   }
-
-  const payload = await response.json().catch(() => null);
-  if (!response.ok) {
-    return {
-      error: String(payload?.meta?.displayMessage || payload?.message || `NexS returned HTTP ${response.status}`),
-      code: response.status === 404 ? 'TRAY_NOT_FOUND' : 'NEXS_LOOKUP_FAILED',
-      status: response.status === 404 ? 404 : 502,
-    };
-  }
-
-  const fittingId = String(payload?.data?.fitting_id ?? '').trim();
-  const shipmentId = String(payload?.data?.shipment_id ?? '').trim();
-  if (!/^\d+$/.test(fittingId) || !shipmentId) {
-    return { error: 'Tray fitting details are incomplete in NexS WMS', code: 'INCOMPLETE_FITTING', status: 422 };
-  }
-
-  const qcf = await runBigQuery(
-    `WITH fitting_shipments AS (
-       SELECT
-         CAST(oi.shipping_package_id AS STRING) AS shipment_id,
-         COALESCE(CAST(oih.order_item_type AS STRING), '') AS order_type,
-         MAX(oi.id) AS latest_id
-       FROM \`${BIGQUERY_DATA_PROJECT_ID}.wms.order_items\` oi
-       LEFT JOIN \`${BIGQUERY_DATA_PROJECT_ID}.wms.order_item_header\` oih
-         ON oih.shipping_package_id = oi.shipping_package_id
-       WHERE CAST(oi.fitting_id AS STRING) = @fitting_id
-         AND oi.shipping_package_id IS NOT NULL
-       GROUP BY shipment_id, order_type
-     ),
-     qcf_by_shipment AS (
-       SELECT
-         fs.shipment_id,
-         COUNT(DISTINCT TIMESTAMP_TRUNC(q.updated_at, HOUR)) AS qcf_count
-       FROM fitting_shipments fs
-       LEFT JOIN \`${BIGQUERY_DATA_PROJECT_ID}.orderqc.qc_status_history\` q
-         ON CAST(q.shipping_package_id AS STRING) = fs.shipment_id
-        AND q.status = 'QCFailed'
-       GROUP BY fs.shipment_id
-     )
-     SELECT
-       COALESCE((SELECT MAX(qcf_count) FROM qcf_by_shipment), 0) AS max_qcf_count,
-       COALESCE((SELECT order_type FROM fitting_shipments ORDER BY latest_id DESC LIMIT 1), 'N/A') AS order_type`,
-    1,
-    { fitting_id: fittingId },
-  );
-
-  return {
-    data: {
-      fittingId,
-      shipmentId,
-      maxQcfCount: Number(qcf.rows[0]?.max_qcf_count ?? 0),
-      orderType: String(qcf.rows[0]?.order_type ?? 'N/A'),
-    },
-  };
 }
 
 async function readPositions() {
@@ -368,22 +310,13 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: true });
     }
 
-    const positionBarcode = normalizePosition(body?.positionBarcode);
-
     if (!operatorId) {
       await logActivity({ eventType: 'PUTAWAY', result: 'REJECTED', trayBarcode, metadata: { reason: 'OPERATOR_REQUIRED' } });
       return NextResponse.json({ error: 'Operator ID is required', code: 'OPERATOR_REQUIRED' }, { status: 400 });
     }
-    if (!positionBarcode) {
-      await logActivity({
-        eventType: 'PUTAWAY', operatorId, result: 'REJECTED', trayBarcode,
-        durationMs: Date.now() - startedAt, metadata: { reason: 'INVALID_POSITION' },
-      });
-      return NextResponse.json({ error: 'Invalid position barcode', code: 'INVALID_POSITION' }, { status: 400 });
-    }
     if (!TRAY_ID_PATTERN.test(trayBarcode)) {
       await logActivity({
-        eventType: 'PUTAWAY', operatorId, result: 'REJECTED', trayBarcode, positionBarcode,
+        eventType: 'PUTAWAY', operatorId, result: 'REJECTED', trayBarcode,
         durationMs: Date.now() - startedAt, metadata: { reason: 'INVALID_TRAY_FORMAT' },
       });
       return NextResponse.json({
@@ -391,6 +324,7 @@ export async function POST(request: Request) {
         code: 'INVALID_TRAY_FORMAT',
       }, { status: 400 });
     }
+
     const alreadyStored = await prismaDispatch.$queryRawUnsafe<Array<{
       position_barcode: string;
       fitting_id: bigint | number | null;
@@ -409,7 +343,7 @@ export async function POST(request: Request) {
         positionBarcode: alreadyStored[0].position_barcode,
         maxQcfCount: Number(alreadyStored[0].max_qcf_count ?? 0),
         durationMs: Date.now() - startedAt,
-        metadata: { reason: 'DUPLICATE_TRAY', requestedPosition: positionBarcode },
+        metadata: { reason: 'DUPLICATE_TRAY' },
       });
       return NextResponse.json({
         error: 'Tray already stored',
@@ -418,42 +352,86 @@ export async function POST(request: Request) {
       }, { status: 409 });
     }
 
-    const metadataResult = await fetchTrayMetadata(request, trayBarcode);
-    if ('error' in metadataResult) {
-      await logActivity({
-        eventType: 'PUTAWAY', operatorId, result: 'REJECTED', trayBarcode, positionBarcode,
-        durationMs: Date.now() - startedAt,
-        metadata: { reason: metadataResult.code, message: metadataResult.error },
-      });
-      return NextResponse.json(
-        { error: metadataResult.error, code: metadataResult.code },
-        { status: metadataResult.status },
-      );
-    }
-    const metadata = metadataResult.data;
+    const action = String(body?.action ?? 'PUTAWAY').toUpperCase();
+    if (action === 'LOOKUP_TRAY') {
+      const details = await fetchOmtTrayDetails(request, trayBarcode);
+      if (details.trayRole !== 'PARENT') {
+        const message = details.trayRole === 'CHILD'
+          ? `${trayBarcode} is a child tray. Put away parent tray ${details.parentTrayId} instead.`
+          : `${trayBarcode} is not the current parent tray for this fitting.`;
+        await logActivity({
+          eventType: 'PUTAWAY_LOOKUP', operatorId, result: 'REJECTED', trayBarcode,
+          relatedTrayBarcode: details.parentTrayId,
+          fittingId: details.fittingId, shipmentId: details.shipmentId,
+          maxQcfCount: details.maxQcfCount, orderType: details.rawOrderType,
+          durationMs: Date.now() - startedAt,
+          metadata: { reason: details.trayRole === 'CHILD' ? 'CHILD_TRAY' : 'TRAY_ROLE_UNKNOWN' },
+        });
+        return NextResponse.json({
+          error: message,
+          code: details.trayRole === 'CHILD' ? 'CHILD_TRAY' : 'TRAY_ROLE_UNKNOWN',
+          data: details,
+        }, { status: 409 });
+      }
 
-    const existingFitting = await prismaDispatch.$queryRawUnsafe<Array<{
-      tray_barcode: string;
-      position_barcode: string;
-    }>>(
-      `SELECT tray_barcode, position_barcode
-       FROM omt_tray_putaway WHERE fitting_id = ? LIMIT 1`,
-      metadata.fittingId,
-    );
-    if (existingFitting[0]) {
+      const existingFitting = await prismaDispatch.$queryRawUnsafe<Array<{
+        tray_barcode: string;
+        position_barcode: string;
+      }>>(
+        `SELECT tray_barcode, position_barcode
+         FROM omt_tray_putaway WHERE fitting_id = ? LIMIT 1`,
+        details.fittingId,
+      );
+      if (existingFitting[0]) {
+        await logActivity({
+          eventType: 'PUTAWAY_LOOKUP', operatorId, result: 'REJECTED', trayBarcode,
+          relatedTrayBarcode: existingFitting[0].tray_barcode,
+          fittingId: details.fittingId, shipmentId: details.shipmentId,
+          positionBarcode: existingFitting[0].position_barcode,
+          maxQcfCount: details.maxQcfCount, orderType: details.rawOrderType,
+          durationMs: Date.now() - startedAt,
+          metadata: { reason: 'FITTING_ALREADY_STORED' },
+        });
+        return NextResponse.json({
+          error: `Fitting ${details.fittingId} is already stored with tray ${existingFitting[0].tray_barcode}`,
+          code: 'FITTING_ALREADY_STORED',
+          positionBarcode: existingFitting[0].position_barcode,
+        }, { status: 409 });
+      }
+
+      await logActivity({
+        eventType: 'PUTAWAY_LOOKUP', operatorId, result: 'PARENT_VERIFIED', trayBarcode,
+        relatedTrayBarcode: details.childTrayId === trayBarcode ? null : details.childTrayId,
+        fittingId: details.fittingId, shipmentId: details.shipmentId,
+        maxQcfCount: details.maxQcfCount, orderType: details.rawOrderType,
+        durationMs: Date.now() - startedAt,
+        metadata: { relatedTrayIds: details.relatedTrayIds },
+      });
+      return NextResponse.json({ data: details, lookupToken: signPutawayLookup(details) });
+    }
+
+    if (action !== 'PUTAWAY') {
+      return NextResponse.json({ error: 'Invalid putaway action', code: 'INVALID_ACTION' }, { status: 400 });
+    }
+
+    const positionBarcode = normalizePosition(body?.positionBarcode);
+    if (!positionBarcode) {
       await logActivity({
         eventType: 'PUTAWAY', operatorId, result: 'REJECTED', trayBarcode,
-        relatedTrayBarcode: existingFitting[0].tray_barcode,
-        fittingId: metadata.fittingId, shipmentId: metadata.shipmentId,
-        positionBarcode: existingFitting[0].position_barcode,
-        maxQcfCount: metadata.maxQcfCount, orderType: metadata.orderType,
-        durationMs: Date.now() - startedAt,
-        metadata: { reason: 'FITTING_ALREADY_STORED', requestedPosition: positionBarcode },
+        durationMs: Date.now() - startedAt, metadata: { reason: 'INVALID_POSITION' },
+      });
+      return NextResponse.json({ error: 'Invalid position barcode', code: 'INVALID_POSITION' }, { status: 400 });
+    }
+
+    const metadata = verifyPutawayLookup(body?.lookupToken, trayBarcode);
+    if (!metadata) {
+      await logActivity({
+        eventType: 'PUTAWAY', operatorId, result: 'REJECTED', trayBarcode, positionBarcode,
+        durationMs: Date.now() - startedAt, metadata: { reason: 'LOOKUP_REQUIRED' },
       });
       return NextResponse.json({
-        error: `Fitting ${metadata.fittingId} is already stored with tray ${existingFitting[0].tray_barcode}`,
-        code: 'FITTING_ALREADY_STORED',
-        positionBarcode: existingFitting[0].position_barcode,
+        error: 'Tray verification expired; scan the tray again before scanning its location',
+        code: 'LOOKUP_REQUIRED',
       }, { status: 409 });
     }
 
@@ -554,7 +532,9 @@ export async function POST(request: Request) {
       durationMs: Date.now() - startedAt,
       metadata: { message: (error as Error).message },
     });
-    return NextResponse.json({ error: 'Unable to store tray' }, { status: 500 });
+    const status = error instanceof OmtNexsError ? error.status : 500;
+    const code = error instanceof OmtNexsError ? error.code : 'PUTAWAY_FAILED';
+    return NextResponse.json({ error: (error as Error).message || 'Unable to store tray', code }, { status });
   }
 }
 

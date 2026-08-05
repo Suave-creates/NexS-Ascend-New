@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prismaDispatch } from '@/utils/prismaDispatch';
-import { getNexsToken, invalidateNexsToken } from '@/utils/resources/nexs/auth';
-import { BIGQUERY_DATA_PROJECT_ID, runBigQuery } from '@/utils/resources/bigquery/client';
+import { fetchOmtTrayDetails, OmtNexsError } from '@/utils/resources/nexs/omt';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -184,103 +183,6 @@ async function logScan(entry: {
   }
 }
 
-async function nexsGet(request: Request, url: string) {
-  const headers: Record<string, string> = {
-    Accept: 'application/json, text/plain, */*',
-    Origin: 'https://app.nexs.lenskart.com',
-    Referer: 'https://app.nexs.lenskart.com/',
-    'source-domain': 'https://app.nexs.lenskart.com',
-  };
-  for (const name of ['facility-code', 'workstation-id', 'source-domain']) {
-    const value = request.headers.get(name);
-    if (value) headers[name] = value;
-  }
-
-  const browserCookie = request.headers.get('cookie');
-  const usingBrowserCookie = Boolean(browserCookie?.includes('jwt-token'));
-  const wmsApp = process.env.NEXS_WMS_APP_ID || 'nexs_wms';
-  let cookie: string | null = usingBrowserCookie ? browserCookie : null;
-  if (!cookie) {
-    const token = await getNexsToken(wmsApp);
-    if (token) cookie = `jwt-token=${token}`;
-  }
-
-  const call = (authCookie: string | null) => {
-    const requestHeaders = { ...headers };
-    if (authCookie) requestHeaders.Cookie = authCookie;
-    return fetch(url, { method: 'GET', headers: requestHeaders, cache: 'no-store' });
-  };
-
-  let response = await call(cookie);
-  if (response.status === 401 && !usingBrowserCookie) {
-    invalidateNexsToken(wmsApp);
-    const freshToken = await getNexsToken(wmsApp, true);
-    if (freshToken) response = await call(`jwt-token=${freshToken}`);
-  }
-  const payload = await response.json().catch(() => null);
-  if (!response.ok) {
-    const message = String(payload?.meta?.displayMessage || payload?.message || `NexS returned HTTP ${response.status}`);
-    throw new Error(message);
-  }
-  return payload;
-}
-
-function orderAge(orderDate: string) {
-  const parsed = Date.parse(`${orderDate.trim().replace(' ', 'T')}+05:30`);
-  if (!Number.isFinite(parsed)) return { label: 'Unknown', days: null };
-  const elapsedMs = Math.max(0, Date.now() - parsed);
-  const days = Math.floor(elapsedMs / 86_400_000);
-  const hours = Math.floor((elapsedMs % 86_400_000) / 3_600_000);
-  return { label: `${days} day${days === 1 ? '' : 's'} ${hours} hour${hours === 1 ? '' : 's'}`, days };
-}
-
-async function traceFitting(fittingId: string, shipmentId: string) {
-  return runBigQuery(
-    `WITH fitting_rows AS (
-       SELECT
-         CAST(oi.location_id AS STRING) AS tray_id,
-         COALESCE(oi.qc_fail_count, 0) AS qc_fail_count,
-         oi.created_at,
-         oi.id,
-         CAST(oi.shipping_package_id AS STRING) AS shipment_id
-       FROM \`${BIGQUERY_DATA_PROJECT_ID}.wms.order_items\` oi
-       WHERE CAST(oi.fitting_id AS STRING) = @fitting_id
-     ),
-     master AS (
-       SELECT tray_id AS master_tray_id
-       FROM fitting_rows
-       WHERE tray_id IS NOT NULL AND tray_id != ''
-       QUALIFY ROW_NUMBER() OVER (ORDER BY qc_fail_count ASC, created_at ASC, id ASC) = 1
-     ),
-     fitting_shipments AS (
-       SELECT DISTINCT shipment_id FROM fitting_rows WHERE shipment_id IS NOT NULL AND shipment_id != ''
-     ),
-     qcf_by_shipment AS (
-       SELECT
-         fs.shipment_id,
-         COUNT(DISTINCT TIMESTAMP_TRUNC(q.updated_at, HOUR)) AS qcf_count
-       FROM fitting_shipments fs
-       LEFT JOIN \`${BIGQUERY_DATA_PROJECT_ID}.orderqc.qc_status_history\` q
-         ON CAST(q.shipping_package_id AS STRING) = fs.shipment_id
-        AND q.status = 'QCFailed'
-       GROUP BY fs.shipment_id
-     ),
-     current_order AS (
-       SELECT COALESCE(CAST(oih.order_item_type AS STRING), '') AS order_type
-       FROM \`${BIGQUERY_DATA_PROJECT_ID}.wms.order_item_header\` oih
-       WHERE CAST(oih.shipping_package_id AS STRING) = @shipment_id
-       LIMIT 1
-     )
-     SELECT
-       m.master_tray_id,
-       COALESCE((SELECT MAX(qcf_count) FROM qcf_by_shipment), 0) AS max_qcf_count,
-       COALESCE((SELECT order_type FROM current_order), 'N/A') AS order_type
-     FROM master m`,
-    1,
-    { fitting_id: fittingId, shipment_id: shipmentId },
-  );
-}
-
 export async function POST(request: Request) {
   const startedAt = Date.now();
   let operatorId = '';
@@ -305,51 +207,17 @@ export async function POST(request: Request) {
       }, { status: 400 });
     }
 
-    const fittingPayload = await nexsGet(
-      request,
-      `https://app.nexs.lenskart.com/nexs/wms/api/v1/fittingDetails/${encodeURIComponent(trayId)}`,
-    );
-    const fittingId = String(fittingPayload?.data?.fitting_id ?? '').trim();
-    const shipmentId = String(fittingPayload?.data?.shipment_id ?? '').trim();
-    if (!/^\d+$/.test(fittingId) || !shipmentId) {
-      await logScan({
-        operatorId, result: 'REJECTED', trayId, fittingId, shipmentId,
-        durationMs: Date.now() - startedAt, metadata: { reason: 'INCOMPLETE_FITTING_DETAILS' },
-      });
-      return NextResponse.json({ error: 'Fitting ID or shipment ID is missing in NexS WMS', code: 'INCOMPLETE_FITTING_DETAILS' }, { status: 422 });
-    }
-
-    const [headerPayload, trace, storageRows] = await Promise.all([
-      nexsGet(
-        request,
-        `https://app.nexs.lenskart.com/nexs/wms/api/v1/order/details/header?id=${encodeURIComponent(shipmentId)}`,
-      ),
-      traceFitting(fittingId, shipmentId),
+    const [details, storageRows] = await Promise.all([
+      fetchOmtTrayDetails(request, trayId),
       prismaDispatch.$queryRawUnsafe<StorageRow[]>(
         `SELECT position_barcode, tray_barcode, stack_level, fitting_id
          FROM omt_tray_putaway ORDER BY position_barcode, stack_level`,
       ),
     ]);
-
-    if (!trace.rows[0]?.master_tray_id) {
-      await logScan({
-        operatorId, result: 'REJECTED', trayId, fittingId, shipmentId,
-        durationMs: Date.now() - startedAt, metadata: { reason: 'MASTER_NOT_FOUND' },
-      });
-      return NextResponse.json({ error: 'Master tray could not be identified for this fitting', code: 'MASTER_NOT_FOUND' }, { status: 404 });
-    }
-
-    const traceRow = trace.rows[0];
-    const masterTrayId = String(traceRow.master_tray_id).trim().toUpperCase();
-    const maxQcfCount = Number(traceRow.max_qcf_count ?? 0);
-    const rawOrderType = String(traceRow.order_type ?? '').trim() || 'N/A';
-    const orderMode = rawOrderType.toUpperCase().includes('JIT') ? 'JIT' : 'REGULAR';
+    const { fittingId, shipmentId, parentTrayId: masterTrayId, maxQcfCount, rawOrderType } = details;
     const masterStorage = storageRows.find((row) => row.tray_barcode.toUpperCase() === masterTrayId);
     const fittingStorage = storageRows.find((row) => row.fitting_id != null && String(row.fitting_id) === fittingId);
     const decodedPosition = masterStorage ? decodePosition(masterStorage.position_barcode) : null;
-    const header = headerPayload?.data ?? {};
-    const orderDate = String(header.orderDate ?? '').trim();
-    const age = orderAge(orderDate);
     const masterInOmt = Boolean(masterStorage);
     const result = masterInOmt ? 'FOUND_IN_OMT' : 'RESORTER_REQUIRED';
 
@@ -366,9 +234,9 @@ export async function POST(request: Request) {
       orderType: rawOrderType,
       durationMs: Date.now() - startedAt,
       metadata: {
-        priority: String(header.priority ?? 'N/A'),
-        orderDate,
-        orderAge: age.label,
+        priority: details.priority,
+        orderDate: details.orderDate,
+        orderAge: details.orderAge,
         storedTrayForFitting: fittingStorage?.tray_barcode ?? null,
       },
     });
@@ -378,11 +246,11 @@ export async function POST(request: Request) {
         scannedTrayId: trayId,
         fittingId,
         shipmentId,
-        priority: String(header.priority ?? 'N/A'),
-        orderDate: orderDate || 'N/A',
-        orderAge: age.label,
-        orderAgeDays: age.days,
-        orderMode,
+        priority: details.priority,
+        orderDate: details.orderDate,
+        orderAge: details.orderAge,
+        orderAgeDays: details.orderAgeDays,
+        orderMode: details.orderMode,
         rawOrderType,
         maxQcfCount,
         masterTrayId,
@@ -396,7 +264,7 @@ export async function POST(request: Request) {
         decisionMessage: masterInOmt
           ? `Master is available at ${masterStorage?.position_barcode}`
           : 'Send to Resorter — do not put away. Resorter number will be added after DB access.',
-        lookupMs: Date.now() - startedAt,
+        lookupMs: details.lookupMs,
       },
     });
   } catch (error) {
@@ -408,6 +276,8 @@ export async function POST(request: Request) {
       durationMs: Date.now() - startedAt,
       metadata: { message: (error as Error).message },
     });
-    return NextResponse.json({ error: (error as Error).message || 'Unable to segregate tray' }, { status: 502 });
+    const status = error instanceof OmtNexsError ? error.status : 502;
+    const code = error instanceof OmtNexsError ? error.code : 'SEGREGATION_FAILED';
+    return NextResponse.json({ error: (error as Error).message || 'Unable to segregate tray', code }, { status });
   }
 }
