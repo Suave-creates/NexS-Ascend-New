@@ -503,31 +503,6 @@ export default function TrayPutawayPage() {
             <span><b>{feedback.title}</b><small>{feedback.detail}</small></span>
           </div>
 
-          <div className={`position-hero ${pendingTray || activePosition ? 'active' : ''} ${activeCount === TRAYS_PER_POSITION ? 'complete' : ''}`}>
-            {pendingTray ? (
-              <>
-                <span className="hero-kicker">Verified parent tray</span>
-                <strong className="pending-tray-id">{pendingTray.scannedTrayId}</strong>
-                <small className="idle-copy">Scan the putaway location to store this tray</small>
-              </>
-            ) : activePosition ? (
-              <>
-                <span className="hero-kicker">Last putaway position</span>
-                <div className="hero-location">
-                  <span className="rack-label">Rack <b>{pad(activePosition.rack)}</b></span>
-                  <strong>{positionLabel(activePosition.position)}</strong>
-                </div>
-                <code>{activePosition.barcode}</code>
-              </>
-            ) : (
-              <>
-                <span className="scan-glyph" aria-hidden="true"><i /><i /><i /><i /></span>
-                <strong className="idle-title">Scan a parent tray</strong>
-                <small className="idle-copy">Tray details are verified before a location can be scanned</small>
-              </>
-            )}
-          </div>
-
           {pendingTray && (
             <section className="putaway-details" aria-label="Verified tray details">
               <div className="details-metrics">
@@ -596,6 +571,31 @@ export default function TrayPutawayPage() {
             <span><b>1</b> Scan parent tray</span><i />
             <span><b>2</b> Verify details</span><i />
             <span><b>3</b> Scan location</span>
+          </div>
+
+          <div className={`position-hero ${pendingTray || activePosition ? 'active' : ''} ${activeCount === TRAYS_PER_POSITION ? 'complete' : ''}`}>
+            {pendingTray ? (
+              <>
+                <span className="hero-kicker">Verified parent tray</span>
+                <strong className="pending-tray-id">{pendingTray.scannedTrayId}</strong>
+                <small className="idle-copy">Scan the putaway location to store this tray</small>
+              </>
+            ) : activePosition ? (
+              <>
+                <span className="hero-kicker">Last putaway position</span>
+                <div className="hero-location">
+                  <span className="rack-label">Rack <b>{pad(activePosition.rack)}</b></span>
+                  <strong>{positionLabel(activePosition.position)}</strong>
+                </div>
+                <code>{activePosition.barcode}</code>
+              </>
+            ) : (
+              <>
+                <span className="scan-glyph" aria-hidden="true"><i /><i /><i /><i /></span>
+                <strong className="idle-title">Scan a parent tray</strong>
+                <small className="idle-copy">Tray details are verified before a location can be scanned</small>
+              </>
+            )}
           </div>
         </section>
 
