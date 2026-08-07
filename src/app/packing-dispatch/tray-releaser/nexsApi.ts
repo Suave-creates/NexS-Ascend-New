@@ -237,7 +237,7 @@ export async function releaseTrays(
 // Dump loading
 // ===========================================================================
 
-/** Load the dump from our backend (runs the SQL directly on NexS_DB). */
+/** Load the dump from our BigQuery-backed endpoint. */
 export async function loadDumpFromBackend(
   facility: string,
   days = cfg.DUMP_DAYS,

@@ -1,10 +1,7 @@
 import { NextResponse } from 'next/server';
-import type mysql from 'mysql2/promise';
-import { nexsPool } from '@/utils/nexsPool';
+import { BIGQUERY_DATA_PROJECT_ID, runBigQuery } from '@/utils/resources/bigquery/client';
 
 export async function POST(req: Request) {
-  let conn: mysql.PoolConnection | null = null;
-
   try {
     const { shippingPackageId } = await req.json();
 
@@ -15,13 +12,7 @@ export async function POST(req: Request) {
       );
     }
 
-    /* =====================================================
-       Acquire pooled connection + explicit DB selection
-    ====================================================== */
-    conn = await nexsPool.getConnection();
-    await conn.changeUser({ database: 'orderqc' });
-
-    const [rows]: any = await conn.execute(
+    const { rows } = await runBigQuery(
       `
       SELECT 
         shipping_package_id,
@@ -30,12 +21,13 @@ export async function POST(req: Request) {
         reason_name,
         status,
         updated_by,
-        updated_at
-      FROM qc_status_history
-      WHERE shipping_package_id = ?
+        FORMAT_TIMESTAMP('%F %T', updated_at) AS updated_at
+      FROM \`${BIGQUERY_DATA_PROJECT_ID}.orderqc.qc_status_history\`
+      WHERE CAST(shipping_package_id AS STRING) = @shipping_package_id
       ORDER BY updated_at DESC
       `,
-      [shippingPackageId]
+      10000,
+      { shipping_package_id: shippingPackageId },
     );
 
     return NextResponse.json({ rows }, { status: 200 });
@@ -45,7 +37,5 @@ export async function POST(req: Request) {
       { error: 'Internal Server Error' },
       { status: 500 }
     );
-  } finally {
-    if (conn) conn.release();
   }
 }

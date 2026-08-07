@@ -1,0 +1,92 @@
+"filename", "language", "TypeScript", "TypeScript JSX", "JavaScript", "PostCSS", "JSON", "comment", "blank", "total"
+"c:\Users\arya.khadgi\Documents\PROD\NexS-Ascend\src\app\api\auth\ehs-login\route.ts", "TypeScript", 31, 0, 0, 0, 0, 5, 2, 38
+"c:\Users\arya.khadgi\Documents\PROD\NexS-Ascend\src\app\api\bulk\route.ts", "TypeScript", 44, 0, 0, 0, 0, 6, 12, 62
+"c:\Users\arya.khadgi\Documents\PROD\NexS-Ascend\src\app\api\bulk\stats\route.ts", "TypeScript", 18, 0, 0, 0, 0, 1, 4, 23
+"c:\Users\arya.khadgi\Documents\PROD\NexS-Ascend\src\app\api\dispatch\route.ts", "TypeScript", 39, 0, 0, 0, 0, 5, 10, 54
+"c:\Users\arya.khadgi\Documents\PROD\NexS-Ascend\src\app\api\dispatch\stats\route.ts", "TypeScript", 29, 0, 0, 0, 0, 1, 4, 34
+"c:\Users\arya.khadgi\Documents\PROD\NexS-Ascend\src\app\api\ehs\deviation\[id]\public-edit\route.js", "JavaScript", 0, 0, 29, 0, 0, 2, 6, 37
+"c:\Users\arya.khadgi\Documents\PROD\NexS-Ascend\src\app\api\ehs\deviation\[id]\route.ts", "TypeScript", 95, 0, 0, 0, 0, 8, 11, 114
+"c:\Users\arya.khadgi\Documents\PROD\NexS-Ascend\src\app\api\ehs\deviations\route.ts", "TypeScript", 89, 0, 0, 0, 0, 2, 12, 103
+"c:\Users\arya.khadgi\Documents\PROD\NexS-Ascend\src\app\api\ehs\exportPDF\route.ts", "TypeScript", 132, 0, 0, 0, 0, 2, 11, 145
+"c:\Users\arya.khadgi\Documents\PROD\NexS-Ascend\src\app\api\ehs\uploadPhoto\route.ts", "TypeScript", 37, 0, 0, 0, 0, 4, 8, 49
+"c:\Users\arya.khadgi\Documents\PROD\NexS-Ascend\src\app\api\fr0\route.ts", "TypeScript", 44, 0, 0, 0, 0, 6, 11, 61
+"c:\Users\arya.khadgi\Documents\PROD\NexS-Ascend\src\app\api\fr0\stats\route.ts", "TypeScript", 20, 0, 0, 0, 0, 1, 5, 26
+"c:\Users\arya.khadgi\Documents\PROD\NexS-Ascend\src\app\api\maintenance\shop-issue\route.ts", "TypeScript", 61, 0, 0, 0, 0, 1, 5, 67
+"c:\Users\arya.khadgi\Documents\PROD\NexS-Ascend\src\app\api\manual-warehouse\route.ts", "TypeScript", 44, 0, 0, 0, 0, 6, 11, 61
+"c:\Users\arya.khadgi\Documents\PROD\NexS-Ascend\src\app\api\manual-warehouse\stats\route.ts", "TypeScript", 18, 0, 0, 0, 0, 1, 3, 22
+"c:\Users\arya.khadgi\Documents\PROD\NexS-Ascend\src\app\api\operations\excel-upload\route.ts", "TypeScript", 66, 0, 0, 0, 0, 3, 12, 81
+"c:\Users\arya.khadgi\Documents\PROD\NexS-Ascend\src\app\api\operations\excel-upload\tray-scanner\route.ts", "TypeScript", 20, 0, 0, 0, 0, 1, 4, 25
+"c:\Users\arya.khadgi\Documents\PROD\NexS-Ascend\src\app\api\operations\metadata\route.ts", "TypeScript", 42, 0, 0, 0, 0, 3, 8, 53
+"c:\Users\arya.khadgi\Documents\PROD\NexS-Ascend\src\app\api\operations\tray-finder\route.ts", "TypeScript", 58, 0, 0, 0, 0, 4, 5, 67
+"c:\Users\arya.khadgi\Documents\PROD\NexS-Ascend\src\app\api\packing\route.ts", "TypeScript", 44, 0, 0, 0, 0, 6, 12, 62
+"c:\Users\arya.khadgi\Documents\PROD\NexS-Ascend\src\app\api\packing\stats\route.ts", "TypeScript", 18, 0, 0, 0, 0, 1, 4, 23
+"c:\Users\arya.khadgi\Documents\PROD\NexS-Ascend\src\app\api\upload\route.ts", "TypeScript", 55, 0, 0, 0, 0, 3, 9, 67
+"c:\Users\arya.khadgi\Documents\PROD\NexS-Ascend\src\app\appreciation\page.tsx", "TypeScript JSX", 0, 17, 0, 0, 0, 0, 3, 20
+"c:\Users\arya.khadgi\Documents\PROD\NexS-Ascend\src\app\dispatch\page.tsx", "TypeScript JSX", 0, 153, 0, 0, 0, 10, 17, 180
+"c:\Users\arya.khadgi\Documents\PROD\NexS-Ascend\src\app\ehs\report-deviation\page.tsx", "TypeScript JSX", 0, 819, 0, 0, 0, 16, 42, 877
+"c:\Users\arya.khadgi\Documents\PROD\NexS-Ascend\src\app\globals.css", "PostCSS", 0, 0, 0, 25, 0, 0, 6, 31
+"c:\Users\arya.khadgi\Documents\PROD\NexS-Ascend\src\app\layout.tsx", "TypeScript JSX", 0, 19, 0, 0, 0, 5, 4, 28
+"c:\Users\arya.khadgi\Documents\PROD\NexS-Ascend\src\app\login\page.tsx", "TypeScript JSX", 0, 67, 0, 0, 0, 2, 11, 80
+"c:\Users\arya.khadgi\Documents\PROD\NexS-Ascend\src\app\maintenance\shop-issue\page.tsx", "TypeScript JSX", 0, 239, 0, 0, 0, 9, 16, 264
+"c:\Users\arya.khadgi\Documents\PROD\NexS-Ascend\src\app\operations\excel-upload\page.tsx", "TypeScript JSX", 0, 78, 0, 0, 0, 1, 10, 89
+"c:\Users\arya.khadgi\Documents\PROD\NexS-Ascend\src\app\operations\manual-warehouse\page.tsx", "TypeScript JSX", 0, 159, 0, 0, 0, 15, 16, 190
+"c:\Users\arya.khadgi\Documents\PROD\NexS-Ascend\src\app\operations\tray-finder\page.tsx", "TypeScript JSX", 0, 74, 0, 0, 0, 0, 6, 80
+"c:\Users\arya.khadgi\Documents\PROD\NexS-Ascend\src\app\operations\tray-scanner\page.tsx", "TypeScript JSX", 0, 96, 0, 0, 0, 2, 16, 114
+"c:\Users\arya.khadgi\Documents\PROD\NexS-Ascend\src\app\packing-dispatch\bulk\page.tsx", "TypeScript JSX", 0, 159, 0, 0, 0, 15, 16, 190
+"c:\Users\arya.khadgi\Documents\PROD\NexS-Ascend\src\app\packing-dispatch\dispatch\page.tsx", "TypeScript JSX", 0, 162, 0, 0, 0, 6, 17, 185
+"c:\Users\arya.khadgi\Documents\PROD\NexS-Ascend\src\app\packing-dispatch\fr0\page.tsx", "TypeScript JSX", 0, 159, 0, 0, 0, 15, 16, 190
+"c:\Users\arya.khadgi\Documents\PROD\NexS-Ascend\src\app\packing-dispatch\packing\page.tsx", "TypeScript JSX", 0, 159, 0, 0, 0, 15, 16, 190
+"c:\Users\arya.khadgi\Documents\PROD\NexS-Ascend\src\app\packing-dispatch\upload\page.tsx", "TypeScript JSX", 0, 74, 0, 0, 0, 0, 9, 83
+"c:\Users\arya.khadgi\Documents\PROD\NexS-Ascend\src\app\packing\page.tsx", "TypeScript JSX", 0, 150, 0, 0, 0, 10, 16, 176
+"c:\Users\arya.khadgi\Documents\PROD\NexS-Ascend\src\app\page.tsx", "TypeScript JSX", 0, 23, 0, 0, 0, 1, 2, 26
+"c:\Users\arya.khadgi\Documents\PROD\NexS-Ascend\src\app\upload\page.tsx", "TypeScript JSX", 0, 13, 0, 0, 0, 1, 3, 17
+"c:\Users\arya.khadgi\Documents\PROD\NexS-Ascend\src\components\DarkModeToggle.tsx", "TypeScript JSX", 0, 17, 0, 0, 0, 1, 2, 20
+"c:\Users\arya.khadgi\Documents\PROD\NexS-Ascend\src\components\ExcelUploadForm.tsx", "TypeScript JSX", 0, 46, 0, 0, 0, 1, 6, 53
+"c:\Users\arya.khadgi\Documents\PROD\NexS-Ascend\src\components\Header.tsx", "TypeScript JSX", 0, 12, 0, 0, 0, 0, 0, 12
+"c:\Users\arya.khadgi\Documents\PROD\NexS-Ascend\src\components\Sidebar.tsx", "TypeScript JSX", 0, 141, 0, 0, 0, 0, 18, 159
+"c:\Users\arya.khadgi\Documents\PROD\NexS-Ascend\src\generated\onSiteClient\client.d.ts", "TypeScript", 1, 0, 0, 0, 0, 0, 0, 1
+"c:\Users\arya.khadgi\Documents\PROD\NexS-Ascend\src\generated\onSiteClient\client.js", "JavaScript", 0, 0, 1, 0, 0, 2, 1, 4
+"c:\Users\arya.khadgi\Documents\PROD\NexS-Ascend\src\generated\onSiteClient\default.d.ts", "TypeScript", 1, 0, 0, 0, 0, 0, 0, 1
+"c:\Users\arya.khadgi\Documents\PROD\NexS-Ascend\src\generated\onSiteClient\default.js", "JavaScript", 0, 0, 1, 0, 0, 2, 1, 4
+"c:\Users\arya.khadgi\Documents\PROD\NexS-Ascend\src\generated\onSiteClient\edge.d.ts", "TypeScript", 1, 0, 0, 0, 0, 0, 0, 1
+"c:\Users\arya.khadgi\Documents\PROD\NexS-Ascend\src\generated\onSiteClient\edge.js", "JavaScript", 0, 0, 140, 0, 0, 21, 28, 189
+"c:\Users\arya.khadgi\Documents\PROD\NexS-Ascend\src\generated\onSiteClient\index-browser.js", "JavaScript", 0, 0, 127, 0, 0, 21, 27, 175
+"c:\Users\arya.khadgi\Documents\PROD\NexS-Ascend\src\generated\onSiteClient\index.d.ts", "TypeScript", 1084, 0, 0, 0, 0, 845, 258, 2187
+"c:\Users\arya.khadgi\Documents\PROD\NexS-Ascend\src\generated\onSiteClient\index.js", "JavaScript", 0, 0, 154, 0, 0, 23, 33, 210
+"c:\Users\arya.khadgi\Documents\PROD\NexS-Ascend\src\generated\onSiteClient\package.json", "JSON", 0, 0, 0, 0, 140, 0, 0, 140
+"c:\Users\arya.khadgi\Documents\PROD\NexS-Ascend\src\generated\onSiteClient\runtime\edge-esm.js", "JavaScript", 0, 0, 26, 0, 0, 2, 7, 35
+"c:\Users\arya.khadgi\Documents\PROD\NexS-Ascend\src\generated\onSiteClient\runtime\edge.js", "JavaScript", 0, 0, 26, 0, 0, 2, 7, 35
+"c:\Users\arya.khadgi\Documents\PROD\NexS-Ascend\src\generated\onSiteClient\runtime\index-browser.d.ts", "TypeScript", 264, 0, 0, 0, 0, 20, 87, 371
+"c:\Users\arya.khadgi\Documents\PROD\NexS-Ascend\src\generated\onSiteClient\runtime\index-browser.js", "JavaScript", 0, 0, 1, 0, 0, 14, 2, 17
+"c:\Users\arya.khadgi\Documents\PROD\NexS-Ascend\src\generated\onSiteClient\runtime\library.d.ts", "TypeScript", 2343, 0, 0, 0, 0, 846, 459, 3648
+"c:\Users\arya.khadgi\Documents\PROD\NexS-Ascend\src\generated\onSiteClient\runtime\library.js", "JavaScript", 0, 0, 116, 0, 0, 2, 29, 147
+"c:\Users\arya.khadgi\Documents\PROD\NexS-Ascend\src\generated\onSiteClient\runtime\react-native.js", "JavaScript", 0, 0, 67, 0, 0, 2, 15, 84
+"c:\Users\arya.khadgi\Documents\PROD\NexS-Ascend\src\generated\onSiteClient\runtime\wasm.js", "JavaScript", 0, 0, 27, 0, 0, 2, 7, 36
+"c:\Users\arya.khadgi\Documents\PROD\NexS-Ascend\src\generated\onSiteClient\wasm.d.ts", "TypeScript", 1, 0, 0, 0, 0, 0, 0, 1
+"c:\Users\arya.khadgi\Documents\PROD\NexS-Ascend\src\generated\onSiteClient\wasm.js", "JavaScript", 0, 0, 127, 0, 0, 21, 27, 175
+"c:\Users\arya.khadgi\Documents\PROD\NexS-Ascend\src\generated\prisma\client.d.ts", "TypeScript", 1, 0, 0, 0, 0, 0, 0, 1
+"c:\Users\arya.khadgi\Documents\PROD\NexS-Ascend\src\generated\prisma\client.js", "JavaScript", 0, 0, 1, 0, 0, 2, 1, 4
+"c:\Users\arya.khadgi\Documents\PROD\NexS-Ascend\src\generated\prisma\default.d.ts", "TypeScript", 1, 0, 0, 0, 0, 0, 0, 1
+"c:\Users\arya.khadgi\Documents\PROD\NexS-Ascend\src\generated\prisma\default.js", "JavaScript", 0, 0, 1, 0, 0, 2, 1, 4
+"c:\Users\arya.khadgi\Documents\PROD\NexS-Ascend\src\generated\prisma\edge.d.ts", "TypeScript", 1, 0, 0, 0, 0, 0, 0, 1
+"c:\Users\arya.khadgi\Documents\PROD\NexS-Ascend\src\generated\prisma\edge.js", "JavaScript", 0, 0, 124, 0, 0, 21, 26, 171
+"c:\Users\arya.khadgi\Documents\PROD\NexS-Ascend\src\generated\prisma\index-browser.js", "JavaScript", 0, 0, 112, 0, 0, 21, 25, 158
+"c:\Users\arya.khadgi\Documents\PROD\NexS-Ascend\src\generated\prisma\index.d.ts", "TypeScript", 381, 0, 0, 0, 0, 296, 141, 818
+"c:\Users\arya.khadgi\Documents\PROD\NexS-Ascend\src\generated\prisma\index.js", "JavaScript", 0, 0, 138, 0, 0, 23, 31, 192
+"c:\Users\arya.khadgi\Documents\PROD\NexS-Ascend\src\generated\prisma\package.json", "JSON", 0, 0, 0, 0, 140, 0, 0, 140
+"c:\Users\arya.khadgi\Documents\PROD\NexS-Ascend\src\generated\prisma\runtime\edge-esm.js", "JavaScript", 0, 0, 26, 0, 0, 2, 7, 35
+"c:\Users\arya.khadgi\Documents\PROD\NexS-Ascend\src\generated\prisma\runtime\edge.js", "JavaScript", 0, 0, 26, 0, 0, 2, 7, 35
+"c:\Users\arya.khadgi\Documents\PROD\NexS-Ascend\src\generated\prisma\runtime\index-browser.d.ts", "TypeScript", 264, 0, 0, 0, 0, 20, 87, 371
+"c:\Users\arya.khadgi\Documents\PROD\NexS-Ascend\src\generated\prisma\runtime\index-browser.js", "JavaScript", 0, 0, 1, 0, 0, 14, 2, 17
+"c:\Users\arya.khadgi\Documents\PROD\NexS-Ascend\src\generated\prisma\runtime\library.d.ts", "TypeScript", 2343, 0, 0, 0, 0, 846, 459, 3648
+"c:\Users\arya.khadgi\Documents\PROD\NexS-Ascend\src\generated\prisma\runtime\library.js", "JavaScript", 0, 0, 116, 0, 0, 2, 29, 147
+"c:\Users\arya.khadgi\Documents\PROD\NexS-Ascend\src\generated\prisma\runtime\react-native.js", "JavaScript", 0, 0, 67, 0, 0, 2, 15, 84
+"c:\Users\arya.khadgi\Documents\PROD\NexS-Ascend\src\generated\prisma\runtime\wasm.js", "JavaScript", 0, 0, 27, 0, 0, 2, 7, 36
+"c:\Users\arya.khadgi\Documents\PROD\NexS-Ascend\src\generated\prisma\wasm.d.ts", "TypeScript", 1, 0, 0, 0, 0, 0, 0, 1
+"c:\Users\arya.khadgi\Documents\PROD\NexS-Ascend\src\generated\prisma\wasm.js", "JavaScript", 0, 0, 112, 0, 0, 21, 25, 158
+"c:\Users\arya.khadgi\Documents\PROD\NexS-Ascend\src\lib\db.ts", "TypeScript", 10, 0, 0, 0, 0, 1, 2, 13
+"c:\Users\arya.khadgi\Documents\PROD\NexS-Ascend\src\lib\locationMap.json", "JSON", 0, 0, 0, 0, 37, 0, 1, 38
+"c:\Users\arya.khadgi\Documents\PROD\NexS-Ascend\src\middleware\auth.ts", "TypeScript", 40, 0, 0, 0, 0, 4, 10, 54
+"c:\Users\arya.khadgi\Documents\PROD\NexS-Ascend\src\utils\db.ts", "TypeScript", 0, 0, 0, 0, 0, 0, 1, 1
+"c:\Users\arya.khadgi\Documents\PROD\NexS-Ascend\src\utils\prisma.ts", "TypeScript", 9, 0, 0, 0, 0, 3, 5, 17
+"Total", "-", 7750, 2836, 1593, 25, 317, 3306, 2307, 18134

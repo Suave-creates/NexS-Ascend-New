@@ -4,8 +4,9 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "next build",
-    "start": "next start -p 3069",
+    "build": "next build && node scripts/prepare-standalone.cjs",
+    "db:check": "node scripts/check-database.cjs",
+    "start": "node scripts/start-standalone.cjs",
     "lint": "next lint"
   },
   "dependencies": {
@@ -18,6 +19,7 @@
     "mysql2": "^3.14.1",
     "next": "15.3.2",
     "nodeman": "^1.1.2",
+    "playwright": "^1.54.0",
     "puppeteer": "^24.10.1",
     "qrcode": "^1.5.4",
     "react": "^19.0.0",

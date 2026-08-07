@@ -15,25 +15,36 @@ ENV PUPPETEER_SKIP_DOWNLOAD=true \
     PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
 RUN apt-get update && apt-get install -y --no-install-recommends openssl ca-certificates \
     && rm -rf /var/lib/apt/lists/*
+COPY docker/lenskart-netskope-root.crt /usr/local/share/ca-certificates/lenskart-netskope-root.crt
+RUN update-ca-certificates
+ENV NODE_EXTRA_CA_CERTS=/usr/local/share/ca-certificates/lenskart-netskope-root.crt
 COPY package.json package-lock.json ./
-RUN npm ci
+# The builder needs Prisma, TypeScript, Tailwind, and other dev dependencies.
+# Be explicit so host/daemon npm configuration cannot omit them.
+RUN npm ci --include=dev
 
 ########## 2. builder — generate prisma clients + next build ##########
 FROM node:20-bookworm-slim AS builder
 WORKDIR /app
 ENV PUPPETEER_SKIP_DOWNLOAD=true \
     PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true \
-    NEXT_TELEMETRY_DISABLED=1
+    NEXT_TELEMETRY_DISABLED=1 \
+    NODE_EXTRA_CA_CERTS=/usr/local/share/ca-certificates/lenskart-netskope-root.crt
 RUN apt-get update && apt-get install -y --no-install-recommends openssl ca-certificates \
     && rm -rf /var/lib/apt/lists/*
+COPY docker/lenskart-netskope-root.crt /usr/local/share/ca-certificates/lenskart-netskope-root.crt
+RUN update-ca-certificates
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 # Regenerate ALL Prisma clients for Linux — the clients committed in src/generated
 # ship Windows query engines (query_engine-windows.dll.node) and are .dockerignore'd.
-RUN npx prisma generate --schema=prisma/schema.prisma \
- && npx prisma generate --schema=prisma/schema-dispatch.prisma \
- && npx prisma generate --schema=prisma/schema-lens-lab.prisma \
- && npx prisma generate --schema=prisma/schema-metal-frame.prisma
+# Use the Prisma CLI installed by the lockfile. `npx prisma` may fall back to
+# the npm registry when resolution fails, which breaks on TLS-inspected networks
+# and makes an otherwise reproducible image build depend on external lookup.
+RUN ./node_modules/.bin/prisma generate --schema=prisma/schema.prisma \
+ && ./node_modules/.bin/prisma generate --schema=prisma/schema-dispatch.prisma \
+ && ./node_modules/.bin/prisma generate --schema=prisma/schema-lens-lab.prisma \
+ && ./node_modules/.bin/prisma generate --schema=prisma/schema-metal-frame.prisma
 # NEXT_PUBLIC_* values are inlined at build time, so they must be build args.
 ARG NEXT_PUBLIC_AGENT_URL=""
 ENV NEXT_PUBLIC_AGENT_URL=${NEXT_PUBLIC_AGENT_URL}
@@ -47,8 +58,12 @@ ENV NODE_ENV=production \
     PORT=3069 \
     HOSTNAME=0.0.0.0 \
     PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium \
+    CL_CLS_QC_EXECUTABLE_PATH=/usr/bin/chromium \
+    CL_CLS_QC_HEADLESS=true \
     PUPPETEER_SKIP_DOWNLOAD=true \
-    NDD_RCA_PYTHON=/opt/venv/bin/python
+    NDD_RCA_PYTHON=/opt/venv/bin/python \
+    NODE_EXTRA_CA_CERTS=/usr/local/share/ca-certificates/lenskart-netskope-root.crt \
+    HOME=/home/nextjs
 
 # Runtime system deps:
 #  - openssl               : Prisma
@@ -59,6 +74,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
       chromium fonts-liberation fonts-noto-color-emoji \
       python3 python3-venv \
     && rm -rf /var/lib/apt/lists/*
+COPY docker/lenskart-netskope-root.crt /usr/local/share/ca-certificates/lenskart-netskope-root.crt
+RUN update-ca-certificates
 
 # Python venv for the NDD-RCA scripts (pandas, msal, gspread, ...).
 COPY requirement.txt ./
@@ -66,8 +83,21 @@ RUN python3 -m venv /opt/venv \
  && /opt/venv/bin/pip install --no-cache-dir --upgrade pip \
  && /opt/venv/bin/pip install --no-cache-dir -r requirement.txt
 
-# Non-root runtime user.
-RUN groupadd -r nodejs && useradd -r -g nodejs -m nextjs
+# Non-root runtime user. -d pins the home dir so it matches the adaptive_token
+# volume mount in docker-compose.yml (see below) rather than relying on
+# whatever useradd's system-account default happens to be.
+RUN groupadd -r nodejs && useradd -r -g nodejs -m -d /home/nextjs nextjs
+
+# --- Adaptive PAM CLI (warehouse DB access - see src/utils/adaptiveExecPool.ts) ---
+# TODO: install the Linux `adaptive` CLI binary here so it ends up on PATH as
+# `adaptive` (or set ADAPTIVE_BIN to wherever it lands). Source not yet known -
+# ask whoever owns Adaptive at Lenskart for the internal registry image,
+# package, or download step other services already use to get this binary
+# into a Linux container, then replace this comment with the real RUN/COPY
+# step. Until this is filled in, NEXS_DB_ADAPTIVE_ENDPOINT /
+# NEXS_DB_PICKING_ADAPTIVE_ENDPOINT will fail at request time with
+# "adaptive: command not found" - local dev (NexS_DB/NexS_DB_PICKING pointed
+# at the bundled MySQL) is unaffected either way.
 
 # --- Next.js standalone output ---
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
@@ -83,6 +113,9 @@ COPY --from=builder --chown=nextjs:nodejs /app/node_modules/.bin/prisma ./node_m
 
 # --- NDD-RCA python scripts (spawned with cwd = this dir) ---
 COPY --from=builder --chown=nextjs:nodejs /app/src/app/api/packing-dispatch/ndd-rca/NDD-RCA ./src/app/api/packing-dispatch/ndd-rca/NDD-RCA
+# Central auth helpers. Secret JSON/cache files are excluded by .dockerignore
+# and must be mounted at runtime (see docker-compose.yml).
+COPY --from=builder --chown=nextjs:nodejs /app/src/utils/resources ./src/utils/resources
 
 # Writable runtime data dir (flash-rules.json, auto-release-lock.json).
 COPY --from=builder --chown=nextjs:nodejs /app/data ./data

@@ -1,0 +1,4 @@
+# Shell scripts must stay LF, or they fail as the container ENTRYPOINT on a
+# Windows checkout (core.autocrlf would rewrite them to CRLF -> bad interpreter).
+*.sh text eol=lf
+docker/entrypoint.sh text eol=lf

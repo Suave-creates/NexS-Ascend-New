@@ -1,10 +1,7 @@
 import { NextResponse } from 'next/server';
-import type mysql from 'mysql2/promise';
-import { nexsPool } from '@/utils/nexsPool';
+import { BIGQUERY_DATA_PROJECT_ID, runBigQuery } from '@/utils/resources/bigquery/client';
 
 export async function POST(req: Request) {
-  let conn: mysql.PoolConnection | null = null;
-
   try {
     const { input } = await req.json();
 
@@ -18,13 +15,7 @@ export async function POST(req: Request) {
     // Extract barcode → RIGHT(text, 12)
     const barcode = input.slice(-12);
 
-    /* =====================================================
-       Acquire pooled connection + explicit DB selection
-    ====================================================== */
-    conn = await nexsPool.getConnection();
-    await conn.changeUser({ database: 'nexs_ims' });
-
-    const [rows]: any = await conn.execute(
+    const { rows } = await runBigQuery(
       `
       SELECT
         barcode,
@@ -33,11 +24,12 @@ export async function POST(req: Request) {
         TRIM(UPPER(\`condition\`)) AS \`condition\`,
         TRIM(UPPER(status))       AS status,
         TRIM(UPPER(availability)) AS availability
-      FROM barcode_item
-      WHERE barcode = ?
+      FROM \`${BIGQUERY_DATA_PROJECT_ID}.nexs_ims.barcode_item\`
+      WHERE barcode = @barcode
       LIMIT 1
       `,
-      [barcode]
+      1,
+      { barcode },
     );
 
     if (!rows.length) {
@@ -47,7 +39,7 @@ export async function POST(req: Request) {
       );
     }
 
-    const record = rows[0];
+    const record = rows[0] as Record<string, any>;
 
     // ✅ ONLY ONE GREEN PATH
     const isGood =
@@ -75,7 +67,5 @@ export async function POST(req: Request) {
       { error: 'Internal Server Error' },
       { status: 500 }
     );
-  } finally {
-    if (conn) conn.release();
   }
 }

@@ -275,6 +275,19 @@ exports.Prisma.ConsolidateQcDumpEntryScalarFieldEnum = {
   scannedAt: 'scannedAt'
 };
 
+exports.Prisma.ClClsQcQueueEntryScalarFieldEnum = {
+  id: 'id',
+  barcode: 'barcode',
+  fittingId: 'fittingId',
+  shippingPackageId: 'shippingPackageId',
+  state: 'state',
+  attempts: 'attempts',
+  lastError: 'lastError',
+  firstSeenAt: 'firstSeenAt',
+  lastSeenAt: 'lastSeenAt',
+  completedAt: 'completedAt'
+};
+
 exports.Prisma.ConsolidatePackageScalarFieldEnum = {
   id: 'id',
   shippingPackageId: 'shippingPackageId',
@@ -384,6 +397,14 @@ exports.Prisma.ConsolidateQcDumpEntryOrderByRelevanceFieldEnum = {
   currentStatus: 'currentStatus'
 };
 
+exports.Prisma.ClClsQcQueueEntryOrderByRelevanceFieldEnum = {
+  barcode: 'barcode',
+  fittingId: 'fittingId',
+  shippingPackageId: 'shippingPackageId',
+  state: 'state',
+  lastError: 'lastError'
+};
+
 exports.Prisma.ConsolidatePackageOrderByRelevanceFieldEnum = {
   shippingPackageId: 'shippingPackageId'
 };
@@ -450,6 +471,7 @@ exports.Prisma.ModelName = {
   ConsolidateRack: 'ConsolidateRack',
   ConsolidateLocation: 'ConsolidateLocation',
   ConsolidateQcDumpEntry: 'ConsolidateQcDumpEntry',
+  ClClsQcQueueEntry: 'ClClsQcQueueEntry',
   ConsolidatePackage: 'ConsolidatePackage',
   ConsolidatePackageScan: 'ConsolidatePackageScan',
   ConsolidateReleaseHistory: 'ConsolidateReleaseHistory'

@@ -24,8 +24,8 @@ export async function POST(req: Request) {
 
       await tx.$executeRaw`
         INSERT INTO scanned_barcode_inventory_transfer
-          (pid, barcode, status, \`condition\`, availability, scan_location, scanned_at)
-        SELECT pid, barcode, status, \`condition\`, availability, scan_location, scanned_at
+          (pid, barcode, status, \`condition\`, availability, scan_location, nexs_location, scanned_at)
+        SELECT pid, barcode, status, \`condition\`, availability, scan_location, nexs_location, scanned_at
         FROM scanned_barcode_inventory
         WHERE scan_location = ${loc}
         ON DUPLICATE KEY UPDATE
@@ -33,6 +33,7 @@ export async function POST(req: Request) {
           status       = VALUES(status),
           \`condition\`  = VALUES(\`condition\`),
           availability = VALUES(availability),
+          nexs_location = VALUES(nexs_location),
           scanned_at   = VALUES(scanned_at)
       `;
 

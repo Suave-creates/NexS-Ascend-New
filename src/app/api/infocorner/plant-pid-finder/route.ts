@@ -1,10 +1,7 @@
 import { NextResponse } from 'next/server';
-import type mysql from 'mysql2/promise';
-import { nexsPool } from '@/utils/nexsPool';
+import { BIGQUERY_DATA_PROJECT_ID, runBigQuery } from '@/utils/resources/bigquery/client';
 
 export async function POST(req: Request) {
-  let conn: mysql.PoolConnection | null = null;
-
   try {
     const body = await req.json();
     let { pid, pids, download } = body;
@@ -29,19 +26,14 @@ export async function POST(req: Request) {
       );
     }
 
-    conn = await nexsPool.getConnection();
-    await conn.changeUser({ database: 'nexs_ims' });
-
-    const placeholders = pids.map(() => '?').join(',');
-
-    const [rows]: any = await conn.execute(
+    const { rows } = await runBigQuery(
       `
       SELECT 
         pid,
         location,
         barcode
-      FROM barcode_item
-      WHERE pid IN (${placeholders})
+      FROM \`${BIGQUERY_DATA_PROJECT_ID}.nexs_ims.barcode_item\`
+      WHERE CAST(pid AS STRING) IN UNNEST(@pids)
         AND facility = 'NXS1'
         AND \`condition\` = 'GOOD'
         AND status = 'AVAILABLE'
@@ -49,7 +41,8 @@ export async function POST(req: Request) {
         AND location_type <> 'RESERVED'
       ORDER BY pid, location
       `,
-      pids
+      10000,
+      { pids: pids.map(String) },
     );
 
     /* ================= CSV MODE ================= */
@@ -86,7 +79,5 @@ export async function POST(req: Request) {
       { error: 'Internal Server Error' },
       { status: 500 }
     );
-  } finally {
-    if (conn) conn.release();
   }
 }

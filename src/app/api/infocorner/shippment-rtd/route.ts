@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
-import type mysql from 'mysql2/promise';
-import { nexsPool } from '@/utils/nexsPool';
+import { BIGQUERY_DATA_PROJECT_ID, runBigQuery } from '@/utils/resources/bigquery/client';
 
 export const runtime = 'nodejs';
 
@@ -24,8 +23,6 @@ function* chunkArray<T>(arr: T[], size: number): Generator<T[]> {
 }
 
 export async function POST(req: Request) {
-  let conn: mysql.PoolConnection | null = null;
-
   try {
     const body = await req.json();
     const { shipping_ids } = body;
@@ -46,17 +43,24 @@ export async function POST(req: Request) {
       );
     }
 
-    /* ================= DB ================= */
-
-    conn = await nexsPool.getConnection();
-
     const allRows: ShippingRow[] = [];
     const CHUNK_SIZE = 20;
 
     for (const chunk of chunkArray(shipping_ids, CHUNK_SIZE)) {
-      const placeholders = chunk.map(() => '?').join(',');
-
       const sql = `
+        WITH latest AS (
+          SELECT * EXCEPT(row_num)
+          FROM (
+            SELECT oih.*,
+              ROW_NUMBER() OVER (
+                PARTITION BY oih.shipping_package_id, oih.item_type
+                ORDER BY oih.updated_at DESC
+              ) AS row_num
+            FROM \`${BIGQUERY_DATA_PROJECT_ID}.wms.order_items_history\` oih
+            WHERE CAST(oih.shipping_package_id AS STRING) IN UNNEST(@shipping_ids)
+          )
+          WHERE row_num = 1
+        )
         SELECT
             oih.shipping_package_id AS shipping_id,
             MAX(oih.fitting_id) AS fitting_id,
@@ -69,22 +73,17 @@ export async function POST(req: Request) {
             MAX(CASE WHEN oih.item_type = 'RIGHTLENS' THEN oih.product_id END) AS rightlens_pid,
             MAX(CASE WHEN oih.item_type = 'FRAME' THEN oih.product_id END) AS frame_pid
 
-        FROM wms.order_items_history oih
-        WHERE oih.shipping_package_id IN (${placeholders})
-        AND oih.updated_at = (
-            SELECT MAX(updated_at)
-            FROM wms.order_items_history
-            WHERE shipping_package_id = oih.shipping_package_id
-              AND item_type = oih.item_type
-        )
+        FROM latest oih
         GROUP BY oih.shipping_package_id
         ORDER BY oih.shipping_package_id
       `;
 
-      const [rows] = await conn.execute(
+      const { rows: rawRows } = await runBigQuery(
         sql,
-        chunk
-      ) as [ShippingRow[], any];
+        10000,
+        { shipping_ids: chunk.map(String) },
+      );
+      const rows = rawRows as ShippingRow[];
 
       allRows.push(...rows);
     }
@@ -132,7 +131,5 @@ export async function POST(req: Request) {
       { success: false, error: error?.message || 'Internal Server Error' },
       { status: 500 }
     );
-  } finally {
-    if (conn) conn.release();
   }
 }

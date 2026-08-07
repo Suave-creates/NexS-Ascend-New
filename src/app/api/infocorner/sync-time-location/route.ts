@@ -1,8 +1,7 @@
 // src/app/api/infocorner/sync-time-location/route.ts
 
 import { NextResponse } from 'next/server';
-import type mysql from 'mysql2/promise';
-import { nexsPickingPool } from '@/utils/nexsPickingPool';
+import { BIGQUERY_DATA_PROJECT_ID, runBigQuery } from '@/utils/resources/bigquery/client';
 
 /* =====================================================
    CONFIG
@@ -24,8 +23,6 @@ function chunkArray<T>(arr: T[], size: number): T[][] {
    API
 ===================================================== */
 export async function POST(req: Request) {
-  let conn: mysql.PoolConnection | null = null;
-
   try {
     const body = await req.json();
     const { shipment_ids } = body;
@@ -38,13 +35,6 @@ export async function POST(req: Request) {
     }
 
     /* =====================================================
-       Acquire connection from pool
-    ====================================================== */
-    conn = await nexsPickingPool.getConnection();
-
-    await conn.changeUser({ database: 'picking' });
-
-    /* =====================================================
        Chunking
     ====================================================== */
     const chunks = chunkArray(shipment_ids, CHUNK_SIZE);
@@ -55,16 +45,14 @@ export async function POST(req: Request) {
        Sequential Execution (Safe Default)
     ====================================================== */
     for (const chunk of chunks) {
-      const placeholders = chunk.map(() => '?').join(',');
-
-      const [rows]: any = await conn.query(
+      const { rows } = await runBigQuery(
         `
         SELECT 
           increment_id,
           product_id, 
           shipment_id, 
-          scm_order_created_at, 
-          updated_at,
+          FORMAT_DATETIME('%F %T', scm_order_created_at) AS scm_order_created_at,
+          FORMAT_TIMESTAMP('%F %T', updated_at) AS updated_at,
           location_barcode, 
           asrs_location_barcode, 
           item_type, 
@@ -75,10 +63,11 @@ export async function POST(req: Request) {
           jit_order,
           repick_status, 
           repick_count
-        FROM picklist_order_item
-        WHERE shipment_id IN (${placeholders})
+        FROM \`${BIGQUERY_DATA_PROJECT_ID}.picking.picklist_order_item\`
+        WHERE CAST(shipment_id AS STRING) IN UNNEST(@shipment_ids)
         `,
-        chunk
+        10000,
+        { shipment_ids: chunk.map(String) },
       );
 
       finalResults = finalResults.concat(rows);
@@ -93,14 +82,12 @@ export async function POST(req: Request) {
     });
 
   } catch (err: any) {
-    console.error('Chunked MySQL Query Error:', err);
+    console.error('Chunked BigQuery Error:', err);
 
     return NextResponse.json(
       { error: 'Internal Server Error' },
       { status: 500 }
     );
 
-  } finally {
-    if (conn) conn.release(); // VERY IMPORTANT
   }
 }

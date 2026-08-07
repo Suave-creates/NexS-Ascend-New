@@ -33,15 +33,68 @@ All runtime config lives in `.env.docker` (see `.env.docker.example`). Groups:
 | Group | Vars |
 |---|---|
 | Prisma datasources | `DATABASE_URL`, `DATABASE_URL_DISPATCH`, `DATABASE_URL_LENS_LAB`, `DATABASE_URL_MF` |
-| Raw mysql2 pools | `NexS_DB`, `NexS_DB_PICKING` |
+| Raw mysql2 pools | `NexS_DB`, `NexS_DB_PICKING` (local dev), or `NEXS_DB_ADAPTIVE_ENDPOINT` / `NEXS_DB_PICKING_ADAPTIVE_ENDPOINT` (production, see below) |
 | bosch_cv_db (`src/lib/db.ts`) | `BOSCH_DB_HOST/PORT/USER/PASSWORD/NAME` |
 | App | `JWT_SECRET`, `BQ_PROJECT_ID`, `NDD_RCA_PYTHON`, `RUN_DB_PUSH` |
 | Build-time only | `NEXT_PUBLIC_AGENT_URL` (compose build arg) |
 
 **Production:** set `RUN_DB_PUSH=false` and point every DB var at the real
-databases. The raw-SQL warehouse queries (`NexS_DB`, `NexS_DB_PICKING`, bosch)
-read pre-existing external data — a local MySQL only satisfies the Prisma
-schemas, not those warehouse tables.
+databases. The raw-SQL warehouse queries read pre-existing external data — a
+local MySQL only satisfies the Prisma schemas, not those warehouse tables.
+`bosch` still takes a static host/user/password. `NexS_DB` / `NexS_DB_PICKING`
+instead route through Adaptive — see the next section.
+
+## Warehouse DB access via Adaptive (`NexS_DB` / `NexS_DB_PICKING`)
+
+Production credentials for these two pools are not a static URI — they go
+through Lenskart's Adaptive PAM CLI (`src/utils/adaptiveExecPool.ts`). There is
+no TCP tunnel available for these endpoints (`adaptive connect` requires a
+real interactive terminal and fails on piped/non-tty input, confirmed), so
+each query is one non-interactive `adaptive exec <endpoint> -c "<sql>"` call
+(~4s per call — the Adaptive broker auth handshake, paid on every invocation).
+`getConnection()`/`changeUser()`/`.execute()`/`.query()`/`.release()` are all
+shimmed to match the existing mysql2 API, so none of the ~30 call sites needed
+to change.
+
+**Setup, once the image has the `adaptive` binary on PATH** (see the TODO in
+the Dockerfile — the Linux CLI's install source isn't wired up yet):
+
+1. Set `NEXS_DB_ADAPTIVE_ENDPOINT=mysql_ro_nexs-slave02.prod.internal` and
+   `NEXS_DB_PICKING_ADAPTIVE_ENDPOINT=mysql_ro_nexs-picking-mysql-slavedb` in
+   `.env.docker`. When set, these take priority over `NexS_DB`/`NexS_DB_PICKING`.
+2. Log in once, interactively, inside the running container:
+   `docker compose exec app adaptive login -u https://adaptive.lenskart.com`
+   — follow the printed link to authenticate in a browser. Login is one-time;
+   the resulting token is written to `/home/nextjs/.adaptive`, which is a
+   named volume (`adaptive_token`) so it survives container restarts/redeploys.
+3. If the token ever expires, queries start failing and the app logs
+   `Ask ARYA to reauthenticate the Adaptive token` — rerun step 2.
+
+**Known limitations of this design** (accepted trade-off for zero new
+dependencies — see conversation history / `DB_Migration.md` for the fuller
+rationale):
+
+- Latency is roughly `~4s × number of sequential queries` in one
+  `getConnection()`/`release()` span, since each call is an independent
+  `adaptive exec` invocation and a later query's parameters can depend on an
+  earlier query's result (so they can't be pre-batched into one call). Most
+  routes do 1–4 queries per request (~4–16s). A pending `changeUser()` is
+  folded into the next query's call for free (no extra round trip).
+- Three routes are **not** viable under this design and were left as-is:
+  `infocorner/sync-time-inventory` (up to 200 checkout/release cycles in one
+  request), `lens-lab/jit-PD-stamp` and `infocorner/barcode-details` (up to
+  5,000 / 100 sequential queries held on one connection across a streamed
+  response). These would need either a persistent-session driver (e.g.
+  `node-pty` driving `adaptive connect` as a real pty-backed REPL) or a
+  rewrite of the query pattern itself — both out of scope here.
+- Row values come back as strings (or `null` for SQL `NULL`) parsed from the
+  CLI's ASCII table output, not typed values from the MySQL wire protocol.
+  Existing call sites already coerce with `String()`/`Number()` where it
+  matters, but this is a real behavioral difference from a normal mysql2 pool.
+- The "needs reauth" detection is a best-effort keyword match — a real
+  expired-token error message from `adaptive exec` was never observed while
+  building this (only successful logins), so the pattern may need refining
+  once a real expiry happens in production.
 
 ## NDD-RCA pipeline (optional feature)
 

@@ -20,7 +20,8 @@ import {
   FiMenu,
   FiDownload,
   FiGrid,
-  FiZap,
+  FiDatabase,
+  FiBox,
 } from 'react-icons/fi';
 import { cn } from '@/lib/cn';
 
@@ -40,8 +41,29 @@ export default function Sidebar() {
 
   const navItems: NavItem[] = [
     { href: '/', icon: FiHome, label: 'Home' },
-    { href: '/consolidate', icon: FiGrid, label: 'ConsolidAte' },
-    { href: '/consolidate-ptl', icon: FiZap, label: 'ConsolidAte PTL' },
+    { href: '/grafana-dumps', icon: FiDatabase, label: 'Grafana Dumps' },
+
+    {
+      icon: FiGrid,
+      label: 'CL-CLs',
+      children: [
+        { href: '/cl-cls/consolidate', label: 'ConsolidAte' },
+        { href: '/cl-cls/consolidate-ptl', label: 'ConsolidAte PTL' },
+        { href: '/cl-cls/qc-auto', label: 'Auto Order QC' },
+        { href: '/cl-cls/kitne-parcel-the-cl-cls', label: 'Kitne Parcel The?' },
+      ],
+    },
+
+    {
+      icon: FiBox,
+      label: 'OMT',
+      children: [
+        { href: '/omt/master-segregator', label: 'Master Segregator' },
+        { href: '/omt/tray-putaway', label: 'Tray Putaway' },
+        { href: '/omt/marry-tray', label: 'Marry Tray' },
+        { href: '/omt/tracer-pro', label: 'Tracer Pro MQCF' },
+      ],
+    },
 
     {
       icon: FiLayers,
@@ -103,7 +125,6 @@ export default function Sidebar() {
         { href: '/packing-dispatch/ndd-shipment', label: 'NDD Shipment' },
         { href: '/packing-dispatch/ndd-rca', label: 'NDD RCA' },
         { href: '/packing-dispatch/kitne-parcel-the', label: 'Kinte parcel the' },
-        { href: '/packing-dispatch/kitne-parcel-the-cl-cls', label: 'कितने पार्सल थे' },
         { href: '/packing-dispatch/upload', label: 'Excel Upload' },
       ],
     },
@@ -132,7 +153,6 @@ export default function Sidebar() {
         { href: '/infocorner/barcode-details', label: 'Barcode Details' },
         { href: '/infocorner/plant-pid-finder', label: 'Plant PID Finder' },
         { href: '/infocorner/QCF-information-corner', label: 'QCF Logs' },
-        { href: '/infocorner/tracer-pro', label: 'Tracer pro MQCF' },
         { href: '/infocorner/sync-time-inventory', label: 'Sync Time Inventory' },
         { href: '/infocorner/order-created-when', label: 'Order Created When' },
         { href: '/infocorner/sync-time-location', label: 'Sync-time  Location' },

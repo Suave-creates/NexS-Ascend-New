@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
-import type mysql from "mysql2/promise";
-import { nexsPool } from "@/utils/nexsPool";
+import { BIGQUERY_DATA_PROJECT_ID, runBigQuery } from "@/utils/resources/bigquery/client";
 
 interface PkgRow {
   shipment_id: string;
@@ -86,26 +85,21 @@ export async function POST(req: Request) {
   const OK: ResultRow["status"] = "ok";
 
   for (const pkgId of packageIds) {
-    let conn: mysql.PoolConnection | null = null;
-
     try {
-      conn = await nexsPool.getConnection();
-
       /* ── Step 1: WMS lookup ── */
-      await conn.changeUser({ database: "wms" });
-
-      const [pkgRows] = await conn.execute<mysql.RowDataPacket[]>(
+      const { rows: pkgRows } = await runBigQuery(
         `
         SELECT
             o.wms_order_code        AS shipment_id,
             o.shipping_package_id,
             MIN(o.created_at)       AS shipment_creation_date
-        FROM order_items o
-        WHERE o.shipping_package_id = ?
+        FROM \`${BIGQUERY_DATA_PROJECT_ID}.wms.order_items\` o
+        WHERE CAST(o.shipping_package_id AS STRING) = @shipping_package_id
         GROUP BY o.wms_order_code, o.shipping_package_id
         LIMIT 1
         `,
-        [pkgId]
+        1,
+        { shipping_package_id: pkgId },
       );
 
       if (!pkgRows.length) {
@@ -122,42 +116,27 @@ export async function POST(req: Request) {
         continue;
       }
 
-      const pkg = pkgRows[0] as PkgRow;
+      const pkg = pkgRows[0] as unknown as PkgRow;
       const shipmentId = pkg.shipment_id;
 
       /* ── Step 2: Score lookup from both NXS1 and NXS2 ── */
-      await conn.changeUser({ database: "optimadb" });
-
-      const [nxs1Rows] = await conn.execute<mysql.RowDataPacket[]>(
+      const { rows: rawScoreRows } = await runBigQuery(
         `
         SELECT
             shipment_id,
             product_id,
-            inventory_count
-        FROM shipment_item_score_details
-        WHERE facility = 'NXS1'
-          AND shipment_id = ?
+            inventory_count,
+            facility
+        FROM \`${BIGQUERY_DATA_PROJECT_ID}.optimadb.shipment_item_score_details\`
+        WHERE facility IN ('NXS1', 'NXS2')
+          AND CAST(shipment_id AS STRING) = @shipment_id
         `,
-        [shipmentId]
+        10000,
+        { shipment_id: String(shipmentId) },
       );
 
-      const [nxs2Rows] = await conn.execute<mysql.RowDataPacket[]>(
-        `
-        SELECT
-            shipment_id,
-            product_id,
-            inventory_count
-        FROM shipment_item_score_details
-        WHERE facility = 'NXS2'
-          AND shipment_id = ?
-        `,
-        [shipmentId]
-      );
-
-      const allScoreRows: (ScoreRow & { facility: string })[] = [
-        ...(nxs1Rows as ScoreRow[]).map(row => ({ ...row, facility: 'NXS1' })),
-        ...(nxs2Rows as ScoreRow[]).map(row => ({ ...row, facility: 'NXS2' }))
-      ];
+      const allScoreRows = (rawScoreRows as unknown as (ScoreRow & { facility: string })[])
+        .map((row) => ({ ...row, inventory_count: Number(row.inventory_count) }));
 
       if (!allScoreRows.length) {
         results.push({
@@ -197,14 +176,6 @@ export async function POST(req: Request) {
         status: MESSED_UP,
         error: "DB query failed",
       });
-    } finally {
-      if (conn) {
-        try {
-          conn.release();
-        } catch {
-          /* ignore release errors */
-        }
-      }
     }
   }
 

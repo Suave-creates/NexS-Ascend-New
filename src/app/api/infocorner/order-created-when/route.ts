@@ -1,8 +1,7 @@
 // src/app/api/infocorner/sync-time-location/route.ts
 
 import { NextResponse } from 'next/server';
-import type mysql from 'mysql2/promise';
-import { nexsPool } from '@/utils/nexsPool';
+import { BIGQUERY_DATA_PROJECT_ID, runBigQuery } from '@/utils/resources/bigquery/client';
 
 /* =====================================================
    CONFIG
@@ -25,8 +24,6 @@ function chunkArray<T>(arr: T[], size: number): T[][] {
    Body: { increment_ids: string[] }
 ===================================================== */
 export async function POST(req: Request) {
-  let conn: mysql.PoolConnection | null = null;
-
   try {
     const body = await req.json();
     const { increment_ids } = body;
@@ -39,12 +36,6 @@ export async function POST(req: Request) {
     }
 
     /* =====================================================
-       Acquire pooled connection
-    ====================================================== */
-    conn = await nexsPool.getConnection();
-    await conn.changeUser({ database: 'wms' });
-
-    /* =====================================================
        Chunking
     ====================================================== */
     const chunks = chunkArray(increment_ids, CHUNK_SIZE);
@@ -55,17 +46,16 @@ export async function POST(req: Request) {
        Execute Query (Chunked)
     ====================================================== */
     for (const chunk of chunks) {
-      const placeholders = chunk.map(() => '?').join(',');
-
-      const [rows]: any = await conn.query(
+      const { rows } = await runBigQuery(
         `
         SELECT 
           increment_id,
           order_created_at
-        FROM orders
-        WHERE increment_id IN (${placeholders})
+        FROM \`${BIGQUERY_DATA_PROJECT_ID}.wms.orders\`
+        WHERE CAST(increment_id AS STRING) IN UNNEST(@increment_ids)
         `,
-        chunk
+        CHUNK_SIZE,
+        { increment_ids: chunk.map(String) },
       );
 
       finalResults = finalResults.concat(rows);
@@ -87,7 +77,5 @@ export async function POST(req: Request) {
       { status: 500 }
     );
 
-  } finally {
-    if (conn) conn.release(); // critical for pool health
   }
 }

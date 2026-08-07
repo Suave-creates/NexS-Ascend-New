@@ -235,7 +235,8 @@ model ScannedBarcodeInventory {
   condition    String? @map("condition") @db.VarChar(50)
   availability String? @db.VarChar(50)
 
-  scanLocation String @map("scan_location") @db.VarChar(100)
+  scanLocation String  @map("scan_location") @db.VarChar(100)
+  nexsLocation String? @map("nexs_location") @db.VarChar(255)
 
   scannedAt DateTime @default(now()) @map("scanned_at")
 
@@ -267,7 +268,8 @@ model ScannedBarcodeInventoryTransfer {
   condition    String? @map("condition") @db.VarChar(50)
   availability String? @db.VarChar(50)
 
-  scanLocation String @map("scan_location") @db.VarChar(100)
+  scanLocation String  @map("scan_location") @db.VarChar(100)
+  nexsLocation String? @map("nexs_location") @db.VarChar(255)
 
   scannedAt  DateTime @default(now()) @map("scanned_at")
   injestedAt DateTime @default(now()) @map("injested_at") @db.DateTime(3)
