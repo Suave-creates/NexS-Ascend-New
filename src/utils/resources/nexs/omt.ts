@@ -1,4 +1,5 @@
 import { getNexsToken, invalidateNexsToken } from '@/utils/resources/nexs/auth';
+import { isOmtNddOrder } from '@/utils/omtPriority';
 
 const NEXS_WMS_BASE = 'https://app.nexs.lenskart.com/nexs/wms/api/v1';
 const TRAY_ID_PATTERN = /^[A-Z]{2}\d{5}$/;
@@ -22,7 +23,7 @@ export type OmtTrayDetails = {
   orderDate: string;
   orderAge: string;
   orderAgeDays: number | null;
-  orderMode: 'JIT' | 'REGULAR';
+  orderMode: 'NDD' | 'JIT' | 'REGULAR';
   rawOrderType: string;
   maxQcfCount: number;
   parentTrayId: string;
@@ -124,6 +125,7 @@ function orderAge(orderDate: string) {
 
 function displayPriority(value: unknown, classification: string) {
   const raw = String(value ?? '').trim();
+  if (isOmtNddOrder(raw, undefined, classification)) return '1';
   if (raw === '0') return 'Normal';
   return raw || classification || 'N/A';
 }
@@ -198,6 +200,8 @@ export async function fetchOmtTrayDetails(request: Request, rawTrayId: string): 
   const priorityClassification = String(
     orderItemHeader.customFields?.customFields?.PRIORITY_CLASSIFICATION_TYPE ?? '',
   ).trim();
+  const rawPriority = orderItemHeader.orderPriority ?? orderDetails.orderPriority ?? orderDetails.priority;
+  const nddOrder = isOmtNddOrder(rawPriority, undefined, priorityClassification);
   const orderDate = String(orderDetails.orderCreatedAt ?? orderDetails.orderDate ?? '').trim();
   const age = orderAge(orderDate);
 
@@ -205,12 +209,12 @@ export async function fetchOmtTrayDetails(request: Request, rawTrayId: string): 
     scannedTrayId,
     fittingId,
     shipmentId,
-    priority: displayPriority(orderDetails.priority, priorityClassification),
+    priority: displayPriority(rawPriority, priorityClassification),
     priorityClassification: priorityClassification || 'N/A',
     orderDate: orderDate || 'N/A',
     orderAge: age.label,
     orderAgeDays: age.days,
-    orderMode: rawOrderType.toUpperCase().includes('JIT') ? 'JIT' : 'REGULAR',
+    orderMode: nddOrder ? 'NDD' : rawOrderType.toUpperCase().includes('JIT') ? 'JIT' : 'REGULAR',
     rawOrderType,
     maxQcfCount,
     parentTrayId,

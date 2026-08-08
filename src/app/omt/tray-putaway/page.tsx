@@ -14,6 +14,33 @@ type Position = {
   position: number;
   barcode: string;
   trays: string[];
+  trayHealth: TrayHealth[];
+  trayDetails: StoredTrayDetail[];
+};
+
+type TrayHealth = {
+  trayBarcode: string;
+  status: 'VALID' | 'INVALID' | 'ERROR' | 'PENDING';
+  message: string | null;
+  checkedAt: string | null;
+};
+
+type StoredTrayDetail = {
+  trayBarcode: string;
+  stackLevel: number;
+  fittingId: string | null;
+  shipmentId: string | null;
+  maxQcfCount: number;
+  operatorId: string | null;
+  priority: string | null;
+  priorityClassification: string | null;
+  orderType: string | null;
+  orderMode: string | null;
+  orderDate: string | null;
+  putawayAt: string;
+  liveStatus: 'VALID' | 'INVALID' | 'ERROR' | 'PENDING';
+  statusMessage: string | null;
+  validatedAt: string | null;
 };
 
 type Activity = {
@@ -32,6 +59,8 @@ type Feedback = {
 type StoredPosition = {
   barcode: string;
   trays: string[];
+  trayHealth?: TrayHealth[];
+  trayDetails?: StoredTrayDetail[];
 };
 
 type PutawayDetails = {
@@ -43,7 +72,7 @@ type PutawayDetails = {
   orderDate: string;
   orderAge: string;
   orderAgeDays: number | null;
-  orderMode: 'JIT' | 'REGULAR';
+  orderMode: 'NDD' | 'JIT' | 'REGULAR';
   rawOrderType: string;
   maxQcfCount: number;
   parentTrayId: string;
@@ -70,7 +99,7 @@ function createPositions(): Position[] {
   return Array.from({ length: RACK_COUNT * POSITIONS_PER_RACK }, (_, index) => {
     const rack = Math.floor(index / POSITIONS_PER_RACK) + 1;
     const position = (index % POSITIONS_PER_RACK) + 1;
-    return { rack, position, barcode: positionBarcode(rack, position), trays: [] };
+    return { rack, position, barcode: positionBarcode(rack, position), trays: [], trayHealth: [], trayDetails: [] };
   });
 }
 
@@ -94,18 +123,42 @@ function timeNow() {
   return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 }
 
+function detailDate(value: string | null) {
+  if (!value) return 'N/A';
+  const parsed = new Date(value);
+  return Number.isFinite(parsed.getTime()) ? parsed.toLocaleString() : value;
+}
+
+function detailAge(value: string | null) {
+  if (!value) return 'Unknown';
+  const parsed = new Date(value);
+  if (!Number.isFinite(parsed.getTime())) return 'Unknown';
+  const hours = Math.max(0, Math.floor((Date.now() - parsed.getTime()) / 3_600_000));
+  return hours >= 24 ? `${Math.floor(hours / 24)}d ${hours % 24}h` : `${hours}h`;
+}
+
+function isNddOrder(priority: string | null | undefined, orderMode?: string | null, classification?: string | null) {
+  const normalizedPriority = String(priority ?? '').trim().toUpperCase();
+  return normalizedPriority === '1'
+    || normalizedPriority === 'NDD'
+    || orderMode?.toUpperCase() === 'NDD'
+    || classification?.toUpperCase().startsWith('NDD') === true;
+}
+
 export default function TrayPutawayPage() {
   const [positions, setPositions] = useState<Position[]>(createPositions);
   const [operatorId, setOperatorId] = useState('');
   const [selectedRack, setSelectedRack] = useState(1);
   const [activeBarcode, setActiveBarcode] = useState<string | null>(null);
+  const [selectedPositionBarcode, setSelectedPositionBarcode] = useState<string | null>(null);
   const [pendingTray, setPendingTray] = useState<PutawayDetails | null>(null);
   const [scanValue, setScanValue] = useState('');
   const [removeScanValue, setRemoveScanValue] = useState('');
   const [removeMessage, setRemoveMessage] = useState('Scan a tray to remove it from its current position.');
   const [removing, setRemoving] = useState(false);
   const [resetting, setResetting] = useState(false);
-  const [syncing, setSyncing] = useState(true);
+  const [healthChecking, setHealthChecking] = useState(false);
+  const [lastHealthCheck, setLastHealthCheck] = useState<string | null>(null);
   const [activities, setActivities] = useState<Activity[]>([]);
   const [feedback, setFeedback] = useState<Feedback>({
     title: 'Ready for putaway',
@@ -118,22 +171,44 @@ export default function TrayPutawayPage() {
   const busyRef = useRef(false);
 
   const refreshPositions = useCallback(async () => {
-    setSyncing(true);
     try {
       const response = await fetch('/api/omt/tray-putaway', { cache: 'no-store' });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || 'Unable to load rack state');
       const stored = new Map(
-        ((data.positions ?? []) as StoredPosition[]).map((position) => [position.barcode, position.trays]),
+        ((data.positions ?? []) as StoredPosition[]).map((position) => [position.barcode, position]),
       );
       setPositions(createPositions().map((position) => ({
         ...position,
-        trays: stored.get(position.barcode) ?? [],
+        trays: stored.get(position.barcode)?.trays ?? [],
+        trayHealth: stored.get(position.barcode)?.trayHealth ?? [],
+        trayDetails: stored.get(position.barcode)?.trayDetails ?? [],
       })));
     } catch (error) {
       setFeedback({ title: 'Rack sync unavailable', detail: (error as Error).message, tone: 'error' });
+    }
+  }, []);
+
+  const refreshTrayHealth = useCallback(async (force = false) => {
+    setHealthChecking(true);
+    try {
+      const response = await fetch(`/api/omt/tray-putaway?validate=${force ? 'force' : 'due'}`, { cache: 'no-store' });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Unable to validate stored trays');
+      const stored = new Map(
+        ((data.positions ?? []) as StoredPosition[]).map((position) => [position.barcode, position]),
+      );
+      setPositions(createPositions().map((position) => ({
+        ...position,
+        trays: stored.get(position.barcode)?.trays ?? [],
+        trayHealth: stored.get(position.barcode)?.trayHealth ?? [],
+        trayDetails: stored.get(position.barcode)?.trayDetails ?? [],
+      })));
+      setLastHealthCheck(data.healthRefresh?.checkedAt ?? new Date().toISOString());
+    } catch (error) {
+      setFeedback({ title: 'Hourly tray check failed', detail: (error as Error).message, tone: 'error' });
     } finally {
-      setSyncing(false);
+      setHealthChecking(false);
     }
   }, []);
 
@@ -143,15 +218,22 @@ export default function TrayPutawayPage() {
     return () => window.clearInterval(interval);
   }, [refreshPositions]);
 
+  useEffect(() => {
+    void refreshTrayHealth();
+    const interval = window.setInterval(() => void refreshTrayHealth(), 60 * 60 * 1000);
+    return () => window.clearInterval(interval);
+  }, [refreshTrayHealth]);
+
   const focusScanner = useCallback(() => {
     window.setTimeout(() => {
+      if (selectedPositionBarcode) return;
       if (!operatorId.trim()) {
         operatorRef.current?.focus();
       } else if (document.activeElement !== removeRef.current && document.activeElement !== operatorRef.current) {
         scanRef.current?.focus();
       }
     }, 20);
-  }, [operatorId]);
+  }, [operatorId, selectedPositionBarcode]);
 
   const focusRemoval = useCallback(() => {
     window.setTimeout(() => removeRef.current?.focus(), 20);
@@ -199,6 +281,23 @@ export default function TrayPutawayPage() {
   );
   const fullPositions = useMemo(
     () => positions.filter((position) => position.trays.length === TRAYS_PER_POSITION).length,
+    [positions],
+  );
+  const selectedPosition = useMemo(
+    () => positions.find((position) => position.barcode === selectedPositionBarcode) ?? null,
+    [positions, selectedPositionBarcode],
+  );
+
+  useEffect(() => {
+    if (!selectedPositionBarcode) return;
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setSelectedPositionBarcode(null);
+    };
+    window.addEventListener('keydown', closeOnEscape);
+    return () => window.removeEventListener('keydown', closeOnEscape);
+  }, [selectedPositionBarcode]);
+  const attentionPositions = useMemo(
+    () => positions.filter((position) => position.trayHealth.some((tray) => tray.status !== 'VALID')).length,
     [positions],
   );
   const totalCapacity = RACK_COUNT * POSITIONS_PER_RACK * TRAYS_PER_POSITION;
@@ -317,7 +416,33 @@ export default function TrayPutawayPage() {
       const newCount = Number(data.stackLevel);
       setPositions((current) => current.map((position) => (
         position.barcode === barcode
-          ? { ...position, trays: [...position.trays, trayBarcode] }
+          ? {
+              ...position,
+              trays: [...position.trays, trayBarcode],
+              trayHealth: [...position.trayHealth, {
+                trayBarcode,
+                status: 'VALID' as const,
+                message: null,
+                checkedAt: new Date().toISOString(),
+              }],
+              trayDetails: [...position.trayDetails, {
+                trayBarcode,
+                stackLevel: newCount,
+                fittingId: pendingTray.fittingId,
+                shipmentId: pendingTray.shipmentId,
+                maxQcfCount: pendingTray.maxQcfCount,
+                operatorId,
+                priority: pendingTray.priority,
+                priorityClassification: pendingTray.priorityClassification,
+                orderType: pendingTray.rawOrderType,
+                orderMode: pendingTray.orderMode,
+                orderDate: pendingTray.orderDate,
+                putawayAt: new Date().toISOString(),
+                liveStatus: 'VALID' as const,
+                statusMessage: null,
+                validatedAt: new Date().toISOString(),
+              }],
+            }
           : position
       )));
       const rack = rackFromPositionBarcode(barcode);
@@ -392,7 +517,14 @@ export default function TrayPutawayPage() {
 
       setPositions((current) => current.map((position) => (
         position.barcode === data.positionBarcode
-          ? { ...position, trays: position.trays.filter((tray) => tray !== trayBarcode) }
+          ? {
+              ...position,
+              trays: position.trays.filter((tray) => tray !== trayBarcode),
+              trayHealth: position.trayHealth.filter((tray) => tray.trayBarcode !== trayBarcode),
+              trayDetails: position.trayDetails
+                .filter((tray) => tray.trayBarcode !== trayBarcode)
+                .map((tray, index) => ({ ...tray, stackLevel: index + 1 })),
+            }
           : position
       )));
       const removedRack = rackFromPositionBarcode(String(data.positionBarcode));
@@ -465,14 +597,19 @@ export default function TrayPutawayPage() {
         <span className="metric"><b>{RACK_COUNT * POSITIONS_PER_RACK}</b> positions</span>
         <span className="metric"><b className="gold">{storedTrays}</b> trays stored</span>
         <span className="metric"><b className="green">{totalCapacity - storedTrays}</b> capacity left</span>
-        <span className={`live-pill ${syncing ? 'syncing' : ''}`}><i /> {syncing ? 'Syncing' : 'Live floor view'}</span>
+        <span
+          className={`metric ${attentionPositions ? 'attention' : ''}`}
+          title={lastHealthCheck ? `Last hourly API check: ${new Date(lastHealthCheck).toLocaleString()}` : 'Awaiting first hourly API check'}
+        >
+          <b className={attentionPositions ? 'red' : 'green'}>{healthChecking ? '···' : attentionPositions}</b> {healthChecking ? 'checking trays' : 'need attention'}
+        </span>
         <button type="button" className="master-reset" onClick={masterReset} disabled={resetting}>
           {resetting ? 'Resetting…' : '↻ Master Reset'}
         </button>
       </header>
 
       <main className="omt-layout">
-        <section className={`putaway-card ${feedback.tone}`}>
+        <section className={`putaway-card ${feedback.tone} ${pendingTray && isNddOrder(pendingTray.priority, pendingTray.orderMode) ? 'ndd-order' : ''}`}>
           <div className="card-head">
             <div>
               <span className="eyebrow">HHD workflow</span>
@@ -505,10 +642,11 @@ export default function TrayPutawayPage() {
 
           {pendingTray && (
             <section className="putaway-details" aria-label="Verified tray details">
+              {isNddOrder(pendingTray.priority, pendingTray.orderMode) && <div className="ndd-ribbon">NDD Priority Order</div>}
               <div className="details-metrics">
-                <article><small>Priority</small><b>{pendingTray.priority}</b></article>
+                <article className={isNddOrder(pendingTray.priority, pendingTray.orderMode) ? 'ndd' : ''}><small>Priority</small><b>{pendingTray.priority}</b></article>
                 <article><small>Order age</small><b>{pendingTray.orderAge}</b><em>{pendingTray.orderDate} IST</em></article>
-                <article className={pendingTray.orderMode === 'JIT' ? 'jit' : ''}><small>Order type</small><b>{pendingTray.orderMode}</b><em>{pendingTray.rawOrderType}</em></article>
+                <article className={pendingTray.orderMode === 'NDD' ? 'ndd' : pendingTray.orderMode === 'JIT' ? 'jit' : ''}><small>Order type</small><b>{pendingTray.orderMode}</b><em>{pendingTray.rawOrderType}</em></article>
                 <article className={pendingTray.maxQcfCount > 2 ? 'danger' : ''}><small>Max QCF count</small><b>{pendingTray.maxQcfCount}</b><em>Across fitting shipments</em></article>
               </div>
               <div className="details-identity">
@@ -639,6 +777,7 @@ export default function TrayPutawayPage() {
             <div className="overview-stats">
               <span><b>{occupiedPositions}</b> occupied</span>
               <span><b>{fullPositions}</b> full</span>
+              <span className={attentionPositions ? 'attention-stat' : ''}><b>{attentionPositions}</b> attention</span>
             </div>
           </div>
 
@@ -672,23 +811,33 @@ export default function TrayPutawayPage() {
               {visiblePositions.map((position) => {
                 const count = position.trays.length;
                 const state = count === 0 ? 'empty' : count === TRAYS_PER_POSITION ? 'full' : 'partial';
+                const unhealthy = position.trayHealth.filter((tray) => tray.status !== 'VALID');
+                const healthTitle = unhealthy.map((tray) => `${tray.trayBarcode}: ${tray.message || tray.status}`).join('\n');
                 return (
-                  <article
+                  <button
+                    type="button"
                     key={position.barcode}
-                    className={`position-cell ${state} ${activeBarcode === position.barcode ? 'active' : ''}`}
+                    className={`position-cell ${state} ${unhealthy.length ? 'has-alert' : ''} ${activeBarcode === position.barcode ? 'active' : ''}`}
+                    data-health={healthTitle || undefined}
+                    onClick={() => setSelectedPositionBarcode(position.barcode)}
                     title={`${position.barcode} · ${count}/5 trays`}
                   >
                     <div className="cell-top">
                       <strong>{positionLabel(position.position)}</strong>
                       <span>{count}/5</span>
                     </div>
-                    <div className="mini-stack" aria-hidden="true">
-                      {Array.from({ length: TRAYS_PER_POSITION }, (_, index) => (
-                        <i key={index} className={index < count ? 'filled' : ''} />
-                      ))}
+                    <div className="mini-stack" aria-label="Tray slot health">
+                       {Array.from({ length: TRAYS_PER_POSITION }, (_, index) => {
+                         const trayId = position.trays[index];
+                         const health = position.trayHealth.find((tray) => tray.trayBarcode === trayId);
+                         const details = position.trayDetails.find((tray) => tray.trayBarcode === trayId);
+                         const problem = trayId && health?.status !== 'VALID';
+                         const ndd = trayId && isNddOrder(details?.priority, details?.orderMode, details?.priorityClassification);
+                         return <i key={index} className={`${trayId ? 'filled' : ''} ${ndd && !problem ? 'ndd' : ''} ${problem ? 'problem' : ''}`} title={problem ? `${trayId}: ${health?.message || health?.status}` : ndd ? `${trayId}: NDD priority 1` : trayId || `Slot ${index + 1} empty`} />;
+                      })}
                     </div>
-                    <small>{state === 'empty' ? 'Empty' : state === 'full' ? 'Full' : `${TRAYS_PER_POSITION - count} spaces`}</small>
-                  </article>
+                    <small>{unhealthy.length ? `${unhealthy.length} tray${unhealthy.length === 1 ? '' : 's'} invalid` : state === 'empty' ? 'Empty' : state === 'full' ? 'Full' : `${TRAYS_PER_POSITION - count} spaces`}</small>
+                  </button>
                 );
               })}
             </div>
@@ -696,6 +845,8 @@ export default function TrayPutawayPage() {
               <span><i className="empty" /> Empty</span>
               <span><i className="partial" /> In use</span>
               <span><i className="full" /> Full</span>
+              <span><i className="ndd" /> NDD tray</span>
+              <span><i className="attention" /> Bad tray slot</span>
               <code>Position barcode: {positionBarcode(selectedRack, 1)}</code>
             </div>
           </div>
@@ -718,6 +869,55 @@ export default function TrayPutawayPage() {
           </div>
         </aside>
       </main>
+
+      {selectedPosition && (
+        <div className="position-modal-backdrop" role="presentation" onMouseDown={() => setSelectedPositionBarcode(null)}>
+          <section className="position-modal" role="dialog" aria-modal="true" aria-label={`Tray details for ${selectedPosition.barcode}`} onMouseDown={(event) => event.stopPropagation()}>
+            <header className="position-modal-head">
+              <div>
+                <span className="eyebrow">Full putaway visibility</span>
+                <h2>Rack {pad(selectedPosition.rack)} · {positionLabel(selectedPosition.position)}</h2>
+                <code>{selectedPosition.barcode}</code>
+              </div>
+              <span className="modal-count"><b>{selectedPosition.trays.length}</b>/5 trays</span>
+              <button type="button" onClick={() => setSelectedPositionBarcode(null)} aria-label="Close position details">×</button>
+            </header>
+            <div className="position-modal-summary">
+              <span><b>{selectedPosition.trayDetails.filter((tray) => tray.liveStatus === 'VALID').length}</b> API valid</span>
+              <span className={selectedPosition.trayDetails.some((tray) => tray.liveStatus !== 'VALID') ? 'bad' : ''}><b>{selectedPosition.trayDetails.filter((tray) => tray.liveStatus !== 'VALID').length}</b> need attention</span>
+              <small>Red marks an invalid tray; deep purple marks a priority 1 NDD tray.</small>
+            </div>
+            <div className="position-tray-list">
+              {Array.from({ length: TRAYS_PER_POSITION }, (_, index) => {
+                const level = index + 1;
+                const tray = selectedPosition.trayDetails.find((item) => item.stackLevel === level);
+                const problem = tray && tray.liveStatus !== 'VALID';
+                const ndd = tray && isNddOrder(tray.priority, tray.orderMode, tray.priorityClassification);
+                return (
+                  <article key={level} className={`${tray ? 'stored' : 'empty'} ${ndd && !problem ? 'ndd-order' : ''} ${problem ? 'problem' : ''}`}>
+                    <div className="modal-slot-head"><span>Tray slot {level}</span>{tray && <em className={problem ? 'bad' : 'good'}><i />{tray.liveStatus}</em>}</div>
+                    {tray ? <>
+                      <div className="modal-tray-id"><strong>{tray.trayBarcode}</strong>{ndd && <b>NDD</b>}</div>
+                      {problem && <div className="modal-alert"><b>API attention</b><span>{tray.statusMessage || `${tray.liveStatus} response from NexS`}</span></div>}
+                      <div className="modal-metrics">
+                        <span><small>Fitting ID</small><b>{tray.fittingId ?? 'N/A'}</b></span>
+                        <span><small>Shipment ID</small><b>{tray.shipmentId ?? 'N/A'}</b></span>
+                        <span><small>Priority</small><b className={ndd ? 'ndd' : ''}>{tray.priority ?? 'N/A'}</b></span>
+                        <span><small>Order age</small><b>{detailAge(tray.orderDate)}</b><em>{tray.orderDate ?? 'N/A'}</em></span>
+                        <span><small>Order type</small><b className={ndd ? 'ndd' : ''}>{tray.orderMode ?? 'N/A'}</b><em>{tray.orderType ?? 'N/A'}</em></span>
+                        <span><small>Max QCF</small><b className={tray.maxQcfCount > 2 ? 'danger' : ''}>{tray.maxQcfCount}</b></span>
+                        <span><small>Putaway operator</small><b>{tray.operatorId ?? 'N/A'}</b></span>
+                        <span><small>Putaway time</small><b>{detailDate(tray.putawayAt)}</b></span>
+                        <span><small>Last API check</small><b>{detailDate(tray.validatedAt)}</b></span>
+                      </div>
+                    </> : <div className="modal-empty-slot">Empty slot</div>}
+                  </article>
+                );
+              })}
+            </div>
+          </section>
+        </div>
+      )}
     </div>
   );
 }
@@ -727,7 +927,7 @@ const CSS = `
   --bg-0:#090b0e; --bg-1:#101318; --bg-2:#151920; --bg-3:#1b2028;
   --line:rgba(255,255,255,.075); --line-strong:rgba(255,255,255,.14);
   --text:#f5f6f8; --text-2:#b8bec8; --muted:#737b88;
-  --gold:#d9b75a; --gold-hi:#efd98f; --green:#47d59c; --red:#f16b73; --blue:#66a7ff;
+  --gold:#d9b75a; --gold-hi:#efd98f; --green:#47d59c; --red:#f16b73; --blue:#66a7ff; --ndd-purple:#6d28d9;
   --shadow:0 18px 48px -22px rgba(0,0,0,.82);
   min-height:calc(100vh - 3rem); margin:-1.5rem; color:var(--text);
   background:radial-gradient(900px 480px at 85% -15%,rgba(217,183,90,.065),transparent 62%),linear-gradient(180deg,#0d0f13,var(--bg-0));
@@ -739,12 +939,12 @@ const CSS = `
 .omt-brand{display:flex;align-items:center;gap:11px}.omt-brand>span:last-child{display:flex;align-items:baseline;gap:9px}.omt-brand b{font-size:20px;letter-spacing:2.5px}.omt-brand small{font-size:10px;text-transform:uppercase;letter-spacing:2.2px;color:var(--muted);font-weight:700}
 .brand-mark{width:30px;height:30px;border:1px solid rgba(217,183,90,.35);border-radius:9px;display:flex;flex-direction:column-reverse;align-items:center;justify-content:center;gap:2px;background:rgba(217,183,90,.06)}
 .brand-mark i{display:block;height:3px;border-radius:2px;background:var(--gold)}.brand-mark i:nth-child(1){width:16px}.brand-mark i:nth-child(2){width:12px;opacity:.8}.brand-mark i:nth-child(3){width:8px;opacity:.6}
-.header-spacer{flex:1}.metric{display:inline-flex;align-items:baseline;gap:5px;padding:6px 11px;border:1px solid var(--line);border-radius:10px;background:rgba(255,255,255,.02);color:var(--muted);font-size:9.5px;text-transform:uppercase;letter-spacing:.65px;font-weight:700}.metric b{font-size:14px;color:var(--text);font-variant-numeric:tabular-nums;letter-spacing:0}.metric b.gold{color:var(--gold-hi)}.metric b.green{color:var(--green)}
-.live-pill{display:inline-flex;align-items:center;gap:7px;padding:6px 11px;border-radius:999px;border:1px solid rgba(71,213,156,.25);background:rgba(71,213,156,.09);color:var(--green);font-size:9.5px;text-transform:uppercase;letter-spacing:.7px;font-weight:800}.live-pill i{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 9px var(--green)}
+.header-spacer{flex:1}.metric{display:inline-flex;align-items:baseline;gap:5px;padding:6px 11px;border:1px solid var(--line);border-radius:10px;background:rgba(255,255,255,.02);color:var(--muted);font-size:9.5px;text-transform:uppercase;letter-spacing:.65px;font-weight:700}.metric b{font-size:14px;color:var(--text);font-variant-numeric:tabular-nums;letter-spacing:0}.metric b.gold{color:var(--gold-hi)}.metric b.green{color:var(--green)}.metric b.red{color:var(--red)}.metric.attention{border-color:rgba(241,107,115,.35);background:rgba(241,107,115,.08)}
 .master-reset{padding:7px 11px;border:1px solid var(--line-strong);border-radius:9px;background:rgba(255,255,255,.02);color:var(--muted);font:800 9px var(--font-inter,"Inter",sans-serif);letter-spacing:.65px;text-transform:uppercase;cursor:pointer;transition:.15s}.master-reset:hover{border-color:var(--red);background:rgba(241,107,115,.08);color:var(--red)}.master-reset:disabled{opacity:.45;cursor:wait}
 .omt-layout{display:grid;grid-template-columns:minmax(340px,390px) minmax(520px,1fr);grid-template-areas:"putaway rack" "remove rack" "activity rack";gap:18px;padding:20px 24px;align-items:start}
 .putaway-card,.rack-panel,.activity-panel,.remove-panel{background:linear-gradient(180deg,rgba(255,255,255,.018),transparent),var(--bg-1);border:1px solid var(--line);border-radius:17px;box-shadow:var(--shadow)}
 .putaway-card{grid-area:putaway;padding:18px;display:flex;flex-direction:column;gap:14px;transition:border-color .2s}.putaway-card.ok{border-color:rgba(71,213,156,.2)}.putaway-card.error{border-color:rgba(241,107,115,.22)}
+.putaway-card.ndd-order{border-color:rgba(124,58,237,.48);background:linear-gradient(180deg,rgba(76,29,149,.07),transparent),var(--bg-1)}.ndd-ribbon{padding:8px 10px;border:1px solid rgba(124,58,237,.45);border-radius:9px;background:rgba(76,29,149,.2);color:#c4b5fd;font-size:10px;font-weight:900;letter-spacing:1.4px;text-align:center;text-transform:uppercase}.details-metrics .ndd{border-color:rgba(124,58,237,.42);background:rgba(76,29,149,.14)}.details-metrics .ndd b{color:#c4b5fd;font-size:18px;letter-spacing:1px}
 .card-head,.rack-panel-head,.activity-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}.eyebrow{display:block;margin-bottom:2px;color:var(--muted);font-size:9px;font-weight:800;letter-spacing:1.7px;text-transform:uppercase}.card-head h1,.rack-panel h2,.activity-panel h2{margin:0;font-size:19px;line-height:1.2;letter-spacing:-.3px}.parent-only{padding:5px 8px;border-radius:999px;border:1px solid rgba(217,183,90,.23);background:rgba(217,183,90,.07);color:var(--gold-hi);font-size:8.5px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;white-space:nowrap}
 .operator-field{display:flex;align-items:center;gap:7px;padding:5px 6px 5px 9px;border:1px solid var(--line);border-radius:10px;background:var(--bg-0)}.operator-field span{color:var(--muted);font-size:7.5px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;white-space:nowrap}.operator-field input{width:92px;height:28px;padding:0 8px;border:1px solid var(--line-strong);border-radius:7px;background:var(--bg-2);color:var(--text);font:800 11px var(--font-inter,"Inter",sans-serif);text-transform:uppercase;outline:none}.operator-field input:focus{border-color:var(--gold);box-shadow:0 0 0 2px rgba(217,183,90,.1)}
 .feedback{min-height:54px;padding:10px 12px;border:1px solid var(--line);border-radius:12px;display:flex;align-items:center;gap:10px;background:var(--bg-2)}.feedback-icon{width:28px;height:28px;border-radius:9px;display:grid;place-items:center;flex:none;font-size:15px;font-weight:900}.feedback>span:last-child{min-width:0;display:flex;flex-direction:column}.feedback b{font-size:12.5px}.feedback small{color:var(--muted);font-size:10.5px;white-space:normal}.feedback.info .feedback-icon{color:var(--blue);background:rgba(102,167,255,.1)}.feedback.ok .feedback-icon{color:var(--green);background:rgba(71,213,156,.1)}.feedback.error .feedback-icon{color:var(--red);background:rgba(241,107,115,.1)}
@@ -760,14 +960,21 @@ const CSS = `
 .remove-panel{grid-area:remove;padding:16px}.remove-head{display:flex;align-items:center;justify-content:space-between}.remove-head h2{margin:0;font-size:15px}.remove-badge{padding:4px 7px;border:1px solid rgba(241,107,115,.23);border-radius:999px;background:rgba(241,107,115,.07);color:var(--red);font-size:8px;font-weight:800;text-transform:uppercase;letter-spacing:.7px}.remove-panel>p{min-height:30px;margin:8px 0;color:var(--muted);font-size:10px}.remove-field{position:relative;display:flex}.remove-field input{width:100%;height:48px;padding:0 82px 0 40px;border:1px solid var(--line-strong);border-radius:11px;background:var(--bg-3);color:var(--text);font:650 14px var(--font-inter,"Inter",sans-serif);outline:none}.remove-field input:focus{border-color:var(--red);box-shadow:0 0 0 3px rgba(241,107,115,.09)}.remove-field input::placeholder{color:var(--muted)}.remove-field .barcode-icon{left:13px;top:14px;color:var(--red)}.remove-field button{position:absolute;right:6px;top:6px;height:36px;padding:0 10px;border:0;border-radius:8px;background:rgba(241,107,115,.14);color:var(--red);font:800 8px var(--font-inter,"Inter",sans-serif);text-transform:uppercase;letter-spacing:.6px;cursor:pointer}.remove-field button:hover{background:var(--red);color:#24070a}.remove-field button:disabled{opacity:.5;cursor:wait}
 .rack-panel{grid-area:rack;padding:19px;min-width:0}.rack-panel-head{align-items:center;margin-bottom:14px}.rack-panel-head p{margin:4px 0 0;color:var(--muted);font-size:10px}.overview-stats{display:flex;gap:7px}.overview-stats span{padding:7px 9px;border:1px solid var(--line);border-radius:9px;color:var(--muted);font-size:8.5px;text-transform:uppercase;letter-spacing:.7px;font-weight:700}.overview-stats b{color:var(--text);font-size:12px;margin-right:3px}
 .rack-picker{display:grid;grid-template-columns:repeat(10,minmax(48px,1fr));gap:6px;padding:10px;border:1px solid var(--line);border-radius:13px;background:var(--bg-0);margin-bottom:14px}.rack-picker button{min-width:0;padding:7px 5px 6px;border:1px solid transparent;border-radius:8px;background:var(--bg-2);color:var(--muted);cursor:pointer;font-family:inherit;transition:.15s}.rack-picker button:hover{color:var(--text-2);border-color:var(--line-strong)}.rack-picker button.selected{color:#151208;background:var(--gold);border-color:var(--gold);box-shadow:0 6px 16px -9px var(--gold)}.rack-picker button>span{display:block;font-size:10px;font-weight:850}.rack-picker button>i{display:block;height:2px;margin:5px 1px 3px;border-radius:9px;background:rgba(255,255,255,.1);overflow:hidden}.rack-picker button>i em{display:block;height:100%;background:var(--green)}.rack-picker button.selected>i{background:rgba(0,0,0,.17)}.rack-picker button.selected>i em{background:#193c2d}.rack-picker button small{display:block;font-size:7px;font-weight:700;font-variant-numeric:tabular-nums}
+.overview-stats .attention-stat{color:var(--red);border-color:rgba(241,107,115,.35)}.overview-stats .attention-stat b{color:var(--red)}
 .rack-frame{border:1px solid var(--line-strong);border-radius:15px;padding:14px;background:linear-gradient(90deg,rgba(255,255,255,.018),transparent 3%,transparent 97%,rgba(255,255,255,.018)),var(--bg-0)}.rack-title{display:flex;align-items:center;justify-content:space-between;padding:0 3px 11px}.rack-title span{font-size:10px;text-transform:uppercase;letter-spacing:1.4px;font-weight:800;color:var(--gold-hi)}.rack-title small{font-size:9px;color:var(--muted);font-weight:700;font-variant-numeric:tabular-nums}
-.position-grid{display:grid;grid-template-columns:repeat(4,minmax(85px,1fr));gap:7px}.position-cell{min-height:85px;border:1px solid var(--line);border-radius:11px;padding:9px 10px;background:var(--bg-2);display:flex;flex-direction:column;justify-content:space-between;transition:.15s}.position-cell.active{outline:2px solid var(--gold);outline-offset:2px;box-shadow:0 0 22px -5px rgba(217,183,90,.28)}.position-cell.partial{border-color:rgba(217,183,90,.22);background:linear-gradient(145deg,rgba(217,183,90,.065),var(--bg-2))}.position-cell.full{border-color:rgba(71,213,156,.24);background:linear-gradient(145deg,rgba(71,213,156,.07),var(--bg-2))}.cell-top{display:flex;align-items:center;justify-content:space-between}.cell-top strong{font-size:15px;line-height:1;color:var(--text-2);font-variant-numeric:tabular-nums}.partial .cell-top strong{color:var(--gold-hi)}.full .cell-top strong{color:var(--green)}.cell-top span{font-size:8px;color:var(--muted);font-weight:800}.mini-stack{display:grid;grid-template-columns:repeat(5,1fr);gap:3px;margin:8px 0}.mini-stack i{height:7px;border:1px solid var(--line);border-radius:2px;background:var(--bg-0)}.mini-stack i.filled{border-color:rgba(217,183,90,.42);background:var(--gold)}.full .mini-stack i.filled{border-color:rgba(71,213,156,.45);background:var(--green)}.position-cell>small{font-size:7.5px;color:var(--muted);font-weight:750;text-transform:uppercase;letter-spacing:.65px}
+.position-grid{display:grid;grid-template-columns:repeat(4,minmax(85px,1fr));gap:7px}.position-cell{min-height:85px;border:1px solid var(--line);border-radius:11px;padding:9px 10px;background:var(--bg-2);color:inherit;font-family:inherit;text-align:left;display:flex;flex-direction:column;justify-content:space-between;transition:.15s;cursor:pointer}.position-cell:hover{border-color:var(--line-strong);transform:translateY(-1px)}.position-cell.active{outline:2px solid var(--gold);outline-offset:2px;box-shadow:0 0 22px -5px rgba(217,183,90,.28)}.position-cell.partial{border-color:rgba(217,183,90,.22);background:linear-gradient(145deg,rgba(217,183,90,.065),var(--bg-2))}.position-cell.full{border-color:rgba(71,213,156,.24);background:linear-gradient(145deg,rgba(71,213,156,.07),var(--bg-2))}.cell-top{display:flex;align-items:center;justify-content:space-between}.cell-top strong{font-size:15px;line-height:1;color:var(--text-2);font-variant-numeric:tabular-nums}.partial .cell-top strong{color:var(--gold-hi)}.full .cell-top strong{color:var(--green)}.cell-top span{font-size:8px;color:var(--muted);font-weight:800}.mini-stack{display:grid;grid-template-columns:repeat(5,1fr);gap:3px;margin:8px 0}.mini-stack i{height:7px;border:1px solid var(--line);border-radius:2px;background:var(--bg-0)}.mini-stack i.filled{border-color:rgba(217,183,90,.42);background:var(--gold)}.full .mini-stack i.filled{border-color:rgba(71,213,156,.45);background:var(--green)}.mini-stack i.ndd,.full .mini-stack i.ndd{border-color:#8b5cf6;background:var(--ndd-purple)}.mini-stack i.problem,.full .mini-stack i.problem{border-color:#ff9ba1;background:var(--red);box-shadow:0 0 9px var(--red);animation:bad-slot-flash 1s ease-in-out infinite}.position-cell>small{font-size:7.5px;color:var(--muted);font-weight:750;text-transform:uppercase;letter-spacing:.65px}.position-cell.has-alert>small{color:#ff9ba1}@keyframes bad-slot-flash{50%{background:#ffb0b5;box-shadow:0 0 14px var(--red)}}
 .rack-legend{display:flex;align-items:center;gap:13px;margin-top:12px;color:var(--muted);font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}.rack-legend span{display:flex;align-items:center;gap:5px}.rack-legend span i{width:7px;height:7px;border-radius:2px;border:1px solid var(--line-strong);background:var(--bg-2)}.rack-legend span i.partial{background:var(--gold);border-color:var(--gold)}.rack-legend span i.full{background:var(--green);border-color:var(--green)}.rack-legend code{margin-left:auto;font:650 8px var(--font-inter,"Inter",sans-serif);color:var(--muted);text-transform:none;letter-spacing:.4px}
+.rack-legend span i.ndd{background:var(--ndd-purple);border-color:#8b5cf6}.rack-legend span i.attention{background:var(--red);border-color:var(--red)}
+@media(prefers-reduced-motion:reduce){.mini-stack i.problem{animation:none}}
+.position-modal-backdrop{position:fixed;inset:0;z-index:1000;padding:28px;background:rgba(3,5,8,.82);backdrop-filter:blur(9px);display:flex;align-items:center;justify-content:center}.position-modal{width:min(1050px,100%);max-height:92vh;border:1px solid var(--line-strong);border-radius:18px;background:linear-gradient(180deg,rgba(255,255,255,.025),transparent),var(--bg-1);box-shadow:0 28px 90px rgba(0,0,0,.75);overflow:auto}.position-modal-head{position:sticky;top:0;z-index:2;padding:16px 18px;border-bottom:1px solid var(--line);background:rgba(16,19,24,.96);backdrop-filter:blur(12px);display:flex;align-items:center;gap:14px}.position-modal-head h2{margin:2px 0 0;font-size:20px}.position-modal-head code{color:var(--muted);font:650 8px var(--font-inter,"Inter",sans-serif)}.modal-count{margin-left:auto;padding:7px 10px;border:1px solid var(--line);border-radius:9px;color:var(--muted);font-size:9px}.modal-count b{color:var(--gold-hi);font-size:14px}.position-modal-head>button{width:34px;height:34px;border:1px solid var(--line-strong);border-radius:9px;background:var(--bg-2);color:var(--text-2);font-size:21px;cursor:pointer}.position-modal-summary{padding:10px 18px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px;color:var(--muted);font-size:8.5px}.position-modal-summary span{padding:5px 8px;border:1px solid var(--line);border-radius:8px;text-transform:uppercase}.position-modal-summary span b{color:var(--green);font-size:12px}.position-modal-summary span.bad{border-color:rgba(241,107,115,.3);color:var(--red)}.position-modal-summary span.bad b{color:var(--red)}.position-modal-summary small{margin-left:auto;color:var(--muted)}.position-tray-list{padding:13px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.position-tray-list>article{min-width:0;min-height:160px;padding:12px;border:1px solid var(--line);border-radius:12px;background:var(--bg-2)}.position-tray-list>article.ndd-order{border-color:var(--magenta);background:linear-gradient(145deg,rgba(228,77,255,.16),rgba(80,20,95,.17));box-shadow:0 0 20px -8px var(--magenta);animation:ndd-panel-flash 1.05s ease-in-out infinite}.position-tray-list>article.problem{border-color:var(--red);background:linear-gradient(145deg,rgba(241,107,115,.16),rgba(67,12,19,.17));box-shadow:none;animation:none}.modal-slot-head{display:flex;align-items:center;justify-content:space-between;color:var(--muted);font-size:7.5px;font-weight:850;text-transform:uppercase}.modal-slot-head em{display:flex;align-items:center;gap:5px;padding:4px 6px;border:1px solid var(--line);border-radius:999px;font-size:6.5px;font-style:normal}.modal-slot-head em i{width:5px;height:5px;border-radius:50%;background:currentColor}.modal-slot-head em.good{color:var(--green);border-color:rgba(71,213,156,.3)}.modal-slot-head em.bad{color:var(--red);border-color:rgba(241,107,115,.4)}.modal-tray-id{margin:7px 0;display:flex;align-items:center;gap:8px}.modal-tray-id strong{font-size:19px;letter-spacing:.4px}.modal-tray-id>b{padding:4px 6px;border:1px solid rgba(228,77,255,.55);border-radius:6px;background:rgba(228,77,255,.15);color:#f4b6ff;font-size:7px}.modal-alert{margin-bottom:8px;padding:7px 9px;border:1px solid rgba(241,107,115,.38);border-radius:8px;background:rgba(241,107,115,.09);display:flex;flex-direction:column}.modal-alert b{color:var(--red);font-size:8px;text-transform:uppercase}.modal-alert span{color:#e9a4a8;font-size:8px}.modal-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}.modal-metrics>span{min-width:0;padding:7px;border:1px solid var(--line);border-radius:8px;background:var(--bg-0);display:flex;flex-direction:column}.modal-metrics small{color:var(--muted);font-size:6px;font-weight:800;text-transform:uppercase}.modal-metrics b{overflow:hidden;text-overflow:ellipsis;color:var(--text-2);font-size:8px;white-space:nowrap}.modal-metrics b.ndd{color:#f08cff}.modal-metrics b.danger{color:var(--red)}.modal-metrics em{overflow:hidden;text-overflow:ellipsis;color:var(--muted);font-size:6px;font-style:normal;white-space:nowrap}.modal-empty-slot{min-height:120px;display:grid;place-items:center;color:#555d68;font-size:10px;font-weight:800;text-transform:uppercase}@keyframes ndd-panel-flash{50%{border-color:#f3a4ff;box-shadow:0 0 29px -5px var(--magenta)}}
+.position-tray-list>article.ndd-order{border-color:rgba(124,58,237,.46);background:linear-gradient(145deg,rgba(76,29,149,.15),rgba(49,20,78,.12));box-shadow:none;animation:none!important}.modal-tray-id>b{border-color:rgba(124,58,237,.45);background:rgba(76,29,149,.2);color:#c4b5fd}.modal-metrics b.ndd{color:#c4b5fd}
 .activity-panel{grid-area:activity;padding:16px;min-height:168px}.activity-head{align-items:center;padding-bottom:11px;border-bottom:1px solid var(--line)}.activity-head h2{font-size:14px}.activity-head>span{font-size:8px;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;font-weight:800}.activity-list{max-height:180px;overflow:auto}.activity-empty{min-height:108px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:var(--muted)}.activity-empty>span{font-size:22px;opacity:.4}.activity-empty b{font-size:10px;color:var(--text-2)}.activity-empty small{font-size:8.5px}.activity-row{display:flex;gap:9px;padding:9px 2px;border-bottom:1px solid var(--line)}.activity-row:last-child{border:0}.activity-dot{width:7px;height:7px;margin-top:5px;border-radius:50%;background:var(--blue);flex:none}.activity-row.ok .activity-dot{background:var(--green)}.activity-row.error .activity-dot{background:var(--red)}.activity-row>span:last-child{display:flex;flex-direction:column;min-width:0}.activity-row b{font-size:9.5px;color:var(--text-2);font-weight:650;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.activity-row small{font-size:8px;color:var(--muted)}
 @media(max-width:1100px){.omt-layout{grid-template-columns:minmax(320px,360px) 1fr}.rack-picker{grid-template-columns:repeat(5,1fr)}.position-grid{grid-template-columns:repeat(4,minmax(65px,1fr))}.position-cell{min-height:78px;padding:8px}.metric:nth-of-type(2){display:none}}
+@media(max-width:900px){.position-tray-list{grid-template-columns:1fr}.position-modal-backdrop{padding:14px}}
 @media(max-width:820px){.omt-header,.rack-panel,.activity-panel,.remove-panel{display:none}.omt-layout{display:block;padding:14px}.putaway-card{width:100%;max-width:520px;margin:0 auto}.metric{display:none}}
 @media(max-width:560px){
   .omt-root{min-height:calc(100vh - 3rem);font-size:15px}.omt-layout{padding:10px}.putaway-card{padding:14px;border-radius:16px;box-shadow:none;gap:12px}.card-head h1{font-size:21px}.parent-only{font-size:8px}.feedback{min-height:58px}.feedback b{font-size:13px}.feedback small{font-size:11px}.position-hero{min-height:165px}.hero-location strong{font-size:68px}.rack-label b{font-size:28px}.scan-glyph{width:48px;height:48px}.idle-title{font-size:21px}.idle-copy{font-size:11px}.stack-progress{padding:12px}.tray-stack span{height:42px}.scan-field input{height:66px;font-size:19px;padding-left:45px}.barcode-icon{top:21px}.scan-field button{top:8px;height:50px}.workflow-hint{font-size:7.5px;gap:5px}.workflow-hint>i{width:7px}
 }
+@media(max-width:560px){.position-modal-backdrop{padding:5px}.position-modal{max-height:98vh;border-radius:13px}.position-modal-head{padding:12px}.position-modal-summary{padding:8px 12px;flex-wrap:wrap}.position-modal-summary small{width:100%;margin:0}.position-tray-list{padding:8px}.modal-metrics{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:390px){.omt-layout{padding:7px}.putaway-card{padding:12px}.workflow-hint span{letter-spacing:.1px}.workflow-hint span b{display:none}.parent-only{max-width:92px;white-space:normal;text-align:center}.tray-stack{gap:4px}}
 `;

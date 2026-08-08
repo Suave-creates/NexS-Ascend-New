@@ -7,6 +7,8 @@ import {
 } from '@/utils/databaseRetry';
 import { prismaDispatch } from '@/utils/prismaDispatch';
 import { fetchOmtTrayDetails, OmtNexsError, type OmtTrayDetails } from '@/utils/resources/nexs/omt';
+import { ensureOmtHealthSchema, refreshOmtTrayHealth, startOmtHealthScheduler } from '@/utils/omtTrayHealth';
+import { omtOrderModeLabel, omtPriorityLabel } from '@/utils/omtPriority';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -27,6 +29,19 @@ type PutawayRow = {
   position_barcode: string;
   tray_barcode: string;
   stack_level: number;
+  validation_status: string;
+  validation_message: string | null;
+  validated_at: Date | string | null;
+  fitting_id: bigint | number | null;
+  shipment_id: string | null;
+  max_qcf_count: number;
+  operator_id: string | null;
+  priority: string | null;
+  priority_classification: string | null;
+  order_type: string | null;
+  order_mode: string | null;
+  order_date: string | null;
+  putaway_at: Date | string;
 };
 
 type PutawayLookupToken = {
@@ -35,6 +50,10 @@ type PutawayLookupToken = {
   shipmentId: string;
   maxQcfCount: number;
   orderType: string;
+  orderMode: string;
+  priority: string;
+  priorityClassification: string;
+  orderDate: string;
   issuedAt: number;
 };
 
@@ -152,6 +171,14 @@ async function checkOrCreateTables() {
       shipment_id VARCHAR(64) NULL,
       max_qcf_count INT UNSIGNED NOT NULL DEFAULT 0,
       operator_id VARCHAR(64) NULL,
+      priority VARCHAR(40) NULL,
+      priority_classification VARCHAR(100) NULL,
+      order_type VARCHAR(100) NULL,
+      order_mode VARCHAR(16) NULL,
+      order_date VARCHAR(64) NULL,
+      validation_status VARCHAR(16) NOT NULL DEFAULT 'PENDING',
+      validation_message VARCHAR(500) NULL,
+      validated_at DATETIME(3) NULL,
       stack_level TINYINT UNSIGNED NOT NULL,
       putaway_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
       PRIMARY KEY (id),
@@ -165,6 +192,7 @@ async function checkOrCreateTables() {
   await ensureColumn('shipment_id', 'shipment_id VARCHAR(64) NULL AFTER fitting_id');
   await ensureColumn('max_qcf_count', 'max_qcf_count INT UNSIGNED NOT NULL DEFAULT 0 AFTER shipment_id');
   await ensureColumn('operator_id', 'operator_id VARCHAR(64) NULL AFTER max_qcf_count');
+  await ensureOmtHealthSchema();
   await ensureFittingIndex();
   await prismaDispatch.$executeRawUnsafe(`
     CREATE TABLE IF NOT EXISTS omt_activity_logs (
@@ -291,6 +319,10 @@ function signPutawayLookup(details: OmtTrayDetails) {
     shipmentId: details.shipmentId,
     maxQcfCount: details.maxQcfCount,
     orderType: details.rawOrderType,
+    orderMode: details.orderMode,
+    priority: details.priority,
+    priorityClassification: details.priorityClassification,
+    orderDate: details.orderDate,
     issuedAt: Date.now(),
   } satisfies PutawayLookupToken)).toString('base64url');
   const signature = createHmac('sha256', tokenSecret()).update(payload).digest('base64url');
@@ -320,23 +352,82 @@ function verifyPutawayLookup(token: unknown, trayBarcode: string): PutawayLookup
 
 async function readPositions() {
   const rows = await prismaDispatch.$queryRawUnsafe<PutawayRow[]>(
-    `SELECT position_barcode, tray_barcode, stack_level
+    `SELECT position_barcode, tray_barcode, stack_level,
+            validation_status, validation_message, validated_at,
+            fitting_id, shipment_id, max_qcf_count, operator_id,
+            priority, priority_classification, order_type, order_mode,
+            order_date, putaway_at
      FROM omt_tray_putaway
      ORDER BY position_barcode, stack_level`,
   );
-  const positions = new Map<string, string[]>();
+  const positions = new Map<string, {
+    trays: string[];
+    trayHealth: Array<{
+      trayBarcode: string;
+      status: string;
+      message: string | null;
+      checkedAt: string | null;
+    }>;
+    trayDetails: Array<{
+      trayBarcode: string;
+      stackLevel: number;
+      fittingId: string | null;
+      shipmentId: string | null;
+      maxQcfCount: number;
+      operatorId: string | null;
+      priority: string | null;
+      priorityClassification: string | null;
+      orderType: string | null;
+      orderMode: string | null;
+      orderDate: string | null;
+      putawayAt: string;
+      liveStatus: string;
+      statusMessage: string | null;
+      validatedAt: string | null;
+    }>;
+  }>();
   for (const row of rows) {
-    const trays = positions.get(row.position_barcode) ?? [];
-    trays.push(row.tray_barcode);
-    positions.set(row.position_barcode, trays);
+    const position = positions.get(row.position_barcode) ?? { trays: [], trayHealth: [], trayDetails: [] };
+    position.trays.push(row.tray_barcode);
+    position.trayHealth.push({
+      trayBarcode: row.tray_barcode,
+      status: row.validation_status || 'PENDING',
+      message: row.validation_message,
+      checkedAt: row.validated_at ? new Date(row.validated_at).toISOString() : null,
+    });
+    position.trayDetails.push({
+      trayBarcode: row.tray_barcode,
+      stackLevel: Number(row.stack_level),
+      fittingId: row.fitting_id == null ? null : String(row.fitting_id),
+      shipmentId: row.shipment_id,
+      maxQcfCount: Number(row.max_qcf_count ?? 0),
+      operatorId: row.operator_id,
+      priority: omtPriorityLabel(row.priority, row.order_mode, row.priority_classification),
+      priorityClassification: row.priority_classification,
+      orderType: row.order_type,
+      orderMode: omtOrderModeLabel(row.priority, row.order_mode, row.priority_classification),
+      orderDate: row.order_date,
+      putawayAt: new Date(row.putaway_at).toISOString(),
+      liveStatus: row.validation_status || 'PENDING',
+      statusMessage: row.validation_message,
+      validatedAt: row.validated_at ? new Date(row.validated_at).toISOString() : null,
+    });
+    positions.set(row.position_barcode, position);
   }
-  return [...positions].map(([barcode, trays]) => ({ barcode, trays }));
+  return [...positions].map(([barcode, position]) => ({ barcode, ...position }));
 }
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
     await ensureTable();
-    return NextResponse.json({ positions: await readPositions() });
+    startOmtHealthScheduler();
+    const url = new URL(request.url);
+    const shouldValidate = url.searchParams.get('validate') === 'due';
+    const forceValidation = url.searchParams.get('validate') === 'force';
+    const healthRefresh = shouldValidate || forceValidation
+      ? await refreshOmtTrayHealth(request, forceValidation)
+      : null;
+    return NextResponse.json({ positions: await readPositions(), healthRefresh });
   } catch (error) {
     const unavailable = unavailableResponse(error, 'GET');
     if (unavailable) return unavailable;
@@ -543,14 +634,20 @@ export async function POST(request: Request) {
         await tx.$executeRawUnsafe(
           `INSERT INTO omt_tray_putaway (
              position_barcode, tray_barcode, fitting_id, shipment_id,
-             max_qcf_count, operator_id, stack_level
-           ) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+             max_qcf_count, operator_id, priority, priority_classification,
+             order_type, order_mode, order_date, validation_status, validated_at, stack_level
+           ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'VALID', NOW(3), ?)`,
           positionBarcode,
           trayBarcode,
           metadata.fittingId,
           metadata.shipmentId,
           metadata.maxQcfCount,
           operatorId,
+          metadata.priority || null,
+          metadata.priorityClassification || null,
+          metadata.orderType,
+          metadata.orderMode || (metadata.orderType.toUpperCase().includes('JIT') ? 'JIT' : 'REGULAR'),
+          metadata.orderDate || null,
           stackLevel,
         );
         return {
