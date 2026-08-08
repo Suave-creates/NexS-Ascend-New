@@ -151,7 +151,6 @@ export default function Sidebar() {
       children: [
         { href: '/infocorner/order-information-corner', label: 'Order Logs' },
         { href: '/infocorner/barcode-details', label: 'Barcode Details' },
-        { href: '/infocorner/plant-pid-finder', label: 'Plant PID Finder' },
         { href: '/infocorner/QCF-information-corner', label: 'QCF Logs' },
         { href: '/infocorner/sync-time-inventory', label: 'Sync Time Inventory' },
         { href: '/infocorner/order-created-when', label: 'Order Created When' },
