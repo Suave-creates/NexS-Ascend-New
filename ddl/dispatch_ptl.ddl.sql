@@ -250,6 +250,14 @@ CREATE TABLE `omt_tray_putaway` (
   `shipment_id` varchar(64) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `max_qcf_count` int unsigned NOT NULL DEFAULT '0',
   `operator_id` varchar(64) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `priority` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `priority_classification` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `order_type` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `order_mode` varchar(16) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `order_date` varchar(64) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `validation_status` varchar(16) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'PENDING',
+  `validation_message` varchar(500) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `validated_at` datetime(3) DEFAULT NULL,
   `stack_level` tinyint unsigned NOT NULL,
   `putaway_at` datetime(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
   PRIMARY KEY (`id`),
@@ -340,4 +348,3 @@ CREATE TABLE `routing_assignments` (
   KEY `routing_assignments_location_id_fkey` (`location_id`),
   CONSTRAINT `routing_assignments_location_id_fkey` FOREIGN KEY (`location_id`) REFERENCES `locations` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=89 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-

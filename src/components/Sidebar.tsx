@@ -62,6 +62,8 @@ export default function Sidebar() {
         { href: '/omt/tray-putaway', label: 'Tray Putaway' },
         { href: '/omt/marry-tray', label: 'Marry Tray' },
         { href: '/omt/tracer-pro', label: 'Tracer Pro MQCF' },
+        { href: '/omt/cycle-count', label: 'Cycle Count' },
+        { href: '/omt/dashboard', label: 'KPI Dashboard' },
       ],
     },
 
