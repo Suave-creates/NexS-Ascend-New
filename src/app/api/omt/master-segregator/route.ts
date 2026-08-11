@@ -222,9 +222,11 @@ export async function POST(request: Request) {
          FROM omt_tray_putaway ORDER BY position_barcode, stack_level`,
       ),
     ]);
-    const { fittingId, shipmentId, parentTrayId: masterTrayId, maxQcfCount, rawOrderType } = details;
-    const masterStorage = storageRows.find((row) => row.tray_barcode.toUpperCase() === masterTrayId);
-    const fittingStorage = storageRows.find((row) => row.fitting_id != null && String(row.fitting_id) === fittingId);
+    const { fittingId, shipmentId, maxQcfCount, rawOrderType } = details;
+    // The "master" tray is whichever tray for this fitting already went
+    // through Tray Putaway — not a rank computed from live NexS data.
+    const masterStorage = storageRows.find((row) => row.fitting_id != null && String(row.fitting_id) === fittingId);
+    const masterTrayId = masterStorage?.tray_barcode ?? null;
     const decodedPosition = masterStorage ? decodePosition(masterStorage.position_barcode) : null;
     const masterInOmt = Boolean(masterStorage);
     const result = masterInOmt ? 'FOUND_IN_OMT' : 'RESORTER_REQUIRED';
@@ -233,7 +235,7 @@ export async function POST(request: Request) {
       operatorId,
       result,
       trayId,
-      masterTrayId,
+      masterTrayId: masterTrayId ?? undefined,
       fittingId,
       shipmentId,
       positionBarcode: masterStorage?.position_barcode ?? null,
@@ -245,7 +247,7 @@ export async function POST(request: Request) {
         priority: details.priority,
         orderDate: details.orderDate,
         orderAge: details.orderAge,
-        storedTrayForFitting: fittingStorage?.tray_barcode ?? null,
+        storedTrayForFitting: masterTrayId,
       },
     });
 
@@ -267,7 +269,7 @@ export async function POST(request: Request) {
         rackNumber: decodedPosition?.rackNumber ?? null,
         positionNumber: decodedPosition?.positionNumber ?? null,
         stackLevel: masterStorage ? Number(masterStorage.stack_level) : null,
-        storedTrayForFitting: fittingStorage?.tray_barcode ?? null,
+        storedTrayForFitting: masterTrayId,
         decision: masterInOmt ? 'OMT_READY' : 'RESORTER_REQUIRED',
         decisionMessage: masterInOmt
           ? `Master is available at ${masterStorage?.position_barcode}`

@@ -42,6 +42,8 @@ type TrayDump = {
   priorityClassification: string | null;
   orderType: string | null;
   orderMode: string | null;
+  orderAge: string;
+  orderAgeDays: number | null;
   liveStatus: 'VALID' | 'INVALID' | 'ERROR' | 'PENDING';
   statusMessage: string | null;
   validatedAt: string | null;
@@ -165,11 +167,11 @@ export default function OmtDashboardPage() {
     if (!filteredDump.length) return;
     const headers = [
       'Position', 'Level', 'Tray', 'Live status', 'Status message', 'Fitting ID', 'Shipment ID',
-      'Priority', 'Order mode', 'Order type', 'QCF', 'Putaway operator', 'Putaway at (IST)', 'Last validated (IST)', 'Dwell minutes',
+      'Priority', 'Order mode', 'Order type', 'Order age', 'QCF', 'Putaway operator', 'Putaway at (IST)', 'Last validated (IST)', 'Dwell minutes',
     ];
     const rows = filteredDump.map((row) => [
       row.positionBarcode, row.stackLevel, row.trayBarcode, row.liveStatus, row.statusMessage,
-      row.fittingId, row.shipmentId, row.priority, row.orderMode, row.orderType, row.maxQcfCount,
+      row.fittingId, row.shipmentId, row.priority, row.orderMode, row.orderType, row.orderAge, row.maxQcfCount,
       row.operatorId, formatDate(row.putawayAt), formatDate(row.validatedAt), row.dwellMinutes,
     ]);
     const csv = [headers, ...rows].map((row) => row.map(csvCell).join(',')).join('\r\n');
@@ -263,14 +265,14 @@ export default function OmtDashboardPage() {
           <div className="dump-meta"><span><b>{filteredDump.length}</b> of {data?.dump.length ?? 0} trays</span><span>Updated {formatDate(data?.generatedAt ?? null)}</span>{validating && <span className="checking">Running live NexS validation…</span>}</div>
           <div className="table-wrap dump-table">
             <table>
-              <thead><tr><th>Status</th><th>Position</th><th>Level</th><th>Tray</th><th>Priority</th><th>Fitting / Shipment</th><th>Order</th><th>QCF</th><th>Putaway by</th><th>Stored at</th><th>Dwell</th><th>Last API check</th></tr></thead>
+              <thead><tr><th>Status</th><th>Position</th><th>Level</th><th>Tray</th><th>Priority</th><th>Fitting / Shipment</th><th>Order</th><th>Order age</th><th>QCF</th><th>Putaway by</th><th>Stored at</th><th>Dwell</th><th>Last API check</th></tr></thead>
               <tbody>
                 {filteredDump.length ? filteredDump.map((row) => (
                   <tr key={row.id} className={`${row.liveStatus.toLowerCase()} ${isNddTray(row) ? 'ndd' : ''}`} title={row.statusMessage ?? undefined}>
                     <td><span className={`status ${row.liveStatus.toLowerCase()}`}><i />{row.liveStatus}</span>{row.statusMessage && <small className="status-message">{row.statusMessage}</small>}</td>
-                    <td><b>{row.positionBarcode}</b></td><td>{row.stackLevel}/5</td><td><strong>{row.trayBarcode}</strong></td><td>{isNddTray(row) ? <span className="ndd-badge">Priority {row.priority === 'NDD' ? '1' : row.priority}</span> : row.priority ?? '—'}</td><td><b>{row.fittingId ?? '—'}</b><small>{row.shipmentId ?? '—'}</small></td><td>{row.orderMode ?? '—'}<small>{row.orderType ?? '—'}</small></td><td className={row.maxQcfCount > 2 ? 'red-text' : ''}>{row.maxQcfCount}</td><td>{row.operatorId ?? '—'}</td><td>{formatDate(row.putawayAt)}</td><td>{formatDwell(row.dwellMinutes)}</td><td>{formatDate(row.validatedAt)}</td>
+                    <td><b>{row.positionBarcode}</b></td><td>{row.stackLevel}/5</td><td><strong>{row.trayBarcode}</strong></td><td>{isNddTray(row) ? <span className="ndd-badge">Priority {row.priority === 'NDD' ? '1' : row.priority}</span> : row.priority ?? '—'}</td><td><b>{row.fittingId ?? '—'}</b><small>{row.shipmentId ?? '—'}</small></td><td>{row.orderMode ?? '—'}<small>{row.orderType ?? '—'}</small></td><td className={row.orderAgeDays != null && row.orderAgeDays >= 2 ? 'red-text' : ''}>{row.orderAge}</td><td className={row.maxQcfCount > 2 ? 'red-text' : ''}>{row.maxQcfCount}</td><td>{row.operatorId ?? '—'}</td><td>{formatDate(row.putawayAt)}</td><td>{formatDwell(row.dwellMinutes)}</td><td>{formatDate(row.validatedAt)}</td>
                   </tr>
-                )) : <tr><td colSpan={12} className="empty-cell">No trays match this view</td></tr>}
+                )) : <tr><td colSpan={13} className="empty-cell">No trays match this view</td></tr>}
               </tbody>
             </table>
           </div>

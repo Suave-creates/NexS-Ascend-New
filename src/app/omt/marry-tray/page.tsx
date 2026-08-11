@@ -19,6 +19,7 @@ type MarriageLookup = {
   rawOrderType: string;
   priority: string;
   qcfCount: number;
+  failedLensSide: 'LEFT' | 'RIGHT' | null;
   available: boolean;
   positionBarcode: string | null;
   rackNumber: number | null;
@@ -254,6 +255,9 @@ export default function MarryTrayPage() {
                 <div className="visibility-metrics">
                   <div><small>Order</small><b className={lookup.orderMode === 'JIT' ? 'jit' : 'regular'}>{lookup.orderMode}</b></div>
                   <div><small>QCF count</small><b className={lookup.qcfCount > 2 ? 'danger' : ''}>{lookup.qcfCount}</b></div>
+                  {lookup.failedLensSide && (
+                    <div><small>Lens failed</small><b className="danger">{lookup.failedLensSide === 'LEFT' ? 'Left' : 'Right'}</b></div>
+                  )}
                 </div>
               </section>
 
