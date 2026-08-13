@@ -4,14 +4,13 @@ import { isOmtNddOrder } from '@/utils/omtPriority';
 const NEXS_WMS_BASE = 'https://app.nexs.lenskart.com/nexs/wms/api/v1';
 const TRAY_ID_PATTERN = /^[A-Z]{2}\d{5}$/;
 
-export type OmtTrayRole = 'PARENT' | 'CHILD' | 'UNKNOWN';
-
 type WmsOrderItem = {
   id?: number | string | null;
   createdAt?: string | null;
   fittingId?: number | string | null;
   locationId?: string | null;
   qcFailCount?: number | string | null;
+  itemType?: string | null;
 };
 
 export type OmtTrayDetails = {
@@ -26,9 +25,7 @@ export type OmtTrayDetails = {
   orderMode: 'NDD' | 'JIT' | 'REGULAR';
   rawOrderType: string;
   maxQcfCount: number;
-  parentTrayId: string;
-  childTrayId: string;
-  trayRole: OmtTrayRole;
+  trayLensCode: string | null;
   relatedTrayIds: string[];
   lookupMs: number;
 };
@@ -109,12 +106,7 @@ function toQcfCount(value: unknown) {
   return Number.isFinite(count) && count > 0 ? Math.floor(count) : 0;
 }
 
-function timestamp(value: unknown) {
-  const parsed = Date.parse(String(value ?? '').trim().replace(' ', 'T') + '+05:30');
-  return Number.isFinite(parsed) ? parsed : Number.MAX_SAFE_INTEGER;
-}
-
-function orderAge(orderDate: string) {
+export function orderAge(orderDate: string) {
   const parsed = Date.parse(`${orderDate.trim().replace(' ', 'T')}+05:30`);
   if (!Number.isFinite(parsed)) return { label: 'Unknown', days: null };
   const elapsedMs = Math.max(0, Date.now() - parsed);
@@ -133,9 +125,10 @@ function displayPriority(value: unknown, classification: string) {
 /**
  * Resolve an OMT tray entirely from the live NexS WMS APIs.
  *
- * Parent selection intentionally mirrors the old OMT BigQuery rule: the tray
- * containing the lowest-QCF item wins, with created time and item id used as
- * deterministic tie breakers. Every other tray in the fitting is a child.
+ * Parent vs. child is NOT derived here — NexS has no notion of which tray is
+ * "the parent." It's purely a fact of which tray physically went through
+ * Tray Putaway first; callers with DB access decide that by checking which
+ * of relatedTrayIds is already stored in omt_tray_putaway.
  */
 export async function fetchOmtTrayDetails(request: Request, rawTrayId: string): Promise<OmtTrayDetails> {
   const startedAt = Date.now();
@@ -168,16 +161,10 @@ export async function fetchOmtTrayDetails(request: Request, rawTrayId: string): 
     ? orderItemHeader.orderItemResponses as WmsOrderItem[]
     : [];
   const fittingItems = allItems.filter((item) => String(item.fittingId ?? '') === fittingId);
-  const rankedItems = fittingItems
-    .filter((item) => TRAY_ID_PATTERN.test(String(item.locationId ?? '').trim().toUpperCase()))
-    .sort((left, right) => (
-      toQcfCount(left.qcFailCount) - toQcfCount(right.qcFailCount)
-      || timestamp(left.createdAt) - timestamp(right.createdAt)
-      || Number(left.id ?? 0) - Number(right.id ?? 0)
-    ));
-
   const relatedTrayIds = Array.from(new Set(
-    rankedItems.map((item) => String(item.locationId).trim().toUpperCase()),
+    fittingItems
+      .map((item) => String(item.locationId ?? '').trim().toUpperCase())
+      .filter((locationId) => TRAY_ID_PATTERN.test(locationId)),
   ));
   if (!relatedTrayIds.length) {
     throw new OmtNexsError(
@@ -187,15 +174,22 @@ export async function fetchOmtTrayDetails(request: Request, rawTrayId: string): 
     );
   }
 
-  const parentTrayId = relatedTrayIds[0];
-  const childTrayId = [...relatedTrayIds].reverse().find((trayId) => trayId !== parentTrayId) ?? parentTrayId;
-  const trayRole: OmtTrayRole = scannedTrayId === parentTrayId
-    ? 'PARENT'
-    : relatedTrayIds.includes(scannedTrayId) ? 'CHILD' : 'UNKNOWN';
   const maxQcfCount = fittingItems.reduce(
     (maximum, item) => Math.max(maximum, toQcfCount(item.qcFailCount)),
     0,
   );
+  // Which lens item(s) physically sit in the scanned tray — not which lens
+  // failed QC. A tray can hold either lens, both, or neither (a frame tray).
+  const trayLensTypes = new Set(
+    fittingItems
+      .filter((item) => String(item.locationId ?? '').trim().toUpperCase() === scannedTrayId)
+      .map((item) => String(item.itemType ?? '').trim().toUpperCase()),
+  );
+  const hasLeftLens = trayLensTypes.has('LEFTLENS');
+  const hasRightLens = trayLensTypes.has('RIGHTLENS');
+  const trayLensCode = hasLeftLens && hasRightLens
+    ? 'Both'
+    : hasLeftLens ? 'LL' : hasRightLens ? 'RL' : null;
   const rawOrderType = String(orderItemHeader.orderItemType ?? orderDetails.orderType ?? '').trim() || 'N/A';
   const priorityClassification = String(
     orderItemHeader.customFields?.customFields?.PRIORITY_CLASSIFICATION_TYPE ?? '',
@@ -217,9 +211,7 @@ export async function fetchOmtTrayDetails(request: Request, rawTrayId: string): 
     orderMode: nddOrder ? 'NDD' : rawOrderType.toUpperCase().includes('JIT') ? 'JIT' : 'REGULAR',
     rawOrderType,
     maxQcfCount,
-    parentTrayId,
-    childTrayId,
-    trayRole,
+    trayLensCode,
     relatedTrayIds,
     lookupMs: Date.now() - startedAt,
   };

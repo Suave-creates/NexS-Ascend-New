@@ -75,9 +75,7 @@ type PutawayDetails = {
   orderMode: 'NDD' | 'JIT' | 'REGULAR';
   rawOrderType: string;
   maxQcfCount: number;
-  parentTrayId: string;
-  childTrayId: string;
-  trayRole: 'PARENT' | 'CHILD' | 'UNKNOWN';
+  trayLensCode: string | null;
   relatedTrayIds: string[];
   lookupMs: number;
   lookupToken: string;

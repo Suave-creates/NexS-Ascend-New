@@ -504,25 +504,11 @@ export async function POST(request: Request) {
     const action = String(body?.action ?? 'PUTAWAY').toUpperCase();
     if (action === 'LOOKUP_TRAY') {
       const details = await fetchOmtTrayDetails(request, trayBarcode);
-      if (details.trayRole !== 'PARENT') {
-        const message = details.trayRole === 'CHILD'
-          ? `${trayBarcode} is a child tray. Put away parent tray ${details.parentTrayId} instead.`
-          : `${trayBarcode} is not the current parent tray for this fitting.`;
-        await logActivity({
-          eventType: 'PUTAWAY_LOOKUP', operatorId, result: 'REJECTED', trayBarcode,
-          relatedTrayBarcode: details.parentTrayId,
-          fittingId: details.fittingId, shipmentId: details.shipmentId,
-          maxQcfCount: details.maxQcfCount, orderType: details.rawOrderType,
-          durationMs: Date.now() - startedAt,
-          metadata: { reason: details.trayRole === 'CHILD' ? 'CHILD_TRAY' : 'TRAY_ROLE_UNKNOWN' },
-        });
-        return NextResponse.json({
-          error: message,
-          code: details.trayRole === 'CHILD' ? 'CHILD_TRAY' : 'TRAY_ROLE_UNKNOWN',
-          data: details,
-        }, { status: 409 });
-      }
 
+      // Parent vs. child is not a rank you compute from live NexS data — it's
+      // simply whichever tray from this fitting was put away first. If one
+      // already sits in the rack, this scan is the child; send it to Marry
+      // Tray instead of letting it double up as a second "parent".
       const existingFitting = await prismaDispatch.$queryRawUnsafe<Array<{
         tray_barcode: string;
         position_barcode: string;
@@ -539,18 +525,18 @@ export async function POST(request: Request) {
           positionBarcode: existingFitting[0].position_barcode,
           maxQcfCount: details.maxQcfCount, orderType: details.rawOrderType,
           durationMs: Date.now() - startedAt,
-          metadata: { reason: 'FITTING_ALREADY_STORED' },
+          metadata: { reason: 'CHILD_TRAY', relatedTrayIds: details.relatedTrayIds },
         });
         return NextResponse.json({
-          error: `Fitting ${details.fittingId} is already stored with tray ${existingFitting[0].tray_barcode}`,
-          code: 'FITTING_ALREADY_STORED',
+          error: `${trayBarcode} belongs to a fitting already stored via ${existingFitting[0].tray_barcode}. Use Marry Tray to attach it instead.`,
+          code: 'CHILD_TRAY',
+          data: details,
           positionBarcode: existingFitting[0].position_barcode,
         }, { status: 409 });
       }
 
       await logActivity({
         eventType: 'PUTAWAY_LOOKUP', operatorId, result: 'PARENT_VERIFIED', trayBarcode,
-        relatedTrayBarcode: details.childTrayId === trayBarcode ? null : details.childTrayId,
         fittingId: details.fittingId, shipmentId: details.shipmentId,
         maxQcfCount: details.maxQcfCount, orderType: details.rawOrderType,
         durationMs: Date.now() - startedAt,

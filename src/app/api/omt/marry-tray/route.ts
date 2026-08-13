@@ -15,6 +15,7 @@ type StorageRow = {
   position_barcode: string;
   tray_barcode: string;
   stack_level: number;
+  fitting_id: bigint | number | null;
 };
 
 type LookupToken = {
@@ -275,18 +276,29 @@ async function lookupChild(request: Request, childTrayId: string) {
   const [details, storageRows] = await Promise.all([
     fetchOmtTrayDetails(request, childTrayId),
     prismaDispatch.$queryRawUnsafe<StorageRow[]>(
-      `SELECT position_barcode, tray_barcode, stack_level
+      `SELECT position_barcode, tray_barcode, stack_level, fitting_id
        FROM omt_tray_putaway
        ORDER BY position_barcode, stack_level`,
     ),
   ]);
 
-  const parentTrayId = details.parentTrayId;
-  if (details.trayRole !== 'CHILD' || parentTrayId === childTrayId) {
-    return { error: `${childTrayId} is not a child tray`, code: 'NOT_CHILD_TRAY', status: 409 } as const;
+  // Parent vs. child is a fact of storage, not something computed from live
+  // NexS ranking: whichever tray for this fitting already went through Tray
+  // Putaway is the parent; the tray just scanned here is the child.
+  if (storageRows.some((item) => item.tray_barcode === childTrayId)) {
+    return {
+      error: `${childTrayId} is already stored in OMT as a parent tray — nothing to marry it to`,
+      code: 'ALREADY_STORED',
+      status: 409,
+    } as const;
   }
 
-  const parentStorage = storageRows.find((item) => item.tray_barcode === parentTrayId);
+  const parentStorage = storageRows.find(
+    (item) => item.fitting_id != null && String(item.fitting_id) === details.fittingId,
+  );
+  const parentTrayId = parentStorage?.tray_barcode
+    ?? details.relatedTrayIds.find((trayId) => trayId !== childTrayId)
+    ?? details.relatedTrayIds[0];
   const stack = parentStorage
     ? storageRows
         .filter((item) => item.position_barcode === parentStorage.position_barcode)
@@ -305,6 +317,7 @@ async function lookupChild(request: Request, childTrayId: string) {
       rawOrderType,
       priority: details.priority,
       qcfCount: details.maxQcfCount,
+      trayLensCode: details.trayLensCode,
       available: Boolean(parentStorage),
       positionBarcode: position?.barcode ?? parentStorage?.position_barcode ?? null,
       rackNumber: position?.rackNumber ?? null,

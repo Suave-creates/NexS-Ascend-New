@@ -7,8 +7,6 @@ export type OmtTrayHealthStatus = 'VALID' | 'INVALID' | 'ERROR' | 'PENDING';
 
 type StoredTray = {
   tray_barcode: string;
-  fitting_id: bigint | number | null;
-  shipment_id: string | null;
 };
 
 export type OmtHealthRefreshResult = {
@@ -64,34 +62,17 @@ export async function ensureOmtHealthSchema() {
   }
 }
 
-function validationFailure(
-  tray: StoredTray,
-  details: Awaited<ReturnType<typeof fetchOmtTrayDetails>>,
-) {
-  if (details.trayRole !== 'PARENT') {
-    return `Tray is no longer the parent; current parent is ${details.parentTrayId}`;
-  }
-  if (tray.fitting_id != null && String(tray.fitting_id) !== details.fittingId) {
-    return `Fitting changed from ${String(tray.fitting_id)} to ${details.fittingId}`;
-  }
-  if (tray.shipment_id && tray.shipment_id !== details.shipmentId) {
-    return `Shipment changed from ${tray.shipment_id} to ${details.shipmentId}`;
-  }
-  return null;
-}
-
 async function checkTray(request: Request, tray: StoredTray) {
   try {
     const details = await fetchOmtTrayDetails(request, tray.tray_barcode);
-    const failure = validationFailure(tray, details);
-    const status: OmtTrayHealthStatus = failure ? 'INVALID' : 'VALID';
+    const status: OmtTrayHealthStatus = 'VALID';
     await prismaDispatch.$executeRawUnsafe(
       `UPDATE omt_tray_putaway
        SET validation_status = ?, validation_message = ?, validated_at = NOW(3),
            priority = ?, priority_classification = ?, order_type = ?, order_mode = ?, order_date = ?
        WHERE tray_barcode = ?`,
       status,
-      failure,
+      null,
       details.priority,
       details.priorityClassification,
       details.rawOrderType,
@@ -121,7 +102,7 @@ async function checkTray(request: Request, tray: StoredTray) {
 async function performRefresh(request: Request, force: boolean): Promise<OmtHealthRefreshResult> {
   await ensureOmtHealthSchema();
   const rows = await prismaDispatch.$queryRawUnsafe<StoredTray[]>(
-    `SELECT tray_barcode, fitting_id, shipment_id
+    `SELECT tray_barcode
      FROM omt_tray_putaway
      ${force ? '' : "WHERE validated_at IS NULL OR validated_at <= DATE_SUB(NOW(3), INTERVAL 1 HOUR)"}
      ORDER BY validated_at IS NULL DESC, validated_at ASC`,
@@ -159,7 +140,7 @@ export async function refreshOmtTrayHealth(request: Request, force = false) {
 export async function refreshOmtPositionHealth(request: Request, positionBarcode: string) {
   await ensureOmtHealthSchema();
   const rows = await prismaDispatch.$queryRawUnsafe<StoredTray[]>(
-    `SELECT tray_barcode, fitting_id, shipment_id
+    `SELECT tray_barcode
      FROM omt_tray_putaway
      WHERE position_barcode = ?
      ORDER BY stack_level`,

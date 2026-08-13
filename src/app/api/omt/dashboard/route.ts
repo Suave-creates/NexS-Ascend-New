@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { prismaDispatch } from '@/utils/prismaDispatch';
 import { ensureOmtHealthSchema, refreshOmtTrayHealth, startOmtHealthScheduler } from '@/utils/omtTrayHealth';
 import { omtOrderModeLabel, omtPriorityLabel } from '@/utils/omtPriority';
+import { orderAge } from '@/utils/resources/nexs/omt';
 import {
   databaseErrorCode,
   isDatabaseUnavailableError,
@@ -46,6 +47,7 @@ type DumpRow = {
   priority_classification: string | null;
   order_type: string | null;
   order_mode: string | null;
+  order_date: string | null;
   validation_status: string | null;
   validation_message: string | null;
   validated_at: Date | string | null;
@@ -245,7 +247,7 @@ export async function GET(request: Request) {
       prismaDispatch.$queryRawUnsafe<DumpRow[]>(
         `SELECT CAST(id AS CHAR) AS id, position_barcode, tray_barcode, fitting_id,
            shipment_id, max_qcf_count, operator_id, priority, priority_classification,
-           order_type, order_mode, validation_status, validation_message,
+           order_type, order_mode, order_date, validation_status, validation_message,
            validated_at, stack_level, putaway_at,
            TIMESTAMPDIFF(MINUTE, putaway_at, NOW()) AS dwell_minutes
          FROM omt_tray_putaway
@@ -266,6 +268,8 @@ export async function GET(request: Request) {
       priorityClassification: row.priority_classification,
       orderType: row.order_type,
       orderMode: omtOrderModeLabel(row.priority, row.order_mode, row.priority_classification),
+      orderAge: row.order_date ? orderAge(row.order_date).label : 'Unknown',
+      orderAgeDays: row.order_date ? orderAge(row.order_date).days : null,
       liveStatus: row.validation_status || 'PENDING',
       statusMessage: row.validation_message,
       validatedAt: isoValue(row.validated_at),
