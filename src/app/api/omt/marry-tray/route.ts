@@ -317,7 +317,7 @@ async function lookupChild(request: Request, childTrayId: string) {
       rawOrderType,
       priority: details.priority,
       qcfCount: details.maxQcfCount,
-      failedLensSide: details.failedLensSide,
+      trayLensCode: details.trayLensCode,
       available: Boolean(parentStorage),
       positionBarcode: position?.barcode ?? parentStorage?.position_barcode ?? null,
       rackNumber: position?.rackNumber ?? null,

@@ -25,7 +25,7 @@ export type OmtTrayDetails = {
   orderMode: 'NDD' | 'JIT' | 'REGULAR';
   rawOrderType: string;
   maxQcfCount: number;
-  failedLensSide: 'LEFT' | 'RIGHT' | null;
+  trayLensCode: string | null;
   relatedTrayIds: string[];
   lookupMs: number;
 };
@@ -178,13 +178,18 @@ export async function fetchOmtTrayDetails(request: Request, rawTrayId: string): 
     (maximum, item) => Math.max(maximum, toQcfCount(item.qcFailCount)),
     0,
   );
-  const leftLens = fittingItems.find((item) => String(item.itemType ?? '').trim().toUpperCase() === 'LEFTLENS');
-  const rightLens = fittingItems.find((item) => String(item.itemType ?? '').trim().toUpperCase() === 'RIGHTLENS');
-  const leftFailed = toQcfCount(leftLens?.qcFailCount) > 0;
-  const rightFailed = toQcfCount(rightLens?.qcFailCount) > 0;
-  const failedLensSide: 'LEFT' | 'RIGHT' | null = leftFailed && !rightFailed
-    ? 'LEFT'
-    : rightFailed && !leftFailed ? 'RIGHT' : null;
+  // Which lens item(s) physically sit in the scanned tray — not which lens
+  // failed QC. A tray can hold either lens, both, or neither (a frame tray).
+  const trayLensTypes = new Set(
+    fittingItems
+      .filter((item) => String(item.locationId ?? '').trim().toUpperCase() === scannedTrayId)
+      .map((item) => String(item.itemType ?? '').trim().toUpperCase()),
+  );
+  const hasLeftLens = trayLensTypes.has('LEFTLENS');
+  const hasRightLens = trayLensTypes.has('RIGHTLENS');
+  const trayLensCode = hasLeftLens && hasRightLens
+    ? 'Both'
+    : hasLeftLens ? 'LL' : hasRightLens ? 'RL' : null;
   const rawOrderType = String(orderItemHeader.orderItemType ?? orderDetails.orderType ?? '').trim() || 'N/A';
   const priorityClassification = String(
     orderItemHeader.customFields?.customFields?.PRIORITY_CLASSIFICATION_TYPE ?? '',
@@ -206,7 +211,7 @@ export async function fetchOmtTrayDetails(request: Request, rawTrayId: string): 
     orderMode: nddOrder ? 'NDD' : rawOrderType.toUpperCase().includes('JIT') ? 'JIT' : 'REGULAR',
     rawOrderType,
     maxQcfCount,
-    failedLensSide,
+    trayLensCode,
     relatedTrayIds,
     lookupMs: Date.now() - startedAt,
   };

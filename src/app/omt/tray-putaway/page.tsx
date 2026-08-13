@@ -75,7 +75,7 @@ type PutawayDetails = {
   orderMode: 'NDD' | 'JIT' | 'REGULAR';
   rawOrderType: string;
   maxQcfCount: number;
-  failedLensSide: 'LEFT' | 'RIGHT' | null;
+  trayLensCode: string | null;
   relatedTrayIds: string[];
   lookupMs: number;
   lookupToken: string;
