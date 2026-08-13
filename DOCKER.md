@@ -39,7 +39,20 @@ All runtime config lives in `.env.docker` (see `.env.docker.example`). Groups:
 | Build-time only | `NEXT_PUBLIC_AGENT_URL` (compose build arg) |
 
 **Production:** set `RUN_DB_PUSH=false` and point every DB var at the real
-databases. The raw-SQL warehouse queries read pre-existing external data — a
+databases. **This is not optional.** `db push --accept-data-loss` (used so the
+schema push never blocks on a confirmation prompt) makes the database match
+the Prisma schema file exactly, which means it *drops* any table that exists
+in the database but has no corresponding model — e.g. the OMT module's
+raw-SQL-created `omt_tray_putaway` / `omt_activity_logs` tables
+(`src/app/api/omt/*/route.ts`). Leaving `RUN_DB_PUSH=true` while
+`DATABASE_URL*` point at a real database means **every container
+restart/redeploy wipes those tables** — this already happened once against
+production `dispatch_ptl`. `docker/entrypoint.sh` now refuses to start rather
+than run db push when `RUN_DB_PUSH=true` but a `DATABASE_URL*` doesn't point
+at the compose-internal `db` host, but treat that as a backstop, not a
+substitute for setting the flag correctly.
+
+The raw-SQL warehouse queries read pre-existing external data — a
 local MySQL only satisfies the Prisma schemas, not those warehouse tables.
 `bosch` still takes a static host/user/password. `NexS_DB` / `NexS_DB_PICKING`
 instead route through Adaptive — see the next section.
