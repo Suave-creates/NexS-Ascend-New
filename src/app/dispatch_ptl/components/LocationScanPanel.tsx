@@ -3,6 +3,7 @@
 'use client'
 
 import { useState } from 'react'
+import { apiFetch } from '@/lib/authClient'
 
 export default function LocationScanPanel({ onSuccess }: any) {
   const [awb, setAwb] = useState('')
@@ -20,7 +21,7 @@ export default function LocationScanPanel({ onSuccess }: any) {
 
       const operatorColor = localStorage.getItem('operatorColor')
 
-      const res = await fetch('/api/dispatch-ptl/scan-awb', {
+      const res = await apiFetch('/api/dispatch-ptl/scan-awb', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ awb, operatorColor })
@@ -50,7 +51,7 @@ export default function LocationScanPanel({ onSuccess }: any) {
       setLoading(true)
       setError(null)
 
-      const res = await fetch('/api/dispatch-ptl/confirm-placement', {
+      const res = await apiFetch('/api/dispatch-ptl/confirm-placement', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

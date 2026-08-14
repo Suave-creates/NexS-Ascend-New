@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import * as XLSX from 'xlsx';
+import { apiFetch } from '@/lib/authClient';
 import {
   Button,
   Input,
@@ -87,7 +88,7 @@ function SingleTray() {
     setError('');
     setHistory([]);
     try {
-      const res = await fetch(
+      const res = await apiFetch(
         `/api/operations/tray-finder?trayId=${encodeURIComponent(id)}`,
       );
       if (!res.ok) {
@@ -235,7 +236,7 @@ function BulkTray() {
       // Reuse existing single-tray endpoint to avoid backend changes.
       const settled = await Promise.allSettled(
         trayIds.map(async (id) => {
-          const res = await fetch(
+          const res = await apiFetch(
             `/api/operations/tray-finder?trayId=${encodeURIComponent(id)}`,
           );
           if (!res.ok) {

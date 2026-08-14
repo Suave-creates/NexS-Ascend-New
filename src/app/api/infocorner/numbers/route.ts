@@ -3,6 +3,7 @@ import {
   BIGQUERY_PROJECT_ID,
   runBigQuery,
 } from '@/utils/resources/bigquery/client';
+import { authMiddleware } from '@/middleware/auth';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -39,7 +40,7 @@ const QUERY = `
   GROUP BY oi.facility_code, oih.order_item_type
 `;
 
-export async function GET() {
+export const GET = authMiddleware(async () => {
   try {
     const result = await runBigQuery(QUERY, 1000);
     return NextResponse.json({
@@ -59,4 +60,4 @@ export async function GET() {
     console.error('[infocorner/numbers] BigQuery route error:', error);
     return NextResponse.json({ error: message }, { status: 500 });
   }
-}
+});

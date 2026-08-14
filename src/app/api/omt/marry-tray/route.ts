@@ -2,6 +2,8 @@ import { createHmac, timingSafeEqual } from 'node:crypto';
 import { NextResponse } from 'next/server';
 import { prismaDispatch } from '@/utils/prismaDispatch';
 import { fetchOmtTrayDetails, OmtNexsError } from '@/utils/resources/nexs/omt';
+import { authMiddleware } from '@/middleware/auth';
+import type { AuthenticatedRequest } from '@/middleware/auth';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -70,10 +72,6 @@ async function ensureFittingIndex() {
   if (!rows[0]) {
     await prismaDispatch.$executeRawUnsafe('ALTER TABLE omt_tray_putaway ADD UNIQUE KEY uq_omt_fitting (fitting_id)');
   }
-}
-
-function normalizeOperatorId(raw: unknown) {
-  return typeof raw === 'string' ? raw.trim().toUpperCase().slice(0, 64) : '';
 }
 
 async function logActivity(entry: ActivityLog) {
@@ -404,7 +402,7 @@ async function marryTray(childTrayId: string, parentTrayId: string, lookupToken:
   });
 }
 
-export async function POST(request: Request) {
+export const POST = authMiddleware(async (request: AuthenticatedRequest) => {
   const startedAt = Date.now();
   let operatorId = '';
   let scannedChild = '';
@@ -412,7 +410,7 @@ export async function POST(request: Request) {
     await ensureTable();
     const body = await request.json();
     const action = String(body?.action ?? 'LOOKUP').toUpperCase();
-    operatorId = normalizeOperatorId(body?.operatorId);
+    operatorId = request.user.employeeCode;
     scannedChild = typeof body?.childTrayId === 'string' ? body.childTrayId.trim().toUpperCase() : '';
 
     if (action === 'LOG_REJECTION') {
@@ -422,14 +420,6 @@ export async function POST(request: Request) {
         metadata: { reason: String(body?.reason || 'Client validation rejected scan').slice(0, 500) },
       });
       return NextResponse.json({ success: true });
-    }
-
-    if (!operatorId) {
-      await logActivity({
-        eventType: action === 'MARRY' ? 'MARRY_TRAY' : 'MARRY_LOOKUP',
-        result: 'REJECTED', trayBarcode: scannedChild, metadata: { reason: 'OPERATOR_REQUIRED' },
-      });
-      return NextResponse.json({ error: 'Operator ID is required', code: 'OPERATOR_REQUIRED' }, { status: 400 });
     }
 
     const childTrayId = normalizeTrayId(body?.childTrayId);
@@ -511,4 +501,4 @@ export async function POST(request: Request) {
     const code = error instanceof OmtNexsError ? error.code : 'MARRY_FAILED';
     return NextResponse.json({ error: (error as Error).message || 'Unable to process tray marriage', code }, { status });
   }
-}
+});

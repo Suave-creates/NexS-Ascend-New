@@ -1,9 +1,10 @@
 import { NextResponse } from 'next/server';
 import { BIGQUERY_DATA_PROJECT_ID, runBigQuery } from '@/utils/resources/bigquery/client';
+import { authMiddleware } from '@/middleware/auth';
 
 export const runtime = 'nodejs';
 
-export async function POST(request: Request) {
+export const POST = authMiddleware(async (request: Request) => {
   try {
     const rawBody = await request.text();
     let parsed: any;
@@ -131,4 +132,4 @@ export async function POST(request: Request) {
       { status: 500 }
     );
   }
-}
+});

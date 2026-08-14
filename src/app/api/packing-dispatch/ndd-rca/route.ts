@@ -17,7 +17,9 @@ import { spawn } from 'node:child_process';
 import { promises as fs } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import type { NextRequest } from 'next/server';
+import { randomUUID } from 'node:crypto';
+import { NextResponse, type NextRequest } from 'next/server';
+import { authMiddleware, type AuthenticatedRequest } from '@/middleware/auth';
 
 // Runs live subprocesses + holds DB/Drive creds — never statically cached.
 export const runtime = 'nodejs';
@@ -113,7 +115,7 @@ function runOnce(
 }
 
 // ── action: run (SSE) ───────────────────────────────────────────────────────
-function streamRun(step: string, date: string): Response {
+function streamRun(step: string, date: string): NextResponse {
   const enc = new TextEncoder();
   const stream = new ReadableStream({
     async start(controller) {
@@ -174,7 +176,7 @@ function streamRun(step: string, date: string): Response {
     },
   });
 
-  return new Response(stream, {
+  return new NextResponse(stream, {
     headers: {
       'Content-Type': 'text/event-stream; charset=utf-8',
       'Cache-Control': 'no-cache, no-transform',
@@ -184,9 +186,9 @@ function streamRun(step: string, date: string): Response {
 }
 
 // ── action: dac (build the Dispatch view workbook and download it) ───────────
-async function exportDac(date: string): Promise<Response> {
+async function exportDac(date: string): Promise<NextResponse> {
   if (!isValidDate(date)) {
-    return Response.json({ ok: false, msg: `✗ Invalid date '${date}' (use YYYY-MM-DD)` });
+    return NextResponse.json({ ok: false, msg: `✗ Invalid date '${date}' (use YYYY-MM-DD)` });
   }
   const [y, m, d] = date.split('-');
   const tmp = path.join(os.tmpdir(), `DAC_${d}_${m}_${y}_${Date.now()}.xlsx`);
@@ -194,7 +196,7 @@ async function exportDac(date: string): Promise<Response> {
   try {
     const data = await fs.readFile(tmp);
     await fs.unlink(tmp).catch(() => {});
-    return new Response(new Uint8Array(data), {
+    return new NextResponse(new Uint8Array(data), {
       headers: {
         'Content-Type':
           'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
@@ -203,7 +205,7 @@ async function exportDac(date: string): Promise<Response> {
     });
   } catch {
     await fs.unlink(tmp).catch(() => {});
-    return Response.json({
+    return NextResponse.json({
       ok: false,
       msg: `✗ DAC export failed (exit ${code}): ${out.trim().slice(-400)}`,
     });
@@ -211,16 +213,16 @@ async function exportDac(date: string): Promise<Response> {
 }
 
 // ── action: link (Drive URL of the exported DRCA workbook) ───────────────────
-async function driveLink(date: string): Promise<Response> {
+async function driveLink(date: string): Promise<NextResponse> {
   if (!isValidDate(date)) {
-    return Response.json({ ok: false, msg: `✗ Invalid date '${date}' (use YYYY-MM-DD)` });
+    return NextResponse.json({ ok: false, msg: `✗ Invalid date '${date}' (use YYYY-MM-DD)` });
   }
   const { code, out } = await runOnce(['Push.py', 'link', date], date);
   const last = out.trim().split(/\r?\n/).map((l) => l.trim()).filter(Boolean).pop() || '';
   if (code === 0 && last && last !== 'NONE') {
-    return Response.json({ ok: true, link: last });
+    return NextResponse.json({ ok: true, link: last });
   }
-  return Response.json({
+  return NextResponse.json({
     ok: false,
     msg:
       last === 'NONE'
@@ -236,21 +238,55 @@ function defaultDate(): string {
   return d.toISOString().slice(0, 10);
 }
 
-export async function GET(req: NextRequest) {
+// The browser drives the run/RUN ALL log stream with a native EventSource,
+// which cannot attach an Authorization header. So `action=run` can't go
+// through authMiddleware's normal Bearer check like every other action here —
+// instead the client first mints a short-lived, single-use ticket over a
+// regular authenticated apiFetch call (`action=ticket`), then passes that
+// ticket on the EventSource URL. The full session JWT never touches a URL.
+const TICKET_TTL_MS = 30_000;
+const runTickets = new Map<string, { employeeCode: string; expiresAt: number }>();
+
+function mintRunTicket(employeeCode: string): string {
+  const ticket = randomUUID();
+  runTickets.set(ticket, { employeeCode, expiresAt: Date.now() + TICKET_TTL_MS });
+  return ticket;
+}
+
+function consumeRunTicket(ticket: string): string | null {
+  const entry = runTickets.get(ticket);
+  if (!entry) return null;
+  runTickets.delete(ticket);
+  return Date.now() <= entry.expiresAt ? entry.employeeCode : null;
+}
+
+const authedGet = authMiddleware(async (req: AuthenticatedRequest) => {
   const { searchParams } = new URL(req.url);
   const action = searchParams.get('action') || 'run';
   const date = (searchParams.get('date') || '').trim();
 
   switch (action) {
-    case 'run':
-      return streamRun(searchParams.get('step') || '', date);
     case 'dac':
       return exportDac(date);
     case 'link':
       return driveLink(date);
     case 'default-date':
-      return Response.json({ date: defaultDate() });
+      return NextResponse.json({ date: defaultDate() });
+    case 'ticket':
+      return NextResponse.json({ ticket: mintRunTicket(req.user.employeeCode) });
     default:
-      return Response.json({ error: 'unknown action' }, { status: 404 });
+      return NextResponse.json({ error: 'unknown action' }, { status: 404 });
   }
+});
+
+export async function GET(req: NextRequest, ctx: { params: Promise<Record<string, string>> }) {
+  const { searchParams } = new URL(req.url);
+  if ((searchParams.get('action') || 'run') === 'run') {
+    const employeeCode = consumeRunTicket(searchParams.get('ticket') || '');
+    if (!employeeCode) {
+      return NextResponse.json({ error: 'Unauthorized', code: 'NO_TOKEN' }, { status: 401 });
+    }
+    return streamRun(searchParams.get('step') || '', (searchParams.get('date') || '').trim());
+  }
+  return authedGet(req, ctx);
 }

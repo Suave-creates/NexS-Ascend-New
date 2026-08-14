@@ -22,6 +22,7 @@ import {
   TD,
 } from '@/components/ui';
 import { cn } from '@/lib/cn';
+import { apiFetch } from '@/lib/authClient';
 
 type StockOutMode = 'barcode' | 'location';
 
@@ -87,7 +88,7 @@ export default function StockOutModule() {
     setToast({ type: 'loading', message: `Processing ${mode} stock-out for ${finalValue}…` });
 
     try {
-      const res = await fetch('/api/asrs/pid-hunted-stock-out', {
+      const res = await apiFetch('/api/asrs/pid-hunted-stock-out', {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(

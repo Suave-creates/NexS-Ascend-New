@@ -1,7 +1,9 @@
 import { NextResponse } from 'next/server';
+import { authMiddleware } from '@/middleware/auth';
+import type { AuthenticatedRequest } from '@/middleware/auth';
 import { listProcessHistory, ProcessHistoryFilters } from '@/services/metal-frame/tumbling/history.service';
 import { createDraftProcess } from '@/services/metal-frame/tumbling/process.service';
-import { validateOperatorName, validatePagination, validateProduct } from '@/services/metal-frame/tumbling/validators';
+import { validatePagination, validateProduct } from '@/services/metal-frame/tumbling/validators';
 import { handleRouteError } from '@/services/metal-frame/tumbling/http';
 import { TumblingError } from '@/services/metal-frame/tumbling/types';
 import type { TumblingProcessStatus } from '@/generated/metal_frame';
@@ -11,7 +13,7 @@ export const dynamic = 'force-dynamic';
 const VALID_STATUSES: TumblingProcessStatus[] = ['DRAFT', 'RUNNING', 'COMPLETED', 'COMPLETED_EARLY', 'STOPPED', 'CANCELLED'];
 
 // GET /api/metal-frame/tumbling/processes -> server-side paginated, filterable process history
-export async function GET(req: Request) {
+export const GET = authMiddleware(async (req: Request) => {
   try {
     const url = new URL(req.url);
     const sp = url.searchParams;
@@ -37,21 +39,21 @@ export async function GET(req: Request) {
   } catch (err) {
     return handleRouteError('Tumbling processes list', err);
   }
-}
+});
 
 // POST /api/metal-frame/tumbling/processes -> create a DRAFT process with its one product
-export async function POST(req: Request) {
+export const POST = authMiddleware(async (req: AuthenticatedRequest) => {
   try {
     const body = await req.json();
     const containerId = Number(body.containerId);
     if (!Number.isInteger(containerId)) throw new TumblingError(400, 'A valid containerId is required.');
 
     const product = validateProduct(body.product);
-    const operatorName = validateOperatorName(body.operatorName);
+    const operatorName = req.user.employeeCode;
 
     const process = await createDraftProcess({ containerId, product, operator: { name: operatorName } });
     return NextResponse.json({ process }, { status: 201 });
   } catch (err) {
     return handleRouteError('Tumbling process create', err);
   }
-}
+});

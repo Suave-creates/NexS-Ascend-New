@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { PageHeader, Alert, Card, CardHeader, CardBody, Field, Input, Button, Table, THead, TBody, TR, TH, TD } from '@/components/ui';
+import { apiFetch } from '@/lib/authClient';
 
 interface ContainerRow {
   id: number;
@@ -27,8 +28,8 @@ export default function TumblingSettingsPage() {
   const load = useCallback(async () => {
     try {
       const [containersRes, configRes] = await Promise.all([
-        fetch('/api/metal-frame/tumbling/containers'),
-        fetch('/api/metal-frame/tumbling/configuration'),
+        apiFetch('/api/metal-frame/tumbling/containers'),
+        apiFetch('/api/metal-frame/tumbling/configuration'),
       ]);
       const containersJson = await containersRes.json();
       const configJson = await configRes.json();
@@ -68,7 +69,7 @@ export default function TumblingSettingsPage() {
     setError(null);
     setSuccess(null);
     try {
-      const res = await fetch('/api/metal-frame/tumbling/configuration', {
+      const res = await apiFetch('/api/metal-frame/tumbling/configuration', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -97,7 +98,7 @@ export default function TumblingSettingsPage() {
     setError(null);
     setSuccess(null);
     try {
-      const res = await fetch(`/api/metal-frame/tumbling/containers/${containerId}`, {
+      const res = await apiFetch(`/api/metal-frame/tumbling/containers/${containerId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ employeeCode: employeeCode.trim(), password, displayName: draft.displayName, isActive: draft.isActive }),

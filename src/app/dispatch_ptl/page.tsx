@@ -9,6 +9,7 @@ import StatusBar from './components/StatusBar'
 import MasterResetPanel from './components/MasterResetPanel'
 import OperatorColorPanel from './components/OperatorColorPanel'
 import { Location } from './types'
+import { apiFetch } from '@/lib/authClient'
 
 export default function DispatchPTLPage() {
   const [locations, setLocations] = useState<Location[]>([])
@@ -17,7 +18,7 @@ export default function DispatchPTLPage() {
   const [placedCount, setPlacedCount] = useState(0)
 
   const fetchLocations = async () => {
-    const res = await fetch('/api/dispatch-ptl/locations')
+    const res = await apiFetch('/api/dispatch-ptl/locations')
     const data = await res.json()
     setLocations(data.locations)
     setActiveLights(data.activeLights)

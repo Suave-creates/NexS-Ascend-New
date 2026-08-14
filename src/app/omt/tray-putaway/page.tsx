@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { apiFetch, useAuth } from '@/lib/authClient';
 
 const RACK_COUNT = 40;
 const POSITIONS_PER_RACK = 20;
@@ -144,8 +145,8 @@ function isNddOrder(priority: string | null | undefined, orderMode?: string | nu
 }
 
 export default function TrayPutawayPage() {
+  const { user } = useAuth();
   const [positions, setPositions] = useState<Position[]>(createPositions);
-  const [operatorId, setOperatorId] = useState('');
   const [selectedRack, setSelectedRack] = useState(1);
   const [activeBarcode, setActiveBarcode] = useState<string | null>(null);
   const [selectedPositionBarcode, setSelectedPositionBarcode] = useState<string | null>(null);
@@ -165,12 +166,11 @@ export default function TrayPutawayPage() {
   });
   const scanRef = useRef<HTMLInputElement>(null);
   const removeRef = useRef<HTMLInputElement>(null);
-  const operatorRef = useRef<HTMLInputElement>(null);
   const busyRef = useRef(false);
 
   const refreshPositions = useCallback(async () => {
     try {
-      const response = await fetch('/api/omt/tray-putaway', { cache: 'no-store' });
+      const response = await apiFetch('/api/omt/tray-putaway', { cache: 'no-store' });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || 'Unable to load rack state');
       const stored = new Map(
@@ -190,7 +190,7 @@ export default function TrayPutawayPage() {
   const refreshTrayHealth = useCallback(async (force = false) => {
     setHealthChecking(true);
     try {
-      const response = await fetch(`/api/omt/tray-putaway?validate=${force ? 'force' : 'due'}`, { cache: 'no-store' });
+      const response = await apiFetch(`/api/omt/tray-putaway?validate=${force ? 'force' : 'due'}`, { cache: 'no-store' });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || 'Unable to validate stored trays');
       const stored = new Map(
@@ -225,39 +225,27 @@ export default function TrayPutawayPage() {
   const focusScanner = useCallback(() => {
     window.setTimeout(() => {
       if (selectedPositionBarcode) return;
-      if (!operatorId.trim()) {
-        operatorRef.current?.focus();
-      } else if (document.activeElement !== removeRef.current && document.activeElement !== operatorRef.current) {
+      if (document.activeElement !== removeRef.current) {
         scanRef.current?.focus();
       }
     }, 20);
-  }, [operatorId, selectedPositionBarcode]);
+  }, [selectedPositionBarcode]);
 
   const focusRemoval = useCallback(() => {
     window.setTimeout(() => removeRef.current?.focus(), 20);
   }, []);
 
   useEffect(() => {
-    setOperatorId(window.localStorage.getItem('omtOperatorId') ?? '');
-  }, []);
-
-  useEffect(() => {
     focusScanner();
   }, [focusScanner]);
 
-  const updateOperatorId = (value: string) => {
-    const normalized = value.toUpperCase().replace(/\s+/g, '').slice(0, 64);
-    setOperatorId(normalized);
-    window.localStorage.setItem('omtOperatorId', normalized);
-  };
-
   const logRejectedScan = useCallback((scanValue: string, reason: string, eventType = 'PUTAWAY') => {
-    void fetch('/api/omt/tray-putaway', {
+    void apiFetch('/api/omt/tray-putaway', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'LOG_REJECTION', operatorId, scanValue, reason, eventType }),
+      body: JSON.stringify({ action: 'LOG_REJECTION', scanValue, reason, eventType }),
     });
-  }, [operatorId]);
+  }, []);
 
   const activePosition = useMemo(
     () => positions.find((position) => position.barcode === activeBarcode) ?? null,
@@ -322,10 +310,10 @@ export default function TrayPutawayPage() {
 
     setFeedback({ title: 'Checking parent tray', detail: `Loading live details for ${trayBarcode}…`, tone: 'info' });
     try {
-      const response = await fetch('/api/omt/tray-putaway', {
+      const response = await apiFetch('/api/omt/tray-putaway', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'LOOKUP_TRAY', trayBarcode, operatorId }),
+        body: JSON.stringify({ action: 'LOOKUP_TRAY', trayBarcode }),
       });
       const data = await response.json();
       if (!response.ok) {
@@ -355,7 +343,7 @@ export default function TrayPutawayPage() {
       setFeedback({ title: 'Tray lookup failed', detail: (error as Error).message, tone: 'error' });
       addActivity(`${trayBarcode} failed · connection error`, 'error');
     }
-  }, [addActivity, logRejectedScan, operatorId]);
+  }, [addActivity, logRejectedScan]);
 
   const putawayAtLocation = useCallback(async (rawPosition: string) => {
     if (!pendingTray) return;
@@ -388,7 +376,7 @@ export default function TrayPutawayPage() {
       tone: 'info',
     });
     try {
-      const response = await fetch('/api/omt/tray-putaway', {
+      const response = await apiFetch('/api/omt/tray-putaway', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -396,7 +384,6 @@ export default function TrayPutawayPage() {
           positionBarcode: barcode,
           trayBarcode: pendingTray.scannedTrayId,
           lookupToken: pendingTray.lookupToken,
-          operatorId,
         }),
       });
       const data = await response.json();
@@ -429,7 +416,7 @@ export default function TrayPutawayPage() {
                 fittingId: pendingTray.fittingId,
                 shipmentId: pendingTray.shipmentId,
                 maxQcfCount: pendingTray.maxQcfCount,
-                operatorId,
+                operatorId: user?.employeeCode ?? null,
                 priority: pendingTray.priority,
                 priorityClassification: pendingTray.priorityClassification,
                 orderType: pendingTray.rawOrderType,
@@ -455,16 +442,11 @@ export default function TrayPutawayPage() {
       setFeedback({ title: 'Putaway failed', detail: (error as Error).message, tone: 'error' });
       addActivity(`${pendingTray.scannedTrayId} failed · connection error`, 'error');
     }
-  }, [addActivity, logRejectedScan, operatorId, pendingTray, positions]);
+  }, [addActivity, logRejectedScan, pendingTray, positions, user?.employeeCode]);
 
   const handleScan = useCallback(async () => {
     const value = scanValue.trim();
     if (!value || busyRef.current) return;
-    if (!operatorId.trim()) {
-      setFeedback({ title: 'Operator ID required', detail: 'Enter your Operator ID before scanning.', tone: 'error' });
-      operatorRef.current?.focus();
-      return;
-    }
     setScanValue('');
 
     busyRef.current = true;
@@ -475,7 +457,7 @@ export default function TrayPutawayPage() {
       busyRef.current = false;
       focusScanner();
     }
-  }, [focusScanner, lookupTray, operatorId, pendingTray, putawayAtLocation, scanValue]);
+  }, [focusScanner, lookupTray, pendingTray, putawayAtLocation, scanValue]);
 
   const clearPendingTray = () => {
     if (!pendingTray) return;
@@ -489,11 +471,6 @@ export default function TrayPutawayPage() {
     const trayBarcode = removeScanValue.trim().toUpperCase();
     setRemoveScanValue('');
     if (!trayBarcode || removing) return;
-    if (!operatorId.trim()) {
-      setRemoveMessage('Operator ID is required before removing a tray.');
-      operatorRef.current?.focus();
-      return;
-    }
     if (!TRAY_ID_PATTERN.test(trayBarcode)) {
       setRemoveMessage('Invalid tray ID · use exactly 2 letters followed by 5 digits, for example CT00003.');
       addActivity(`${trayBarcode} removal rejected · expected format CT00000`, 'error');
@@ -505,10 +482,10 @@ export default function TrayPutawayPage() {
     setRemoving(true);
     setRemoveMessage(`Checking ${trayBarcode}…`);
     try {
-      const response = await fetch('/api/omt/tray-putaway', {
+      const response = await apiFetch('/api/omt/tray-putaway', {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'REMOVE_TRAY', trayBarcode, operatorId }),
+        body: JSON.stringify({ action: 'REMOVE_TRAY', trayBarcode }),
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || 'Tray could not be removed');
@@ -536,15 +513,10 @@ export default function TrayPutawayPage() {
       setRemoving(false);
       focusRemoval();
     }
-  }, [addActivity, focusRemoval, logRejectedScan, operatorId, removeScanValue, removing]);
+  }, [addActivity, focusRemoval, logRejectedScan, removeScanValue, removing]);
 
   const masterReset = useCallback(async () => {
     if (resetting) return;
-    if (!operatorId.trim()) {
-      setFeedback({ title: 'Operator ID required', detail: 'Enter your Operator ID before using Master Reset.', tone: 'error' });
-      operatorRef.current?.focus();
-      return;
-    }
     const password = window.prompt(
       'Enter the Master Reset password.\n\nThis removes every tray from all 800 OMT positions.',
     );
@@ -552,10 +524,10 @@ export default function TrayPutawayPage() {
 
     setResetting(true);
     try {
-      const response = await fetch('/api/omt/tray-putaway', {
+      const response = await apiFetch('/api/omt/tray-putaway', {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'MASTER_RESET', password, operatorId }),
+        body: JSON.stringify({ action: 'MASTER_RESET', password }),
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || 'Master Reset failed');
@@ -573,7 +545,7 @@ export default function TrayPutawayPage() {
       setResetting(false);
       focusScanner();
     }
-  }, [addActivity, focusScanner, operatorId, resetting]);
+  }, [addActivity, focusScanner, resetting]);
 
   const activeCount = activePosition?.trays.length ?? 0;
   const scannerLabel = pendingTray ? 'Scan putaway location' : 'Scan parent tray';
@@ -613,22 +585,6 @@ export default function TrayPutawayPage() {
               <span className="eyebrow">HHD workflow</span>
               <h1>Tray Putaway</h1>
             </div>
-            <label className="operator-field">
-              <span>Operator ID</span>
-              <input
-                ref={operatorRef}
-                value={operatorId}
-                placeholder="Enter ID"
-                autoComplete="off"
-                onChange={(event) => updateOperatorId(event.target.value)}
-                onKeyDown={(event) => {
-                  if (event.key === 'Enter' && operatorId.trim()) {
-                    event.preventDefault();
-                    scanRef.current?.focus();
-                  }
-                }}
-              />
-            </label>
           </div>
 
           <div className={`feedback ${feedback.tone}`} role="status" aria-live="polite">

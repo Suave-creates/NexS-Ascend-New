@@ -5,11 +5,12 @@
 import { NextResponse } from 'next/server';
 import { prismaDispatch } from '@/utils/prismaDispatch';
 import { dedupeActiveColors } from '@/utils/consolidate';
+import { authMiddleware } from '@/middleware/auth';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-export async function GET() {
+export const GET = authMiddleware(async () => {
   try {
     const locations = await prismaDispatch.location.findMany({
       include: { rack: true },
@@ -88,4 +89,4 @@ export async function GET() {
     console.error('consolidate-ptl/locations error:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
-}
+});

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import type mysql from 'mysql2/promise';
 import { nexsPool } from '@/utils/nexsPool';
+import { authMiddleware } from '@/middleware/auth';
 
 export const runtime = 'nodejs';
 
@@ -10,7 +11,7 @@ type OrderItemRow = {
   status: string;
 };
 
-export async function POST(req: Request) {
+export const POST = authMiddleware(async (req: Request) => {
   let conn: mysql.PoolConnection | null = null;
 
   try {
@@ -113,4 +114,4 @@ export async function POST(req: Request) {
   } finally {
     if (conn) conn.release();
   }
-}
+});

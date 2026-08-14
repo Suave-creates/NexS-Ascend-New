@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { apiFetch } from '@/lib/authClient';
 
 const TRAY_ID_PATTERN = /^[A-Z]{2}\d{5}$/;
 const STACK_CAPACITY = 5;
@@ -38,52 +39,33 @@ function isNddOrder(priority: string, orderMode: string) {
 }
 
 export default function MarryTrayPage() {
-  const [operatorId, setOperatorId] = useState('');
   const [scanValue, setScanValue] = useState('');
   const [phase, setPhase] = useState<Phase>('IDLE');
   const [lookup, setLookup] = useState<MarriageLookup | null>(null);
   const [message, setMessage] = useState('Scan the child tray to find its parent and rack position.');
   const inputRef = useRef<HTMLInputElement>(null);
-  const operatorRef = useRef<HTMLInputElement>(null);
   const busyRef = useRef(false);
 
   const focusScanner = useCallback(() => {
     window.setTimeout(() => {
-      if (!operatorId.trim()) operatorRef.current?.focus();
-      else if (document.activeElement !== operatorRef.current) inputRef.current?.focus();
+      inputRef.current?.focus();
     }, 30);
-  }, [operatorId]);
-
-  useEffect(() => {
-    setOperatorId(window.localStorage.getItem('omtOperatorId') ?? '');
   }, []);
 
   useEffect(() => {
     focusScanner();
   }, [focusScanner]);
 
-  const updateOperatorId = (value: string) => {
-    const normalized = value.toUpperCase().replace(/\s+/g, '').slice(0, 64);
-    setOperatorId(normalized);
-    window.localStorage.setItem('omtOperatorId', normalized);
-  };
-
   const findParent = useCallback(async (rawValue?: string) => {
     const childTrayId = (rawValue ?? scanValue).trim().toUpperCase();
     if (busyRef.current) return;
-    if (!operatorId.trim()) {
-      setPhase('ERROR');
-      setMessage('Enter your Operator ID before scanning.');
-      operatorRef.current?.focus();
-      return;
-    }
     if (!TRAY_ID_PATTERN.test(childTrayId)) {
       setPhase('ERROR');
       setMessage('Invalid child tray ID · use 2 letters followed by 5 digits, for example CT00003.');
       setScanValue('');
-      void fetch('/api/omt/marry-tray', {
+      void apiFetch('/api/omt/marry-tray', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'LOG_REJECTION', operatorId, childTrayId, reason: 'INVALID_CHILD_ID' }),
+        body: JSON.stringify({ action: 'LOG_REJECTION', childTrayId, reason: 'INVALID_CHILD_ID' }),
       });
       focusScanner();
       return;
@@ -95,10 +77,10 @@ export default function MarryTrayPage() {
     setMessage(`Tracing ${childTrayId} and checking OMT rack stock…`);
     setScanValue('');
     try {
-      const response = await fetch('/api/omt/marry-tray', {
+      const response = await apiFetch('/api/omt/marry-tray', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'LOOKUP', childTrayId, operatorId }),
+        body: JSON.stringify({ action: 'LOOKUP', childTrayId }),
       });
       const body = await response.json();
       if (!response.ok) throw new Error(body.error || 'Unable to find parent tray');
@@ -119,7 +101,7 @@ export default function MarryTrayPage() {
       busyRef.current = false;
       focusScanner();
     }
-  }, [focusScanner, operatorId, scanValue]);
+  }, [focusScanner, scanValue]);
 
   useEffect(() => {
     if (TRAY_ID_PATTERN.test(scanValue) && !busyRef.current) findParent(scanValue);
@@ -131,7 +113,7 @@ export default function MarryTrayPage() {
     setPhase('MARRYING');
     setMessage(`Marrying ${lookup.childTrayId} with ${lookup.parentTrayId}…`);
     try {
-      const response = await fetch('/api/omt/marry-tray', {
+      const response = await apiFetch('/api/omt/marry-tray', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -139,7 +121,6 @@ export default function MarryTrayPage() {
           childTrayId: lookup.childTrayId,
           parentTrayId: lookup.parentTrayId,
           lookupToken: lookup.lookupToken,
-          operatorId,
         }),
       });
       const body = await response.json();
@@ -161,7 +142,7 @@ export default function MarryTrayPage() {
       busyRef.current = false;
       focusScanner();
     }
-  }, [focusScanner, lookup, operatorId]);
+  }, [focusScanner, lookup]);
 
   const reset = () => {
     setLookup(null);
@@ -191,22 +172,6 @@ export default function MarryTrayPage() {
         <section className={`marry-card ${phase.toLowerCase()}`}>
           <div className="card-head">
             <div><span className="eyebrow">HHD workflow</span><h1>Marry Tray</h1></div>
-            <label className="operator-field">
-              <span>Operator ID</span>
-              <input
-                ref={operatorRef}
-                value={operatorId}
-                placeholder="Enter ID"
-                autoComplete="off"
-                onChange={(event) => updateOperatorId(event.target.value)}
-                onKeyDown={(event) => {
-                  if (event.key === 'Enter' && operatorId.trim()) {
-                    event.preventDefault();
-                    inputRef.current?.focus();
-                  }
-                }}
-              />
-            </label>
           </div>
 
           <div className={`status-banner ${phase.toLowerCase()}`} role="status" aria-live="polite">

@@ -1,12 +1,14 @@
 // src/app/api/courier/scan/route.ts
 import { NextResponse } from 'next/server';
 import prisma from '@/utils/prisma';
+import { authMiddleware } from '@/middleware/auth';
+import type { AuthenticatedRequest } from '@/middleware/auth';
 
-export async function POST(req: Request) {
+export const POST = authMiddleware(async (req: AuthenticatedRequest) => {
   try {
     const body = await req.json();
     const partner = String(body?.partner ?? '');
-    const personId = body?.personId ? String(body.personId).toUpperCase() : null;
+    const personId = req.user.employeeCode;
     const awbTrim = String(body?.awb ?? '').trim().toUpperCase();
 
     const mismatch = Boolean(body?.mismatch ?? false);
@@ -32,10 +34,8 @@ export async function POST(req: Request) {
       mismatch,
       detectedPartner,
       duplicate: duplicateFlag,
+      personId,
     };
-    if (personId) {
-      data.personId = personId;
-    }
     const row = await prisma.courierHandover.create({
       data,
     });
@@ -51,4 +51,4 @@ export async function POST(req: Request) {
       { status: 500 }
     );
   }
-}
+});

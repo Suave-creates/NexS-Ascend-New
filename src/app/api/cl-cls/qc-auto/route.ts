@@ -1,20 +1,21 @@
 import { NextResponse } from 'next/server';
 import { getQcRunStatus, getQcSessionStatus, startQcRun } from '@/utils/clClsQcRunner';
 import { prismaDispatch } from '@/utils/prismaDispatch';
+import { authMiddleware } from '@/middleware/auth';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-export async function GET(req: Request) {
+export const GET = authMiddleware(async (req: Request) => {
   const runId = new URL(req.url).searchParams.get('runId');
   const latestFailure = await prismaDispatch.clClsQcQueueEntry.findFirst({
     where: { state: 'FAILED' }, orderBy: { lastSeenAt: 'asc' },
     select: { barcode: true, fittingId: true, shippingPackageId: true, attempts: true, lastError: true },
   });
   return NextResponse.json({ ...getQcRunStatus(runId), ...getQcSessionStatus(), latestFailure });
-}
+});
 
-export async function POST(req: Request) {
+export const POST = authMiddleware(async (req: Request) => {
   const body = await req.json();
   const username = String(body?.username || '').trim();
   const password = String(body?.password || '');
@@ -28,4 +29,4 @@ export async function POST(req: Request) {
   if (shippingPackageIds.length > 500) return NextResponse.json({ error: 'Maximum 500 Shipping Package IDs per run' }, { status: 400 });
   try { return NextResponse.json(startQcRun(username, password, shippingPackageIds), { status: 202 }); }
   catch (error) { return NextResponse.json({ error: (error as Error).message }, { status: 409 }); }
-}
+});

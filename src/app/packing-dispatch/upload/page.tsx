@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Card, CardBody, PageHeader, Field, Button, Alert } from '@/components/ui';
+import { apiFetch } from '@/lib/authClient';
 
 export default function UploadPage() {
   const [file, setFile] = useState<File | null>(null);
@@ -21,7 +22,7 @@ export default function UploadPage() {
     formData.append('file', file);
 
     try {
-      const res = await fetch('/api/upload', {
+      const res = await apiFetch('/api/upload', {
         method: 'POST',
         body: formData,
       });

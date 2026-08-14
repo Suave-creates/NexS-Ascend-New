@@ -13,6 +13,8 @@
 import { NextResponse } from 'next/server';
 import { getNexsToken, invalidateNexsToken } from '@/utils/resources/nexs/auth';
 import { prismaLensLab } from '@/utils/prismaLensLab';
+import { authMiddleware } from '@/middleware/auth';
+import type { AuthenticatedRequest } from '@/middleware/auth';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -54,15 +56,13 @@ type ResultRow = {
 };
 
 // ─── route ──────────────────────────────────────────────────
-export async function POST(req: Request) {
+export const POST = authMiddleware(async (req: AuthenticatedRequest) => {
   // ── 0. Parse + validate input ──────────────────────────────
   let locationId: string;
-  let operatorId: string;
 
   try {
     const body = await req.json();
     locationId = body?.locationId?.toString().trim();
-    operatorId = body?.operatorId?.toString().trim().toUpperCase();
   } catch {
     return NextResponse.json(
       { success: false, error: 'Invalid JSON body' },
@@ -76,12 +76,10 @@ export async function POST(req: Request) {
       { status: 400 }
     );
   }
-  if (!operatorId) {
-    return NextResponse.json(
-      { success: false, error: 'operatorId required' },
-      { status: 400 }
-    );
-  }
+
+  // Operator identity now comes from the authenticated session rather than
+  // a client-supplied field.
+  const operatorId = req.user.employeeCode.trim().toUpperCase();
 
   try {
     // ── 1. Read from NexS WMS API (replaces the WMS DB query) ─
@@ -252,4 +250,4 @@ export async function POST(req: Request) {
       { status: 500 }
     );
   }
-}
+});

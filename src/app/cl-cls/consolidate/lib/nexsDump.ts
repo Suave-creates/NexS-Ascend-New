@@ -4,6 +4,8 @@
 // and hits our server-side proxy (which forwards the NexS session cookie), then
 // paginates every page. Mirrors the Tray Releaser NexS-proxy approach.
 
+import { apiFetch } from '@/lib/authClient';
+
 export interface DumpContext {
   facility: string;
   workstation: string;
@@ -58,7 +60,7 @@ const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 async function fetchPage(ctx: DumpContext, page: number, frTag: FrTag): Promise<{ rows: Record<string, unknown>[]; total: number }> {
   // Colocated with fetch-trays so the browser sends the same jwt-token cookie.
-  const res = await fetch('/api/packing-dispatch/nexs-proxy/order-qc', {
+  const res = await apiFetch('/api/packing-dispatch/nexs-proxy/order-qc', {
     method: 'POST',
     headers: headers(ctx),
     body: JSON.stringify(pageBody(page, PAGE_SIZE, frTag)),
@@ -126,7 +128,7 @@ export async function loadOrderQcDump(ctx: DumpContext): Promise<DumpResult> {
 
 /** Push a full snapshot to the ingest endpoint (upsert + reconcile). */
 export async function syncDump(rows: Record<string, unknown>[]) {
-  const res = await fetch('/api/cl-cls/consolidate/qc-sync', {
+  const res = await apiFetch('/api/cl-cls/consolidate/qc-sync', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ rows }),

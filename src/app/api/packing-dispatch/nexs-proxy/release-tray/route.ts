@@ -5,6 +5,7 @@
 // re-forwarding the incoming Cookie header for NexS session auth.
 
 import { NextResponse } from 'next/server';
+import { authMiddleware } from '@/middleware/auth';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -12,7 +13,7 @@ export const dynamic = 'force-dynamic';
 const TARGET =
   'https://app.nexs.lenskart.com/nexs-consolidation/addverb/api/v1/releaseTray';
 
-export async function PUT(req: Request) {
+export const PUT = authMiddleware(async (req: Request) => {
   const body = await req.text();
 
   const fwd: HeadersInit = {
@@ -46,4 +47,4 @@ export async function PUT(req: Request) {
         nexsRes.headers.get('content-type') || 'application/json',
     },
   });
-}
+});

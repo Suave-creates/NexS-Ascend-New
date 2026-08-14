@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { prismaDispatch } from '@/utils/prismaDispatch';
 import { fetchOmtTrayDetails, OmtNexsError } from '@/utils/resources/nexs/omt';
+import { authMiddleware } from '@/middleware/auth';
+import type { AuthenticatedRequest } from '@/middleware/auth';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -134,10 +136,6 @@ async function ensureTables() {
   tableReady = true;
 }
 
-function normalizeOperatorId(value: unknown) {
-  return typeof value === 'string' ? value.trim().toUpperCase().slice(0, 64) : '';
-}
-
 function normalizeTrayId(value: unknown) {
   const trayId = typeof value === 'string' ? value.trim().toUpperCase() : '';
   return TRAY_ID_PATTERN.test(trayId) ? trayId : null;
@@ -191,7 +189,7 @@ async function logScan(entry: {
   }
 }
 
-export async function POST(request: Request) {
+export const POST = authMiddleware(async (request: AuthenticatedRequest) => {
   const startedAt = Date.now();
   let operatorId = '';
   let scannedTrayId = '';
@@ -199,14 +197,10 @@ export async function POST(request: Request) {
   try {
     await ensureTables();
     const body = await request.json();
-    operatorId = normalizeOperatorId(body?.operatorId);
+    operatorId = request.user.employeeCode;
     scannedTrayId = typeof body?.trayId === 'string' ? body.trayId.trim().toUpperCase() : '';
     const trayId = normalizeTrayId(body?.trayId);
 
-    if (!operatorId) {
-      await logScan({ result: 'REJECTED', trayId: scannedTrayId, durationMs: Date.now() - startedAt, metadata: { reason: 'OPERATOR_REQUIRED' } });
-      return NextResponse.json({ error: 'Operator ID is required', code: 'OPERATOR_REQUIRED' }, { status: 400 });
-    }
     if (!trayId) {
       await logScan({ operatorId, result: 'REJECTED', trayId: scannedTrayId, durationMs: Date.now() - startedAt, metadata: { reason: 'INVALID_TRAY_ID' } });
       return NextResponse.json({
@@ -290,4 +284,4 @@ export async function POST(request: Request) {
     const code = error instanceof OmtNexsError ? error.code : 'SEGREGATION_FAILED';
     return NextResponse.json({ error: (error as Error).message || 'Unable to segregate tray', code }, { status });
   }
-}
+});

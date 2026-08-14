@@ -129,6 +129,14 @@ them alters live behavior — do it deliberately + rotate the credentials):
   / SSRF risk. Escape all interpolated values and block non-`data:` requests.
 - Set a strong **`JWT_SECRET`** and **`MYSQL_ROOT_PASSWORD`** in `.env.docker`
   (the example values are placeholders). MySQL is bound to `127.0.0.1` only.
+- Account approval is stored entirely in the existing `User` table. Apply the
+  additive Prisma migration before deploying the app. Existing users default
+  to `APPROVED`; new signups default to `PENDING` and cannot log in.
+- Bootstrap the first approver after migration with
+  `SUPER_ADMIN_EMPLOYEE_CODE=...`, `SUPER_ADMIN_PASSWORD=...`, and
+  `npm run super-admin:create`. If that employee already exists, the command
+  preserves their password and only promotes the row. Remove the bootstrap
+  password from the environment immediately afterward.
 - Already handled: the BigQuery OAuth files (`infocorner/numbers/credentials.json`,
   `token.json`) and the NDD-RCA token files are untracked + excluded — provide
   them at runtime.

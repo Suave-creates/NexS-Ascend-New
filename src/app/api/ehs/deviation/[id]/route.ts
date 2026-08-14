@@ -5,45 +5,46 @@ import { authMiddleware } from '@/middleware/auth';
 import type { AuthenticatedRequest } from '@/middleware/auth';
 
 // ─── GET ───────────────────────────────────────────────────────────────────────
-// Get a single deviation by ID
-export async function GET(
-  req: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  try {
-    // Await the incoming params promise
-    const { id } = await params;
-    const deviation = await prisma.eHSDeviation.findUnique({
-      where: { id: parseInt(id, 10) },
-    });
+// Get a single deviation by ID (protected)
+export const GET = authMiddleware<{ id: string }>(
+  async (
+    req: AuthenticatedRequest,
+    { params }: { params: { id: string } }
+  ) => {
+    try {
+      const { id } = params;
+      const deviation = await prisma.eHSDeviation.findUnique({
+        where: { id: parseInt(id, 10) },
+      });
 
-    if (!deviation) {
+      if (!deviation) {
+        return NextResponse.json(
+          { error: 'Deviation not found' },
+          { status: 404 }
+        );
+      }
+
+      const start = deviation.date.getTime();
+      const pendingDays =
+          deviation.complianceStatus === 'Closed' && deviation.complianceDate
+          ? Math.floor(
+              (new Date(deviation.complianceDate).getTime() - start) / (1000 * 60 * 60 * 24)
+            )
+          : Math.floor(
+              (Date.now() - start) / (1000 * 60 * 60 * 24)
+            );
+
+
+      return NextResponse.json({ ...deviation, pendingDays });
+    } catch (error) {
+      console.error('Get deviation error:', error);
       return NextResponse.json(
-        { error: 'Deviation not found' },
-        { status: 404 }
+        { error: 'Failed to fetch deviation' },
+        { status: 500 }
       );
     }
-
-    const start = deviation.date.getTime();
-    const pendingDays =
-        deviation.complianceStatus === 'Closed' && deviation.complianceDate
-        ? Math.floor(
-            (new Date(deviation.complianceDate).getTime() - start) / (1000 * 60 * 60 * 24)
-          )
-        : Math.floor(
-            (Date.now() - start) / (1000 * 60 * 60 * 24)
-          );
-
-
-    return NextResponse.json({ ...deviation, pendingDays });
-  } catch (error) {
-    console.error('Get deviation error:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch deviation' },
-      { status: 500 }
-    );
   }
-}
+);
 
 // ─── PUT ───────────────────────────────────────────────────────────────────────
 // Update deviation (protected)

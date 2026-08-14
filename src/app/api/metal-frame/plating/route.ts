@@ -1,9 +1,10 @@
 import { NextResponse } from 'next/server';
 import { prismaMetalFrame } from '@/utils/prismaMetalFrame';
+import { authMiddleware } from '@/middleware/auth';
 
 const prisma = prismaMetalFrame;
 
-export async function POST(req: Request) {
+export const POST = authMiddleware(async (req: Request) => {
   try {
     const data = await req.json();
 
@@ -77,4 +78,4 @@ export async function POST(req: Request) {
       { status: 500 }
     );
   }
-}
+});

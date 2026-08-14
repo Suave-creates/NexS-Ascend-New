@@ -6,6 +6,7 @@ import { NextResponse } from 'next/server';
 import prisma from '@/utils/prisma';
 import { parse } from 'csv-parse';
 import { Readable } from 'stream';
+import { authMiddleware } from '@/middleware/auth';
 
 /* ---------------------------------------
    CONFIG
@@ -15,7 +16,7 @@ const BATCH_SIZE = 1000;
 /* ---------------------------------------
    POST: Upload & Ingest CSV
 --------------------------------------- */
-export async function POST(req: Request) {
+export const POST = authMiddleware(async (req: Request) => {
   try {
     const formData = await req.formData();
     const file = formData.get('file') as File | null;
@@ -138,4 +139,4 @@ export async function POST(req: Request) {
       { status: 500 }
     );
   }
-}
+});

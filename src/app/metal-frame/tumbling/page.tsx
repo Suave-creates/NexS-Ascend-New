@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { FiRefreshCw, FiClock, FiGrid, FiSettings } from 'react-icons/fi';
 import { PageHeader, Alert, Card, CardBody, Button } from '@/components/ui';
 import { cn } from '@/lib/cn';
+import { apiFetch } from '@/lib/authClient';
 import type { DashboardResponse } from '@/services/metal-frame/tumbling/types';
 import { KpiRow, KpiRowSkeleton } from './_components/KpiRow';
 import { DashboardFilters, DashboardFilterValue } from './_components/DashboardFilters';
@@ -41,7 +42,7 @@ export default function TumblingDashboardPage() {
     if (busyRef.current) return;
     busyRef.current = true;
     try {
-      const res = await fetch('/api/metal-frame/tumbling/dashboard');
+      const res = await apiFetch('/api/metal-frame/tumbling/dashboard');
       const json = await res.json();
       if (!res.ok) throw new Error(json.error || 'Failed to load the dashboard.');
       clockOffsetRef.current = new Date(json.serverTime).getTime() - Date.now();

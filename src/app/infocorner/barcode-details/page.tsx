@@ -28,6 +28,7 @@ import {
   StatusPill,
 } from '@/components/ui';
 import { cn } from '@/lib/cn';
+import { apiFetch } from '@/lib/authClient';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -254,7 +255,7 @@ export default function BulkBarcodeLookupPage() {
     setTextFilter('');
 
     try {
-      const res = await fetch('/api/infocorner/barcode-details', {
+      const res = await apiFetch('/api/infocorner/barcode-details', {
         method: 'POST',
         headers: { 'Content-Type': 'text/plain' },
         body: barcodes.join('\n'),

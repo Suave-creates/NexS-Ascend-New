@@ -1,13 +1,15 @@
 // src/api/packing-dispatch/kitne-parcel-the/route.ts
+import { NextResponse } from 'next/server';
 import { nexsPool } from '@/utils/nexsPool';
 import mysql from 'mysql2/promise';
+import { authMiddleware } from '@/middleware/auth';
 
 const MAX_PARCELS = 100000;
 const CHUNK_SIZE = 1000;
 
 type ShipmentRow = Record<string, unknown>;
 
-export async function POST(req: Request) {
+export const POST = authMiddleware(async (req: Request) => {
   let conn: mysql.PoolConnection | null = null;
 
   try {
@@ -93,13 +95,10 @@ export async function POST(req: Request) {
   } finally {
     if (conn) conn.release();
   }
-}
+});
 
 function json(body: unknown, status: number) {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: { 'Content-Type': 'application/json' },
-  });
+  return NextResponse.json(body, { status });
 }
 
 function pickDialogue(requested: number, uniqueFound: number, rows: number) {

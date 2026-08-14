@@ -2,8 +2,9 @@
 
 import { NextResponse } from 'next/server';
 import prisma from '@/utils/prisma';
+import { authMiddleware } from '@/middleware/auth';
 
-export async function GET(req: Request) {
+export const GET = authMiddleware(async (req: Request) => {
   try {
     const url = new URL(req.url);
     const locationId = url.searchParams.get('locationId');
@@ -49,4 +50,4 @@ export async function GET(req: Request) {
       { status: 500 }
     );
   }
-}
+});

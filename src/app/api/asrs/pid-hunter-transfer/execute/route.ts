@@ -1,13 +1,15 @@
 // src/app/api/location-transfer/execute/route.ts
+import { NextResponse } from 'next/server';
 import prisma from '@/utils/prisma';
+import { authMiddleware } from '@/middleware/auth';
 
-export async function POST(req: Request) {
+export const POST = authMiddleware(async (req: Request) => {
   try {
     const body = await req.json();
     const { scan_location } = body;
 
     if (!scan_location || typeof scan_location !== 'string' || !scan_location.trim()) {
-      return new Response(JSON.stringify({ error: 'scan_location required' }), { status: 400 });
+      return NextResponse.json({ error: 'scan_location required' }, { status: 400 });
     }
 
     const loc = scan_location.trim();
@@ -44,12 +46,12 @@ export async function POST(req: Request) {
       return beforeCount;
     });
 
-    return new Response(
-      JSON.stringify({ scan_location: loc, count }),
-      { status: 200, headers: { 'Content-Type': 'application/json' } }
+    return NextResponse.json(
+      { scan_location: loc, count },
+      { status: 200 }
     );
   } catch (err) {
     console.error('[location-transfer/execute]', err);
-    return new Response(JSON.stringify({ error: 'Transfer failed' }), { status: 500 });
+    return NextResponse.json({ error: 'Transfer failed' }, { status: 500 });
   }
-}
+});

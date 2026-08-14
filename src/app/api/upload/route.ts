@@ -3,8 +3,9 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/utils/prisma';
 import * as XLSX from 'xlsx';
+import { authMiddleware } from '@/middleware/auth';
 
-export async function POST(req: Request) {
+export const POST = authMiddleware(async (req: Request) => {
   try {
     const formData = await req.formData();
     const file = formData.get('file') as Blob;
@@ -52,4 +53,4 @@ export async function POST(req: Request) {
       { status: 500 }
     );
   }
-}
+});

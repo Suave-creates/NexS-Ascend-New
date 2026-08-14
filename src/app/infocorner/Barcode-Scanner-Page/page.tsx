@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useTransition } from 'react';
+import { apiFetch } from '@/lib/authClient';
 import {
   Card,
   CardBody,
@@ -45,7 +46,7 @@ export default function BarcodeScannerPage() {
 
     startTransition(async () => {
       try {
-        const res = await fetch('/api/infocorner/barcode-scan', {
+        const res = await apiFetch('/api/infocorner/barcode-scan', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ input: rawInput }),

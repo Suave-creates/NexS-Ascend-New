@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { BIGQUERY_DATA_PROJECT_ID, runBigQuery } from '@/utils/resources/bigquery/client';
+import { authMiddleware } from '@/middleware/auth';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -12,7 +13,7 @@ function normalizeScan(input: string) {
   return { toteId, locationPrefix: `${FACILITY_PREFIX}${toteId}%` };
 }
 
-export async function POST(req: Request) {
+export const POST = authMiddleware(async (req: Request) => {
   try {
     const { input } = await req.json();
     if (!input || typeof input !== 'string') {
@@ -48,4 +49,4 @@ export async function POST(req: Request) {
       { status: 500 },
     );
   }
-}
+});

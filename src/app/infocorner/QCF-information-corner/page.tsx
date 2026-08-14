@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useTransition, useMemo, ChangeEvent, KeyboardEvent } from 'react';
+import { apiFetch } from '@/lib/authClient';
 import {
   Card,
   CardHeader,
@@ -111,7 +112,7 @@ export default function OrderInformationCornerPage() {
 
     startTransition(async () => {
       try {
-        const res = await fetch('/api/infocorner/qcf-order-info', {
+        const res = await apiFetch('/api/infocorner/qcf-order-info', {
           method:  'POST',
           headers: { 'Content-Type': 'application/json' },
           body:    JSON.stringify({ shippingPackageId: inputValue.trim() }),

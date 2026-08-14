@@ -7,11 +7,12 @@ import { NextResponse } from 'next/server';
 import { prismaDispatch } from '@/utils/prismaDispatch';
 import { resetAll } from '@/utils/rackController';
 import { runExclusive } from '@/utils/consolidate';
+import { authMiddleware } from '@/middleware/auth';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-export async function POST() {
+export const POST = authMiddleware(async () => {
   try {
     // Serialise with scan/release so a reset can't run mid-scan transaction.
     await runExclusive(() => prismaDispatch.$transaction([
@@ -29,4 +30,4 @@ export async function POST() {
     console.error('consolidate-ptl/master-reset error:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
-}
+});

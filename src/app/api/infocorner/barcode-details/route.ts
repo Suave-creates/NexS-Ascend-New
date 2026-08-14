@@ -1,14 +1,16 @@
+import { NextResponse } from 'next/server';
 import { BIGQUERY_DATA_PROJECT_ID, runBigQuery } from '@/utils/resources/bigquery/client';
+import { authMiddleware } from '@/middleware/auth';
 
 const MAX_LOCATIONS = 100000;
 const CHUNK_SIZE = 1000;
 
-export async function POST(req: Request) {
+export const POST = authMiddleware(async (req: Request) => {
   try {
     const rawText = await req.text();
 
     if (!rawText || rawText.trim().length === 0) {
-      return new Response(JSON.stringify({ error: 'Empty input' }), {
+      return new NextResponse(JSON.stringify({ error: 'Empty input' }), {
         status: 400,
         headers: { 'Content-Type': 'application/json' },
       });
@@ -20,14 +22,14 @@ export async function POST(req: Request) {
       .filter((l) => l.length > 0);
 
     if (barcodes.length === 0) {
-      return new Response(JSON.stringify({ error: 'No valid barcodes found' }), {
+      return new NextResponse(JSON.stringify({ error: 'No valid barcodes found' }), {
         status: 400,
         headers: { 'Content-Type': 'application/json' },
       });
     }
 
     if (barcodes.length > MAX_LOCATIONS) {
-      return new Response(JSON.stringify({ error: 'Max 10000 barcodes allowed' }), {
+      return new NextResponse(JSON.stringify({ error: 'Max 10000 barcodes allowed' }), {
         status: 400,
         headers: { 'Content-Type': 'application/json' },
       });
@@ -117,7 +119,7 @@ export async function POST(req: Request) {
       },
     });
 
-    return new Response(stream, {
+    return new NextResponse(stream, {
       headers: {
         'Content-Type': 'text/plain; charset=utf-8',
         'Cache-Control': 'no-cache',
@@ -125,9 +127,9 @@ export async function POST(req: Request) {
     });
   } catch (err) {
     console.error('Bulk query error:', err);
-    return new Response(
+    return new NextResponse(
       JSON.stringify({ error: 'Processing failed' }),
       { status: 500, headers: { 'Content-Type': 'application/json' } }
     );
   }
-}
+});

@@ -17,6 +17,7 @@ import {
   StatusPill,
   Badge,
 } from "@/components/ui";
+import { apiFetch } from "@/lib/authClient";
 
 const API = "/api/packing-dispatch/ndd-rca";
 const DRIVE_FOLDER = "1Kygr8PWqaZ8t0GAZDnB3nBJIgriAeC9U";
@@ -57,7 +58,7 @@ export default function NddRcaPage() {
 
   // initial RCA date from the server (today − 2)
   useEffect(() => {
-    fetch(`${API}?action=default-date`)
+    apiFetch(`${API}?action=default-date`)
       .then((r) => r.json())
       .then((d) => setDate(d.date))
       .catch(() => {
@@ -83,7 +84,7 @@ export default function NddRcaPage() {
   const validDate = (d: string) =>
     /^\d{4}-\d{2}-\d{2}$/.test(d) && !Number.isNaN(Date.parse(d));
 
-  const run = (step: string, label: string) => {
+  const run = async (step: string, label: string) => {
     if (busy) return;
     if (!validDate(date)) {
       emit(`✗ Invalid date '${date}' (use YYYY-MM-DD)`, "err");
@@ -91,8 +92,26 @@ export default function NddRcaPage() {
     }
     setBusy(true);
     setStatus(label);
+
+    // EventSource can't carry an Authorization header, so mint a short-lived,
+    // single-use ticket over an authenticated apiFetch call first.
+    let ticket = "";
+    try {
+      const r = await apiFetch(`${API}?action=ticket`);
+      const d = await r.json();
+      ticket = d.ticket || "";
+    } catch {
+      // fall through with an empty ticket; the server will reject it below
+    }
+    if (!ticket) {
+      emit("✗ could not authorize the run (login may have expired)", "err");
+      setBusy(false);
+      setStatus("IDLE");
+      return;
+    }
+
     const es = new EventSource(
-      `${API}?action=run&step=${encodeURIComponent(step)}&date=${encodeURIComponent(date)}`,
+      `${API}?action=run&step=${encodeURIComponent(step)}&date=${encodeURIComponent(date)}&ticket=${encodeURIComponent(ticket)}`,
     );
     esRef.current = es;
     es.onmessage = (e) => {
@@ -121,7 +140,7 @@ export default function NddRcaPage() {
     }
     emit(`looking up Drive file for ${date} …`, "dim");
     try {
-      const r = await fetch(`${API}?action=link&date=${encodeURIComponent(date)}`);
+      const r = await apiFetch(`${API}?action=link&date=${encodeURIComponent(date)}`);
       const d = await r.json();
       if (d.ok && d.link) {
         emit(`opening ${d.link}`, "info");
@@ -142,7 +161,7 @@ export default function NddRcaPage() {
     }
     emit(`building Dispatch view (DAC) for ${date} …`, "dim");
     try {
-      const r = await fetch(`${API}?action=dac&date=${encodeURIComponent(date)}`);
+      const r = await apiFetch(`${API}?action=dac&date=${encodeURIComponent(date)}`);
       const ct = r.headers.get("Content-Type") || "";
       if (ct.includes("application/json")) {
         const d = await r.json();

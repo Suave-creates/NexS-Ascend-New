@@ -14,6 +14,7 @@
 import { NextResponse } from 'next/server';
 import { prismaDispatch } from '@/utils/prismaDispatch';
 import { acquirePkgLock, releasePkgLock, computeProgress } from '@/utils/consolidatePlatform';
+import { authMiddleware } from '@/middleware/auth';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -35,7 +36,7 @@ const toDate = (v: unknown): Date | null => {
 
 const CHUNK = 200;
 
-export async function POST(req: Request) {
+export const POST = authMiddleware(async (req: Request) => {
   if (syncing) {
     return NextResponse.json({ success: true, skipped: true, reason: 'sync already running' });
   }
@@ -175,4 +176,4 @@ export async function POST(req: Request) {
   } finally {
     syncing = false;
   }
-}
+});

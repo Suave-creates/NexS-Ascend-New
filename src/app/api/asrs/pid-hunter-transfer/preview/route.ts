@@ -1,13 +1,15 @@
 // src/app/api/location-transfer/preview/route.ts
+import { NextResponse } from 'next/server';
 import prisma from '@/utils/prisma';
+import { authMiddleware } from '@/middleware/auth';
 
-export async function POST(req: Request) {
+export const POST = authMiddleware(async (req: Request) => {
   try {
     const body = await req.json();
     const { scan_location } = body;
 
     if (!scan_location || typeof scan_location !== 'string' || !scan_location.trim()) {
-      return new Response(JSON.stringify({ error: 'scan_location required' }), { status: 400 });
+      return NextResponse.json({ error: 'scan_location required' }, { status: 400 });
     }
 
     const loc = scan_location.trim();
@@ -17,8 +19,8 @@ export async function POST(req: Request) {
       orderBy: { scannedAt: 'desc' },
     });
 
-    return new Response(
-      JSON.stringify({
+    return NextResponse.json(
+      {
         scan_location: loc,
         count: rows.length,
         records: rows.map((r) => ({
@@ -32,11 +34,11 @@ export async function POST(req: Request) {
           nexs_location: r.nexsLocation,
           scanned_at: r.scannedAt,
         })),
-      }),
-      { status: 200, headers: { 'Content-Type': 'application/json' } }
+      },
+      { status: 200 }
     );
   } catch (err) {
     console.error('[location-transfer/preview]', err);
-    return new Response(JSON.stringify({ error: 'Failed to load records' }), { status: 500 });
+    return NextResponse.json({ error: 'Failed to load records' }, { status: 500 });
   }
-}
+});

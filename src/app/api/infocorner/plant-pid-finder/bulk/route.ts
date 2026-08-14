@@ -1,11 +1,13 @@
+import { NextResponse } from 'next/server';
 import { BIGQUERY_DATA_PROJECT_ID, runBigQuery } from '@/utils/resources/bigquery/client';
+import { authMiddleware } from '@/middleware/auth';
 
-export async function POST(req: Request) {
+export const POST = authMiddleware(async (req: Request) => {
   try {
     const { pids } = await req.json();
 
     if (!Array.isArray(pids) || pids.length === 0) {
-      return new Response(
+      return new NextResponse(
         JSON.stringify({ error: 'pids must be a non-empty array' }),
         { status: 400, headers: { 'Content-Type': 'application/json' } }
       );
@@ -17,7 +19,7 @@ export async function POST(req: Request) {
     );
 
     if (validPids.length === 0) {
-      return new Response(
+      return new NextResponse(
         JSON.stringify({ error: 'No valid PIDs provided' }),
         { status: 400, headers: { 'Content-Type': 'application/json' } }
       );
@@ -62,7 +64,7 @@ export async function POST(req: Request) {
       ),
     ].join('\r\n');
 
-    return new Response(csvLines, {
+    return new NextResponse(csvLines, {
       status: 200,
       headers: {
         'Content-Type': 'text/csv; charset=utf-8',
@@ -72,9 +74,9 @@ export async function POST(req: Request) {
     });
   } catch (error) {
     console.error('Plant PID Finder Bulk Error:', error);
-    return new Response(
+    return new NextResponse(
       JSON.stringify({ error: 'Internal Server Error' }),
       { status: 500, headers: { 'Content-Type': 'application/json' } }
     );
   }
-}
+});

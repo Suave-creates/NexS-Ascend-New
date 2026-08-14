@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import formidable from 'formidable';
 import fs from 'fs';
 import path from 'path';
+import { authMiddleware } from '@/middleware/auth';
 
 export const config = {
   api: {
@@ -10,7 +11,7 @@ export const config = {
   },
 };
 
-export async function POST(req: NextRequest) {
+export const POST = authMiddleware(async (req: NextRequest) => {
   try {
     const formData = await req.formData();
     const file = formData.get('photo') as File;
@@ -46,4 +47,4 @@ export async function POST(req: NextRequest) {
       { status: 500 }
     );
   }
-}
+});

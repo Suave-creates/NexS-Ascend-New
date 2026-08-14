@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/utils/prisma';
 import * as xlsx from 'xlsx';
+import { authMiddleware } from '@/middleware/auth';
 
 export const config = { api: { bodyParser: false } };
 
@@ -12,7 +13,7 @@ function normalizeRow(row: any) {
   return normalized;
 }
 
-export async function POST(req: Request) {
+export const POST = authMiddleware(async (req: Request) => {
   try {
     const formData = await req.formData();
     const file = formData.get('file') as File;
@@ -78,4 +79,4 @@ export async function POST(req: Request) {
       { status: 500 }
     );
   }
-}
+});

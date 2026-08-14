@@ -19,9 +19,9 @@ import {
   nextAvailableHotkey,
   SUPERVISOR_CODE,
 } from '@/lib/qcReasons';
+import { useAuth, apiFetch } from '@/lib/authClient';
 
 const BARCODE_REGEX = /^[A-Z]{3}\d{9}$/;
-const QC_PERSON_KEY = 'qc-person-v1';
 const QC_STATION_KEY = 'qc-station-v1';
 
 // A scan may be a plain barcode (3 letters + 9 digits) or a "link barcode" — a
@@ -41,7 +41,8 @@ type Toast = { text: string; tone: 'success' | 'error' | 'warning' } | null;
 type Prev = { status: string; reason: string | null; qcPerson: string; minutesSince: number } | null;
 
 export default function QcPage() {
-  const [qcPerson, setQcPerson] = useState('');
+  const { user } = useAuth();
+  const qcPerson = user?.employeeCode ?? '';
   const [qcStation, setQcStation] = useState('');
   const [setupLoaded, setSetupLoaded] = useState(false);
 
@@ -73,11 +74,9 @@ export default function QcPage() {
     requestAnimationFrame(() => scanRef.current?.focus());
   }, []);
 
-  /* ---------- load persisted person + station ---------- */
+  /* ---------- load persisted station (person now comes from the session) ---------- */
   useEffect(() => {
     try {
-      const p = localStorage.getItem(QC_PERSON_KEY);
-      if (p) setQcPerson(p);
       const s = localStorage.getItem(QC_STATION_KEY);
       if (s) setQcStation(s);
     } catch {
@@ -88,15 +87,14 @@ export default function QcPage() {
 
   useEffect(() => {
     if (!setupLoaded) return;
-    localStorage.setItem(QC_PERSON_KEY, qcPerson);
     localStorage.setItem(QC_STATION_KEY, qcStation);
-  }, [qcPerson, qcStation, setupLoaded]);
+  }, [qcStation, setupLoaded]);
 
   /* ---------- load the DB-backed reason layout (shared across stations) ---------- */
   const loadReasons = useCallback(async () => {
     setReasonsState('loading');
     try {
-      const res = await fetch('/api/metal-frame/qc/reasons');
+      const res = await apiFetch('/api/metal-frame/qc/reasons');
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed to load reasons');
       setReasons(data.reasons);
@@ -119,7 +117,7 @@ export default function QcPage() {
   const fetchStats = useCallback(async () => {
     if (!qcPerson.trim()) return;
     try {
-      const res = await fetch(`/api/metal-frame/qc/stats?qcPerson=${encodeURIComponent(qcPerson)}`);
+      const res = await apiFetch(`/api/metal-frame/qc/stats?qcPerson=${encodeURIComponent(qcPerson)}`);
       if (res.ok) setStats(await res.json());
     } catch {
       /* ignore */
@@ -144,7 +142,7 @@ export default function QcPage() {
   const loadBarcode = useCallback(
     async (barcode: string) => {
       if (!setupReady) {
-        flash('❌ Set the QC Person and QC Station first.', 'error');
+        flash('❌ Set the QC Station first.', 'error');
         refocus();
         return;
       }
@@ -152,7 +150,7 @@ export default function QcPage() {
       setCurrent(barcode);
       setPrev(null);
       try {
-        const res = await fetch(`/api/metal-frame/qc?barcode=${encodeURIComponent(barcode)}`);
+        const res = await apiFetch(`/api/metal-frame/qc?barcode=${encodeURIComponent(barcode)}`);
         if (res.ok) {
           const data = await res.json();
           setPrev(data.previous);
@@ -182,10 +180,10 @@ export default function QcPage() {
       }
       setBusy(true);
       try {
-        const res = await fetch('/api/metal-frame/qc', {
+        const res = await apiFetch('/api/metal-frame/qc', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ barcode: current, qcPerson, qcStation, status, reason: reason ?? null }),
+          body: JSON.stringify({ barcode: current, qcStation, status, reason: reason ?? null }),
         });
         const data = await res.json();
         if (!res.ok) {
@@ -204,7 +202,7 @@ export default function QcPage() {
         setBusy(false);
       }
     },
-    [current, busy, qcPerson, qcStation, flash, resetCurrent, fetchStats, prev],
+    [current, busy, qcStation, flash, resetCurrent, fetchStats, prev],
   );
 
   /* ---------- keyboard hotkeys while a barcode is loaded ---------- */
@@ -269,7 +267,7 @@ export default function QcPage() {
     async (next: QcReason[], code: string) => {
       setSupSaving(true);
       try {
-        const res = await fetch('/api/metal-frame/qc/reasons', {
+        const res = await apiFetch('/api/metal-frame/qc/reasons', {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -326,12 +324,8 @@ export default function QcPage() {
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <Card className="p-5">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <Field label="QC Person" hint="Stays set until you change it (this device).">
-              <Input
-                value={qcPerson}
-                onChange={(e) => setQcPerson(e.target.value)}
-                placeholder="QC Person ID / name"
-              />
+            <Field label="QC Person" hint="Signed-in operator.">
+              <Input value={qcPerson} disabled />
             </Field>
             <Field label="QC Station / Line" hint="Stays set until you change it (this device).">
               <Input
@@ -357,7 +351,7 @@ export default function QcPage() {
       </div>
 
       {!setupReady && (
-        <Alert tone="warning">Set the QC Person and QC Station / Line before scanning.</Alert>
+        <Alert tone="warning">Set the QC Station / Line before scanning.</Alert>
       )}
 
       {toast && <Alert tone={toast.tone}>{toast.text}</Alert>}

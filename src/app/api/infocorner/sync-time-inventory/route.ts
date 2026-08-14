@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { BIGQUERY_DATA_PROJECT_ID, runBigQuery } from "@/utils/resources/bigquery/client";
+import { authMiddleware } from "@/middleware/auth";
 
 interface PkgRow {
   shipment_id: string;
@@ -33,7 +34,7 @@ function sanitizeId(id: unknown): string | null {
   return trimmed;
 }
 
-export async function POST(req: Request) {
+export const POST = authMiddleware(async (req: Request) => {
   /* ───────── Parse & validate body ───────── */
   let body: unknown;
   try {
@@ -192,4 +193,4 @@ export async function POST(req: Request) {
     },
     { status: 200 }
   );
-}
+});

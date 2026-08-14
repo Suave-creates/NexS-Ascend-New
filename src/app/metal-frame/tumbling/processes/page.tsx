@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { FiX } from 'react-icons/fi';
 import { Alert, Badge, Input, Select, Field, Button, Table, THead, TBody, TR, TH, TD } from '@/components/ui';
+import { apiFetch } from '@/lib/authClient';
 import type { PaginatedResult, ProcessHistoryRowDto, TumblingProcessStatus } from '@/services/metal-frame/tumbling/types';
 import { formatClockTime, formatDuration, formatFullDateTime } from '../_components/format';
 import { containerStatusStyle } from '../_components/statusStyles';
@@ -50,7 +51,7 @@ export default function ProcessHistoryPage() {
       if (dateTo) params.set('dateTo', new Date(dateTo).toISOString());
       if (containerId) params.set('containerId', containerId);
 
-      const res = await fetch(`/api/metal-frame/tumbling/processes?${params.toString()}`);
+      const res = await apiFetch(`/api/metal-frame/tumbling/processes?${params.toString()}`);
       const json = await res.json();
       if (!res.ok) throw new Error(json.error || 'Failed to load process history.');
       setResult(json);

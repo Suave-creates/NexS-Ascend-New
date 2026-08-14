@@ -3,6 +3,7 @@
 
 import React, { useMemo, useRef, useState } from 'react';
 import { Card, CardBody, PageHeader, Textarea, Button, Badge, Alert } from '@/components/ui';
+import { apiFetch } from '@/lib/authClient';
 
 export default function KitneParcelTheClClsPage() {
   const [input, setInput] = useState('');
@@ -34,7 +35,7 @@ export default function KitneParcelTheClClsPage() {
     }
     setBusy(true);
     try {
-      const res = await fetch('/api/cl-cls/kitne-parcel-the-cl-cls', {
+      const res = await apiFetch('/api/cl-cls/kitne-parcel-the-cl-cls', {
         method: 'POST',
         headers: { 'Content-Type': 'text/plain' },
         body: input,

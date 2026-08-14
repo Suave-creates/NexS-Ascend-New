@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prismaMetalFrame as prisma } from '@/utils/prismaMetalFrame';
+import { authMiddleware } from '@/middleware/auth';
+import type { AuthenticatedRequest } from '@/middleware/auth';
 
 // Barcode format: 3 alphabets + 9 digits  e.g.  ABC123456789
 const BARCODE_REGEX = /^[A-Z]{3}\d{9}$/;
@@ -7,7 +9,7 @@ const BARCODE_REGEX = /^[A-Z]{3}\d{9}$/;
 const IST_OFFSET = 5.5 * 60 * 60 * 1000;
 
 // GET /api/metal-frame/qc?barcode=ABC123456789 -> last QC verdict for that barcode (for a "previously QC'd" note)
-export async function GET(req: Request) {
+export const GET = authMiddleware(async (req: Request) => {
   const url = new URL(req.url);
   const barcode = (url.searchParams.get('barcode') ?? '').trim().toUpperCase();
   if (!BARCODE_REGEX.test(barcode)) {
@@ -32,14 +34,14 @@ export async function GET(req: Request) {
       minutesSince,
     },
   });
-}
+});
 
 // POST /api/metal-frame/qc -> record a QC verdict
-export async function POST(req: Request) {
+export const POST = authMiddleware(async (req: AuthenticatedRequest) => {
   try {
     const body = await req.json();
     const barcode: string = (body.barcode ?? '').trim().toUpperCase();
-    const qcPerson: string = (body.qcPerson ?? '').trim();
+    const qcPerson: string = req.user.employeeCode;
     const qcStation: string = (body.qcStation ?? '').trim();
     const status: string = (body.status ?? '').trim().toUpperCase(); // PASS | FAIL
     const reason: string | null = body.reason ? String(body.reason).trim() : null;
@@ -84,4 +86,4 @@ export async function POST(req: Request) {
       { status: 500 },
     );
   }
-}
+});

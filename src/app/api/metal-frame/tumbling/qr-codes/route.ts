@@ -1,11 +1,12 @@
 import { NextResponse } from 'next/server';
+import { authMiddleware } from '@/middleware/auth';
 import { buildStationQrCodes } from '@/services/metal-frame/tumbling/qr.service';
 import { handleRouteError } from '@/services/metal-frame/tumbling/http';
 
 export const dynamic = 'force-dynamic';
 
 // GET /api/metal-frame/tumbling/qr-codes -> one QR code per station, targeting its public stationCode route
-export async function GET(req: Request) {
+export const GET = authMiddleware(async (req: Request) => {
   try {
     const origin = new URL(req.url).origin;
     const qrCodes = await buildStationQrCodes(origin);
@@ -13,4 +14,4 @@ export async function GET(req: Request) {
   } catch (err) {
     return handleRouteError('Tumbling QR codes', err);
   }
-}
+});

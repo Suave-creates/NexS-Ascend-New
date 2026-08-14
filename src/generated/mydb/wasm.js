@@ -124,7 +124,13 @@ exports.Prisma.UserScalarFieldEnum = {
   id: 'id',
   employeeCode: 'employeeCode',
   passwordHash: 'passwordHash',
-  createdAt: 'createdAt'
+  role: 'role',
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  approvedAt: 'approvedAt',
+  approvedBy: 'approvedBy',
+  rejectionReason: 'rejectionReason'
 };
 
 exports.Prisma.ShippingMetadataScalarFieldEnum = {
@@ -336,9 +342,16 @@ exports.Prisma.SortOrder = {
   desc: 'desc'
 };
 
+exports.Prisma.NullsOrder = {
+  first: 'first',
+  last: 'last'
+};
+
 exports.Prisma.UserOrderByRelevanceFieldEnum = {
   employeeCode: 'employeeCode',
-  passwordHash: 'passwordHash'
+  passwordHash: 'passwordHash',
+  approvedBy: 'approvedBy',
+  rejectionReason: 'rejectionReason'
 };
 
 exports.Prisma.ShippingMetadataOrderByRelevanceFieldEnum = {
@@ -356,11 +369,6 @@ exports.Prisma.DispatchScanOrderByRelevanceFieldEnum = {
   scanId: 'scanId',
   stationId: 'stationId',
   nexsId: 'nexsId'
-};
-
-exports.Prisma.NullsOrder = {
-  first: 'first',
-  last: 'last'
 };
 
 exports.Prisma.OperationsMetadataOrderByRelevanceFieldEnum = {
@@ -497,6 +505,17 @@ exports.Prisma.ScannedBarcodeInventoryTransferOrderByRelevanceFieldEnum = {
 exports.Prisma.NddShipmentOrderByRelevanceFieldEnum = {
   awb: 'awb'
 };
+exports.UserRole = exports.$Enums.UserRole = {
+  USER: 'USER',
+  SUPER_ADMIN: 'SUPER_ADMIN'
+};
+
+exports.UserStatus = exports.$Enums.UserStatus = {
+  PENDING: 'PENDING',
+  APPROVED: 'APPROVED',
+  REJECTED: 'REJECTED'
+};
+
 exports.NddShipmentType = exports.$Enums.NddShipmentType = {
   Normal: 'Normal',
   Rescue: 'Rescue'

@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import * as XLSX from 'xlsx';
 import { FiSearch, FiDownloadCloud } from 'react-icons/fi';
+import { apiFetch } from '@/lib/authClient';
 import {
   Card,
   CardBody,
@@ -61,7 +62,7 @@ export default function OrderInformationCornerPage() {
 
     setIsPending(true);
     try {
-      const res = await fetch('/api/infocorner/order-info', {
+      const res = await apiFetch('/api/infocorner/order-info', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ mode: 'single', payload: id }),
@@ -94,7 +95,7 @@ export default function OrderInformationCornerPage() {
       const allRows: any[] = [];
       for (let i = 0; i < chunks.length; i++) {
         setProgress({ current: i + 1, total: chunks.length });
-        const res = await fetch('/api/infocorner/order-info', {
+        const res = await apiFetch('/api/infocorner/order-info', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ mode: 'bulk', payload: chunks[i] }),

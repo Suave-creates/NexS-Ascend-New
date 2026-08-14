@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Card, PageHeader, Field, Input, Alert } from '@/components/ui';
+import { apiFetch } from '@/lib/authClient';
 
 export default function ManualWarehouseValidatePage() {
   const [pid, setPid] = useState('');
@@ -27,7 +28,7 @@ export default function ManualWarehouseValidatePage() {
       setPkg(null);
       setStatus(null);
 
-      const res = await fetch('/api/manual-warehouse/lookup', {
+      const res = await apiFetch('/api/manual-warehouse/lookup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ pid }),

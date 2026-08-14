@@ -19,13 +19,24 @@ import { NextResponse } from 'next/server';
 import { prismaDispatch } from '@/utils/prismaDispatch';
 import { computeProgress, claimFreeSlotInRack, runExclusive, pendingColors } from '@/utils/consolidatePlatform';
 import type { OperatorColor } from '@/generated/dispatch';
+import { authMiddleware } from '@/middleware/auth';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
+// NOTE: operatorColor stays a client-supplied value here, unlike the rest of
+// the auth rollout — same reasoning as the sibling PTL route
+// (src/app/api/cl-cls/consolidate-ptl/scan-barcode/route.ts): it's a
+// required 5-value enum supporting up to 4 CONCURRENT operators, each
+// visually picking a distinct Ranger colour so "only my own colour confirms
+// my own pending item" can tell them apart. Deriving it from employeeCode
+// (as tried and reverted) would permanently collide any two employees whose
+// codes hash to the same colour. Real operator identity is asserted by
+// authMiddleware/req.user for access control; operatorColor remains a
+// self-picked concurrency lane.
 const COLORS = new Set(['YELLOW', 'BLUE', 'GREEN', 'PINK', 'RED']);
 
-export async function POST(req: Request) {
+export const POST = authMiddleware(async (req: Request) => {
   try {
     const { barcode, operatorColor, rackNumber } = await req.json();
     if (!barcode) return NextResponse.json({ error: 'barcode required' }, { status: 400 });
@@ -213,4 +224,4 @@ export async function POST(req: Request) {
     console.error('consolidate scan-barcode error:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
-}
+});

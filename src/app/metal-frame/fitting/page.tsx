@@ -14,6 +14,7 @@ import {
   Badge,
 } from '@/components/ui';
 import { cn } from '@/lib/cn';
+import { apiFetch } from '@/lib/authClient';
 
 const BARCODE_REGEX = /^[A-Z]{3}\d{9}$/;
 const SETUP_STORAGE_KEY = 'fitting-setup-v1';
@@ -110,7 +111,7 @@ export default function FittingPage() {
   const fetchStats = useCallback(async () => {
     if (!lineNumber.trim()) return;
     try {
-      const res = await fetch(`/api/metal-frame/fitting/stats?lineNumber=${encodeURIComponent(lineNumber)}`);
+      const res = await apiFetch(`/api/metal-frame/fitting/stats?lineNumber=${encodeURIComponent(lineNumber)}`);
       if (res.ok) setStats(await res.json());
     } catch {
       /* ignore */
@@ -139,7 +140,7 @@ export default function FittingPage() {
     async (barcode: string, intent: 'auto' | 'rework' | 'normal') => {
       setBusy(true);
       try {
-        const res = await fetch('/api/metal-frame/fitting', {
+        const res = await apiFetch('/api/metal-frame/fitting', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ barcode, lineNumber, persons, intent }),

@@ -3,6 +3,7 @@
 import { useState, useTransition, useEffect, useRef } from 'react';
 import * as XLSX from 'xlsx';
 import { cn } from '@/lib/cn';
+import { apiFetch } from '@/lib/authClient';
 import {
   Button,
   Input,
@@ -327,7 +328,7 @@ export default function QCTrayPage() {
     setSingleError(null);
     startTransition(async () => {
       try {
-        const res = await fetch('/api/omt/tracer-pro', {
+        const res = await apiFetch('/api/omt/tracer-pro', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ trayId }),
@@ -352,7 +353,7 @@ export default function QCTrayPage() {
     setBulkError(null);
     setBulkLoading(true);
     try {
-      const res = await fetch('/api/omt/tracer-pro/bulk', {
+      const res = await apiFetch('/api/omt/tracer-pro/bulk', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ trayIds }),

@@ -2,6 +2,7 @@
 
 import { useState, useTransition, useEffect, useRef } from 'react';
 import * as XLSX from 'xlsx';
+import { apiFetch } from '@/lib/authClient';
 import {
   Card,
   CardHeader,
@@ -161,7 +162,7 @@ export default function QCTrayPage() {
     setError(null);
     startTransition(async () => {
       try {
-        const res = await fetch('/api/operations/tray-pro-mei', {
+        const res = await apiFetch('/api/operations/tray-pro-mei', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ trayIds: [trayId] }),

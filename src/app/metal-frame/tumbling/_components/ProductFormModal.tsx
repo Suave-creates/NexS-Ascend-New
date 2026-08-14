@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Modal, Field, Input, Button, Alert } from '@/components/ui';
+import { useAuth, apiFetch } from '@/lib/authClient';
 import { validateProduct } from '@/services/metal-frame/tumbling/validators';
 import { formatDuration, formatFullDateTime } from './format';
 
@@ -19,7 +20,6 @@ function blankDraft(): ProductDraft {
 interface ProductFormModalProps {
   open: boolean;
   onClose: () => void;
-  operatorName: string;
   containerId: number;
   stationLabel: string;
   durationMinutes: number;
@@ -30,12 +30,13 @@ interface ProductFormModalProps {
 export function ProductFormModal({
   open,
   onClose,
-  operatorName,
   containerId,
   stationLabel,
   durationMinutes,
   onSaved,
 }: ProductFormModalProps) {
+  const { user } = useAuth();
+  const operatorName = user?.employeeCode ?? '';
   const [draft, setDraft] = useState<ProductDraft>(blankDraft());
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -67,7 +68,7 @@ export function ProductFormModal({
     setError(null);
     try {
       const product = validated();
-      const res = await fetch('/api/metal-frame/tumbling/processes', {
+      const res = await apiFetch('/api/metal-frame/tumbling/processes', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ containerId, product, operatorName }),
@@ -98,7 +99,7 @@ export function ProductFormModal({
     setError(null);
     try {
       const product = validated();
-      const createRes = await fetch('/api/metal-frame/tumbling/processes', {
+      const createRes = await apiFetch('/api/metal-frame/tumbling/processes', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ containerId, product, operatorName }),
@@ -106,7 +107,7 @@ export function ProductFormModal({
       const createJson = await createRes.json();
       if (!createRes.ok) throw new Error(createJson.error || 'Failed to create the process.');
 
-      const startRes = await fetch(`/api/metal-frame/tumbling/processes/${createJson.process.id}/start`, {
+      const startRes = await apiFetch(`/api/metal-frame/tumbling/processes/${createJson.process.id}/start`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ operatorName }),

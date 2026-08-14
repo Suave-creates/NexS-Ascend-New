@@ -2,6 +2,7 @@
 
 import { NextResponse } from 'next/server';
 import { BIGQUERY_DATA_PROJECT_ID, runBigQuery } from '@/utils/resources/bigquery/client';
+import { authMiddleware } from '@/middleware/auth';
 
 /* =====================================================
    CONFIG
@@ -22,7 +23,7 @@ function chunkArray<T>(arr: T[], size: number): T[][] {
 /* =====================================================
    API
 ===================================================== */
-export async function POST(req: Request) {
+export const POST = authMiddleware(async (req: Request) => {
   try {
     const body = await req.json();
     const { shipment_ids } = body;
@@ -90,4 +91,4 @@ export async function POST(req: Request) {
     );
 
   }
-}
+});

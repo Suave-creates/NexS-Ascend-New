@@ -17,6 +17,7 @@ import {
   TH,
   TD,
 } from '@/components/ui';
+import { apiFetch } from '@/lib/authClient';
 
 type InventoryItem = {
   barcode: string;
@@ -54,7 +55,7 @@ export default function LocationMasterPage() {
 
     startTransition(async () => {
       try {
-        const res = await fetch('/api/manual-warehouse/cc-mini', {
+        const res = await apiFetch('/api/manual-warehouse/cc-mini', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ location: locationInput }),

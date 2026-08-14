@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getNexsToken, invalidateNexsToken } from '@/utils/resources/nexs/auth';
 import prisma from '@/utils/prisma';
+import { authMiddleware } from '@/middleware/auth';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -20,7 +21,7 @@ function jsonError(error: string, status: number) {
   return NextResponse.json({ error }, { status });
 }
 
-export async function POST(req: Request) {
+export const POST = authMiddleware(async (req: Request) => {
   let barcode: string;
   let scanLocation: string;
 
@@ -141,4 +142,4 @@ export async function POST(req: Request) {
     console.error('[pid-hunter] Processing failed:', error);
     return jsonError('Processing failed', 500);
   }
-}
+});

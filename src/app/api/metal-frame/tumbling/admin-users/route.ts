@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { authMiddleware } from '@/middleware/auth';
 import { verifyAdminAccessToken } from '@/services/metal-frame/tumbling/adminAccess';
 import { createPortalUser, listPortalUsers } from '@/services/metal-frame/tumbling/userAdmin.service';
 import { validateEmployeeCode, validatePassword } from '@/services/metal-frame/tumbling/validators';
@@ -7,7 +8,7 @@ import { handleRouteError } from '@/services/metal-frame/tumbling/http';
 export const dynamic = 'force-dynamic';
 
 // GET /api/metal-frame/tumbling/admin-users -> list portal users (gated by TUMBLING_ADMIN_TOKEN)
-export async function GET(req: Request) {
+export const GET = authMiddleware(async (req: Request) => {
   try {
     verifyAdminAccessToken(req.headers.get('x-tumbling-admin-token'));
     const users = await listPortalUsers();
@@ -15,10 +16,10 @@ export async function GET(req: Request) {
   } catch (err) {
     return handleRouteError('Tumbling admin users list', err);
   }
-}
+});
 
 // POST /api/metal-frame/tumbling/admin-users -> create a new portal user (gated by TUMBLING_ADMIN_TOKEN)
-export async function POST(req: Request) {
+export const POST = authMiddleware(async (req: Request) => {
   try {
     verifyAdminAccessToken(req.headers.get('x-tumbling-admin-token'));
     const body = await req.json();
@@ -30,4 +31,4 @@ export async function POST(req: Request) {
   } catch (err) {
     return handleRouteError('Tumbling admin user create', err);
   }
-}
+});

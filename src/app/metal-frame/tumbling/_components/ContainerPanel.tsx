@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { FiChevronDown } from 'react-icons/fi';
 import { Card, CardHeader, CardBody, Button, Alert, Modal } from '@/components/ui';
 import { cn } from '@/lib/cn';
+import { useAuth, apiFetch } from '@/lib/authClient';
 import { computeProgress } from '@/services/metal-frame/tumbling/progress.service';
 import type { StationContainerPanelDto, TumblingConfigValuesDto } from '@/services/metal-frame/tumbling/types';
 import { containerStatusStyle } from './statusStyles';
@@ -29,17 +30,17 @@ export function ContainerPanel({
   stationLabel,
   panel,
   config,
-  operatorName,
   now,
   onRefresh,
 }: {
   stationLabel: string;
   panel: StationContainerPanelDto;
   config: TumblingConfigValuesDto;
-  operatorName: string;
   now: Date;
   onRefresh: () => void;
 }) {
+  const { user } = useAuth();
+  const operatorName = user?.employeeCode ?? '';
   const [showAddModal, setShowAddModal] = useState(false);
   const [confirmAction, setConfirmAction] = useState<'start' | 'cancel' | null>(null);
   const [authModalMode, setAuthModalMode] = useState<'EARLY' | 'STOP' | null>(null);
@@ -72,7 +73,7 @@ export function ContainerPanel({
     setActionError(null);
     try {
       const endpoint = confirmAction === 'start' ? 'start' : 'cancel';
-      const res = await fetch(`/api/metal-frame/tumbling/processes/${process.id}/${endpoint}`, {
+      const res = await apiFetch(`/api/metal-frame/tumbling/processes/${process.id}/${endpoint}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ operatorName }),
@@ -214,7 +215,6 @@ export function ContainerPanel({
       <ProductFormModal
         open={showAddModal}
         onClose={() => setShowAddModal(false)}
-        operatorName={operatorName}
         containerId={panel.containerId}
         stationLabel={fullLabel}
         durationMinutes={config.defaultDurationMinutes}

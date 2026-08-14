@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { authMiddleware } from '@/middleware/auth';
 import { getTumblingConfig, updateTumblingConfig, TumblingConfigValues } from '@/services/metal-frame/tumbling/config.service';
 import { verifyAuthorization } from '@/services/metal-frame/tumbling/authorization.service';
 import { validateDurationMinutes } from '@/services/metal-frame/tumbling/validators';
@@ -7,17 +8,17 @@ import { handleRouteError } from '@/services/metal-frame/tumbling/http';
 export const dynamic = 'force-dynamic';
 
 // GET /api/metal-frame/tumbling/configuration
-export async function GET() {
+export const GET = authMiddleware(async () => {
   try {
     const config = await getTumblingConfig();
     return NextResponse.json({ config });
   } catch (err) {
     return handleRouteError('Tumbling configuration get', err);
   }
-}
+});
 
 // PATCH /api/metal-frame/tumbling/configuration -> authorized users only
-export async function PATCH(req: Request) {
+export const PATCH = authMiddleware(async (req: Request) => {
   try {
     const body = await req.json();
     await verifyAuthorization({ employeeCode: body.employeeCode, password: body.password });
@@ -35,4 +36,4 @@ export async function PATCH(req: Request) {
   } catch (err) {
     return handleRouteError('Tumbling configuration update', err);
   }
-}
+});

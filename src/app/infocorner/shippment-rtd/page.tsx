@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useRef } from "react";
 import { cn } from "@/lib/cn";
+import { apiFetch } from "@/lib/authClient";
 import {
   PageHeader,
   Card,
@@ -450,7 +451,7 @@ export default function ShipmentRTDPage() {
     setProgress({ done: 0, total: ids.length, currentId: ids[0] });
 
     try {
-      const res = await fetch("/api/infocorner/shippment-rtd", {
+      const res = await apiFetch("/api/infocorner/shippment-rtd", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ shipping_ids: ids }),

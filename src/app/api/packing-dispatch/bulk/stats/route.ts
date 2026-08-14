@@ -1,8 +1,9 @@
 // src/app/api/packing-dispatch/bulk/stats/route.ts
 import { NextResponse } from 'next/server';
 import prisma from '@/utils/prisma';
+import { authMiddleware } from '@/middleware/auth';
 
-export async function GET(req: Request) {
+export const GET = authMiddleware(async (req: Request) => {
   const url = new URL(req.url);
   const stationId = url.searchParams.get('stationId');
   if (!stationId) {
@@ -19,4 +20,4 @@ export async function GET(req: Request) {
   });
 
   return NextResponse.json({ count });
-}
+});

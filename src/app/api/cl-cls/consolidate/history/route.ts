@@ -6,6 +6,7 @@
 
 import { NextResponse } from 'next/server';
 import { prismaDispatch } from '@/utils/prismaDispatch';
+import { authMiddleware } from '@/middleware/auth';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -13,7 +14,7 @@ export const dynamic = 'force-dynamic';
 const DEFAULT_LIMIT = 50;
 const MAX_LIMIT = 200;
 
-export async function GET(req: Request) {
+export const GET = authMiddleware(async (req: Request) => {
   try {
     const { searchParams } = new URL(req.url);
     const q = searchParams.get('q')?.trim() || '';
@@ -53,4 +54,4 @@ export async function GET(req: Request) {
     console.error('consolidate/history error:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
-}
+});

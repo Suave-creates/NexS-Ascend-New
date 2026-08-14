@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prismaMetalFrame as prisma } from '@/utils/prismaMetalFrame';
+import { authMiddleware } from '@/middleware/auth';
 
 // Barcode format: 3 alphabets + 9 digits  e.g.  ABC123456789
 const BARCODE_REGEX = /^[A-Z]{3}\d{9}$/;
@@ -19,7 +20,7 @@ type Persons = {
   frameAlign: string;
 };
 
-export async function POST(req: Request) {
+export const POST = authMiddleware(async (req: Request) => {
   try {
     const body = await req.json();
     const barcode: string = (body.barcode ?? '').trim().toUpperCase();
@@ -114,4 +115,4 @@ export async function POST(req: Request) {
       { status: 500 },
     );
   }
-}
+});

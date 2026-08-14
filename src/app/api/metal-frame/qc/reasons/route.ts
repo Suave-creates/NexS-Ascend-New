@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prismaMetalFrame as prisma } from '@/utils/prismaMetalFrame';
 import { DEFAULT_REASONS, SUPERVISOR_CODE, type QcReason } from '@/lib/qcReasons';
+import { authMiddleware } from '@/middleware/auth';
 
 // Shape returned to the client — matches the QcReason type in lib/qcReasons.
 type Row = { id: number; label: string; hotkey: string; featured: boolean; sortOrder: number };
@@ -25,7 +26,7 @@ async function readActive(): Promise<Row[]> {
 
 // GET /api/metal-frame/qc/reasons -> the active reason layout, ordered.
 // Auto-seeds the default layout the first time the table is empty.
-export async function GET() {
+export const GET = authMiddleware(async () => {
   try {
     let rows = await readActive();
     if (rows.length === 0) {
@@ -45,11 +46,11 @@ export async function GET() {
     console.error('QC reasons GET error:', err);
     return NextResponse.json({ error: err.message || 'Internal Server Error' }, { status: 500 });
   }
-}
+});
 
 // PUT /api/metal-frame/qc/reasons -> replace the whole layout (supervisor save).
 // body: { code: string, reasons: { label, key, featured }[] } in display order.
-export async function PUT(req: Request) {
+export const PUT = authMiddleware(async (req: Request) => {
   try {
     const body = await req.json();
 
@@ -88,4 +89,4 @@ export async function PUT(req: Request) {
     console.error('QC reasons PUT error:', err);
     return NextResponse.json({ error: err.message || 'Internal Server Error' }, { status: 500 });
   }
-}
+});

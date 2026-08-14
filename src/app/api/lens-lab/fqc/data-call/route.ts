@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import type mysql from 'mysql2/promise';
 import { nexsPool } from '@/utils/nexsPool';
+import { authMiddleware } from '@/middleware/auth';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Coercion helpers
@@ -60,7 +61,7 @@ function parseOrderCode(code: string): { base: string; frameIdx: number } {
 // looking up by `order_id` (which groups all frames in the bundle) instead
 // of by the per-fitting `power_id` list.
 // ─────────────────────────────────────────────────────────────────────────────
-export async function POST(req: Request) {
+export const POST = authMiddleware(async (req: Request) => {
   let conn: mysql.PoolConnection | null = null;
 
   try {
@@ -160,4 +161,4 @@ export async function POST(req: Request) {
   } finally {
     if (conn) conn.release();
   }
-}
+});

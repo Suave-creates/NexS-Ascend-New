@@ -7,6 +7,7 @@
 // saved to /api/flash-rules and the browser extension live-fetches them.
 
 import { useEffect, useMemo, useState } from 'react';
+import { apiFetch } from '@/lib/authClient';
 import {
   Button,
   Input,
@@ -81,7 +82,7 @@ export default function FlashRulesPage() {
   useEffect(() => {
     (async () => {
       try {
-        const res = await fetch('/api/flash-rules', { cache: 'no-store' });
+        const res = await apiFetch('/api/flash-rules', { cache: 'no-store' });
         const doc = await res.json();
         setRules(Array.isArray(doc.rules) ? doc.rules : []);
         setVersion(doc.version ?? 0);
@@ -176,7 +177,7 @@ export default function FlashRulesPage() {
     setSaving(true);
     setStatus(null);
     try {
-      const res = await fetch('/api/flash-rules', {
+      const res = await apiFetch('/api/flash-rules', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ rules }),

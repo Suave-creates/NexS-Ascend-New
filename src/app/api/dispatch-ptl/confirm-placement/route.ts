@@ -3,8 +3,9 @@
 import { NextResponse } from 'next/server'
 import { prismaDispatch } from '@/utils/prismaDispatch'
 import { sendToRack } from '@/utils/rackController'
+import { authMiddleware } from '@/middleware/auth'
 
-export async function POST(req: Request) {
+export const POST = authMiddleware(async (req: Request) => {
   try {
     const { awb, locationBarcode } = await req.json()
 
@@ -111,4 +112,4 @@ export async function POST(req: Request) {
       { status: 500 }
     )
   }
-}
+})

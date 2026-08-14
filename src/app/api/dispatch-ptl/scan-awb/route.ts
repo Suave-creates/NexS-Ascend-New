@@ -5,8 +5,9 @@ import type mysql from 'mysql2/promise'
 import { nexsPool } from '@/utils/nexsPool'
 import { prismaDispatch } from '@/utils/prismaDispatch'
 import { sendToRack } from '@/utils/rackController'
+import { authMiddleware } from '@/middleware/auth'
 
-export async function POST(req: Request) {
+export const POST = authMiddleware(async (req: Request) => {
   let conn: mysql.PoolConnection | null = null
 
   try {
@@ -148,4 +149,4 @@ export async function POST(req: Request) {
       { status: 500 }
     )
   }
-}
+})

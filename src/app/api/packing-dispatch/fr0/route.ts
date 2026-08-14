@@ -1,9 +1,10 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/utils/prisma';
+import { authMiddleware } from '@/middleware/auth';
 
 const FR0_REGEX = /^SNXS\d{16}$/;
 
-export async function POST(req: Request) {
+export const POST = authMiddleware(async (req: Request) => {
   try {
     const { scanId, stationId, nexsId } = await req.json();
 
@@ -57,4 +58,4 @@ export async function POST(req: Request) {
       { status: 500 }
     );
   }
-}
+});

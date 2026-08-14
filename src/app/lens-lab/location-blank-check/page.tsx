@@ -7,7 +7,6 @@ import {
   Card,
   CardBody,
   PageHeader,
-  Button,
   Input,
   Field,
   Alert,
@@ -21,6 +20,8 @@ import {
   TD,
 } from '@/components/ui';
 import { cn } from '@/lib/cn';
+import { useAuth } from '@/lib/authClient';
+import { apiFetch } from '@/lib/authClient';
 
 type ResultRow = {
   location_id: string;
@@ -38,8 +39,7 @@ type TrayLog = {
 };
 
 export default function LocationBlankCheckPage() {
-  const [operatorId, setOperatorId] = useState('');
-  const [operatorConfirmed, setOperatorConfirmed] = useState(false);
+  const { user } = useAuth();
 
   const [locationId, setLocationId] = useState('');
   const [trayLogs, setTrayLogs] = useState<TrayLog[]>([]);
@@ -69,7 +69,6 @@ export default function LocationBlankCheckPage() {
   useEffect(() => {
     const interval = setInterval(() => {
       if (
-        operatorConfirmed &&
         scanInputRef.current &&
         document.activeElement !== scanInputRef.current
       ) {
@@ -78,31 +77,18 @@ export default function LocationBlankCheckPage() {
     }, 300);
 
     return () => clearInterval(interval);
-  }, [operatorConfirmed]);
-
-  /* ---------------- Operator Confirm ---------------- */
-
-  const handleOperatorConfirm = () => {
-    if (!operatorId.trim()) return;
-
-    setOperatorConfirmed(true);
-
-    setTimeout(() => {
-      scanInputRef.current?.focus();
-    }, 100);
-  };
+  }, []);
 
   /* ---------------- Fetch Tray ---------------- */
 
   const fetchTray = (tray: string) => {
     startTransition(async () => {
       try {
-        const res = await fetch('/api/lens-lab/location-blank-check', {
+        const res = await apiFetch('/api/lens-lab/location-blank-check', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             locationId: tray,
-            operatorId: operatorId.trim(),
           }),
         });
 
@@ -164,45 +150,6 @@ export default function LocationBlankCheckPage() {
     }, 250);
   };
 
-  /* ---------------- Operator Entry Screen ---------------- */
-
-  if (!operatorConfirmed) {
-    return (
-      <div className="flex min-h-full items-center justify-center">
-        <Card variant="floating" className="w-full max-w-sm">
-          <CardBody className="flex flex-col gap-4">
-            <PageHeader
-              title="Location Blank Check"
-              subtitle="Enter your Operator ID to begin"
-              className="text-center"
-            />
-
-            <Field label="Operator ID" htmlFor="operatorId">
-              <Input
-                id="operatorId"
-                value={operatorId}
-                onChange={(e) => setOperatorId(e.target.value.toUpperCase())}
-                onKeyDown={(e) => e.key === 'Enter' && handleOperatorConfirm()}
-                placeholder="Operator ID"
-                className="py-3 text-center text-lg tracking-widest"
-                autoFocus
-              />
-            </Field>
-
-            <Button
-              onClick={handleOperatorConfirm}
-              disabled={!operatorId.trim()}
-              size="lg"
-              className="font-semibold"
-            >
-              Confirm
-            </Button>
-          </CardBody>
-        </Card>
-      </div>
-    );
-  }
-
   /* ---------------- Main Scan Screen ---------------- */
 
   return (
@@ -217,21 +164,8 @@ export default function LocationBlankCheckPage() {
           <div className="flex items-center gap-3 rounded-full border border-gray-200 bg-white px-5 py-2 text-sm shadow-sm">
             <span className="text-gray-500">Operator</span>
             <span className="font-bold tracking-wide text-brand-700">
-              {operatorId}
+              {user?.employeeCode}
             </span>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="text-danger-600"
-              onClick={() => {
-                setOperatorConfirmed(false);
-                setOperatorId('');
-                setTrayLogs([]);
-                setError(null);
-              }}
-            >
-              Change
-            </Button>
           </div>
         }
       />

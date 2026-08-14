@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { apiFetch } from '@/lib/authClient';
 
 type Summary = {
   putawayTotal: number;
@@ -121,7 +122,7 @@ export default function OmtDashboardPage() {
     try {
       const params = new URLSearchParams({ from: range.from, to: range.to });
       if (validation !== 'none') params.set('validate', validation);
-      const response = await fetch(`/api/omt/dashboard?${params}`, { cache: 'no-store' });
+      const response = await apiFetch(`/api/omt/dashboard?${params}`, { cache: 'no-store' });
       const body = await response.json();
       if (!response.ok) throw new Error(body.error || 'Unable to load dashboard');
       setData(body as DashboardData);

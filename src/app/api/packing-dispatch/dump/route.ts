@@ -14,6 +14,7 @@
 //     AND updated_at >= NOW() - INTERVAL 7 DAY;
 import { NextResponse } from 'next/server';
 import { BIGQUERY_DATA_PROJECT_ID, runBigQuery } from '@/utils/resources/bigquery/client';
+import { authMiddleware } from '@/middleware/auth';
 
 // This route hits a live DB and must never be statically cached / pre-rendered.
 export const runtime = 'nodejs';
@@ -67,7 +68,7 @@ function normalize(raw: Record<string, unknown>): DumpOrder {
   };
 }
 
-export async function GET(req: Request) {
+export const GET = authMiddleware(async (req: Request) => {
   const { searchParams } = new URL(req.url);
   const facility = (searchParams.get('facility') || FACILITY_FALLBACK).trim();
 
@@ -121,4 +122,4 @@ export async function GET(req: Request) {
       { status: 500 }
     );
   }
-}
+});

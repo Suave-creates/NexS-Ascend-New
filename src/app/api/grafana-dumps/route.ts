@@ -3,6 +3,7 @@ import {
   BIGQUERY_DATA_PROJECT_ID,
   runBigQuery,
 } from '@/utils/resources/bigquery/client';
+import { authMiddleware } from '@/middleware/auth';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -162,7 +163,7 @@ function csvCell(value: unknown): string {
   return `"${text.replace(/"/g, '""')}"`;
 }
 
-export async function GET(req: Request) {
+export const GET = authMiddleware(async (req: Request) => {
   const id = new URL(req.url).searchParams.get('id') || '';
   const dump = QUERIES[id];
   if (!dump) return NextResponse.json({ error: 'Unknown dump' }, { status: 400 });
@@ -178,7 +179,10 @@ export async function GET(req: Request) {
     ].join('\r\n');
     const stamp = new Date().toISOString().replace(/[:.]/g, '-');
 
-    return new Response(csv, {
+    // NextResponse (not the plain Response used previously) — identical
+    // headers/status/body over the wire, but satisfies authMiddleware's
+    // NextResponse-typed handler signature.
+    return new NextResponse(csv, {
       headers: {
         'Content-Type': 'text/csv; charset=utf-8',
         'Content-Disposition': `attachment; filename="${dump.name}_${stamp}.csv"`,
@@ -194,4 +198,4 @@ export async function GET(req: Request) {
       { status: 500 },
     );
   }
-}
+});

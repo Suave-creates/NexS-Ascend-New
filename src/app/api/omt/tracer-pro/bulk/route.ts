@@ -2,6 +2,7 @@
 
 import { NextResponse } from "next/server";
 import { BIGQUERY_DATA_PROJECT_ID, runBigQuery } from "@/utils/resources/bigquery/client";
+import { authMiddleware } from "@/middleware/auth";
 
 /* =====================================================
    Constants
@@ -72,7 +73,7 @@ function resolveFittingGroup(trayRows: any[], out: Map<string, TrayMeta>): void 
 /* =====================================================
    API Handler
 ===================================================== */
-export async function POST(req: Request) {
+export const POST = authMiddleware(async (req: Request) => {
   try {
     let body: unknown;
     try {
@@ -232,4 +233,4 @@ export async function POST(req: Request) {
       { status: 500 }
     );
   }
-}
+});

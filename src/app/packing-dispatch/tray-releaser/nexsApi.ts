@@ -17,6 +17,7 @@
 // Dump loading (from our own backend, and CSV fallback) also lives here.
 
 import { NEXS_CONFIG as cfg, type DumpOrder, type TrayRecord } from './config';
+import { apiFetch } from '@/lib/authClient';
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
@@ -62,7 +63,7 @@ async function fetchPage(
     size,
   };
 
-  const res = await fetch('/api/packing-dispatch/nexs-proxy/fetch-trays', {
+  const res = await apiFetch('/api/packing-dispatch/nexs-proxy/fetch-trays', {
     method: 'POST',
     headers: buildHeaders(ctx),
     body: JSON.stringify(body),
@@ -181,7 +182,7 @@ export async function releaseTray(
 ): Promise<ReleaseResult> {
   if (!tray || !tray.trayId) throw new Error('releaseTray: missing trayId');
 
-  const res = await fetch('/api/packing-dispatch/nexs-proxy/release-tray', {
+  const res = await apiFetch('/api/packing-dispatch/nexs-proxy/release-tray', {
     method: cfg.RELEASE_METHOD,
     headers: buildHeaders(ctx),
     body: buildReleaseBody(tray),
@@ -248,7 +249,7 @@ export async function loadDumpFromBackend(
     encodeURIComponent(facility || cfg.FACILITY_FALLBACK)
   ).replace('{days}', String(days));
 
-  const res = await fetch(url, { signal });
+  const res = await apiFetch(url, { signal });
   if (!res.ok) {
     let detail = '';
     try {

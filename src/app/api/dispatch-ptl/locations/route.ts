@@ -2,8 +2,9 @@
 
 import { NextResponse } from 'next/server'
 import { prismaDispatch } from '@/utils/prismaDispatch'
+import { authMiddleware } from '@/middleware/auth'
 
-export async function GET() {
+export const GET = authMiddleware(async () => {
   try {
 
     const locations = await prismaDispatch.location.findMany({
@@ -62,4 +63,4 @@ export async function GET() {
       { status: 500 }
     )
   }
-}
+})

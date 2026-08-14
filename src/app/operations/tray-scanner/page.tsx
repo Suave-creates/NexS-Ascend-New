@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Card, CardHeader, CardBody, PageHeader, Field, Input } from '@/components/ui';
+import { apiFetch } from '@/lib/authClient';
 
 export default function TrayScannerPage() {
   const [trayId, setTrayId] = useState<string>('');
@@ -21,7 +22,7 @@ export default function TrayScannerPage() {
     }
 
     try {
-      const res = await fetch(`/api/operations/metadata?locationId=${id}`);
+      const res = await apiFetch(`/api/operations/metadata?locationId=${id}`);
       const data = await res.json();
 
       if (data.found) {

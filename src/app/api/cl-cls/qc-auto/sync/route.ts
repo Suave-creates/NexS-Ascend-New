@@ -1,11 +1,12 @@
 import { NextResponse } from 'next/server';
 import { prismaDispatch } from '@/utils/prismaDispatch';
+import { authMiddleware } from '@/middleware/auth';
 
 export const runtime = 'nodejs';
 const str = (v: unknown) => v == null || v === '' ? null : String(v);
 let syncing = false;
 
-export async function POST(req: Request) {
+export const POST = authMiddleware(async (req: Request) => {
   if (syncing) return NextResponse.json({ error: 'A dump sync is already being stored' }, { status: 409 });
   syncing = true;
   try {
@@ -34,4 +35,4 @@ export async function POST(req: Request) {
   } finally {
     syncing = false;
   }
-}
+});

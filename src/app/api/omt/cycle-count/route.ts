@@ -7,6 +7,8 @@ import {
   isDatabaseUnavailableError,
   withDatabaseConnectionRetry,
 } from '@/utils/databaseRetry';
+import { authMiddleware } from '@/middleware/auth';
+import type { AuthenticatedRequest } from '@/middleware/auth';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -102,10 +104,6 @@ async function ensureTables() {
   }
 }
 
-function normalizeOperatorId(raw: unknown) {
-  return typeof raw === 'string' ? raw.trim().toUpperCase().replace(/\s+/g, '').slice(0, 64) : '';
-}
-
 function normalizePosition(raw: unknown) {
   if (typeof raw !== 'string') return null;
   const normalized = raw.trim().toUpperCase().replaceAll('_', '-').replaceAll(' ', '');
@@ -170,16 +168,13 @@ async function readPosition(positionBarcode: string) {
   }));
 }
 
-export async function POST(request: Request) {
+export const POST = authMiddleware(async (request: AuthenticatedRequest) => {
   const startedAt = Date.now();
   try {
     await ensureTables();
     const body = await request.json();
-    const operatorId = normalizeOperatorId(body?.operatorId);
+    const operatorId = request.user.employeeCode;
     const position = normalizePosition(body?.positionBarcode);
-    if (!operatorId) {
-      return NextResponse.json({ error: 'Operator ID is required', code: 'OPERATOR_REQUIRED' }, { status: 400 });
-    }
     if (!position) {
       return NextResponse.json({ error: 'Scan a valid OMT location', code: 'INVALID_POSITION' }, { status: 400 });
     }
@@ -210,4 +205,4 @@ export async function POST(request: Request) {
     console.error('[omt/cycle-count] failed:', error);
     return NextResponse.json({ error: (error as Error).message || 'Unable to count this position' }, { status: 500 });
   }
-}
+});

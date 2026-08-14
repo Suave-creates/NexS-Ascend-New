@@ -1,11 +1,12 @@
 import { NextResponse } from 'next/server';
 import { prismaMetalFrame as prisma } from '@/utils/prismaMetalFrame';
+import { authMiddleware } from '@/middleware/auth';
 
 const IST_OFFSET = 5.5 * 60 * 60 * 1000;
 
 // GET /api/metal-frame/qc/stats?qcPerson=XYZ
 //  -> last-hour pass/fail counts for this person
-export async function GET(req: Request) {
+export const GET = authMiddleware(async (req: Request) => {
   const url = new URL(req.url);
   const qcPerson = url.searchParams.get('qcPerson');
   if (!qcPerson) {
@@ -24,4 +25,4 @@ export async function GET(req: Request) {
   ]);
 
   return NextResponse.json({ pass, fail });
-}
+});

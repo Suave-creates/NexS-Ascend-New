@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Card, PageHeader, Field, Input, Select, Button, Modal, Alert } from '@/components/ui';
+import { apiFetch } from '@/lib/authClient';
 
 export default function fr0Page() {
   const [scanId, setScanId] = useState('');
@@ -34,7 +35,7 @@ export default function fr0Page() {
     }
 
     (async () => {
-      const res = await fetch('/api/packing-dispatch/fr0bulkhoto', {
+      const res = await apiFetch('/api/packing-dispatch/fr0bulkhoto', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ scanId, stationId, nexsId }),

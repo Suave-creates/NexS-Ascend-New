@@ -8,11 +8,12 @@
 import { NextResponse } from 'next/server';
 import { prismaDispatch } from '@/utils/prismaDispatch';
 import { computeProgress, runExclusive } from '@/utils/consolidatePlatform';
+import { authMiddleware } from '@/middleware/auth';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-export async function POST(req: Request) {
+export const POST = authMiddleware(async (req: Request) => {
   try {
     const { locationBarcode } = await req.json();
     if (!locationBarcode) {
@@ -98,4 +99,4 @@ export async function POST(req: Request) {
     console.error('consolidate complete-location error:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
-}
+});

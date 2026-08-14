@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Modal, Field, Input, Select, Textarea, Button, Alert } from '@/components/ui';
 import { STOP_REASONS, EARLY_COMPLETION_REASONS } from '@/services/metal-frame/tumbling/validators';
+import { apiFetch } from '@/lib/authClient';
 
 interface AuthorizationModalProps {
   open: boolean;
@@ -51,7 +52,7 @@ export function AuthorizationModal({ open, onClose, mode, processId, operatorNam
     setSubmitting(true);
     setError(null);
     try {
-      const res = await fetch(`/api/metal-frame/tumbling/processes/${processId}/${ENDPOINT[mode]}`, {
+      const res = await apiFetch(`/api/metal-frame/tumbling/processes/${processId}/${ENDPOINT[mode]}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ employeeCode: employeeCode.trim(), password, reason, remarks, operatorName }),

@@ -21,6 +21,7 @@ import {
   TD,
 } from '@/components/ui';
 import { cn } from '@/lib/cn';
+import { apiFetch } from '@/lib/authClient';
 
 type ResultRow = {
   product_id: string;
@@ -78,7 +79,7 @@ export default function BulkStatusPage() {
 
     startTransition(async () => {
       try {
-        const res = await fetch('/api/operations/bulk-status', {
+        const res = await apiFetch('/api/operations/bulk-status', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ locationId }),

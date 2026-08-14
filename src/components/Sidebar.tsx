@@ -24,6 +24,7 @@ import {
   FiBox,
 } from 'react-icons/fi';
 import { cn } from '@/lib/cn';
+import { useAuth } from '@/lib/authClient';
 
 type Child = { href: string; label: string };
 type NavItem = { href?: string; icon: IconType; label: string; children?: Child[] };
@@ -32,6 +33,7 @@ export default function Sidebar() {
   const [collapsed, setCollapsed] = useState(false);
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({});
   const path = usePathname();
+  const { user } = useAuth();
 
   // Hand-held scanners (4.6"-5.8" screens) can't spare 256px for the expanded
   // sidebar — default to the icon rail there; still manually expandable.
@@ -41,6 +43,9 @@ export default function Sidebar() {
 
   const navItems: NavItem[] = [
     { href: '/', icon: FiHome, label: 'Home' },
+    ...(user?.accountType === 'SUPER_ADMIN'
+      ? [{ href: '/super-admin/approvals', icon: FiShield, label: 'Account Approvals' }]
+      : []),
     { href: '/grafana-dumps', icon: FiDatabase, label: 'Grafana Dumps' },
 
     {

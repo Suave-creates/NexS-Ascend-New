@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { authMiddleware } from '@/middleware/auth';
 import { getProcessDetail, withProgress } from '@/services/metal-frame/tumbling/process.service';
 import { getTumblingConfig } from '@/services/metal-frame/tumbling/config.service';
 import { handleRouteError } from '@/services/metal-frame/tumbling/http';
@@ -7,9 +8,9 @@ import { TumblingError } from '@/services/metal-frame/tumbling/types';
 export const dynamic = 'force-dynamic';
 
 // GET /api/metal-frame/tumbling/processes/[processId] -> full detail incl. products + immutable event timeline
-export async function GET(_req: Request, { params }: { params: Promise<{ processId: string }> }) {
+export const GET = authMiddleware<{ processId: string }>(async (_req: Request, { params }: { params: { processId: string } }) => {
   try {
-    const processId = Number((await params).processId);
+    const processId = Number(params.processId);
     if (!Number.isInteger(processId)) throw new TumblingError(400, 'Invalid process id.');
 
     const process = await getProcessDetail(processId);
@@ -23,4 +24,4 @@ export async function GET(_req: Request, { params }: { params: Promise<{ process
   } catch (err) {
     return handleRouteError('Tumbling process detail', err);
   }
-}
+});

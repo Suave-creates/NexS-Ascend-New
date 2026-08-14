@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Card, CardBody, PageHeader, Field, Button, Alert } from '@/components/ui';
+import { apiFetch } from '@/lib/authClient';
 
 export default function ManualWarehouseUploadPage() {
   const [file, setFile] = useState<File | null>(null);
@@ -23,7 +24,7 @@ export default function ManualWarehouseUploadPage() {
     formData.append('file', file);
 
     try {
-      const res = await fetch('/api/manual-warehouse/upload', {
+      const res = await apiFetch('/api/manual-warehouse/upload', {
         method: 'POST',
         body: formData,
       });

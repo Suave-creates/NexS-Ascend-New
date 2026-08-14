@@ -9,6 +9,8 @@ import { prismaDispatch } from '@/utils/prismaDispatch';
 import { fetchOmtTrayDetails, OmtNexsError, type OmtTrayDetails } from '@/utils/resources/nexs/omt';
 import { ensureOmtHealthSchema, refreshOmtTrayHealth, startOmtHealthScheduler } from '@/utils/omtTrayHealth';
 import { omtOrderModeLabel, omtPriorityLabel } from '@/utils/omtPriority';
+import { authMiddleware } from '@/middleware/auth';
+import type { AuthenticatedRequest } from '@/middleware/auth';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -114,11 +116,6 @@ async function ensureFittingIndex() {
       'ALTER TABLE omt_tray_putaway ADD UNIQUE KEY uq_omt_fitting (fitting_id)',
     );
   }
-}
-
-function normalizeOperatorId(raw: unknown) {
-  if (typeof raw !== 'string') return '';
-  return raw.trim().toUpperCase().slice(0, 64);
 }
 
 async function logActivity(entry: ActivityLog) {
@@ -417,7 +414,7 @@ async function readPositions() {
   return [...positions].map(([barcode, position]) => ({ barcode, ...position }));
 }
 
-export async function GET(request: Request) {
+export const GET = authMiddleware(async (request: Request) => {
   try {
     await ensureTable();
     startOmtHealthScheduler();
@@ -434,16 +431,16 @@ export async function GET(request: Request) {
     console.error('omt/tray-putaway GET error:', error);
     return NextResponse.json({ error: 'Unable to load tray putaway' }, { status: 500 });
   }
-}
+});
 
-export async function POST(request: Request) {
+export const POST = authMiddleware(async (request: AuthenticatedRequest) => {
   const startedAt = Date.now();
   let operatorId = '';
   let trayBarcode = '';
   try {
     await ensureTable();
     const body = await request.json();
-    operatorId = normalizeOperatorId(body?.operatorId);
+    operatorId = request.user.employeeCode;
     trayBarcode = typeof body?.trayBarcode === 'string' ? body.trayBarcode.trim().toUpperCase() : '';
 
     if (body?.action === 'LOG_REJECTION') {
@@ -459,10 +456,6 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: true });
     }
 
-    if (!operatorId) {
-      await logActivity({ eventType: 'PUTAWAY', result: 'REJECTED', trayBarcode, metadata: { reason: 'OPERATOR_REQUIRED' } });
-      return NextResponse.json({ error: 'Operator ID is required', code: 'OPERATOR_REQUIRED' }, { status: 400 });
-    }
     if (!TRAY_ID_PATTERN.test(trayBarcode)) {
       await logActivity({
         eventType: 'PUTAWAY', operatorId, result: 'REJECTED', trayBarcode,
@@ -679,24 +672,16 @@ export async function POST(request: Request) {
     const code = error instanceof OmtNexsError ? error.code : 'PUTAWAY_FAILED';
     return NextResponse.json({ error: (error as Error).message || 'Unable to store tray', code }, { status });
   }
-}
+});
 
-export async function DELETE(request: Request) {
+export const DELETE = authMiddleware(async (request: AuthenticatedRequest) => {
   const startedAt = Date.now();
   let operatorId = '';
   let trayBarcode = '';
   try {
     await ensureTable();
     const body = await request.json();
-    operatorId = normalizeOperatorId(body?.operatorId);
-
-    if (!operatorId) {
-      await logActivity({
-        eventType: body?.action === 'MASTER_RESET' ? 'MASTER_RESET' : 'REMOVE_TRAY',
-        result: 'REJECTED', metadata: { reason: 'OPERATOR_REQUIRED' },
-      });
-      return NextResponse.json({ error: 'Operator ID is required', code: 'OPERATOR_REQUIRED' }, { status: 400 });
-    }
+    operatorId = request.user.employeeCode;
 
     if (body?.action === 'MASTER_RESET') {
       const resetPassword = process.env.OMT_MASTER_RESET_PASSWORD ?? '0000';
@@ -827,4 +812,4 @@ export async function DELETE(request: Request) {
     });
     return NextResponse.json({ error: 'Unable to update tray putaway' }, { status: 500 });
   }
-}
+});

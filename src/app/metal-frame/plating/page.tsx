@@ -10,6 +10,7 @@ import {
   Button,
   Alert,
 } from "@/components/ui";
+import { apiFetch } from "@/lib/authClient";
 
 const CATEGORY_OPTIONS = ["Fresh", "Rework"];
 
@@ -117,7 +118,7 @@ export default function PlatingPage() {
       ngQuantity,
     };
 
-    const res = await fetch("/api/metal-frame/plating", {
+    const res = await apiFetch("/api/metal-frame/plating", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),

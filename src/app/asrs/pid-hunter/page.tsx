@@ -8,6 +8,7 @@ import {
   Table, THead, TBody, TR, TH, TD,
 } from '@/components/ui';
 import { cn } from '@/lib/cn';
+import { apiFetch } from '@/lib/authClient';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -271,7 +272,7 @@ export default function BarcodeScannerPage() {
     setBarcodeInput('');
 
     try {
-      const res  = await fetch('/api/asrs/pid-hunter', {
+      const res  = await apiFetch('/api/asrs/pid-hunter', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ barcode: barcode.trim().slice(-12), scan_location: scanLocation.trim() }),

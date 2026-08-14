@@ -1,5 +1,7 @@
+import { NextResponse } from 'next/server';
 import { nexsPool } from '@/utils/nexsPool';
 import mysql from 'mysql2/promise';
+import { authMiddleware } from '@/middleware/auth';
 
 const MAX_LOCATIONS = 10000;
 const CHUNK_SIZE = 2;
@@ -18,14 +20,14 @@ function formatDate(val: any): string {
   return `${dd}-${mm}-${yyyy} ${hh}:${min}:${ss}`;
 }
 
-export async function POST(req: Request) {
+export const POST = authMiddleware(async (req: Request) => {
   let conn: mysql.PoolConnection | null = null;
 
   try {
     const rawText = await req.text();
 
     if (!rawText || rawText.trim().length === 0) {
-      return new Response(JSON.stringify({ error: 'Empty input' }), {
+      return new NextResponse(JSON.stringify({ error: 'Empty input' }), {
         status: 400,
         headers: { 'Content-Type': 'application/json' },
       });
@@ -43,14 +45,14 @@ export async function POST(req: Request) {
       .filter((p) => p.fittingId && p.cutoff);
 
     if (pairs.length === 0) {
-      return new Response(JSON.stringify({ error: 'No valid rows parsed' }), {
+      return new NextResponse(JSON.stringify({ error: 'No valid rows parsed' }), {
         status: 400,
         headers: { 'Content-Type': 'application/json' },
       });
     }
 
     if (pairs.length > MAX_LOCATIONS) {
-      return new Response(JSON.stringify({ error: 'Max 100,000 rows allowed' }), {
+      return new NextResponse(JSON.stringify({ error: 'Max 100,000 rows allowed' }), {
         status: 400,
         headers: { 'Content-Type': 'application/json' },
       });
@@ -123,7 +125,7 @@ export async function POST(req: Request) {
       },
     });
 
-    return new Response(stream, {
+    return new NextResponse(stream, {
       headers: {
         'Content-Type': 'text/plain; charset=utf-8',
         'Cache-Control': 'no-cache',
@@ -132,9 +134,9 @@ export async function POST(req: Request) {
   } catch (err) {
     console.error('Bulk location error:', err);
     if (conn) conn.release();
-    return new Response(
+    return new NextResponse(
       JSON.stringify({ error: 'Processing failed' }),
       { status: 500, headers: { 'Content-Type': 'application/json' } }
     );
   }
-}
+});

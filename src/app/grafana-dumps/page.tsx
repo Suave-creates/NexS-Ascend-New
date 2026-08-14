@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { FiDatabase, FiDownload } from 'react-icons/fi';
 import { Alert, Button, Card, CardBody, PageHeader, Spinner } from '@/components/ui';
+import { apiFetch } from '@/lib/authClient';
 
 const DUMPS = [
   ['asrs-tote', 'ASRS Tote Dump', 'Complete ASRS inventory by PID and location'],
@@ -32,7 +33,7 @@ export default function GrafanaDumpsPage() {
   const download = async (id: string, label: string) => {
     setJob({ id, error: null });
     try {
-      const response = await fetch(`/api/grafana-dumps?id=${encodeURIComponent(id)}`);
+      const response = await apiFetch(`/api/grafana-dumps?id=${encodeURIComponent(id)}`);
       if (!response.ok) {
         const body = await response.json().catch(() => null);
         throw new Error(body?.error || `Dump failed with HTTP ${response.status}`);

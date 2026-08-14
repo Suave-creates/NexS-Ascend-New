@@ -7,6 +7,7 @@
 import { Fragment, useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import type { OperatorColor } from '../types';
+import { apiFetch } from '@/lib/authClient';
 
 const COLOR_HEX: Record<string, string> = {
   YELLOW: '#f5b942', BLUE: '#5b9cf6', GREEN: '#46d39a', PINK: '#f26fb8', RED: '#e5484d',
@@ -49,7 +50,7 @@ export default function ConsolidateHistoryPage() {
     try {
       const params = new URLSearchParams({ page: String(p), limit: String(LIMIT) });
       if (query) params.set('q', query);
-      const res = await fetch(`/api/cl-cls/consolidate/history?${params}`);
+      const res = await apiFetch(`/api/cl-cls/consolidate/history?${params}`);
       const d = await res.json();
       if (!res.ok) throw new Error(d.error || `HTTP ${res.status}`);
       setRows(d.rows || []);

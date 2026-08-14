@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { Card, PageHeader, Field, Input, Select, Button, Modal, StatCard, Alert } from '@/components/ui';
+import { apiFetch } from '@/lib/authClient';
 
 export default function DispatchPage() {
   const [scanId, setScanId]       = useState('');
@@ -19,7 +20,7 @@ export default function DispatchPage() {
   useEffect(() => {
     if (!stationId) return;
     const fetchCount = async () => {
-      const res = await fetch(`/api/packing-dispatch/dispatch/stats?stationId=${stationId}`);
+      const res = await apiFetch(`/api/packing-dispatch/dispatch/stats?stationId=${stationId}`);
       if (res.ok) {
         const { count } = await res.json();
         setHourCount(count);
@@ -49,7 +50,7 @@ export default function DispatchPage() {
       return;
     }
 
-    const res  = await fetch('/api/packing-dispatch/dispatch', {
+    const res  = await apiFetch('/api/packing-dispatch/dispatch', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ scanId: id, stationId, nexsId }),

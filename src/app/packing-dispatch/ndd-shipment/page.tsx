@@ -14,6 +14,7 @@ import {
   Badge,
 } from "@/components/ui";
 import { cn } from "@/lib/cn";
+import { apiFetch } from "@/lib/authClient";
 
 type ShipmentType = "Normal" | "Rescue";
 
@@ -41,7 +42,7 @@ export default function NddShipmentPage() {
 
   const fetchCounts = useCallback(async () => {
     try {
-      const res = await fetch(`/api/packing-dispatch/ndd-shipment?date=${selectedDate}`);
+      const res = await apiFetch(`/api/packing-dispatch/ndd-shipment?date=${selectedDate}`);
       if (!res.ok) return;
       const data = await res.json();
       setCounts({ total: data.total ?? 0, normal: data.normal ?? 0, rescue: data.rescue ?? 0 });
@@ -66,7 +67,7 @@ export default function NddShipmentPage() {
 
     setLoading(true);
     try {
-      const res = await fetch("/api/packing-dispatch/ndd-shipment", {
+      const res = await apiFetch("/api/packing-dispatch/ndd-shipment", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ awbs, type, date: selectedDate }),
@@ -100,7 +101,7 @@ export default function NddShipmentPage() {
   const handleExport = async () => {
     setExporting(true);
     try {
-      const res = await fetch(
+      const res = await apiFetch(
         `/api/packing-dispatch/ndd-shipment?date=${selectedDate}&export=true`
       );
       if (!res.ok) { showToast("Export failed.", false); return; }

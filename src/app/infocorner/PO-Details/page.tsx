@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useTransition } from 'react';
+import { apiFetch } from '@/lib/authClient';
 import {
   PageHeader,
   Card,
@@ -43,7 +44,7 @@ export default function POBulkCSVExportPage() {
 
     startTransition(async () => {
       try {
-        const res = await fetch('/api/infocorner/po-details', {
+        const res = await apiFetch('/api/infocorner/po-details', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ po_nums: poNums }),

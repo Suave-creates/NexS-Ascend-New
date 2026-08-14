@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/utils/prisma';
+import { authMiddleware } from '@/middleware/auth';
 
 // Build IST date-range where clause from YYYY-MM-DD string
 function buildDateWhere(dateParam: string | null): Record<string, unknown> {
@@ -12,7 +13,7 @@ function buildDateWhere(dateParam: string | null): Record<string, unknown> {
 }
 
 // ── GET: counts for stats OR CSV export ────────────────────────────────
-export async function GET(req: NextRequest) {
+export const GET = authMiddleware(async (req: NextRequest) => {
   const { searchParams } = new URL(req.url);
   const dateParam = searchParams.get('date');
   const doExport  = searchParams.get('export') === 'true';
@@ -64,12 +65,12 @@ export async function GET(req: NextRequest) {
     console.error('[NDD-GET]', err);
     return NextResponse.json({ error: 'Failed to fetch counts.' }, { status: 500 });
   }
-}
+});
 
 // ── POST: record one or many NDD shipments (with upsert & per-line type) ────
 // Supports per-line prefix:  R:AWB123  → Rescue,  N:AWB123  → Normal
 // Default type comes from body.type; duplicates (same AWB) are replaced.
-export async function POST(req: NextRequest) {
+export const POST = authMiddleware(async (req: NextRequest) => {
   try {
     const body = await req.json();
     const defaultType: 'Normal' | 'Rescue' = body.type === 'Rescue' ? 'Rescue' : 'Normal';
@@ -124,4 +125,4 @@ export async function POST(req: NextRequest) {
     console.error('[NDD-POST]', err);
     return NextResponse.json({ error: 'Failed to save records.' }, { status: 500 });
   }
-}
+});

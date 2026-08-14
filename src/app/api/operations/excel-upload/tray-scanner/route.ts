@@ -1,8 +1,9 @@
 // src/app/api/operations/tray-scanner/route.ts
 import { NextResponse } from 'next/server'
 import prisma from '@/utils/prisma'
+import { authMiddleware } from '@/middleware/auth'
 
-export async function GET(req: Request) {
+export const GET = authMiddleware(async (req: Request) => {
   const url = new URL(req.url)
   const locationId = url.searchParams.get('locationId')
   if (!locationId) {
@@ -21,4 +22,4 @@ export async function GET(req: Request) {
       ? { found: true, locationId: record.locationId, cityOdd: record.cityOdd }
       : { found: false }
   )
-}
+})

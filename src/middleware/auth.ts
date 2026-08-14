@@ -1,11 +1,9 @@
 // src/middleware/auth.ts
 import { NextRequest, NextResponse } from 'next/server';
-import jwt from 'jsonwebtoken';
-
-const JWT_SECRET = process.env.JWT_SECRET!;
+import { signSession, verifySession, TokenExpiredError, type SessionUser } from '@/lib/jwt';
 
 export interface AuthenticatedRequest extends NextRequest {
-  user: { id: number; employeeCode: string };
+  user: SessionUser;
 }
 
 type Handler<TParams extends Record<string, string>> = (
@@ -13,41 +11,64 @@ type Handler<TParams extends Record<string, string>> = (
   context: { params: TParams }
 ) => Promise<NextResponse>;
 
-export function authMiddleware<TParams extends Record<string, string>>(
-  handler: Handler<TParams>
+function unauthorized(error: string, code: string) {
+  return NextResponse.json({ error, code }, { status: 401 });
+}
+
+function withAccountType<TParams extends Record<string, string>>(
+  handler: Handler<TParams>,
+  requiredAccountType?: SessionUser['accountType'],
 ) {
   return async (
     req: NextRequest,
     context: { params: Promise<TParams> }
   ): Promise<NextResponse> => {
-    // 1️⃣ Await the incoming params
     const params = await context.params;
 
-    // 2️⃣ Do your usual auth check
     const authHeader = req.headers.get('authorization');
-    const rawToken =
-      authHeader?.startsWith('Bearer ')
-        ? authHeader.slice(7)
-        : req.cookies.get('token')?.value;
+    const rawToken = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null;
 
     if (!rawToken) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return unauthorized('Unauthorized', 'NO_TOKEN');
     }
 
-    let payload: any;
+    let user: SessionUser;
     try {
-      payload = jwt.verify(rawToken, JWT_SECRET);
-    } catch {
-      return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
+      user = verifySession(rawToken);
+    } catch (err) {
+      if (err instanceof TokenExpiredError) {
+        return unauthorized('Session expired due to inactivity', 'SESSION_EXPIRED');
+      }
+      return unauthorized('Invalid token', 'INVALID_TOKEN');
+    }
+
+    if (requiredAccountType && user.accountType !== requiredAccountType) {
+      return NextResponse.json(
+        { error: 'You do not have permission to access this resource', code: 'FORBIDDEN' },
+        { status: 403 },
+      );
     }
 
     const authReq = req as AuthenticatedRequest;
-    authReq.user = {
-      id: payload.id,
-      employeeCode: payload.employeeCode,
-    };
+    authReq.user = user;
 
-    // 3️⃣ Call your handler with the resolved params
-    return handler(authReq, { params });
+    const response = await handler(authReq, { params });
+
+    // Slide the 2h inactivity window forward on every authenticated call.
+    // The client picks this up and swaps its in-memory token for it.
+    response.headers.set('X-Auth-Token', signSession(user));
+    return response;
   };
+}
+
+export function authMiddleware<TParams extends Record<string, string>>(
+  handler: Handler<TParams>,
+) {
+  return withAccountType(handler);
+}
+
+export function superAdminMiddleware<TParams extends Record<string, string>>(
+  handler: Handler<TParams>,
+) {
+  return withAccountType(handler, 'SUPER_ADMIN');
 }

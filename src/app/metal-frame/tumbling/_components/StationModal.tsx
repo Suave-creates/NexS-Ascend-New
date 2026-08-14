@@ -2,37 +2,27 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { FiX, FiRefreshCw } from 'react-icons/fi';
-import { Modal, Alert, Field, Input } from '@/components/ui';
+import { Modal, Alert } from '@/components/ui';
+import { apiFetch } from '@/lib/authClient';
 import type { StationDetailResponse } from '@/services/metal-frame/tumbling/types';
 import { ContainerPanel } from './ContainerPanel';
 import { formatClockTime } from './format';
 
 const POLL_INTERVAL_MS = 15_000;
-const OPERATOR_STORAGE_KEY = 'tumbling.operatorName';
 
 export function StationModal({ stationNumber, onClose }: { stationNumber: number | null; onClose: () => void }) {
   const [data, setData] = useState<StationDetailResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [now, setNow] = useState(() => new Date());
-  const [operatorName, setOperatorName] = useState('');
 
   const busyRef = useRef(false);
   const clockOffsetRef = useRef(0);
-
-  useEffect(() => {
-    setOperatorName(localStorage.getItem(OPERATOR_STORAGE_KEY) ?? '');
-  }, []);
-
-  function updateOperatorName(value: string) {
-    setOperatorName(value);
-    localStorage.setItem(OPERATOR_STORAGE_KEY, value);
-  }
 
   const fetchDetail = useCallback(async () => {
     if (stationNumber == null || busyRef.current) return;
     busyRef.current = true;
     try {
-      const res = await fetch(`/api/metal-frame/tumbling/stations/${stationNumber}`);
+      const res = await apiFetch(`/api/metal-frame/tumbling/stations/${stationNumber}`);
       const json = await res.json();
       if (!res.ok) throw new Error(json.error || 'Failed to load this station.');
       clockOffsetRef.current = new Date(json.serverTime).getTime() - Date.now();
@@ -93,32 +83,22 @@ export function StationModal({ stationNumber, onClose }: { stationNumber: number
           <div className="h-64 animate-pulse rounded-2xl bg-gray-100" />
         </div>
       ) : (
-        <>
-          <div className="mb-4 max-w-xs">
-            <Field label="Operator Name" hint="Recorded in the audit trail for actions you perform">
-              <Input value={operatorName} onChange={(e) => updateOperatorName(e.target.value)} placeholder="Enter your name" />
-            </Field>
-          </div>
-
-          <div className="space-y-4">
-            <ContainerPanel
-              stationLabel={stationLabel}
-              panel={data.left}
-              config={data.config}
-              operatorName={operatorName}
-              now={now}
-              onRefresh={fetchDetail}
-            />
-            <ContainerPanel
-              stationLabel={stationLabel}
-              panel={data.right}
-              config={data.config}
-              operatorName={operatorName}
-              now={now}
-              onRefresh={fetchDetail}
-            />
-          </div>
-        </>
+        <div className="space-y-4">
+          <ContainerPanel
+            stationLabel={stationLabel}
+            panel={data.left}
+            config={data.config}
+            now={now}
+            onRefresh={fetchDetail}
+          />
+          <ContainerPanel
+            stationLabel={stationLabel}
+            panel={data.right}
+            config={data.config}
+            now={now}
+            onRefresh={fetchDetail}
+          />
+        </div>
       )}
     </Modal>
   );

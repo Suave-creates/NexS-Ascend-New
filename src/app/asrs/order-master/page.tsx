@@ -2,6 +2,7 @@
 
 import { useState, useTransition, useEffect } from 'react';
 import { cn } from '@/lib/cn';
+import { apiFetch } from '@/lib/authClient';
 import {
   Card,
   CardHeader,
@@ -64,7 +65,7 @@ export default function TrayScannerPage() {
     startTransition(async () => {
       try {
         /* 1️⃣ Fetch tray data */
-        const res = await fetch('/api/asrs/order-prod', {
+        const res = await apiFetch('/api/asrs/order-prod', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ trayId }),
@@ -89,7 +90,7 @@ export default function TrayScannerPage() {
 
         /* 3️⃣ Highlight check */
         if (pids.length > 0) {
-          const checkRes = await fetch('/api/asrs/order-prod/check', {
+          const checkRes = await apiFetch('/api/asrs/order-prod/check', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ pids }),

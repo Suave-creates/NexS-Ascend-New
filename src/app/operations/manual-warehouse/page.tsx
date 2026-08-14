@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Card, PageHeader, Field, Input, Modal, Alert } from '@/components/ui';
+import { apiFetch } from '@/lib/authClient';
 
 export default function PackingPage() {
   const [scanId, setScanId] = useState('');
@@ -18,7 +19,7 @@ export default function PackingPage() {
     if (!scanId) return;
 
     const fetchStats = async () => {
-      const res = await fetch(`/api/manual-warehouse/stats?trayId=${scanId}`);
+      const res = await apiFetch(`/api/manual-warehouse/stats?trayId=${scanId}`);
       if (res.ok) {
         const { count } = await res.json();
         setHourCount(count);
@@ -42,7 +43,7 @@ export default function PackingPage() {
     }
 
     (async () => {
-      const res = await fetch('/api/manual-warehouse', {
+      const res = await apiFetch('/api/manual-warehouse', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ scanId, nexsId }),

@@ -4,6 +4,8 @@ import { NextResponse } from 'next/server';
 import type mysql from 'mysql2/promise';
 import { nexsPool } from '@/utils/nexsPool';
 import { prismaLensLab } from '@/utils/prismaLensLab';
+import { authMiddleware } from '@/middleware/auth';
+import type { AuthenticatedRequest } from '@/middleware/auth';
 
 export const runtime = 'nodejs';
 
@@ -24,11 +26,11 @@ type ResultRow = {
   is_valid: boolean;
 };
 
-export async function POST(req: Request) {
+export const POST = authMiddleware(async (req: AuthenticatedRequest) => {
   let conn: mysql.PoolConnection | null = null;
 
   try {
-    const { locationId, operatorId } = await req.json();
+    const { locationId } = await req.json();
 
     if (!locationId || typeof locationId !== 'string') {
       return NextResponse.json(
@@ -37,12 +39,9 @@ export async function POST(req: Request) {
       );
     }
 
-    if (!operatorId || typeof operatorId !== 'string') {
-      return NextResponse.json(
-        { success: false, error: 'operatorId required' },
-        { status: 400 }
-      );
-    }
+    // Operator identity now comes from the authenticated session rather than
+    // a client-supplied field.
+    const operatorId = req.user.employeeCode;
 
     /* =====================================================
        1️⃣ Read from nexsPool (wms DB) — READ ONLY
@@ -159,4 +158,4 @@ export async function POST(req: Request) {
   } finally {
     if (conn) conn.release();
   }
-}
+});

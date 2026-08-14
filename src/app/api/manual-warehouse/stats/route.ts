@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/utils/prisma';
+import { authMiddleware } from '@/middleware/auth';
 
-export async function GET() {
+export const GET = authMiddleware(async () => {
   const IST_OFFSET = 5.5 * 60 * 60 * 1000;
   const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000 + IST_OFFSET);
 
@@ -20,4 +21,4 @@ export async function GET() {
   return NextResponse.json({
     count: result._count.stationId,
   });
-}
+});

@@ -1,18 +1,20 @@
 // src/app/api/asrs/pid-hunter/check/route.ts
 
+import { NextResponse } from 'next/server';
 import { nexsPool } from '@/utils/nexsPool';
 import prisma from '@/utils/prisma';
 import mysql from 'mysql2/promise';
+import { authMiddleware } from '@/middleware/auth';
 
-export async function POST(req: Request) {
+export const POST = authMiddleware(async (req: Request) => {
   let conn: mysql.PoolConnection | null = null;
 
   try {
     const body = await req.json();
     const { barcode, scan_location } = body;
 
-    if (!barcode)        return new Response(JSON.stringify({ error: 'barcode required' }),        { status: 400 });
-    if (!scan_location)  return new Response(JSON.stringify({ error: 'scan_location required' }),  { status: 400 });
+    if (!barcode)        return NextResponse.json({ error: 'barcode required' },        { status: 400 });
+    if (!scan_location)  return NextResponse.json({ error: 'scan_location required' },  { status: 400 });
 
     conn = await nexsPool.getConnection();
     await conn.changeUser({ database: 'nexs_ims' });
@@ -25,7 +27,7 @@ export async function POST(req: Request) {
     );
 
     if (rows.length === 0)
-      return new Response(JSON.stringify({ error: 'Barcode not found' }), { status: 404 });
+      return NextResponse.json({ error: 'Barcode not found' }, { status: 404 });
 
     const r = rows[0];
 
@@ -55,8 +57,8 @@ export async function POST(req: Request) {
     }
 
     // ── RESPONSE ─────────────────────────────────────────────────────────
-    return new Response(
-      JSON.stringify({
+    return NextResponse.json(
+      {
         pid:           r.pid,
         barcode:       r.barcode,
         status:        r.status,
@@ -65,14 +67,14 @@ export async function POST(req: Request) {
         scan_location,
         nexs_location:  r.location,
         alreadyExists,          // ← frontend reads this
-      }),
+      },
       { status: 200 }
     );
 
   } catch (err) {
     console.error(err);
-    return new Response(JSON.stringify({ error: 'Processing failed' }), { status: 500 });
+    return NextResponse.json({ error: 'Processing failed' }, { status: 500 });
   } finally {
     if (conn) conn.release();
   }
-}
+});

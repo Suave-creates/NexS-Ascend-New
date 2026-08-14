@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { FiX, FiRefreshCw } from 'react-icons/fi';
 import { Modal, Alert, Badge, Table, THead, TBody, TR, TH, TD } from '@/components/ui';
+import { apiFetch } from '@/lib/authClient';
 import { computeProgress } from '@/services/metal-frame/tumbling/progress.service';
 import type { ProcessDetailDto, TumblingContainerSide } from '@/services/metal-frame/tumbling/types';
 import { ProgressBar } from './ProgressBar';
@@ -36,7 +37,7 @@ export function ProcessDetailModal({ processId, onClose }: { processId: number |
     if (processId == null || busyRef.current) return;
     busyRef.current = true;
     try {
-      const res = await fetch(`/api/metal-frame/tumbling/processes/${processId}`);
+      const res = await apiFetch(`/api/metal-frame/tumbling/processes/${processId}`);
       const json = await res.json();
       if (!res.ok) throw new Error(json.error || 'Failed to load this process.');
       clockOffsetRef.current = new Date(json.serverTime).getTime() - Date.now();

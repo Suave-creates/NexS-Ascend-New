@@ -13,6 +13,8 @@ import { NextResponse } from 'next/server';
 import type mysql from 'mysql2/promise';
 import { prismaLensLab } from '@/utils/prismaLensLab';
 import { nexsPool } from '@/utils/nexsPool';
+import { authMiddleware } from '@/middleware/auth';
+import type { AuthenticatedRequest } from '@/middleware/auth';
 
 // ── Tolerances ──────────────────────────────────────────────────────
 const TOL_SPH  = 0.25;
@@ -33,7 +35,6 @@ interface EyePayload {
 
 interface SubmitPayload {
   fitting_id:     string;
-  operator_id:    string;
   operator_grade: number;             // 1 or 2
 
   right?:  EyePayload | null;
@@ -156,17 +157,22 @@ function validEye(eye: any): eye is EyePayload {
 // ────────────────────────────────────────────────────────────────────
 // POST
 // ────────────────────────────────────────────────────────────────────
-export async function POST(req: Request) {
+export const POST = authMiddleware(async (req: AuthenticatedRequest) => {
   let conn: mysql.PoolConnection | null = null;
 
   try {
     const body = await req.json() as SubmitPayload;
 
     const {
-      fitting_id, operator_id, operator_grade,
+      fitting_id, operator_grade,
       right, left,
       qc_status, qcf_dept, qcf_reason, fail_side, remarks,
     } = body;
+
+    // Operator identity now comes from the authenticated session, not the
+    // client payload — the grade selector on the page is still a manual
+    // per-session choice and continues to arrive in the body.
+    const operator_id = req.user.employeeCode;
 
     // ── Validate ──────────────────────────────────────────────────
     if (!fitting_id || typeof fitting_id !== 'string') {
@@ -313,4 +319,4 @@ export async function POST(req: Request) {
   } finally {
     if (conn) conn.release();
   }
-}
+});

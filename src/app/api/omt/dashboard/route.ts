@@ -8,6 +8,7 @@ import {
   isDatabaseUnavailableError,
   withDatabaseConnectionRetry,
 } from '@/utils/databaseRetry';
+import { authMiddleware } from '@/middleware/auth';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -186,7 +187,7 @@ function isoValue(value: Date | string | null) {
   return Number.isFinite(parsed.getTime()) ? parsed.toISOString() : String(value);
 }
 
-export async function GET(request: Request) {
+export const GET = authMiddleware(async (request: Request) => {
   try {
     await ensureTables();
     startOmtHealthScheduler();
@@ -328,4 +329,4 @@ export async function GET(request: Request) {
     console.error('[omt/dashboard] failed:', error);
     return NextResponse.json({ error: 'Unable to load the OMT dashboard' }, { status: 500 });
   }
-}
+});

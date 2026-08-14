@@ -20,7 +20,7 @@ interface DeviationInput {
 }
 
 // GET — List deviations with optional date filtering
-export async function GET(req: NextRequest) {
+export const GET = authMiddleware(async (req: NextRequest) => {
   try {
     const { searchParams } = new URL(req.url);
     const startDate = searchParams.get('start');
@@ -64,7 +64,7 @@ export async function GET(req: NextRequest) {
       { status: 500 }
     );
   }
-}
+});
 
 // POST — Create new deviation (protected)
 export const POST = authMiddleware(async (req: NextRequest) => {

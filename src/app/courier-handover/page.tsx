@@ -23,6 +23,7 @@ import {
   TD,
 } from '@/components/ui';
 import { cn } from '@/lib/cn';
+import { apiFetch } from '@/lib/authClient';
 
 type Partner =
   | 'Purpledrone'
@@ -144,7 +145,6 @@ type Counters = { valid: number; invalid: number; total: number };
 
 export default function CourierHandoverPage() {
   const [partner, setPartner] = useState<Partner>('XPressBees');
-  const [personId, setPersonId] = useState('');
   const [awb, setAwb] = useState('');
   const [msg, setMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [errorSticky, setErrorSticky] = useState<string | null>(null);
@@ -200,7 +200,7 @@ export default function CourierHandoverPage() {
 
   useEffect(() => {
     const awbTrim = awb.trim().toUpperCase();
-    if (!awbTrim || !personId || !armed || mismatchModal.show || duplicateModal.show) return;
+    if (!awbTrim || !armed || mismatchModal.show || duplicateModal.show) return;
 
     const timeout = setTimeout(() => {
       const detected = detectPartner(awbTrim, effectiveRE);
@@ -208,10 +208,10 @@ export default function CourierHandoverPage() {
       // Mismatch: detected a partner that is NOT in the selected partner's family
       if (detected && !isFamilyMatch(partner, detected)) {
         setCounters((c) => ({ ...c, invalid: c.invalid + 1, total: c.total + 1 }));
-        fetch('/api/courier/scan', {
+        apiFetch('/api/courier/scan', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ partner, awb: awbTrim, personId, mismatch: true, detectedPartner: detected }),
+          body: JSON.stringify({ partner, awb: awbTrim, mismatch: true, detectedPartner: detected }),
         }).catch(() => {});
         setMismatchModal({ show: true, awb: awbTrim, detected });
         return;
@@ -220,10 +220,10 @@ export default function CourierHandoverPage() {
       if (validateForPartner(partner, awbTrim, effectiveRE)) {
         (async () => {
           try {
-            const res = await fetch('/api/courier/scan', {
+            const res = await apiFetch('/api/courier/scan', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ partner, awb: awbTrim, personId }),
+              body: JSON.stringify({ partner, awb: awbTrim }),
             });
             const j = await res.json().catch(() => ({} as any));
             if (!res.ok || !j.ok) { setErrorSticky(j.error || 'Server error'); return; }
@@ -252,7 +252,7 @@ export default function CourierHandoverPage() {
     }, 100);
 
     return () => clearTimeout(timeout);
-  }, [awb, partner, personId, armed, mismatchModal.show, duplicateModal.show, effectiveRE]);
+  }, [awb, partner, armed, mismatchModal.show, duplicateModal.show, effectiveRE]);
 
   const clearAwbAndRefocus = () => {
     setAwb('');
@@ -301,22 +301,11 @@ export default function CourierHandoverPage() {
             <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500">Scan Configuration</h2>
           </CardHeader>
           <CardBody className="space-y-4">
-            <div className="grid gap-4 sm:grid-cols-2">
-              <Field label="Courier Partner">
-                <Select value={partner} onChange={(e) => setPartner(e.target.value as Partner)}>
-                  {PARTNERS.map((p) => <option key={p} value={p}>{p}</option>)}
-                </Select>
-              </Field>
-
-              <Field label="Person ID (present)">
-                <Input
-                  type="text"
-                  value={personId}
-                  onChange={(e) => setPersonId(e.target.value.toUpperCase())}
-                  placeholder="e.g. ARYA01"
-                />
-              </Field>
-            </div>
+            <Field label="Courier Partner">
+              <Select value={partner} onChange={(e) => setPartner(e.target.value as Partner)}>
+                {PARTNERS.map((p) => <option key={p} value={p}>{p}</option>)}
+              </Select>
+            </Field>
 
             <Field label="AWB / Barcode">
               <div className="relative">

@@ -20,6 +20,7 @@ import {
   TD,
 } from '@/components/ui';
 import { cn } from '@/lib/cn';
+import { apiFetch } from '@/lib/authClient';
 
 type InventoryItem = {
   pid: number;
@@ -82,7 +83,7 @@ export default function ToteMasterPage() {
 
     startTransition(async () => {
       try {
-        const res = await fetch('/api/asrs/tote-master', {
+        const res = await apiFetch('/api/asrs/tote-master', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ input }),

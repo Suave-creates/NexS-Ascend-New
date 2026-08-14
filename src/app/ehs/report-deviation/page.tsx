@@ -20,6 +20,7 @@ import {
   TH,
   TD,
 } from '@/components/ui';
+import { apiFetch } from '@/lib/authClient';
 
 interface EHSDeviation {
   id: number;
@@ -53,15 +54,9 @@ const COMPLIANCE_STATUS_OPTIONS = ['Open', 'Closed'];
 
 export default function EHSReportDeviationPage() {
   const [deviations, setDeviations] = useState<EHSDeviation[]>([]);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [showLoginModal, setShowLoginModal] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingDeviation, setEditingDeviation] = useState<EHSDeviation | null>(null);
-
-  // Login form
-  const [loginForm, setLoginForm] = useState({ employeeCode: '', password: '' });
 
   // Date filters
   const [startDate, setStartDate] = useState('');
@@ -85,11 +80,6 @@ export default function EHSReportDeviationPage() {
   });
 
   useEffect(() => {
-    const savedToken = localStorage.getItem('ehsToken');
-    if (savedToken) {
-      setToken(savedToken);
-      setIsAuthenticated(true);
-    }
     fetchDeviations();
   }, []);
 
@@ -100,7 +90,7 @@ export default function EHSReportDeviationPage() {
       if (startDate) params.append('start', startDate);
       if (endDate) params.append('end', endDate);
 
-      const response = await fetch(`/api/ehs/deviations?${params}`);
+      const response = await apiFetch(`/api/ehs/deviations?${params}`);
       const data = await response.json();
       // Map remarksByDept to remarksByDepartment for UI consistency
       const normalized = Array.isArray(data)
@@ -122,41 +112,11 @@ export default function EHSReportDeviationPage() {
     setLoading(false);
   };
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      const response = await fetch('/api/auth/ehs-login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(loginForm),
-      });
-
-      const data = await response.json();
-      if (response.ok) {
-        setToken(data.token);
-        setIsAuthenticated(true);
-        localStorage.setItem('ehsToken', data.token);
-        setShowLoginModal(false);
-        setLoginForm({ employeeCode: '', password: '' });
-      } else {
-        alert(data.error || 'Login failed');
-      }
-    } catch (error) {
-      alert('Login failed');
-    }
-  };
-
-  const handleLogout = () => {
-    setToken(null);
-    setIsAuthenticated(false);
-    localStorage.removeItem('ehsToken');
-  };
-
   const handleFileUpload = async (file: File): Promise<string> => {
     const formData = new FormData();
     formData.append('photo', file);
 
-    const response = await fetch('/api/ehs/uploadPhoto', {
+    const response = await apiFetch('/api/ehs/uploadPhoto', {
       method: 'POST',
       body: formData,
     });
@@ -167,15 +127,11 @@ export default function EHSReportDeviationPage() {
 
   const handleCreateDeviation = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!isAuthenticated) return;
 
     try {
-      const response = await fetch('/api/ehs/deviations', {
+      const response = await apiFetch('/api/ehs/deviations', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newDeviation),
       });
 
@@ -207,20 +163,9 @@ export default function EHSReportDeviationPage() {
 
   const handleUpdateDeviation = async (id: number, data: Partial<EHSDeviation>) => {
     try {
-      const url = isAuthenticated
-        ? `/api/ehs/deviation/${id}`
-        : `/api/ehs/deviation/${id}/public-edit`;
-
-      const method = isAuthenticated ? 'PUT' : 'PATCH';
-      const headers: any = { 'Content-Type': 'application/json' };
-
-      if (isAuthenticated) {
-        headers['Authorization'] = `Bearer ${token}`;
-      }
-
-      const response = await fetch(url, {
-        method,
-        headers,
+      const response = await apiFetch(`/api/ehs/deviation/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       });
 
@@ -236,14 +181,11 @@ export default function EHSReportDeviationPage() {
   };
 
   const handleDeleteDeviation = async (id: number) => {
-    if (!isAuthenticated || !confirm('Are you sure you want to delete this deviation?')) return;
+    if (!confirm('Are you sure you want to delete this deviation?')) return;
 
     try {
-      const response = await fetch(`/api/ehs/deviation/${id}`, {
+      const response = await apiFetch(`/api/ehs/deviation/${id}`, {
         method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
       });
 
       if (response.ok) {
@@ -262,7 +204,7 @@ export default function EHSReportDeviationPage() {
       if (startDate) params.append('startDate', startDate);
       if (endDate) params.append('endDate', endDate);
 
-      const response = await fetch(`/api/ehs/exportPDF?${params}`);
+      const response = await apiFetch(`/api/ehs/exportPDF?${params}`);
       const blob = await response.blob();
 
       const url = window.URL.createObjectURL(blob);
@@ -290,20 +232,9 @@ export default function EHSReportDeviationPage() {
         title="EHS Deviation Reporting"
         subtitle="Track, categorize, and close out environment, health & safety deviations."
         actions={
-          isAuthenticated ? (
-            <>
-              <Button onClick={() => setShowCreateModal(true)}>
-                Create Deviation
-              </Button>
-              <Button variant="outline" onClick={handleLogout}>
-                Logout
-              </Button>
-            </>
-          ) : (
-            <Button onClick={() => setShowLoginModal(true)}>
-              EHS Officer Login
-            </Button>
-          )
+          <Button onClick={() => setShowCreateModal(true)}>
+            Create Deviation
+          </Button>
         }
       />
 
@@ -446,15 +377,13 @@ export default function EHSReportDeviationPage() {
                       >
                         Edit
                       </Button>
-                      {isAuthenticated && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleDeleteDeviation(deviation.id)}
-                        >
-                          Delete
-                        </Button>
-                      )}
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleDeleteDeviation(deviation.id)}
+                      >
+                        Delete
+                      </Button>
                     </div>
                   </TD>
                 </TR>
@@ -463,42 +392,6 @@ export default function EHSReportDeviationPage() {
           </TBody>
         </Table>
       </Card>
-
-      {/* Login Modal */}
-      <Modal open={showLoginModal} onClose={() => setShowLoginModal(false)} size="sm">
-        <h2 className="mb-4 text-xl font-bold text-brand-700">EHS Officer Login</h2>
-        <form onSubmit={handleLogin} className="space-y-4">
-          <Field label="Employee Code">
-            <Input
-              type="text"
-              value={loginForm.employeeCode}
-              onChange={(e) => setLoginForm({ ...loginForm, employeeCode: e.target.value })}
-              required
-            />
-          </Field>
-          <Field label="Password">
-            <Input
-              type="password"
-              value={loginForm.password}
-              onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })}
-              required
-            />
-          </Field>
-          <div className="flex gap-4">
-            <Button type="submit" className="flex-1">
-              Login
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              className="flex-1"
-              onClick={() => setShowLoginModal(false)}
-            >
-              Cancel
-            </Button>
-          </div>
-        </form>
-      </Modal>
 
       {/* Create Modal */}
       <Modal
@@ -679,160 +572,144 @@ export default function EHSReportDeviationPage() {
       >
         {editingDeviation && (
           <>
-            <h2 className="mb-4 text-xl font-bold text-brand-700">
-              {isAuthenticated ? 'Edit Deviation' : 'Update Deviation (Limited)'}
-            </h2>
+            <h2 className="mb-4 text-xl font-bold text-brand-700">Edit Deviation</h2>
             <form onSubmit={(e) => {
               e.preventDefault();
               const formData = new FormData(e.target as HTMLFormElement);
-              const data: any = {};
-
-              if (isAuthenticated) {
-                // EHS officers can edit all fields
-                data.month = formData.get('month');
-                data.date = formData.get('date');
-                data.timeOfRound = formData.get('timeOfRound');
-                data.location = formData.get('location');
-                data.responsibleDepartment = formData.get('responsibleDepartment');
-                data.remarks = formData.get('remarks');
-                data.observations = formData.get('observations');
-                data.photographBefore = editingDeviation.photographBefore;
-                data.controlMeasures = formData.get('controlMeasures');
-                data.categorization = formData.get('categorization');
-              } else {
-                // Anonymous users can only edit specific fields
-                data.remarksByDepartment = formData.get('remarksByDepartment');
-                data.complianceStatus = formData.get('complianceStatus');
-                if (editingDeviation.photographAfter) {
-                  data.photographAfter = editingDeviation.photographAfter;
-                }
-              }
+              const data: any = {
+                month: formData.get('month'),
+                date: formData.get('date'),
+                timeOfRound: formData.get('timeOfRound'),
+                location: formData.get('location'),
+                responsibleDepartment: formData.get('responsibleDepartment'),
+                remarks: formData.get('remarks'),
+                observations: formData.get('observations'),
+                photographBefore: editingDeviation.photographBefore,
+                controlMeasures: formData.get('controlMeasures'),
+                categorization: formData.get('categorization'),
+                remarksByDepartment: formData.get('remarksByDepartment'),
+                complianceStatus: formData.get('complianceStatus'),
+                photographAfter: editingDeviation.photographAfter,
+              };
 
               handleUpdateDeviation(editingDeviation.id, data);
             }}>
-              {isAuthenticated ? (
-                // Full form for EHS officers
-                <div className="grid grid-cols-2 gap-4">
-                  <Field label="Month">
-                    <Input
-                      name="month"
-                      type="text"
-                      defaultValue={editingDeviation.month}
-                      required
-                    />
-                  </Field>
-                  <Field label="Date">
-                    <Input
-                      name="date"
-                      type="date"
-                      defaultValue={editingDeviation.date.split('T')[0]}
-                      required
-                    />
-                  </Field>
-                  <Field label="Time of Round">
-                    <Input
-                      name="timeOfRound"
-                      type="text"
-                      defaultValue={editingDeviation.timeOfRound}
-                      required
-                    />
-                  </Field>
-                  <Field label="Location">
-                    <Input
-                      name="location"
-                      type="text"
-                      defaultValue={editingDeviation.location}
-                      required
-                    />
-                  </Field>
-                  <Field label="Responsible Department">
-                    <Select
-                      name="responsibleDepartment"
-                      defaultValue={editingDeviation.responsibleDepartment}
-                      required
-                    >
-                      {DEPARTMENTS.map(dept => (
-                        <option key={dept} value={dept}>{dept}</option>
-                      ))}
-                    </Select>
-                  </Field>
-                  <Field label="Remarks">
-                    <Select
-                      name="remarks"
-                      defaultValue={editingDeviation.remarks}
-                      required
-                    >
-                      {REMARKS_OPTIONS.map(remark => (
-                        <option key={remark} value={remark}>{remark}</option>
-                      ))}
-                    </Select>
-                  </Field>
-                  <Field label="Observations" className="col-span-2">
-                    <Textarea
-                      name="observations"
-                      defaultValue={editingDeviation.observations}
-                      rows={3}
-                      required
-                    />
-                  </Field>
-                  <Field label="Control Measures" className="col-span-2">
-                    <Textarea
-                      name="controlMeasures"
-                      defaultValue={editingDeviation.controlMeasures}
-                      rows={3}
-                      required
-                    />
-                  </Field>
-                  <Field label="Categorization">
-                    <Select
-                      name="categorization"
-                      defaultValue={editingDeviation.categorization}
-                    >
-                      {CATEGORIZATION_OPTIONS.map(cat => (
-                        <option key={cat} value={cat}>{cat}</option>
-                      ))}
-                    </Select>
-                  </Field>
-                </div>
-              ) : (
-                // Limited form for anonymous users
-                <div className="space-y-4">
-                  <Field label="Photograph (After)">
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={async (e) => {
-                        const file = e.target.files?.[0];
-                        if (file) {
-                          const url = await handleFileUpload(file);
-                          setEditingDeviation({ ...editingDeviation, photographAfter: url });
-                        }
-                      }}
-                      className="block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm file:mr-3 file:rounded file:border-0 file:bg-brand-50 file:px-3 file:py-1 file:text-brand-700"
-                    />
-                    {editingDeviation.photographAfter && (
-                      <img src={editingDeviation.photographAfter} alt="After" className="mt-2 h-32 w-32 rounded object-cover" />
-                    )}
-                  </Field>
-                  <Field label="Remarks by Department">
-                    <Textarea
-                      name="remarksByDepartment"
-                      defaultValue={editingDeviation.remarksByDepartment || ''}
-                      rows={3}
-                    />
-                  </Field>
-                  <Field label="Compliance Status">
-                    <Select
-                      name="complianceStatus"
-                      defaultValue={editingDeviation.complianceStatus}
-                    >
-                      {COMPLIANCE_STATUS_OPTIONS.map(status => (
-                        <option key={status} value={status}>{status}</option>
-                      ))}
-                    </Select>
-                  </Field>
-                </div>
-              )}
+              <div className="grid grid-cols-2 gap-4">
+                <Field label="Month">
+                  <Input
+                    name="month"
+                    type="text"
+                    defaultValue={editingDeviation.month}
+                    required
+                  />
+                </Field>
+                <Field label="Date">
+                  <Input
+                    name="date"
+                    type="date"
+                    defaultValue={editingDeviation.date.split('T')[0]}
+                    required
+                  />
+                </Field>
+                <Field label="Time of Round">
+                  <Input
+                    name="timeOfRound"
+                    type="text"
+                    defaultValue={editingDeviation.timeOfRound}
+                    required
+                  />
+                </Field>
+                <Field label="Location">
+                  <Input
+                    name="location"
+                    type="text"
+                    defaultValue={editingDeviation.location}
+                    required
+                  />
+                </Field>
+                <Field label="Responsible Department">
+                  <Select
+                    name="responsibleDepartment"
+                    defaultValue={editingDeviation.responsibleDepartment}
+                    required
+                  >
+                    {DEPARTMENTS.map(dept => (
+                      <option key={dept} value={dept}>{dept}</option>
+                    ))}
+                  </Select>
+                </Field>
+                <Field label="Remarks">
+                  <Select
+                    name="remarks"
+                    defaultValue={editingDeviation.remarks}
+                    required
+                  >
+                    {REMARKS_OPTIONS.map(remark => (
+                      <option key={remark} value={remark}>{remark}</option>
+                    ))}
+                  </Select>
+                </Field>
+                <Field label="Observations" className="col-span-2">
+                  <Textarea
+                    name="observations"
+                    defaultValue={editingDeviation.observations}
+                    rows={3}
+                    required
+                  />
+                </Field>
+                <Field label="Control Measures" className="col-span-2">
+                  <Textarea
+                    name="controlMeasures"
+                    defaultValue={editingDeviation.controlMeasures}
+                    rows={3}
+                    required
+                  />
+                </Field>
+                <Field label="Categorization">
+                  <Select
+                    name="categorization"
+                    defaultValue={editingDeviation.categorization}
+                  >
+                    {CATEGORIZATION_OPTIONS.map(cat => (
+                      <option key={cat} value={cat}>{cat}</option>
+                    ))}
+                  </Select>
+                </Field>
+                <Field label="Photograph (After)">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        const url = await handleFileUpload(file);
+                        setEditingDeviation({ ...editingDeviation, photographAfter: url });
+                      }
+                    }}
+                    className="block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm file:mr-3 file:rounded file:border-0 file:bg-brand-50 file:px-3 file:py-1 file:text-brand-700"
+                  />
+                  {editingDeviation.photographAfter && (
+                    <img src={editingDeviation.photographAfter} alt="After" className="mt-2 h-32 w-32 rounded object-cover" />
+                  )}
+                </Field>
+                <Field label="Remarks by Department">
+                  <Textarea
+                    name="remarksByDepartment"
+                    defaultValue={editingDeviation.remarksByDepartment || ''}
+                    rows={3}
+                  />
+                </Field>
+                <Field label="Compliance Status">
+                  <Select
+                    name="complianceStatus"
+                    defaultValue={editingDeviation.complianceStatus}
+                  >
+                    {COMPLIANCE_STATUS_OPTIONS.map(status => (
+                      <option key={status} value={status}>{status}</option>
+                    ))}
+                  </Select>
+                </Field>
+              </div>
 
               <div className="mt-6 flex gap-4">
                 <Button type="submit" className="flex-1">

@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useRef } from "react";
 import { cn } from "@/lib/cn";
+import { apiFetch } from "@/lib/authClient";
 import {
   PageHeader,
   Card,
@@ -493,7 +494,7 @@ export default function ShipmentSyncPage() {
       });
 
       try {
-        const res = await fetch("/api/infocorner/sync-time-inventory", {
+        const res = await apiFetch("/api/infocorner/sync-time-inventory", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ shipping_package_ids: chunk }),

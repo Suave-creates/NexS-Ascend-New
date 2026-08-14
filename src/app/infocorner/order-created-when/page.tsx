@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { cn } from "@/lib/cn";
+import { apiFetch } from "@/lib/authClient";
 import {
   Card,
   CardHeader,
@@ -189,7 +190,7 @@ export default function OrderSyncTimePage() {
     }, 320);
 
     try {
-      const res  = await fetch("/api/infocorner/order-created-when", {
+      const res  = await apiFetch("/api/infocorner/order-created-when", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ increment_ids: ids }),

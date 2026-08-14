@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react";
 import { FiPlay, FiDownload, FiGrid } from "react-icons/fi";
 import { cn } from "@/lib/cn";
+import { apiFetch } from "@/lib/authClient";
 import {
   PageHeader,
   Card,
@@ -241,7 +242,7 @@ export default function PicklistChunked() {
     }, 320);
 
     try {
-      const res  = await fetch("/api/infocorner/sync-time-location", {
+      const res  = await apiFetch("/api/infocorner/sync-time-location", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ shipment_ids: ids }),

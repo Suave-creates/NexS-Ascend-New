@@ -1,13 +1,14 @@
 import { NextResponse } from 'next/server';
+import { authMiddleware } from '@/middleware/auth';
 import { stopProcess } from '@/services/metal-frame/tumbling/process.service';
 import { validateOperatorName, validateReason, validateRemarks, STOP_REASONS } from '@/services/metal-frame/tumbling/validators';
 import { handleRouteError } from '@/services/metal-frame/tumbling/http';
 import { TumblingError } from '@/services/metal-frame/tumbling/types';
 
 // POST /api/metal-frame/tumbling/processes/[processId]/stop -> authorized stop
-export async function POST(req: Request, { params }: { params: Promise<{ processId: string }> }) {
+export const POST = authMiddleware<{ processId: string }>(async (req: Request, { params }: { params: { processId: string } }) => {
   try {
-    const processId = Number((await params).processId);
+    const processId = Number(params.processId);
     if (!Number.isInteger(processId)) throw new TumblingError(400, 'Invalid process id.');
 
     const body = await req.json();
@@ -30,4 +31,4 @@ export async function POST(req: Request, { params }: { params: Promise<{ process
   } catch (err) {
     return handleRouteError('Tumbling process stop', err);
   }
-}
+});

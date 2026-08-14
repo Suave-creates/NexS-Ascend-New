@@ -26,6 +26,7 @@ import {
   TD,
 } from '@/components/ui';
 import { cn } from '@/lib/cn';
+import { apiFetch } from '@/lib/authClient';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -240,7 +241,7 @@ export default function BulkFittingLookup() {
 
     try {
       const body   = parsedPairs.map((p) => `${p.fittingId}\t${p.cutoff}`).join('\n');
-      const res    = await fetch('/api/lens-lab/jit-PD-stamp', {
+      const res    = await apiFetch('/api/lens-lab/jit-PD-stamp', {
         method: 'POST',
         headers: { 'Content-Type': 'text/plain' },
         body,

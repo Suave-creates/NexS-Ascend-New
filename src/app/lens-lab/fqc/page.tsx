@@ -6,6 +6,7 @@ import {
   Card, CardBody, PageHeader, Modal, Alert, Badge,
 } from "@/components/ui";
 import { cn } from "@/lib/cn";
+import { useAuth, apiFetch } from "@/lib/authClient";
 
 // ─────────────────────────────────────────────────────────
 //  Config
@@ -88,7 +89,7 @@ interface DecisionState {
 const defaultDecision = (): DecisionState =>
   ({ status: null, dept: null, reason: "", failSide: null, remarks: "" });
 
-interface Operator { id: string; grade: 1 | 2 }
+type Grade = 1 | 2;
 
 // ─────────────────────────────────────────────────────────
 //  Tolerance chart
@@ -384,31 +385,27 @@ function LensPanel({
 }
 
 // ─────────────────────────────────────────────────────────
-//  Operator login modal
+//  QC grade selection modal
 // ─────────────────────────────────────────────────────────
-function OperatorModal({ initial, onSave }: { initial?: Operator; onSave: (op: Operator) => void }) {
-  const [id, setId] = useState(initial?.id ?? "");
-  const [grade, setGrade] = useState<1 | 2>(initial?.grade ?? 1);
+// Grade is a QC certification level (1 or 2), not an identity field — the
+// operator's identity comes from the authenticated session automatically.
+function GradeModal({ initial, onSave }: { initial?: Grade; onSave: (grade: Grade) => void }) {
+  const [grade, setGrade] = useState<Grade>(initial ?? 1);
   return (
     <Modal open size="sm">
-      <h3 className="text-lg font-bold text-brand-700">Operator Login</h3>
+      <h3 className="text-lg font-bold text-brand-700">Select QC Grade</h3>
       <p className="mt-1 mb-4 text-sm text-gray-500">
-        Enter your operator ID and grade. This is required to record QC inspections.
+        Select your QC certification grade. This is required to record QC inspections.
       </p>
       <div className="space-y-4">
-        <Field label="Operator ID" htmlFor="op-id">
-          <Input id="op-id" value={id} autoFocus maxLength={50}
-                 onChange={e => setId(e.target.value)} placeholder="e.g. OP123" />
-        </Field>
         <Field label="Grade" htmlFor="op-grade">
           <Select id="op-grade" value={grade}
-                  onChange={e => setGrade(Number(e.target.value) as 1 | 2)}>
+                  onChange={e => setGrade(Number(e.target.value) as Grade)}>
             <option value={1}>Grade 1</option>
             <option value={2}>Grade 2</option>
           </Select>
         </Field>
-        <Button className="w-full" disabled={!id.trim()}
-                onClick={() => onSave({ id: id.trim(), grade })}>
+        <Button className="w-full" onClick={() => onSave(grade)}>
           CONTINUE
         </Button>
       </div>
@@ -420,8 +417,13 @@ function OperatorModal({ initial, onSave }: { initial?: Operator; onSave: (op: O
 //  Main page
 // ─────────────────────────────────────────────────────────
 export default function FQCPage() {
-  // Operator
-  const [operator, setOperator] = useState<Operator | null>(null);
+  // Operator identity comes from the authenticated session automatically.
+  // Grade remains a manual per-session choice (QC certification level, not
+  // an identity field — there's no such column on the User table).
+  const { user } = useAuth();
+  const employeeCode = user?.employeeCode ?? "";
+
+  const [grade, setGrade] = useState<Grade | null>(null);
   const [showOpModal, setShowOpModal] = useState(false);
 
   useEffect(() => {
@@ -429,9 +431,9 @@ export default function FQCPage() {
     try {
       const raw = sessionStorage.getItem("fqc_operator");
       if (raw) {
-        const op = JSON.parse(raw);
-        if (op?.id && (op.grade === 1 || op.grade === 2)) {
-          setOperator(op);
+        const stored = JSON.parse(raw);
+        if (stored?.grade === 1 || stored?.grade === 2) {
+          setGrade(stored.grade);
           return;
         }
       }
@@ -439,10 +441,10 @@ export default function FQCPage() {
     setShowOpModal(true);
   }, []);
 
-  const saveOperator = (op: Operator) => {
-    setOperator(op);
+  const saveGrade = (g: Grade) => {
+    setGrade(g);
     setShowOpModal(false);
-    try { sessionStorage.setItem("fqc_operator", JSON.stringify(op)); } catch {}
+    try { sessionStorage.setItem("fqc_operator", JSON.stringify({ grade: g })); } catch {}
   };
 
   // Auto-Pass toggle
@@ -558,7 +560,7 @@ export default function FQCPage() {
     operatorTouchedRef.current = false;
 
     try {
-      const res = await fetch("/api/lens-lab/fqc/data-call", {
+      const res = await apiFetch("/api/lens-lab/fqc/data-call", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ fitting_id: fid.trim() }),
@@ -621,7 +623,7 @@ export default function FQCPage() {
     !!autoEval.right?.failed.some(f => f === "SPH" || f === "CYL") ||
     !!autoEval.left ?.failed.some(f => f === "SPH" || f === "CYL")
   );
-  const grade1Locked = operator?.grade === 1 && sphCylFail;
+  const grade1Locked = grade === 1 && sphCylFail;
 
   // List of fields that triggered the lockout (for the notice)
   const lockedFields = (() => {
@@ -635,7 +637,7 @@ export default function FQCPage() {
   // Auto-Pass effect
   useEffect(() => {
     if (!autoPass) return;
-    if (!fetchedData || !reading || !operator) return;
+    if (!fetchedData || !reading || grade === null) return;
     if (submitting || submitResult) return;
     if (operatorTouchedRef.current) return;
     if (autoPassFiredRef.current === reading.printNo) return;
@@ -663,7 +665,7 @@ export default function FQCPage() {
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [autoPass, reading, fetchedData, operator, submitting, submitResult, autoEval?.right?.status, autoEval?.left?.status]);
+  }, [autoPass, reading, fetchedData, grade, submitting, submitResult, autoEval?.right?.status, autoEval?.left?.status]);
 
   useEffect(() => {
     if (!autoPassCountdown) return;
@@ -678,7 +680,7 @@ export default function FQCPage() {
   }, [autoPassCountdown, cancelAutoPass]);
 
   const canSubmit = (() => {
-    if (!operator || !fetchedData || submitting || submitResult) return false;
+    if (grade === null || !fetchedData || submitting || submitResult) return false;
     if (!reading) return false;
     if (!decision.status) return false;
     if ((decision.status === "HOLD" || decision.status === "FAIL") && (!decision.dept || !decision.reason)) return false;
@@ -689,7 +691,7 @@ export default function FQCPage() {
   })();
 
   async function submitInspection(forced?: { status: QcStatus; failSide: FailSide | null; auto: boolean }) {
-    if (!fetchedData || !operator || !reading || submitting) return;
+    if (!fetchedData || grade === null || !reading || submitting) return;
 
     const effective = forced
       ? { status: forced.status, dept: null as Dept | null, reason: "", failSide: forced.failSide, remarks: "" }
@@ -718,8 +720,7 @@ export default function FQCPage() {
 
       const payload = {
         fitting_id:     fetchedData.fitting_id,
-        operator_id:    operator.id,
-        operator_grade: operator.grade,
+        operator_grade: grade,
 
         right:  buildEye(fetchedData.right, reading.R),
         left:   buildEye(fetchedData.left,  reading.L),
@@ -733,7 +734,7 @@ export default function FQCPage() {
           : (effective.remarks || null),
       };
 
-      const res = await fetch("/api/lens-lab/fqc/qc-tray-single", {
+      const res = await apiFetch("/api/lens-lab/fqc/qc-tray-single", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -818,16 +819,16 @@ export default function FQCPage() {
               Auto-Pass
             </Button>
 
-            {operator && (
+            {grade !== null && (
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setShowOpModal(true)}
-                title="Click to change operator"
+                title="Click to change grade"
                 className="gap-1.5 text-xs font-normal">
                 <span className="text-gray-400">OP</span>
-                <strong className="text-gray-800">{operator.id}</strong>
-                <Badge tone="gold">G{operator.grade}</Badge>
+                <strong className="text-gray-800">{employeeCode}</strong>
+                <Badge tone="gold">G{grade}</Badge>
               </Button>
             )}
 
@@ -1145,7 +1146,7 @@ export default function FQCPage() {
         </div>
       )}
 
-      {showOpModal && <OperatorModal initial={operator ?? undefined} onSave={saveOperator} />}
+      {showOpModal && <GradeModal initial={grade ?? undefined} onSave={saveGrade} />}
 
       {/* Result toast */}
       {submitResult && fetchedData && (

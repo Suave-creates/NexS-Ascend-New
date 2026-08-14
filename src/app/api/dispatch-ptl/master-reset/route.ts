@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server'
 import { prismaDispatch } from '@/utils/prismaDispatch'
+import { authMiddleware } from '@/middleware/auth'
 
-export async function POST() {
+export const POST = authMiddleware(async () => {
   try {
 
     const result = await prismaDispatch.$transaction(async (tx) => {
@@ -57,4 +58,4 @@ export async function POST() {
       { status: 500 }
     )
   }
-}
+})

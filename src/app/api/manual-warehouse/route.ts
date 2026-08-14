@@ -2,10 +2,11 @@ import { NextResponse } from 'next/server';
 import prisma from '@/utils/prisma';
 import type mysql from 'mysql2/promise';
 import { nexsPool } from '@/utils/nexsPool';
+import { authMiddleware } from '@/middleware/auth';
 
 const PACKING_REGEX = /^CT\d{5}$/;
 
-export async function POST(req: Request) {
+export const POST = authMiddleware(async (req: Request) => {
   let conn: mysql.PoolConnection | null = null;
 
   try {
@@ -80,4 +81,4 @@ export async function POST(req: Request) {
   } finally {
     if (conn) conn.release();
   }
-}
+});

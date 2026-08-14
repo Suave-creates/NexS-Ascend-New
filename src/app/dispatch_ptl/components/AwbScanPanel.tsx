@@ -1,6 +1,7 @@
 //src/app/dispatch_ptl/components/AwbScanPanel.tsx
 
 import { useState } from 'react'
+import { apiFetch } from '@/lib/authClient'
 
 export default function AwbScanPanel({ onSuccess }: any) {
   const [awb, setAwb] = useState('')
@@ -10,7 +11,7 @@ export default function AwbScanPanel({ onSuccess }: any) {
     if (!awb) return
     setLoading(true)
 
-    await fetch('/api/dispatch-ptl/scan-awb', {
+    await apiFetch('/api/dispatch-ptl/scan-awb', {
       method: 'POST',
       body: JSON.stringify({ awb })
     })

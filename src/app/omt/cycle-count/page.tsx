@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { apiFetch } from '@/lib/authClient';
 
 const POSITION_PATTERN = /^NXS1-OMT-\d{2}-\d{3}$/;
 const TRAY_PATTERN = /^[A-Z]{2}\d{5}$/;
@@ -47,49 +48,30 @@ function formatDate(value: string | null) {
 }
 
 export default function OmtCycleCountPage() {
-  const [operatorId, setOperatorId] = useState('');
   const [locationValue, setLocationValue] = useState('');
   const [trayValue, setTrayValue] = useState('');
   const [result, setResult] = useState<PositionResult | null>(null);
   const [countedTrays, setCountedTrays] = useState<string[]>([]);
   const [phase, setPhase] = useState<Phase>('LOCATION');
   const [message, setMessage] = useState('Scan an OMT location to begin the live cycle count.');
-  const operatorRef = useRef<HTMLInputElement>(null);
   const locationRef = useRef<HTMLInputElement>(null);
   const trayRef = useRef<HTMLInputElement>(null);
   const busyRef = useRef(false);
 
-  useEffect(() => {
-    setOperatorId(window.localStorage.getItem('omtOperatorId') ?? '');
-  }, []);
-
   const focusActiveScanner = useCallback(() => {
     window.setTimeout(() => {
-      if (!operatorId.trim()) operatorRef.current?.focus();
-      else if (result) trayRef.current?.focus();
+      if (result) trayRef.current?.focus();
       else locationRef.current?.focus();
     }, 30);
-  }, [operatorId, result]);
+  }, [result]);
 
   useEffect(() => {
     focusActiveScanner();
   }, [focusActiveScanner]);
 
-  const updateOperatorId = (value: string) => {
-    const normalized = value.toUpperCase().replace(/\s+/g, '').slice(0, 64);
-    setOperatorId(normalized);
-    window.localStorage.setItem('omtOperatorId', normalized);
-  };
-
   const scanLocation = useCallback(async () => {
     const positionBarcode = locationValue.trim().toUpperCase().replaceAll('_', '-').replaceAll(' ', '');
     if (busyRef.current) return;
-    if (!operatorId.trim()) {
-      setPhase('ERROR');
-      setMessage('Enter your Operator ID before scanning a location.');
-      operatorRef.current?.focus();
-      return;
-    }
     if (!POSITION_PATTERN.test(positionBarcode)) {
       setPhase('ERROR');
       setMessage('Invalid location. Scan a barcode such as NXS1-OMT-01-001.');
@@ -102,10 +84,10 @@ export default function OmtCycleCountPage() {
     setPhase('CHECKING');
     setMessage(`Validating every tray in ${positionBarcode} against NexS…`);
     try {
-      const response = await fetch('/api/omt/cycle-count', {
+      const response = await apiFetch('/api/omt/cycle-count', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ positionBarcode, operatorId }),
+        body: JSON.stringify({ positionBarcode }),
       });
       const body = await response.json();
       if (!response.ok) throw new Error(body.error || 'Unable to load this position');
@@ -128,7 +110,7 @@ export default function OmtCycleCountPage() {
       busyRef.current = false;
       focusActiveScanner();
     }
-  }, [focusActiveScanner, locationValue, operatorId]);
+  }, [focusActiveScanner, locationValue]);
 
   const scanTray = useCallback(() => {
     const trayBarcode = trayValue.trim().toUpperCase();
@@ -161,10 +143,10 @@ export default function OmtCycleCountPage() {
     setPhase('REMOVING');
     setMessage(`Removing ${tray.trayBarcode} from ${result.position.barcode}…`);
     try {
-      const response = await fetch('/api/omt/tray-putaway', {
+      const response = await apiFetch('/api/omt/tray-putaway', {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'REMOVE_TRAY', trayBarcode: tray.trayBarcode, operatorId }),
+        body: JSON.stringify({ action: 'REMOVE_TRAY', trayBarcode: tray.trayBarcode }),
       });
       const body = await response.json();
       if (!response.ok) throw new Error(body.error || 'Unable to remove tray');
@@ -184,7 +166,7 @@ export default function OmtCycleCountPage() {
       busyRef.current = false;
       focusActiveScanner();
     }
-  }, [focusActiveScanner, operatorId, result]);
+  }, [focusActiveScanner, result]);
 
   const reset = () => {
     setResult(null);
@@ -210,7 +192,6 @@ export default function OmtCycleCountPage() {
         <section className={`count-card ${phase.toLowerCase()} ${problems ? 'has-problems' : ''}`}>
           <div className="card-head">
             <div><span className="eyebrow">Inventory correction</span><h1>Cycle Count</h1></div>
-            <label className="operator-field"><span>Operator ID</span><input ref={operatorRef} value={operatorId} placeholder="Enter ID" onChange={(event) => updateOperatorId(event.target.value)} onKeyDown={(event) => { if (event.key === 'Enter') focusActiveScanner(); }} /></label>
           </div>
 
           <div className={`status-banner ${problems ? 'problem' : phase.toLowerCase()}`} role="status" aria-live="polite">

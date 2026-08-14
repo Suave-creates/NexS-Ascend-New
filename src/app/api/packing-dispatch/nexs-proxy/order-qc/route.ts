@@ -9,6 +9,7 @@
 
 import { NextResponse } from 'next/server';
 import { getNexsToken, invalidateNexsToken } from '@/utils/resources/nexs/auth';
+import { authMiddleware } from '@/middleware/auth';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -16,7 +17,7 @@ export const dynamic = 'force-dynamic';
 const TARGET =
   'https://app.nexs.lenskart.com/nexs/analytics/monitoring/v3/details?version=v3';
 
-export async function POST(req: Request) {
+export const POST = authMiddleware(async (req: Request) => {
   const body = await req.text();
 
   const fwd: Record<string, string> = {
@@ -76,4 +77,4 @@ export async function POST(req: Request) {
       'Content-Type': nexsRes.headers.get('content-type') || 'application/json',
     },
   });
-}
+});

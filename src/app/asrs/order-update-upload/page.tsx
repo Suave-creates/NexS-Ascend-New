@@ -11,6 +11,7 @@ import {
   Button,
   Alert,
 } from '@/components/ui';
+import { apiFetch } from '@/lib/authClient';
 
 export default function OrderUpdateCsvUploadPage() {
   const [file, setFile] = useState<File | null>(null);
@@ -39,7 +40,7 @@ export default function OrderUpdateCsvUploadPage() {
     formData.append('file', file);
 
     try {
-      const res = await fetch('/api/asrs/order-update-dashboard/upload', {
+      const res = await apiFetch('/api/asrs/order-update-dashboard/upload', {
         method: 'POST',
         body: formData,
       });

@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 import { pool } from '../../../../lib/db';
 import fs from 'fs';
 import path from 'path';
+import { authMiddleware } from '@/middleware/auth';
 
 // ---- Config ----
 const DEFAULT_LIMIT = 20;
@@ -42,7 +43,7 @@ function normalizeTrayId(id: string): string {
 // GET /api/operations/tray-finder?trayId=CT00000&limit=20
 // Single tray: returns { history: [...] }
 // -----------------
-export async function GET(req: Request) {
+export const GET = authMiddleware(async (req: Request) => {
   const { searchParams } = new URL(req.url);
   const trayId = searchParams.get('trayId');
   const limit = normalizeLimit(searchParams.get('limit'));
@@ -93,14 +94,14 @@ export async function GET(req: Request) {
       { status: 500 }
     );
   }
-}
+});
 
 // -----------------
 // POST /api/operations/tray-finder
 // Body: { trayIds: string[], limit?: number }
 // Returns: { results: Record<trayId, history[]> }
 // -----------------
-export async function POST(req: Request) {
+export const POST = authMiddleware(async (req: Request) => {
   try {
     const body = await req.json().catch(() => ({}));
     const trayIds: unknown = body?.trayIds;
@@ -195,4 +196,4 @@ export async function POST(req: Request) {
       { status: 500 }
     );
   }
-}
+});

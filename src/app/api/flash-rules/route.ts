@@ -11,10 +11,11 @@
 //
 // Rules are persisted to data/flash-rules.json (no DB migration needed).
 
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { readFile, writeFile, mkdir } from 'fs/promises';
 import path from 'path';
 import type { Rule, RulesDocument } from '@/lib/flashRules';
+import { authMiddleware } from '@/middleware/auth';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -112,10 +113,13 @@ async function save(req: Request) {
   return NextResponse.json(doc, { headers: CORS });
 }
 
-export async function PUT(req: Request) {
+// PUT/POST are called only by the (authenticated) Flash Rules builder page —
+// GET/OPTIONS above stay open, since those are polled cross-origin by the
+// browser extension, which has no session/token to present.
+export const PUT = authMiddleware(async (req: NextRequest) => {
   return save(req);
-}
+});
 
-export async function POST(req: Request) {
+export const POST = authMiddleware(async (req: NextRequest) => {
   return save(req);
-}
+});

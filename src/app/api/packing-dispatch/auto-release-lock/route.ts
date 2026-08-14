@@ -18,6 +18,7 @@
 import { NextResponse } from 'next/server';
 import { readFile, writeFile, mkdir } from 'fs/promises';
 import path from 'path';
+import { authMiddleware } from '@/middleware/auth';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -64,7 +65,7 @@ function view(lock: Lock | undefined | null) {
   return { active: !stale, stale, lock };
 }
 
-export async function GET(req: Request) {
+export const GET = authMiddleware(async (req: Request) => {
   const facility = (new URL(req.url).searchParams.get('facility') || '').toUpperCase();
   const store = await readStore();
   const lock = facility ? store.locks[facility] : null;
@@ -72,9 +73,9 @@ export async function GET(req: Request) {
     { facility, ...view(lock), now: new Date().toISOString() },
     { headers: { 'Cache-Control': 'no-store' } }
   );
-}
+});
 
-export async function POST(req: Request) {
+export const POST = authMiddleware(async (req: Request) => {
   let body: Record<string, unknown>;
   try {
     body = (await req.json()) as Record<string, unknown>;
@@ -113,9 +114,9 @@ export async function POST(req: Request) {
   };
   await writeStore(store);
   return NextResponse.json({ ok: true, ...view(store.locks[facility]) });
-}
+});
 
-export async function DELETE(req: Request) {
+export const DELETE = authMiddleware(async (req: Request) => {
   const sp = new URL(req.url).searchParams;
   const facility = (sp.get('facility') || '').toUpperCase();
   const workstation = (sp.get('workstation') || '').toUpperCase();
@@ -127,4 +128,4 @@ export async function DELETE(req: Request) {
     await writeStore(store);
   }
   return NextResponse.json({ ok: true });
-}
+});

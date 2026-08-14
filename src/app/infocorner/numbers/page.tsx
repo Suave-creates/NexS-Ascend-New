@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { FiRefreshCw } from "react-icons/fi";
+import { apiFetch } from "@/lib/authClient";
 import {
   Button,
   Card,
@@ -48,7 +49,7 @@ export default function FittingVolumePage() {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch("/api/infocorner/numbers", { cache: "no-store" });
+      const res = await apiFetch("/api/infocorner/numbers", { cache: "no-store" });
       const json = (await res.json()) as ApiResponse;
       if (!res.ok || json.error) {
         throw new Error(json.error || `HTTP ${res.status}`);

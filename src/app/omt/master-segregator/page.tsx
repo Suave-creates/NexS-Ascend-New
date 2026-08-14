@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { apiFetch } from '@/lib/authClient';
 
 type SegregatorResult = {
   scannedTrayId: string;
@@ -41,46 +42,27 @@ function isNddOrder(priority: string, orderMode: string) {
 }
 
 export default function MasterSegregatorPage() {
-  const [operatorId, setOperatorId] = useState('');
   const [trayValue, setTrayValue] = useState('');
   const [phase, setPhase] = useState<Phase>('IDLE');
   const [message, setMessage] = useState('Scan any tray to locate its master.');
   const [result, setResult] = useState<SegregatorResult | null>(null);
   const [recent, setRecent] = useState<RecentScan[]>([]);
-  const operatorRef = useRef<HTMLInputElement>(null);
   const trayRef = useRef<HTMLInputElement>(null);
   const busyRef = useRef(false);
 
   const focusScanner = useCallback(() => {
     window.setTimeout(() => {
-      if (!operatorId.trim()) operatorRef.current?.focus();
-      else if (document.activeElement !== operatorRef.current) trayRef.current?.focus();
+      trayRef.current?.focus();
     }, 25);
-  }, [operatorId]);
-
-  useEffect(() => {
-    setOperatorId(window.localStorage.getItem('omtOperatorId') ?? '');
   }, []);
 
   useEffect(() => {
     focusScanner();
   }, [focusScanner]);
 
-  const updateOperatorId = (value: string) => {
-    const normalized = value.toUpperCase().replace(/\s+/g, '').slice(0, 64);
-    setOperatorId(normalized);
-    window.localStorage.setItem('omtOperatorId', normalized);
-  };
-
   const scanTray = useCallback(async () => {
     const trayId = trayValue.trim().toUpperCase();
     if (busyRef.current || !trayId) return;
-    if (!operatorId.trim()) {
-      setPhase('ERROR');
-      setMessage('Enter your Operator ID before scanning.');
-      operatorRef.current?.focus();
-      return;
-    }
 
     busyRef.current = true;
     setTrayValue('');
@@ -89,10 +71,10 @@ export default function MasterSegregatorPage() {
     setMessage(`Checking ${trayId} across NexS WMS order details and OMT racks…`);
 
     try {
-      const response = await fetch('/api/omt/master-segregator', {
+      const response = await apiFetch('/api/omt/master-segregator', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ trayId, operatorId }),
+        body: JSON.stringify({ trayId }),
       });
       const body = await response.json();
       if (!response.ok) throw new Error(body.error || 'Unable to segregate tray');
@@ -115,7 +97,7 @@ export default function MasterSegregatorPage() {
       busyRef.current = false;
       focusScanner();
     }
-  }, [focusScanner, operatorId, trayValue]);
+  }, [focusScanner, trayValue]);
 
   const reset = () => {
     setResult(null);
@@ -150,22 +132,6 @@ export default function MasterSegregatorPage() {
         <section className={`seg-card ${phase.toLowerCase()}`}>
           <div className="card-head">
             <div><span className="eyebrow">HHD workflow</span><h1>Master Segregator</h1></div>
-            <label className="operator-field">
-              <span>Operator ID</span>
-              <input
-                ref={operatorRef}
-                value={operatorId}
-                placeholder="Enter ID"
-                autoComplete="off"
-                onChange={(event) => updateOperatorId(event.target.value)}
-                onKeyDown={(event) => {
-                  if (event.key === 'Enter' && operatorId.trim()) {
-                    event.preventDefault();
-                    trayRef.current?.focus();
-                  }
-                }}
-              />
-            </label>
           </div>
 
           <div className={`status-banner ${phase.toLowerCase()}`} role="status" aria-live="polite">

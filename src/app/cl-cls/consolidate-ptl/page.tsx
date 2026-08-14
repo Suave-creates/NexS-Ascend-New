@@ -9,12 +9,20 @@
 //                     release it (light off, ready-to-ship).
 // One ONE scan field handles both: a value matching a slot barcode = release,
 // anything else = an item scan. Dump sync + grid refresh run in the background.
+//
+// NOTE: the Ranger colour picker stays a manual, self-picked choice (not
+// derived from the logged-in session) — it's a physical-hardware/business-
+// logic concurrency lane (up to 4 operators lighting this PTL wall at once),
+// and deriving it from employeeCode would permanently collide some pairs of
+// operators. See the NOTE in scan-barcode/route.ts. Operator identity for
+// access control still comes from the session (apiFetch attaches it).
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import ConsolidateGrid from './components/ConsolidateGrid';
 import { loadOrderQcDump, syncDump } from './lib/nexsDump';
 import type { Slot, Stats, OperatorColor } from './types';
+import { apiFetch } from '@/lib/authClient';
 
 const DUMP_INTERVAL_MS = 300_000; // 5 min — poll NexS Order QC dump (paginates per run)
 const GRID_INTERVAL_MS = 3_000;   // local DB grid read only (cheap)
@@ -100,7 +108,7 @@ export default function ConsolidatePage() {
     gridBusy.current = true;
     const startedAt = Date.now();
     try {
-      const res = await fetch('/api/cl-cls/consolidate-ptl/locations');
+      const res = await apiFetch('/api/cl-cls/consolidate-ptl/locations');
       const d = await res.json();
       // Don't let a poll that STARTED before an optimistic scan update overwrite
       // it with pre-scan data — a mutation since this fetch began means it's stale.
@@ -145,7 +153,7 @@ export default function ConsolidatePage() {
   // ---- ITEM scan: glow this item's slot, confirm the previous pending item ----
   const scanItem = async (barcode: string) => {
     try {
-      const res = await fetch('/api/cl-cls/consolidate-ptl/scan-barcode', {
+      const res = await apiFetch('/api/cl-cls/consolidate-ptl/scan-barcode', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ barcode, operatorColor: color }),
@@ -203,7 +211,7 @@ export default function ConsolidatePage() {
   // ---- LOCATION scan: release a completed (green) slot ----
   const release = async (locationBarcode: string, slot: Slot) => {
     try {
-      const res = await fetch('/api/cl-cls/consolidate-ptl/complete-location', {
+      const res = await apiFetch('/api/cl-cls/consolidate-ptl/complete-location', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ locationBarcode }),
@@ -258,7 +266,7 @@ export default function ConsolidatePage() {
     if (pw !== RESET_PASSWORD) { addLog('Master reset: wrong password', 'err'); focusActive(); return; }
     busy.current = true;
     try {
-      const res = await fetch('/api/cl-cls/consolidate-ptl/master-reset', { method: 'POST' });
+      const res = await apiFetch('/api/cl-cls/consolidate-ptl/master-reset', { method: 'POST' });
       const d = await res.json().catch(() => ({}));
       if (!res.ok) { addLog(`Master reset failed: ${d.error || res.status}`, 'err'); return; }
       setCurrent(null);

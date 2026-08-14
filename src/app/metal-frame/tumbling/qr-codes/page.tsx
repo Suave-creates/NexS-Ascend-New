@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { FiPrinter, FiDownload, FiSearch } from 'react-icons/fi';
 import { PageHeader, Alert, Input, Button, Card, CardBody } from '@/components/ui';
+import { apiFetch } from '@/lib/authClient';
 
 interface StationQrCode {
   stationNumber: number;
@@ -25,7 +26,7 @@ export default function QrCodesPage() {
 
   const fetchQrCodes = useCallback(async () => {
     try {
-      const res = await fetch('/api/metal-frame/tumbling/qr-codes');
+      const res = await apiFetch('/api/metal-frame/tumbling/qr-codes');
       const json = await res.json();
       if (!res.ok) throw new Error(json.error || 'Failed to load QR codes.');
       setQrCodes(json.qrCodes);

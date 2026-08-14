@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { FiLock, FiKey } from 'react-icons/fi';
 import { PageHeader, Card, CardHeader, CardBody, Field, Input, Button, Alert, Table, THead, TBody, TR, TH, TD } from '@/components/ui';
+import { apiFetch } from '@/lib/authClient';
 
 interface PortalUser {
   id: number;
@@ -34,7 +35,7 @@ export default function TumblingAdminUsersPage() {
   const [resetting, setResetting] = useState(false);
 
   const loadUsers = useCallback(async (token: string) => {
-    const res = await fetch('/api/metal-frame/tumbling/admin-users', { headers: { 'x-tumbling-admin-token': token } });
+    const res = await apiFetch('/api/metal-frame/tumbling/admin-users', { headers: { 'x-tumbling-admin-token': token } });
     const json = await res.json();
     if (!res.ok) throw new Error(json.error || 'Failed to load users.');
     setUsers(json.users);
@@ -77,7 +78,7 @@ export default function TumblingAdminUsersPage() {
     }
     setCreating(true);
     try {
-      const res = await fetch('/api/metal-frame/tumbling/admin-users', {
+      const res = await apiFetch('/api/metal-frame/tumbling/admin-users', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'x-tumbling-admin-token': accessToken },
         body: JSON.stringify({ employeeCode: newEmployeeCode.trim(), password: newPassword }),
@@ -106,7 +107,7 @@ export default function TumblingAdminUsersPage() {
     }
     setResetting(true);
     try {
-      const res = await fetch(`/api/metal-frame/tumbling/admin-users/${encodeURIComponent(resetTarget)}`, {
+      const res = await apiFetch(`/api/metal-frame/tumbling/admin-users/${encodeURIComponent(resetTarget)}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json', 'x-tumbling-admin-token': accessToken },
         body: JSON.stringify({ password: resetPassword }),

@@ -3,6 +3,7 @@
 'use client'
 
 import { useState } from 'react'
+import { apiFetch } from '@/lib/authClient'
 
 export default function MasterResetPanel({ onSuccess }: any) {
   const [loading, setLoading] = useState(false)
@@ -21,7 +22,7 @@ export default function MasterResetPanel({ onSuccess }: any) {
       setError(null)
       setMessage(null)
 
-      const res = await fetch('/api/dispatch-ptl/master-reset', {
+      const res = await apiFetch('/api/dispatch-ptl/master-reset', {
         method: 'POST'
       })
 

@@ -11,10 +11,29 @@ generator client {
 }
 
 model User {
-  id           Int      @id @default(autoincrement())
-  employeeCode String   @unique
-  passwordHash String
-  createdAt    DateTime @default(now())
+  id              Int        @id @default(autoincrement())
+  employeeCode    String     @unique
+  passwordHash    String
+  role            UserRole   @default(USER)
+  status          UserStatus @default(APPROVED)
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+  approvedAt      DateTime?
+  approvedBy      String?    @db.VarChar(64)
+  rejectionReason String?    @db.VarChar(255)
+
+  @@index([status, createdAt])
+}
+
+enum UserRole {
+  USER
+  SUPER_ADMIN
+}
+
+enum UserStatus {
+  PENDING
+  APPROVED
+  REJECTED
 }
 
 model ShippingMetadata {
@@ -235,7 +254,7 @@ model ScannedBarcodeInventory {
   condition    String? @map("condition") @db.VarChar(50)
   availability String? @db.VarChar(50)
 
-  scanLocation String @map("scan_location") @db.VarChar(100)
+  scanLocation String  @map("scan_location") @db.VarChar(100)
   nexsLocation String? @map("nexs_location") @db.VarChar(255)
 
   scannedAt DateTime @default(now()) @map("scanned_at")
@@ -268,7 +287,7 @@ model ScannedBarcodeInventoryTransfer {
   condition    String? @map("condition") @db.VarChar(50)
   availability String? @db.VarChar(50)
 
-  scanLocation String @map("scan_location") @db.VarChar(100)
+  scanLocation String  @map("scan_location") @db.VarChar(100)
   nexsLocation String? @map("nexs_location") @db.VarChar(255)
 
   scannedAt  DateTime @default(now()) @map("scanned_at")

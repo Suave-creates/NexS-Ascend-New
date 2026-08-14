@@ -20,6 +20,7 @@ import {
   TH,
   TD,
 } from '@/components/ui';
+import { apiFetch } from '@/lib/authClient';
 
 type InventoryRecord = {
   id: number;
@@ -59,7 +60,7 @@ export default function LocationTransferPage() {
     setLoadedLocation('');
 
     try {
-      const res = await fetch('/api/asrs/pid-hunter-transfer/preview', {
+      const res = await apiFetch('/api/asrs/pid-hunter-transfer/preview', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ scan_location: loc }),
@@ -94,7 +95,7 @@ export default function LocationTransferPage() {
     setBanner(null);
 
     try {
-      const res = await fetch('/api/asrs/pid-hunter-transfer/execute', {
+      const res = await apiFetch('/api/asrs/pid-hunter-transfer/execute', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ scan_location: loadedLocation }),

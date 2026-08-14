@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/utils/prisma';
+import { authMiddleware } from '@/middleware/auth';
 
 // DELETE: Stock-out by barcode or by the operator's scan location.
-export async function DELETE(req: NextRequest) {
+export const DELETE = authMiddleware(async (req: NextRequest) => {
   try {
     const body = await req.json();
     const mode = body?.mode === 'location' ? 'location' : 'barcode';
@@ -40,4 +41,4 @@ export async function DELETE(req: NextRequest) {
       { status: 500 }
     );
   }
-}
+});

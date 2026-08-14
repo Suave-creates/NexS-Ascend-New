@@ -10,6 +10,7 @@ import {
   Button,
   Alert,
 } from '@/components/ui';
+import { apiFetch } from '@/lib/authClient';
 
 export default function OperationsExcelUploadPage() {
   const [file, setFile] = useState<File | null>(null);
@@ -29,7 +30,7 @@ export default function OperationsExcelUploadPage() {
     formData.append('file', file);
 
     try {
-      const res = await fetch('/api/operations/excel-upload', {
+      const res = await apiFetch('/api/operations/excel-upload', {
         method: 'POST',
         body: formData,
       });

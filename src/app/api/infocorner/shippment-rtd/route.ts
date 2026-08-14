@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { BIGQUERY_DATA_PROJECT_ID, runBigQuery } from '@/utils/resources/bigquery/client';
+import { authMiddleware } from '@/middleware/auth';
 
 export const runtime = 'nodejs';
 
@@ -22,7 +23,7 @@ function* chunkArray<T>(arr: T[], size: number): Generator<T[]> {
   }
 }
 
-export async function POST(req: Request) {
+export const POST = authMiddleware(async (req: Request) => {
   try {
     const body = await req.json();
     const { shipping_ids } = body;
@@ -114,7 +115,7 @@ export async function POST(req: Request) {
         .join(',') + '\n';
     }
 
-    return new Response(csv, {
+    return new NextResponse(csv, {
       status: 200,
       headers: {
         'Content-Type': 'text/csv; charset=utf-8',
@@ -132,4 +133,4 @@ export async function POST(req: Request) {
       { status: 500 }
     );
   }
-}
+});

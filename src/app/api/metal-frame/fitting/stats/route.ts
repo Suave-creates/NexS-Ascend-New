@@ -1,9 +1,10 @@
 import { NextResponse } from 'next/server';
 import { prismaMetalFrame as prisma } from '@/utils/prismaMetalFrame';
+import { authMiddleware } from '@/middleware/auth';
 
 const IST_OFFSET = 5.5 * 60 * 60 * 1000;
 
-export async function GET(req: Request) {
+export const GET = authMiddleware(async (req: Request) => {
   const url = new URL(req.url);
   const lineNumber = url.searchParams.get('lineNumber');
   if (!lineNumber) {
@@ -22,4 +23,4 @@ export async function GET(req: Request) {
   ]);
 
   return NextResponse.json({ count, reworkCount });
-}
+});

@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Alert, Badge, Button, Card, CardBody, Field, Input, Label, PageHeader, Textarea } from '@/components/ui';
 import { syncAutoQcDump } from './nexsDump';
+import { apiFetch } from '@/lib/authClient';
 
 type Status = {
   runId?: string | null; credentialsVerified?: boolean; sessionReady?: boolean; sessionUsername?: string | null;
@@ -27,7 +28,7 @@ export default function QcAutoPage() {
 
   const loadStatus = useCallback(async (id?: string | null) => {
     const suffix = id ? `?runId=${encodeURIComponent(id)}` : '';
-    const response = await fetch(`/api/cl-cls/qc-auto${suffix}`, { cache: 'no-store' });
+    const response = await apiFetch(`/api/cl-cls/qc-auto${suffix}`, { cache: 'no-store' });
     const next = await response.json();
     setStatus(next);
     if (!username && next.sessionUsername) setUsername(next.sessionUsername);
@@ -63,7 +64,7 @@ export default function QcAutoPage() {
 
   async function start() {
     setError('');
-    const response = await fetch('/api/cl-cls/qc-auto', {
+    const response = await apiFetch('/api/cl-cls/qc-auto', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username, password, shippingPackageIds }),
     });

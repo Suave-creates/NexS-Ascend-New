@@ -10,6 +10,7 @@ import {
   Button,
   Alert,
 } from '@/components/ui';
+import { apiFetch } from '@/lib/authClient';
 
 const DEPARTMENTS = [
   'BH-M-ASRS - ASRS',
@@ -73,7 +74,7 @@ export default function MaintenanceShopIssuePage() {
     };
 
     try {
-      const res = await fetch('/api/maintenance/shop-issue', {
+      const res = await apiFetch('/api/maintenance/shop-issue', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),

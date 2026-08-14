@@ -21,13 +21,25 @@ import { prismaDispatch } from '@/utils/prismaDispatch';
 import { setLight } from '@/utils/rackController';
 import { computeProgress, claimFreeSlot, runExclusive, pendingColors } from '@/utils/consolidate';
 import type { OperatorColor } from '@/generated/dispatch';
+import { authMiddleware } from '@/middleware/auth';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
+// NOTE: operatorColor stays a client-supplied value here, unlike the rest of
+// the auth rollout. It's a required 5-value hardware-driven enum (setLight()
+// above triggers the physical PTL LEDs) supporting up to 4 CONCURRENT
+// operators sharing this wall at once, each visually picking a distinct
+// Ranger colour so the "only my own colour confirms my own pending item"
+// logic below can tell them apart. Deriving it from employeeCode instead
+// (as tried and reverted) would permanently collide any two employees whose
+// codes hash to the same one of 4 colours, silently merging their pending
+// scans. Real operator identity is asserted by authMiddleware/req.user for
+// access control; operatorColor remains a self-picked concurrency lane, same
+// as the sibling dispatch_ptl module.
 const COLORS = new Set(['YELLOW', 'BLUE', 'GREEN', 'PINK', 'RED']);
 
-export async function POST(req: Request) {
+export const POST = authMiddleware(async (req: Request) => {
   try {
     const { barcode, operatorColor } = await req.json();
     if (!barcode) return NextResponse.json({ error: 'barcode required' }, { status: 400 });
@@ -238,4 +250,5 @@ export async function POST(req: Request) {
     console.error('scan-barcode error:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
-}
+});
+

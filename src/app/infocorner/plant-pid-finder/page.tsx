@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { apiFetch } from '@/lib/authClient';
 import {
   Card,
   CardHeader,
@@ -47,7 +48,7 @@ export default function InventoryPage() {
         return;
       }
 
-      const res = await fetch('/api/infocorner/plant-pid-finder', {
+      const res = await apiFetch('/api/infocorner/plant-pid-finder', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ pids, download }),

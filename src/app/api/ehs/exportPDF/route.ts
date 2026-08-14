@@ -4,6 +4,7 @@ import prisma from '@/utils/prisma'
 import puppeteer from 'puppeteer'
 import fs from 'fs'
 import path from 'path'
+import { authMiddleware } from '@/middleware/auth'
 
 // Helper to read a file from /public and turn it into a data URI
 function getImageDataURI(relativePath: string): string {
@@ -19,7 +20,7 @@ function getImageDataURI(relativePath: string): string {
   return `data:${mimeType};base64,${buffer.toString('base64')}`
 }
 
-export async function GET(req: NextRequest) {
+export const GET = authMiddleware(async (req: NextRequest) => {
   try {
     const { searchParams } = new URL(req.url)
     const startDate = searchParams.get('startDate')
@@ -44,7 +45,7 @@ export async function GET(req: NextRequest) {
       args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'],
     })
     const page = await browser.newPage()
-    await page.setContent(html, { waitUntil: 'networkidle0' })
+    await page.setContent(html, { waitUntil: 'load' })
 
     const pdf = await page.pdf({
       format: 'A4',
@@ -64,7 +65,7 @@ export async function GET(req: NextRequest) {
     console.error('PDF export error:', error)
     return NextResponse.json({ error: 'Failed to generate PDF' }, { status: 500 })
   }
-}
+})
 
 function generatePDFHTML(deviations: any[]): string {
   const rows = deviations.map(dev => {
