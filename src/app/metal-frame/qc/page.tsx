@@ -6,12 +6,17 @@ import {
   PageHeader,
   Field,
   Input,
+  Select,
   Button,
   Modal,
   StatCard,
   Alert,
 } from '@/components/ui';
 import { cn } from '@/lib/cn';
+import {
+  METAL_FRAME_QC_STATION_IDS,
+  normalizeMetalFrameQcStationId,
+} from '@/lib/metalFrameQcStations';
 import {
   type QcReason,
   DEFAULT_REASONS,
@@ -79,7 +84,7 @@ export default function QcPage() {
       const p = localStorage.getItem(QC_PERSON_KEY);
       if (p) setQcPerson(p);
       const s = localStorage.getItem(QC_STATION_KEY);
-      if (s) setQcStation(s);
+      if (s) setQcStation(normalizeMetalFrameQcStationId(s) ?? '');
     } catch {
       /* ignore */
     }
@@ -144,7 +149,7 @@ export default function QcPage() {
   const loadBarcode = useCallback(
     async (barcode: string) => {
       if (!setupReady) {
-        flash('❌ Set the QC Person and QC Station first.', 'error');
+        flash('❌ Set the QC Person and Station ID first.', 'error');
         refocus();
         return;
       }
@@ -217,7 +222,7 @@ export default function QcPage() {
       // ignore typing in other fields (QC person/station, supervisor panel) —
       // but NOT the scan box, which keeps focus between scans
       const tag = el?.tagName;
-      if ((tag === 'INPUT' || tag === 'TEXTAREA') && !isScanBox) return;
+      if ((tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') && !isScanBox) return;
 
       if (e.key === 'Enter') {
         e.preventDefault();
@@ -319,7 +324,7 @@ export default function QcPage() {
         <StatCard label="Pass (1 hr)" value={stats.pass} tone="good" />
         <StatCard label="Fail (1 hr)" value={stats.fail} tone="danger" />
         <StatCard label="Pass rate (1 hr)" value={passRate == null ? '—' : `${passRate}%`} />
-        <StatCard label="QC Station / Line" value={qcStation || '—'} tone="navy" />
+        <StatCard label="Station ID" value={qcStation || '—'} tone="navy" />
       </div>
 
       {/* Top controls */}
@@ -333,12 +338,19 @@ export default function QcPage() {
                 placeholder="QC Person ID / name"
               />
             </Field>
-            <Field label="QC Station / Line" hint="Stays set until you change it (this device).">
-              <Input
+            <Field label="Station ID" hint="Stays set until you change it (this device).">
+              <Select
                 value={qcStation}
                 onChange={(e) => setQcStation(e.target.value)}
-                placeholder="e.g. QC-1 / Line 3"
-              />
+                aria-label="Station ID"
+              >
+                <option value="">Select station ID</option>
+                {METAL_FRAME_QC_STATION_IDS.map((stationId) => (
+                  <option key={stationId} value={stationId}>
+                    {stationId}
+                  </option>
+                ))}
+              </Select>
             </Field>
           </div>
         </Card>
@@ -357,7 +369,7 @@ export default function QcPage() {
       </div>
 
       {!setupReady && (
-        <Alert tone="warning">Set the QC Person and QC Station / Line before scanning.</Alert>
+        <Alert tone="warning">Set the QC Person and Station ID before scanning.</Alert>
       )}
 
       {toast && <Alert tone={toast.tone}>{toast.text}</Alert>}

@@ -32,6 +32,8 @@ DOCKER.md
 
 # misc local files
 Store.xlsx
+order_level_data.csv
+data/cache
 
 # runtime secrets / token caches — provide via volume mount, never bake in
 **/credentials.json
@@ -42,3 +44,4 @@ src/utils/resources/bigquery/token.json
 src/utils/resources/google/gcreds.json
 src/utils/resources/google/gsheet_token.json
 src/utils/resources/power-bi/pbi_token_cache.json
+src/utils/resources/power-bi/*.lock

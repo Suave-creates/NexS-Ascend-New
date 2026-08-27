@@ -34,6 +34,11 @@ export type BigQueryResult = {
 
 
 export type BigQueryParameters = Record<string, string | string[]>;
+export type BigQueryOptions = {
+  signal?: AbortSignal;
+  /** Best-effort BigQuery server-side job deadline in milliseconds. */
+  jobTimeoutMs?: number;
+};
 
 function queryParameters(parameters: BigQueryParameters) {
   return Object.entries(parameters).map(([name, value]) => Array.isArray(value)
@@ -49,7 +54,7 @@ function queryParameters(parameters: BigQueryParameters) {
       });
 }
 
-async function accessToken(): Promise<string> {
+async function accessToken(signal?: AbortSignal): Promise<string> {
   let token: TokenFile;
   try {
     token = JSON.parse(await readFile(TOKEN_PATH, 'utf8')) as TokenFile;
@@ -68,6 +73,7 @@ async function accessToken(): Promise<string> {
       client_secret: token.client_secret,
     }),
     cache: 'no-store',
+    signal,
   });
   const body = await response.json() as { access_token?: string; error?: string; error_description?: string };
   if (!response.ok || !body.access_token) {
@@ -92,8 +98,9 @@ export async function runBigQuery(
   query: string,
   maxResults = 10_000,
   parameters: BigQueryParameters = {},
+  options: BigQueryOptions = {},
 ): Promise<BigQueryResult> {
-  const token = await accessToken();
+  const token = await accessToken(options.signal);
   const headers = { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' };
   const base = `https://bigquery.googleapis.com/bigquery/v2/projects/${BIGQUERY_PROJECT_ID}`;
 
@@ -106,9 +113,13 @@ export async function runBigQuery(
       parameterMode: 'NAMED',
       queryParameters: queryParameters(parameters),
       timeoutMs: 300_000,
+      ...(options.jobTimeoutMs
+        ? { jobTimeoutMs: String(Math.max(1, Math.trunc(options.jobTimeoutMs))) }
+        : {}),
       maxResults,
     }),
     cache: 'no-store',
+    signal: options.signal,
   }).then((res) => res.json() as Promise<BQResponse>);
   assertResponse(response);
 
@@ -117,7 +128,11 @@ export async function runBigQuery(
   while (response.jobComplete === false) {
     const params = new URLSearchParams({ timeoutMs: '300000', maxResults: String(maxResults) });
     if (job.location) params.set('location', job.location);
-    response = await fetch(`${base}/queries/${job.jobId}?${params}`, { headers, cache: 'no-store' })
+    response = await fetch(`${base}/queries/${job.jobId}?${params}`, {
+      headers,
+      cache: 'no-store',
+      signal: options.signal,
+    })
       .then((res) => res.json() as Promise<BQResponse>);
     assertResponse(response);
   }
@@ -128,7 +143,11 @@ export async function runBigQuery(
   while (pageToken) {
     const params = new URLSearchParams({ pageToken, maxResults: String(maxResults) });
     if (job.location) params.set('location', job.location);
-    const page = await fetch(`${base}/queries/${job.jobId}?${params}`, { headers, cache: 'no-store' })
+    const page = await fetch(`${base}/queries/${job.jobId}?${params}`, {
+      headers,
+      cache: 'no-store',
+      signal: options.signal,
+    })
       .then((res) => res.json() as Promise<BQResponse>);
     assertResponse(page);
     rows.push(...shape(fields, page.rows || []));

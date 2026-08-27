@@ -6,7 +6,7 @@ The modules are grouped according to the application sidebar. "None" means the m
 
 | Module        | Read source and query/lookup                                                                                                                                                                                                                                            | Write                           |
 | ------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------- |
-| Grafana Dumps | BigQuery (`nexs_ims`, `nexs_cid`) — selectable queries over `barcode_item`, `warehouse_inventory`, and `warehouse_blocked_inventory`; filters by facility, location, owner, condition, availability, status, and PID range; groups inventory by PID/location | None; CSV downloaded in browser |
+| Grafana Dumps | BigQuery (`nexs_ims`, `nexs_cid`) inventory dumps; MEI JobViewer SQL Server (`dbEvents` plus END CUT detail/dictionary tables) — authenticated fixed rolling 48-hour IST export queried in calendar-day chunks | None; CSV downloaded in browser |
 
 ## CL-CLs
 
@@ -23,11 +23,29 @@ The modules are grouped according to the application sidebar. "None" means the m
 | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------- |
 | Tote Master         | BigQuery —`SELECT pid, barcode, location FROM nexs_ims.barcode_item WHERE location LIKE @location_prefix`                                      | None                               |
 | PID Hunter          | NexS IMS history API; MyDB — history lookup for scanned barcode/PID;`scannedBarcodeInventory.findUnique/findFirst` to detect current inventory | MyDB scan inventory                |
-| PID Hunter Transfer | MyDB —`scannedBarcodeInventory.findMany` for submitted barcodes and current locations                                                          | MyDB scan inventory/location       |
-| PID Stock-out       | MyDB — inventory lookup by scanned barcode before stock-out                                                                                      | MyDB - deletes stocked-out records |
+| PID Stock-out       | MyDB — inventory lookup by scanned barcode or location before stock-out                                                                          | MyDB transfer archive with handover input; removes live inventory |
 | MWarehouse Scan     | NexS MySQL; MyDB — NexS barcode/order lookup; shipping metadata by shipping ID; existing manual-warehouse scan by barcode/tray                   | MyDB manual-warehouse scans        |
 | Order Master        | NexS MySQL; MyDB — order/product lookup in NexS; existing order and validation/check records by order ID                                         | MyDB order/check records           |
 | O-U-D Upload        | Uploaded CSV — parses header-mapped order-update rows and checks required values                                                                 | MyDB order-update data             |
+
+## Stock In
+
+| Module              | Read source and query/lookup                                                                                                                                                              | Write                           |
+| ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------- |
+| Decanting Analytics | BigQuery (`nexs_ims.barcode_item_history`, `inventory.products`) - inbound to ASRS tote locations by date, prior EGL/PL history, and HSN classification; defaults to a rolling 48-hour IST range and permits up to 62 days | None; CSV downloaded in browser |
+| Bermuda Triangle Analytics | BigQuery (`nexs_ims.barcode_item_history`, `inventory.products`) - inbound to and outward from the exact Bermuda Triangle location at fixed facility `NXS1`; each direction is counted independently as the first qualifying movement per IST date and barcode; defaults to a rolling 48-hour IST range | None; Inbound/Outward/Net reporting CSVs plus separate inbound and outward barcode-level CSV dumps downloaded in browser |
+| Lens Decanting      | Power BI (`rs_order_lens_level`) for the T-2 seven-day PID ROS scope; BigQuery (`nexs_ims.barcode_item`, `nexs_cid.warehouse_inventory`, `nexs_cid.warehouse_blocked_inventory`, `inventory.products`) for current stock and enrichment; Google Sheets `EyeFrame!R:U` for GRN | None; colored XLSX downloaded in browser |
+| Frame Decanting     | Power BI (`fulfilment_data`) for three-calendar-month highest-month ROS, `increff_wh_dispatch_report` for Bulk Required, and `transfer_data` for NXS2-to-NXS1 transfer pendency; BigQuery for live inventory/product enrichment; Google Sheets `EyeFrame!R:U` for GRN; bundled `src/lib/plc flag.csv` and `src/lib/pid excusion.csv` snapshots for PLC and PID exclusions (server-path overrides supported) | None; colored XLSX downloaded in browser |
+| Manual WH Analytics | BigQuery (`nexs_ims.barcode_item_history`, `inventory.products`) - inbound to the configured manual-warehouse location prefixes with the same day-wise HSN and input-scope reporting; defaults to a rolling 48-hour IST range | None; scope-detailed CSV downloaded in browser |
+| Reserve Inventory   | BigQuery (`nexs_ims.barcode_item_history`, `inventory.products`) - day-wise inward, outward, and closing available inventory for the configured EGL/PL reserve locations, split by HSN classification; defaults to two IST calendar days (48 hours) while permitting ranges up to 62 days | Persistent two-day read-through snapshot cache; CSV downloaded in browser |
+
+### Bermuda Triangle reporting details
+
+- The facility is fixed to `NXS1`; the page does not offer facility selection. Its default range is the rolling previous 48 hours in IST.
+- The rolling 48-hour view is served from the last successful persistent snapshot and refreshed at most once in the background after its 10-minute freshness window. The snapshot survives app-only Docker recreation through the `app_data` volume; manually applied date/time ranges remain exact live queries.
+- Inbound is the first entry into `NXS1` / `Bermuda Triangle` for each IST date and barcode. Outward is the first exit from that same facility/location for each IST date and barcode. The two directions are evaluated independently, so a barcode can contribute once to each direction on the same date.
+- In number reporting, the metric can be switched between Inbound, Outward, and Net (`Inbound - Outward`). Datewise Location reporting places the categorized Locations in columns: Location means the movement's origin for inbound and its destination for outward.
+- The public, unauthenticated inbound barcode dump is `GET /api/stock-in/bermuda-triangle-analytics/barcode-dump`; the public, unauthenticated outward barcode dump is `GET /api/stock-in/bermuda-triangle-analytics/outward-barcode-dump`. Each endpoint accepts a maximum 7-day range.
 
 ## Manual Warehouse
 
@@ -51,7 +69,7 @@ The modules are grouped according to the application sidebar. "None" means the m
 
 | Module           | Read source and query/lookup                                                                                                                            | Write                                  |
 | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------- |
-| Final QC         | NexS MySQL; Lens Lab DB; local scanner agent — fitting/order lookup by fitting ID; tray QC state and prior scan lookup; scanner-agent status/data call | Lens Lab DB; local scanner-agent state |
+| Final QC         | BigQuery (`wms.order_items`, `wms.power`) — fitting/order lookup and prescribed-power/lens metadata via `order_items.power_id = power.id`; local lensometer agent — device status and live measurements | Lens Lab MySQL (`blanks-fqc`) — transactional inspection-result insert |
 | Blank IN_PICKING | NexS WMS API; Lens Lab DB —`GET fittingDetails/{locationId}`; existing location-blank result/state lookup                                            | Lens Lab DB                            |
 | JIT PD Stamp     | NexS MySQL — joins fitting/order workflow data for the scanned fitting ID and evaluates PD/JIT status                                                  | None; CSV downloaded in browser        |
 
@@ -84,6 +102,12 @@ The modules are grouped according to the application sidebar. "None" means the m
 | Module            | Read source and query/lookup                                                                  | Write                         |
 | ----------------- | --------------------------------------------------------------------------------------------- | ----------------------------- |
 | Facility Out Scan | MyDB — existing courier handover by scanned ID;`courierHandover.count` filtered by partner | MyDB courier-handover records |
+
+## Planning and Process Excellence
+
+| Module                 | Read source and query/lookup                                                                                                                                                                                                                                                                    | Write                           |
+| ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------- |
+| Order Cancellation RCA | Power BI `Fulfilment Order Analytics_Final` - distinct orders, `uw_item_id` reconciliation, handover types, and cancellation rows for the selected range; Google Sheets - LF/local-fitting, plant, and power-exception evidence; NexS Cancellation Portal - matching cancellation requests; decisions are deduplicated at increment-ID level | None; CSV downloaded in browser |
 
 ## Info-Corner
 

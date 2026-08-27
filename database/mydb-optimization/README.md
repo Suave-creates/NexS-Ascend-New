@@ -8,6 +8,35 @@ Full reasoning is in **`00_analysis_report.md`**. This file is the run checklist
 
 ---
 
+## 2026-08-16 dashboard I/O remediation
+
+External BI queries filter the scan tables by time without filtering by station.
+The original `(station, timestamp)` indexes therefore caused full-table scans and
+a connection pile-up. Use `10_triage_dashboard_indexes.cjs` to check or repair
+the seven proven timestamp-range paths. The script uses the application's actual
+`.env.local`/`.env` precedence, builds indexes with `LOCK=NONE`, and persists a
+60-second cap for read-only SELECTs. Its backlog cleanup only targets matching
+queries already running for at least five seconds.
+
+```powershell
+node database/mydb-optimization/10_triage_dashboard_indexes.cjs check
+node database/mydb-optimization/10_triage_dashboard_indexes.cjs explain
+node database/mydb-optimization/10_triage_dashboard_indexes.cjs remediate
+```
+
+The monthly archive event predates newer transfer/NDD columns. Before running
+retention after a schema change, verify column compatibility with:
+
+```powershell
+node database/mydb-optimization/11_sync_history_schema.cjs check
+```
+
+`apply` only synchronizes the two guarded history-table layouts; it never purges
+or changes live rows. The read-only `scripts/diagnose-database-io.cjs` captures a
+short status and Performance Schema sample without executing table counts.
+
+---
+
 ## Prerequisites
 
 - **MySQL 8.0+ (InnoDB).** Also works on 5.7. The scripts use stored procedures,
@@ -108,4 +137,7 @@ snapshot, and **`EHSDeviation`** (compliance) are excluded on purpose — see
 | `03_archive_and_purge.sql` | Archive→history then batched purge for 13 event tables. |
 | `04_review_redundant_indexes.sql` | Inspect + guarded-drop duplicate/unused indexes. |
 | `05_schedule_retention_event.sql` | Recurring monthly retention via a server-side MySQL EVENT. |
+| `10_triage_dashboard_indexes.cjs` | Check/remediate proven BI full scans and persist the SELECT guard. |
+| `11_sync_history_schema.cjs` | Guarded check/fix for retention column-layout drift; no row DML. |
+| `2026-08-16_io_incident.md` | Before/after evidence and operational handoff for this incident. |
 | `99_rollback.sql` | Restore purged rows / drop new indexes / (optional) drop history DB. |

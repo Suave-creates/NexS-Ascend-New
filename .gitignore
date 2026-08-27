@@ -41,6 +41,7 @@ yarn-error.log*
 /src/utils/resources/google/gcreds.json
 /src/utils/resources/google/gsheet_token.json
 /src/utils/resources/power-bi/pbi_token_cache.json
+/src/utils/resources/power-bi/*.lock
 **/__pycache__/
 
 # vercel
@@ -55,6 +56,7 @@ next-env.d.ts
 
 # QC automation browser profile & dev logs (runtime artifacts, not source)
 /data/cl-cls-qc-profile/
+/data/cache/
 qc-dev.err.log
 qc-dev.out.log
 *.tmp[0-9]*

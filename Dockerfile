@@ -8,7 +8,7 @@
 ###############################################################################
 
 ########## 1. deps — install node_modules ##########
-FROM node:20-bookworm-slim AS deps
+FROM node:22-bookworm-slim AS deps
 WORKDIR /app
 # Do NOT let puppeteer download its own Chromium; the runner installs system chromium.
 ENV PUPPETEER_SKIP_DOWNLOAD=true \
@@ -24,7 +24,7 @@ COPY package.json package-lock.json ./
 RUN npm ci --include=dev
 
 ########## 2. builder — generate prisma clients + next build ##########
-FROM node:20-bookworm-slim AS builder
+FROM node:22-bookworm-slim AS builder
 WORKDIR /app
 ENV PUPPETEER_SKIP_DOWNLOAD=true \
     PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true \
@@ -51,7 +51,7 @@ ENV NEXT_PUBLIC_AGENT_URL=${NEXT_PUBLIC_AGENT_URL}
 RUN npm run build
 
 ########## 3. runner — lean runtime ##########
-FROM node:20-bookworm-slim AS runner
+FROM node:22-bookworm-slim AS runner
 WORKDIR /app
 ENV NODE_ENV=production \
     NEXT_TELEMETRY_DISABLED=1 \
@@ -113,6 +113,10 @@ COPY --from=builder --chown=nextjs:nodejs /app/node_modules/.bin/prisma ./node_m
 
 # --- NDD-RCA python scripts (spawned with cwd = this dir) ---
 COPY --from=builder --chown=nextjs:nodejs /app/src/app/api/packing-dispatch/ndd-rca/NDD-RCA ./src/app/api/packing-dispatch/ndd-rca/NDD-RCA
+# Planning & Process Excellence cancellation extractor.
+COPY --from=builder --chown=nextjs:nodejs /app/src/app/api/planning-and-process-excellence/order-cancellation ./src/app/api/planning-and-process-excellence/order-cancellation
+# Stock In Lens/Frame Decanting external-source adapters and colored-XLSX writer.
+COPY --from=builder --chown=nextjs:nodejs /app/src/app/api/stock-in ./src/app/api/stock-in
 # Central auth helpers. Secret JSON/cache files are excluded by .dockerignore
 # and must be mounted at runtime (see docker-compose.yml).
 COPY --from=builder --chown=nextjs:nodejs /app/src/utils/resources ./src/utils/resources

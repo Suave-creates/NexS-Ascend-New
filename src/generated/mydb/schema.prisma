@@ -34,6 +34,19 @@ model PackingScan {
 
   @@index([scanId], map: "idx_PackingScan_scanId")
   @@index([stationId, timestamp], map: "idx_PackingScan_station_ts")
+  @@index([timestamp, scanId, stationId], map: "idx_PackingScan_ts_scan_station")
+}
+
+model MarketplaceScan {
+  id        Int      @id @default(autoincrement())
+  scanId    String
+  stationId String
+  nexsId    String
+  timestamp DateTime @default(now())
+
+  @@index([scanId], map: "idx_MarketplaceScan_scanId")
+  @@index([stationId, timestamp], map: "idx_MarketplaceScan_station_ts")
+  @@index([timestamp, scanId, stationId], map: "idx_MarketplaceScan_ts_scan_station")
 }
 
 model DispatchScan {
@@ -45,6 +58,7 @@ model DispatchScan {
 
   @@index([scanId], map: "idx_DispatchScan_scanId")
   @@index([stationId, timestamp], map: "idx_DispatchScan_station_ts")
+  @@index([timestamp, scanId, stationId], map: "idx_DispatchScan_ts_scan_station")
 }
 
 model OperationsMetadata {
@@ -90,6 +104,7 @@ model FR0Scan {
 
   @@index([scanId], map: "idx_FR0Scan_scanId")
   @@index([stationId, createdAt], map: "idx_FR0Scan_station_created")
+  @@index([createdAt, scanId, stationId], map: "idx_FR0Scan_created_scan_station")
 }
 
 model BulkScan {
@@ -101,6 +116,7 @@ model BulkScan {
 
   @@index([scanId], map: "idx_BulkScan_scanId")
   @@index([stationId, timestamp], map: "idx_BulkScan_station_ts")
+  @@index([timestamp, scanId, stationId], map: "idx_BulkScan_ts_scan_station")
 }
 
 model ManualWarehouse {
@@ -146,6 +162,7 @@ model CourierHandover {
   detectedPartner String?
 
   @@index([partner, awb], map: "idx_CourierHandover_partner_awb")
+  @@index([lastScan, awb], map: "idx_CourierHandover_lastScan_awb")
 }
 
 model MetalFrameFittingScan {
@@ -212,6 +229,7 @@ model FR0BulkHOTO {
 
   @@index([scanId, timestamp], map: "idx_FR0BulkHOTO_scanId_ts")
   @@index([scanId])
+  @@index([timestamp, scanId, stationId], map: "idx_FR0BulkHOTO_ts_scan_station")
 }
 
 model ManualWarehouseSetUp {
@@ -235,15 +253,82 @@ model ScannedBarcodeInventory {
   condition    String? @map("condition") @db.VarChar(50)
   availability String? @db.VarChar(50)
 
-  scanLocation String  @map("scan_location") @db.VarChar(100)
-  nexsLocation String? @map("nexs_location") @db.VarChar(255)
+  scanLocation   String  @map("scan_location") @db.VarChar(100)
+  nexsLocation   String? @map("nexs_location") @db.VarChar(255)
+  toteId         String? @map("tote") @db.VarChar(12)
+  toteSimplified String? @map("tote_simplified") @db.VarChar(20)
+  toteNumber     Int?    @map("tote_number")
+  partition      Int?
 
   scannedAt DateTime @default(now()) @map("scanned_at")
 
   @@unique([barcode, scanLocation], name: "uniq_barcode_scan")
   @@index([scanLocation, scannedAt], map: "idx_sbi_location_scanned")
   @@index([barcode])
+  @@index([toteNumber, partition], map: "idx_sbi_tote_partition")
   @@map("scanned_barcode_inventory")
+}
+
+model PidHunterScan {
+  id BigInt @id @default(autoincrement())
+
+  pid     String @db.VarChar(50)
+  barcode String @db.VarChar(50)
+
+  status       String? @db.VarChar(50)
+  condition    String? @map("condition") @db.VarChar(50)
+  availability String? @db.VarChar(50)
+  nexsLocation String? @map("nexs_location") @db.VarChar(255)
+
+  currentLocation String  @map("current_location") @db.VarChar(100)
+  rawLocation     String? @map("raw_location") @db.VarChar(255)
+  toteId          String? @map("tote_id") @db.VarChar(12)
+  toteNumber      Int?    @map("tote_number")
+  partition       Int?
+
+  bucket          String  @db.VarChar(20)
+  binName         String? @map("bin_name") @db.VarChar(50)
+  mode            String  @db.VarChar(20)
+  operation       String? @db.VarChar(100)
+  actionId        String? @map("action_id") @db.VarChar(100)
+  updatedAtNexs   String? @map("updated_at_nexs") @db.VarChar(50)
+  totalOperations Int?    @map("total_operations")
+  rawScan         String? @map("raw_scan") @db.VarChar(255)
+
+  compacted     Boolean @default(false)
+  compactedFrom String? @map("compacted_from") @db.VarChar(100)
+  sourceKey     String? @unique(map: "uniq_pid_hunter_source_key") @map("source_key") @db.VarChar(191)
+
+  scannedAt DateTime @default(now()) @map("scanned_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([barcode, scannedAt], map: "idx_pid_hunter_barcode_scanned")
+  @@index([pid, bucket, scannedAt], map: "idx_pid_hunter_pid_bucket_scanned")
+  @@index([toteNumber, partition, scannedAt], map: "idx_pid_hunter_tote_partition_scanned")
+  @@index([mode, scannedAt], map: "idx_pid_hunter_mode_scanned")
+  @@map("pid_hunter_scans")
+}
+
+model PidHunterTote {
+  toteNumber Int      @id @map("tote_number")
+  toteId     String   @unique(map: "uniq_pid_hunter_tote_id") @map("tote_id") @db.VarChar(12)
+  isFree     Boolean  @default(false) @map("is_free")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  @@index([isFree, toteNumber], map: "idx_pid_hunter_tote_free")
+  @@map("pid_hunter_totes")
+}
+
+model PidHunterToteReservation {
+  toteId     String   @id @map("tote_id") @db.VarChar(12)
+  toteNumber Int      @unique(map: "uniq_pid_hunter_reservation_number") @map("tote_number")
+  expiresAt  DateTime @map("expires_at") @db.DateTime(3)
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  @@index([expiresAt], map: "idx_pid_hunter_reservation_expiry")
+  @@map("pid_hunter_tote_reservations")
 }
 
 model CLScan {
@@ -255,6 +340,7 @@ model CLScan {
 
   @@index([scanId], map: "idx_CLScans_scanId")
   @@index([stationId, createdAt], map: "idx_CLScans_station_created")
+  @@index([createdAt, scanId, stationId], map: "idx_CLScans_created_scan_station")
   @@map("CLScans")
 }
 
@@ -268,14 +354,20 @@ model ScannedBarcodeInventoryTransfer {
   condition    String? @map("condition") @db.VarChar(50)
   availability String? @db.VarChar(50)
 
-  scanLocation String  @map("scan_location") @db.VarChar(100)
-  nexsLocation String? @map("nexs_location") @db.VarChar(255)
+  scanLocation   String  @map("scan_location") @db.VarChar(100)
+  nexsLocation   String? @map("nexs_location") @db.VarChar(255)
+  toteId         String? @map("tote") @db.VarChar(12)
+  toteSimplified String? @map("tote_simplified") @db.VarChar(20)
+  toteNumber     Int?    @map("tote_number")
+  partition      Int?
+  handover       String  @default("") @db.VarChar(100)
 
   scannedAt  DateTime @default(now()) @map("scanned_at")
   injestedAt DateTime @default(now()) @map("injested_at") @db.DateTime(3)
 
   @@unique([barcode, scanLocation], name: "uniq_barcode_scan")
   @@index([barcode])
+  @@index([handover, injestedAt], map: "idx_sbit_handover_injested")
   @@map("scanned_barcode_inventory_transfer")
 }
 

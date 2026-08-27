@@ -55,14 +55,17 @@ services:
       # restarts/redeploys. Unused (empty) unless NEXS_DB_ADAPTIVE_ENDPOINT /
       # NEXS_DB_PICKING_ADAPTIVE_ENDPOINT are set - harmless in local dev.
       - adaptive_token:/home/nextjs/.adaptive
-      # --- NDD-RCA runtime secrets (optional feature). Create these files and
-      #     uncomment to enable the ndd-rca pipeline. Token caches must be RW. ---
+      # --- NDD-RCA/order-cancellation runtime secrets. Create these as files
+      #     before `docker compose up`; token caches must remain read-write. ---
       # BigQuery credentials/token are generated locally and excluded from Git.
       - ./src/utils/resources/bigquery/credentials.json:/app/src/utils/resources/bigquery/credentials.json:ro
       - ./src/utils/resources/bigquery/token.json:/app/src/utils/resources/bigquery/token.json:ro
-      - ./secrets/gcreds.json:/app/src/utils/resources/google/gcreds.json:ro
-      - ./secrets/gsheet_token.json:/app/src/utils/resources/google/gsheet_token.json
-      - ./secrets/pbi_token_cache.json:/app/src/utils/resources/power-bi/pbi_token_cache.json
+      # Google OAuth refresh also uses atomic replacement, so mount the whole
+      # resource directory rather than bind-mounting gsheet_token.json itself.
+      - ./src/utils/resources/google:/app/src/utils/resources/google
+      # Mount the directory (not one file) so cache replacement is atomic and
+      # the cross-process lock is shared by every app worker/replica.
+      - ./src/utils/resources/power-bi:/app/src/utils/resources/power-bi
 
 volumes:
   db_data:

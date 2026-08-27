@@ -7,6 +7,7 @@ import {
   PageHeader,
   Field,
   Input,
+  Select,
   Button,
   Modal,
   StatCard,
@@ -14,6 +15,10 @@ import {
   Badge,
 } from '@/components/ui';
 import { cn } from '@/lib/cn';
+import {
+  METAL_FRAME_FITTING_LINE_IDS,
+  normalizeMetalFrameFittingLineId,
+} from '@/lib/metalFrameFittingLines';
 
 const BARCODE_REGEX = /^[A-Z]{3}\d{9}$/;
 const SETUP_STORAGE_KEY = 'fitting-setup-v1';
@@ -90,7 +95,9 @@ export default function FittingPage() {
       if (raw) {
         const saved = JSON.parse(raw);
         if (saved.persons) setPersons({ ...EMPTY_PERSONS, ...saved.persons });
-        if (typeof saved.lineNumber === 'string') setLineNumber(saved.lineNumber);
+        if (typeof saved.lineNumber === 'string') {
+          setLineNumber(normalizeMetalFrameFittingLineId(saved.lineNumber) ?? '');
+        }
       }
     } catch {
       /* ignore */
@@ -108,7 +115,10 @@ export default function FittingPage() {
 
   /* ---------- stats poll ---------- */
   const fetchStats = useCallback(async () => {
-    if (!lineNumber.trim()) return;
+    if (!lineNumber.trim()) {
+      setStats({ count: 0, reworkCount: 0 });
+      return;
+    }
     try {
       const res = await fetch(`/api/metal-frame/fitting/stats?lineNumber=${encodeURIComponent(lineNumber)}`);
       if (res.ok) setStats(await res.json());
@@ -315,11 +325,18 @@ export default function FittingPage() {
             </p>
 
             <Field label="Line Number" className="mb-4">
-              <Input
+              <Select
                 value={lineNumber}
                 onChange={(e) => setLineNumber(e.target.value)}
-                placeholder="e.g. L1"
-              />
+                aria-label="Line Number"
+              >
+                <option value="">Select line number</option>
+                {METAL_FRAME_FITTING_LINE_IDS.map((lineId) => (
+                  <option key={lineId} value={lineId}>
+                    {lineId}
+                  </option>
+                ))}
+              </Select>
             </Field>
 
             <div className="space-y-3">

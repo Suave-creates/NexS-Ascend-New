@@ -22,6 +22,8 @@ import {
   FiGrid,
   FiDatabase,
   FiBox,
+  FiInbox,
+  FiBarChart2,
 } from 'react-icons/fi';
 import { cn } from '@/lib/cn';
 
@@ -72,12 +74,25 @@ export default function Sidebar() {
       label: 'ASRS',
       children: [
         { href: '/asrs/tote-master', label: 'Tote Master' },
-        { href: '/asrs/pid-hunter', label: 'PID Hunter' },
-        { href: '/asrs/pid-hunter-transfer', label: 'PID Hunter Transfer' },
+        { href: '/asrs/pid-hunter', label: 'PID HUNTER' },
+        { href: '/asrs/pid-hunter-compaction', label: 'PID Hunter Compaction' },
         { href: '/asrs/pid-hunted-stock-out', label: 'PID Stock-out' },
         { href: '/operations/manual-warehouse', label: 'MWarehouse Scan' },
         { href: '/asrs/order-master', label: 'Order Master' },
         { href: '/asrs/order-update-upload', label: 'O-U-D Upload' },
+      ],
+    },
+
+    {
+      icon: FiInbox,
+      label: 'Stock In',
+      children: [
+        { href: '/stock-in/decanting-analytics', label: 'Decanting Analytics' },
+        { href: '/stock-in/bermuda-triangle-analytics', label: 'Bermuda Triangle Analytics' },
+        { href: '/stock-in/lens-decanting', label: 'Lens Decanting' },
+        { href: '/stock-in/frame-decanting', label: 'Frame Decanting' },
+        { href: '/stock-in/manual-warehouse-analytics', label: 'Manual WH Analytics' },
+        { href: '/stock-in/reserve-inventory', label: 'Reserve Inventory' },
       ],
     },
 
@@ -118,6 +133,7 @@ export default function Sidebar() {
       label: 'Packing Dispatch',
       children: [
         { href: '/packing-dispatch/packing', label: 'Packing Scans' },
+        { href: '/packing-dispatch/marketplace', label: 'Marketplace Scans' },
         { href: '/packing-dispatch/dispatch', label: 'Dispatch Scans' },
         { href: '/packing-dispatch/tray-releaser', label: 'Tray Releaser' },
         { href: '/packing-dispatch/cl-cls', label: 'CL/CLs Scans' },
@@ -145,6 +161,17 @@ export default function Sidebar() {
       icon: FiTruck,
       label: 'Courier Handover',
       children: [{ href: '/courier-handover', label: 'Facility Out Scan' }],
+    },
+
+    {
+      icon: FiBarChart2,
+      label: 'Planning and Process Excellence',
+      children: [
+        {
+          href: '/planning-and-process-excellence/order-cancellation',
+          label: 'Order Cancellation RCA',
+        },
+      ],
     },
 
     {

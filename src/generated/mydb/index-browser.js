@@ -141,6 +141,14 @@ exports.Prisma.PackingScanScalarFieldEnum = {
   timestamp: 'timestamp'
 };
 
+exports.Prisma.MarketplaceScanScalarFieldEnum = {
+  id: 'id',
+  scanId: 'scanId',
+  stationId: 'stationId',
+  nexsId: 'nexsId',
+  timestamp: 'timestamp'
+};
+
 exports.Prisma.DispatchScanScalarFieldEnum = {
   id: 'id',
   scanId: 'scanId',
@@ -300,7 +308,55 @@ exports.Prisma.ScannedBarcodeInventoryScalarFieldEnum = {
   availability: 'availability',
   scanLocation: 'scanLocation',
   nexsLocation: 'nexsLocation',
+  toteId: 'toteId',
+  toteSimplified: 'toteSimplified',
+  toteNumber: 'toteNumber',
+  partition: 'partition',
   scannedAt: 'scannedAt'
+};
+
+exports.Prisma.PidHunterScanScalarFieldEnum = {
+  id: 'id',
+  pid: 'pid',
+  barcode: 'barcode',
+  status: 'status',
+  condition: 'condition',
+  availability: 'availability',
+  nexsLocation: 'nexsLocation',
+  currentLocation: 'currentLocation',
+  rawLocation: 'rawLocation',
+  toteId: 'toteId',
+  toteNumber: 'toteNumber',
+  partition: 'partition',
+  bucket: 'bucket',
+  binName: 'binName',
+  mode: 'mode',
+  operation: 'operation',
+  actionId: 'actionId',
+  updatedAtNexs: 'updatedAtNexs',
+  totalOperations: 'totalOperations',
+  rawScan: 'rawScan',
+  compacted: 'compacted',
+  compactedFrom: 'compactedFrom',
+  sourceKey: 'sourceKey',
+  scannedAt: 'scannedAt',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.PidHunterToteScalarFieldEnum = {
+  toteNumber: 'toteNumber',
+  toteId: 'toteId',
+  isFree: 'isFree',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.PidHunterToteReservationScalarFieldEnum = {
+  toteId: 'toteId',
+  toteNumber: 'toteNumber',
+  expiresAt: 'expiresAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 };
 
 exports.Prisma.CLScanScalarFieldEnum = {
@@ -320,6 +376,11 @@ exports.Prisma.ScannedBarcodeInventoryTransferScalarFieldEnum = {
   availability: 'availability',
   scanLocation: 'scanLocation',
   nexsLocation: 'nexsLocation',
+  toteId: 'toteId',
+  toteSimplified: 'toteSimplified',
+  toteNumber: 'toteNumber',
+  partition: 'partition',
+  handover: 'handover',
   scannedAt: 'scannedAt',
   injestedAt: 'injestedAt'
 };
@@ -347,6 +408,12 @@ exports.Prisma.ShippingMetadataOrderByRelevanceFieldEnum = {
 };
 
 exports.Prisma.PackingScanOrderByRelevanceFieldEnum = {
+  scanId: 'scanId',
+  stationId: 'stationId',
+  nexsId: 'nexsId'
+};
+
+exports.Prisma.MarketplaceScanOrderByRelevanceFieldEnum = {
   scanId: 'scanId',
   stationId: 'stationId',
   nexsId: 'nexsId'
@@ -475,7 +542,38 @@ exports.Prisma.ScannedBarcodeInventoryOrderByRelevanceFieldEnum = {
   condition: 'condition',
   availability: 'availability',
   scanLocation: 'scanLocation',
-  nexsLocation: 'nexsLocation'
+  nexsLocation: 'nexsLocation',
+  toteId: 'toteId',
+  toteSimplified: 'toteSimplified'
+};
+
+exports.Prisma.PidHunterScanOrderByRelevanceFieldEnum = {
+  pid: 'pid',
+  barcode: 'barcode',
+  status: 'status',
+  condition: 'condition',
+  availability: 'availability',
+  nexsLocation: 'nexsLocation',
+  currentLocation: 'currentLocation',
+  rawLocation: 'rawLocation',
+  toteId: 'toteId',
+  bucket: 'bucket',
+  binName: 'binName',
+  mode: 'mode',
+  operation: 'operation',
+  actionId: 'actionId',
+  updatedAtNexs: 'updatedAtNexs',
+  rawScan: 'rawScan',
+  compactedFrom: 'compactedFrom',
+  sourceKey: 'sourceKey'
+};
+
+exports.Prisma.PidHunterToteOrderByRelevanceFieldEnum = {
+  toteId: 'toteId'
+};
+
+exports.Prisma.PidHunterToteReservationOrderByRelevanceFieldEnum = {
+  toteId: 'toteId'
 };
 
 exports.Prisma.CLScanOrderByRelevanceFieldEnum = {
@@ -491,7 +589,10 @@ exports.Prisma.ScannedBarcodeInventoryTransferOrderByRelevanceFieldEnum = {
   condition: 'condition',
   availability: 'availability',
   scanLocation: 'scanLocation',
-  nexsLocation: 'nexsLocation'
+  nexsLocation: 'nexsLocation',
+  toteId: 'toteId',
+  toteSimplified: 'toteSimplified',
+  handover: 'handover'
 };
 
 exports.Prisma.NddShipmentOrderByRelevanceFieldEnum = {
@@ -506,6 +607,7 @@ exports.Prisma.ModelName = {
   User: 'User',
   ShippingMetadata: 'ShippingMetadata',
   PackingScan: 'PackingScan',
+  MarketplaceScan: 'MarketplaceScan',
   DispatchScan: 'DispatchScan',
   OperationsMetadata: 'OperationsMetadata',
   MaintenanceShopIssue: 'MaintenanceShopIssue',
@@ -521,6 +623,9 @@ exports.Prisma.ModelName = {
   FR0BulkHOTO: 'FR0BulkHOTO',
   ManualWarehouseSetUp: 'ManualWarehouseSetUp',
   ScannedBarcodeInventory: 'ScannedBarcodeInventory',
+  PidHunterScan: 'PidHunterScan',
+  PidHunterTote: 'PidHunterTote',
+  PidHunterToteReservation: 'PidHunterToteReservation',
   CLScan: 'CLScan',
   ScannedBarcodeInventoryTransfer: 'ScannedBarcodeInventoryTransfer',
   NddShipment: 'NddShipment'

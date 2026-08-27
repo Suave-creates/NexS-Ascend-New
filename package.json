@@ -16,6 +16,7 @@
     "date-fns": "^4.1.0",
     "formidable": "^3.5.4",
     "jsonwebtoken": "^9.0.2",
+    "mssql": "^12.7.0",
     "mysql2": "^3.14.1",
     "next": "15.3.2",
     "nodeman": "^1.1.2",
@@ -31,6 +32,7 @@
     "@tailwindcss/postcss": "^4",
     "@types/formidable": "^3.4.5",
     "@types/jsonwebtoken": "^9.0.9",
+    "@types/mssql": "^12.3.0",
     "@types/node": "^20",
     "@types/qrcode": "^1.5.6",
     "@types/react": "^19",
@@ -39,5 +41,18 @@
     "prisma": "^6.7.0",
     "tailwindcss": "^4",
     "typescript": "^5"
-  }
+  },
+  "description": "This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Suave-creates/NexS-Ascend-New.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Suave-creates/NexS-Ascend-New/issues"
+  },
+  "homepage": "https://github.com/Suave-creates/NexS-Ascend-New#readme"
 }

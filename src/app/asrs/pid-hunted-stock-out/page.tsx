@@ -28,6 +28,7 @@ type StockOutMode = 'barcode' | 'location';
 interface LogEntry {
   value: string;
   mode: StockOutMode;
+  handover: string;
   deletedCount: number;
   time: string;
   timestamp: string;
@@ -54,6 +55,7 @@ const TOAST_TONES: Record<Exclude<ToastType, 'idle'>, 'notice' | 'success' | 'er
 
 export default function StockOutModule() {
   const [barcode, setBarcode] = useState('');
+  const [handover, setHandover] = useState('');
   const [mode, setMode] = useState<StockOutMode>('barcode');
   const [continuous, setContinuous] = useState(false);
   const [log, setLog] = useState<LogEntry[]>([]);
@@ -63,10 +65,11 @@ export default function StockOutModule() {
   const [isLoading, setIsLoading] = useState(false);
 
   const inputRef = useRef<HTMLInputElement>(null);
+  const handoverRef = useRef<HTMLInputElement>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    inputRef.current?.focus();
+    handoverRef.current?.focus();
   }, []);
 
   const focusInput = useCallback(() => {
@@ -74,6 +77,13 @@ export default function StockOutModule() {
   }, []);
 
   const submitStockOut = useCallback(async () => {
+    const handoverValue = handover.trim();
+    if (!handoverValue) {
+      setToast({ type: 'error', message: 'Handover is required' });
+      handoverRef.current?.focus();
+      return;
+    }
+
     const trimmed = barcode.trim();
     if (!trimmed) {
       inputRef.current?.focus();
@@ -92,8 +102,8 @@ export default function StockOutModule() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(
           mode === 'location'
-            ? { mode, scan_location: finalValue }
-            : { mode, barcode: finalValue },
+            ? { mode, scan_location: finalValue, handover: handoverValue }
+            : { mode, barcode: finalValue, handover: handoverValue },
         ),
       });
 
@@ -105,13 +115,14 @@ export default function StockOutModule() {
         setStatDeleted((s) => s + count);
         setToast({
           type: 'success',
-          message: `Stocked out ${mode} "${finalValue}" — ${count} record(s) deleted`,
+          message: `Stocked out ${mode} "${finalValue}" - ${count} record(s) archived for ${handoverValue}`,
         });
 
         const now = new Date();
         const entry: LogEntry = {
           value: finalValue,
           mode,
+          handover: handoverValue,
           deletedCount: count,
           time: now.toLocaleTimeString([], {
             hour: '2-digit',
@@ -135,11 +146,11 @@ export default function StockOutModule() {
         inputRef.current?.focus();
       }
     }
-  }, [barcode, continuous, focusInput, mode]);
+  }, [barcode, continuous, focusInput, handover, mode]);
 
   // Auto-submit after 150ms of barcode input
   useEffect(() => {
-    if (barcode.trim() && !isLoading) {
+    if (barcode.trim() && handover.trim() && !isLoading) {
       if (timerRef.current) clearTimeout(timerRef.current);
       timerRef.current = setTimeout(() => {
         submitStockOut();
@@ -148,7 +159,7 @@ export default function StockOutModule() {
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current);
     };
-  }, [barcode, isLoading, submitStockOut]);
+  }, [barcode, handover, isLoading, submitStockOut]);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') submitStockOut();
@@ -164,8 +175,8 @@ export default function StockOutModule() {
 
   const exportCSV = () => {
     if (!log.length) return;
-    const header = ['Mode', 'Value', 'Records Deleted', 'Time', 'Timestamp'];
-    const rows = log.map((e) => [e.mode, e.value, e.deletedCount, e.time, e.timestamp]);
+    const header = ['Mode', 'Value', 'Handover', 'Records Stocked Out', 'Time', 'Timestamp'];
+    const rows = log.map((e) => [e.mode, e.value, e.handover, e.deletedCount, e.time, e.timestamp]);
     const csv = [header, ...rows]
       .map((r) => r.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(','))
       .join('\n');
@@ -231,6 +242,24 @@ export default function StockOutModule() {
             </Button>
           </div>
 
+          <Field label="Handover">
+            <Input
+              ref={handoverRef}
+              type="text"
+              value={handover}
+              onChange={(event) => setHandover(event.target.value.slice(0, 100))}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter' && handover.trim()) inputRef.current?.focus();
+              }}
+              disabled={isLoading}
+              placeholder="Scan or enter handover reference"
+              maxLength={100}
+              autoComplete="off"
+              spellCheck={false}
+              required
+            />
+          </Field>
+
           <Field label={mode === 'location' ? 'Scan Location' : 'Barcode'}>
             <div
               className={cn(
@@ -257,7 +286,7 @@ export default function StockOutModule() {
               <Button
                 variant="danger"
                 onClick={submitStockOut}
-                disabled={isLoading || !barcode.trim()}
+                disabled={isLoading || !barcode.trim() || !handover.trim()}
                 loading={isLoading}
                 className="flex-shrink-0 whitespace-nowrap"
               >
@@ -283,7 +312,7 @@ export default function StockOutModule() {
       {/* Stats */}
       <div className="grid grid-cols-3 gap-4">
         <StatCard tone="navy" label="Session scans" value={statScans} />
-        <StatCard tone="danger" label="Records deleted" value={statDeleted} />
+        <StatCard tone="danger" label="Records stocked out" value={statDeleted} />
         <StatCard tone="good" label="Actions logged" value={log.length} />
       </div>
 
@@ -312,7 +341,8 @@ export default function StockOutModule() {
                 <TR>
                   <TH>Mode</TH>
                   <TH>Value</TH>
-                  <TH>Records Deleted</TH>
+                  <TH>Handover</TH>
+                  <TH>Records Stocked Out</TH>
                   <TH className="text-right">Time</TH>
                 </TR>
               </THead>
@@ -321,6 +351,7 @@ export default function StockOutModule() {
                   <TR key={`${entry.mode}-${entry.value}-${i}`}>
                     <TD><Badge tone={entry.mode === 'location' ? 'gold' : 'navy'}>{entry.mode}</Badge></TD>
                     <TD className="font-mono font-semibold text-brand-700">{entry.value}</TD>
+                    <TD className="font-medium text-gray-700">{entry.handover}</TD>
                     <TD>
                       <Badge tone="danger">-{entry.deletedCount} records</Badge>
                     </TD>

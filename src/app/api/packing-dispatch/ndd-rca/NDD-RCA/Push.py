@@ -475,11 +475,16 @@ def _fetch_format(svc, title, nrows, ncols):
     if not nrows or not ncols:
         return {}, []
     rng = f"'{title}'!A1:{get_column_letter(ncols)}{nrows}"
-    resp = svc.spreadsheets().get(
+    request = svc.spreadsheets().get(
         spreadsheetId=SPREADSHEET_ID, ranges=[rng], includeGridData=True,
         fields="sheets(merges,data(rowData(values(effectiveFormat("
                "backgroundColor,horizontalAlignment,verticalAlignment,wrapStrategy,"
-               "textFormat(bold,italic,fontSize,foregroundColor))))))").execute()
+               "textFormat(bold,italic,fontSize,foregroundColor))))))")
+    # Large, repetitive format grids can compress beyond httplib2's 100x
+    # amplification guard. Request this trusted Google API response uncompressed
+    # instead of weakening that decompression safety limit for the whole process.
+    request.headers["accept-encoding"] = "identity"
+    resp = request.execute()
     sheet = resp["sheets"][0]
     merges = [(m.get("startRowIndex", 0), m.get("startColumnIndex", 0),
                m.get("endRowIndex", 0), m.get("endColumnIndex", 0))

@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { normalizeMetalFrameFittingLineId } from '@/lib/metalFrameFittingLines';
 import { prismaMetalFrame as prisma } from '@/utils/prismaMetalFrame';
 
 // Barcode format: 3 alphabets + 9 digits  e.g.  ABC123456789
@@ -23,7 +24,7 @@ export async function POST(req: Request) {
   try {
     const body = await req.json();
     const barcode: string = (body.barcode ?? '').trim().toUpperCase();
-    const lineNumber: string = (body.lineNumber ?? '').trim();
+    const lineNumber = normalizeMetalFrameFittingLineId(body.lineNumber);
     const persons: Persons = body.persons ?? {};
     // intent: 'auto' (default) | 'rework' (force rework) | 'normal' (force normal despite duplicate)
     const intent: 'auto' | 'rework' | 'normal' = body.intent ?? 'auto';
@@ -38,7 +39,7 @@ export async function POST(req: Request) {
 
     // 2) Line number + all six operation person IDs must be set
     if (!lineNumber) {
-      return NextResponse.json({ error: 'Line Number is not set.' }, { status: 400 });
+      return NextResponse.json({ error: 'Select a valid Line Number.' }, { status: 400 });
     }
     const required: [keyof Persons, string][] = [
       ['nosePad', 'Nose Pad'],

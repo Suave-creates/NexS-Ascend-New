@@ -10,9 +10,16 @@
 // computed status to the caller (so the UI can show pass/fail per eye).
 //
 import { NextResponse } from 'next/server';
-import type mysql from 'mysql2/promise';
+import {
+  fetchLensLabFqcSource,
+  normalizeLensLabFittingId,
+  type LensLabFqcPowerRow,
+} from '@/lib/server/lensLabFqcBigQuery';
+import { authMiddleware } from '@/middleware/auth';
 import { prismaLensLab } from '@/utils/prismaLensLab';
-import { nexsPool } from '@/utils/nexsPool';
+
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
 
 // ── Tolerances ──────────────────────────────────────────────────────
 const TOL_SPH  = 0.25;
@@ -47,16 +54,7 @@ interface SubmitPayload {
 }
 
 // ── DB shapes ───────────────────────────────────────────────────────
-interface OrderRow  { wms_order_code: string; order_id?: string | null }
-interface PowerRow  {
-  right_lens: string | null;
-  sph: any; cyl: any; axis: any; ap: any;
-  product_id: string | null;
-  lens_index: string | null;
-  lensname:   string | null;
-  lenstype:   string | null;
-  coating:    string | null;
-}
+type PowerRow = LensLabFqcPowerRow;
 
 // ── Helpers ─────────────────────────────────────────────────────────
 function num(v: any): number | null {
@@ -116,33 +114,6 @@ function eyeMatches(rightLens: string | null, eye: EyeKey): boolean {
     : (v === 'l' || v === '0' || v === 'left');
 }
 
-// ── Order lookup ────────────────────────────────────────────────────
-// Tries to fetch both wms_order_code and order_id from order_items.
-// If `order_id` column doesn't exist on this DB, falls back to using
-// wms_order_code for both (some installs use a single column).
-async function fetchOrder(conn: mysql.PoolConnection, fitting_id: string): Promise<OrderRow | null> {
-  try {
-    const [rows]: any = await conn.query(
-      `SELECT wms_order_code, order_id FROM order_items WHERE fitting_id = ? LIMIT 1`,
-      [fitting_id],
-    );
-    if (!rows.length) return null;
-    const wms = str(rows[0].wms_order_code);
-    const oid = str(rows[0].order_id) ?? wms;
-    if (!wms) return null;
-    return { wms_order_code: wms, order_id: oid ?? wms };
-  } catch {
-    const [rows]: any = await conn.query(
-      `SELECT wms_order_code FROM order_items WHERE fitting_id = ? LIMIT 1`,
-      [fitting_id],
-    );
-    if (!rows.length) return null;
-    const wms = str(rows[0].wms_order_code);
-    if (!wms) return null;
-    return { wms_order_code: wms, order_id: wms };
-  }
-}
-
 // ── Validation ──────────────────────────────────────────────────────
 function validEye(eye: any): eye is EyePayload {
   if (!eye || typeof eye !== 'object') return false;
@@ -156,9 +127,7 @@ function validEye(eye: any): eye is EyePayload {
 // ────────────────────────────────────────────────────────────────────
 // POST
 // ────────────────────────────────────────────────────────────────────
-export async function POST(req: Request) {
-  let conn: mysql.PoolConnection | null = null;
-
+async function handlePost(req: Request) {
   try {
     const body = await req.json() as SubmitPayload;
 
@@ -169,7 +138,8 @@ export async function POST(req: Request) {
     } = body;
 
     // ── Validate ──────────────────────────────────────────────────
-    if (!fitting_id || typeof fitting_id !== 'string') {
+    const normalizedFittingId = normalizeLensLabFittingId(fitting_id);
+    if (!normalizedFittingId) {
       return NextResponse.json({ error: 'fitting_id is required' }, { status: 400 });
     }
     if (!operator_id || (operator_grade !== 1 && operator_grade !== 2)) {
@@ -195,24 +165,28 @@ export async function POST(req: Request) {
     }
 
     // ── DB lookups (everything qc-tray-single needs) ──────────────
-    conn = await nexsPool.getConnection();
-    await conn.changeUser({ database: 'wms' });
-
-    const order = await fetchOrder(conn, fitting_id);
-    if (!order) {
-      return NextResponse.json({ error: `No order found for fitting_id ${fitting_id}` }, { status: 404 });
+    let source;
+    try {
+      source = await fetchLensLabFqcSource(normalizedFittingId, req.signal);
+    } catch (error) {
+      console.error('[lens-lab/fqc/qc-tray-single] BigQuery lookup failed:', error);
+      return NextResponse.json(
+        { error: 'Unable to load the FQC prescription from BigQuery.' },
+        { status: 502 },
+      );
+    }
+    if (!source) {
+      return NextResponse.json(
+        { error: `No order found for fitting_id ${normalizedFittingId}` },
+        { status: 404 },
+      );
     }
 
-    const [powerRowsRaw]: any = await conn.query(
-      `
-      SELECT right_lens, sph, cyl, axis, ap,
-             product_id, lens_index, lensname, lenstype, coating
-      FROM power
-      WHERE order_id = ?
-      `,
-      [order.wms_order_code],
-    );
-    const powerRows: PowerRow[] = powerRowsRaw;
+    const order = {
+      wms_order_code: source.wmsOrderCode,
+      order_id: source.orderId,
+    };
+    const powerRows: PowerRow[] = source.power;
     if (!powerRows.length) {
       return NextResponse.json({ error: `No power data for order ${order.wms_order_code}` }, { status: 404 });
     }
@@ -255,7 +229,7 @@ export async function POST(req: Request) {
     // ── Persist ───────────────────────────────────────────────────
     const created = await  prismaLensLab.blanksFqc.create({
       data: {
-        fitting_id,
+        fitting_id: normalizedFittingId,
         wms_order_code: order.wms_order_code,
         order_id:       order.order_id ?? order.wms_order_code,
         product_id,
@@ -297,8 +271,9 @@ export async function POST(req: Request) {
 
     return NextResponse.json({
       success:    true,
+      source:     'bigquery',
       record_id:  (created as any).id?.toString?.() ?? null,
-      fitting_id,
+      fitting_id: normalizedFittingId,
       qc_status,
       fail_side: computedFailSide,
       right: rqc ? { status: rqc.status, failed: rqc.failed, expected: rqc.expected, measured: rqc.measured } : null,
@@ -310,7 +285,7 @@ export async function POST(req: Request) {
       { error: 'Internal server error', details: err.message },
       { status: 500 },
     );
-  } finally {
-    if (conn) conn.release();
   }
 }
+
+export const POST = authMiddleware<{}>(async (request) => handlePost(request));

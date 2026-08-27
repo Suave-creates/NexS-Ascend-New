@@ -73,23 +73,39 @@ DELIMITER ;
 
 CALL `mydb`.`_drop_index_if_exists`('mydb','PackingScan','idx_PackingScan_scanId');
 CALL `mydb`.`_drop_index_if_exists`('mydb','PackingScan','idx_PackingScan_station_ts');
+CALL `mydb`.`_drop_index_if_exists`('mydb','PackingScan','idx_PackingScan_ts_scan_station');
 CALL `mydb`.`_drop_index_if_exists`('mydb','DispatchScan','idx_DispatchScan_scanId');
 CALL `mydb`.`_drop_index_if_exists`('mydb','DispatchScan','idx_DispatchScan_station_ts');
+CALL `mydb`.`_drop_index_if_exists`('mydb','DispatchScan','idx_DispatchScan_ts_scan_station');
 CALL `mydb`.`_drop_index_if_exists`('mydb','BulkScan','idx_BulkScan_scanId');
 CALL `mydb`.`_drop_index_if_exists`('mydb','BulkScan','idx_BulkScan_station_ts');
+CALL `mydb`.`_drop_index_if_exists`('mydb','BulkScan','idx_BulkScan_ts_scan_station');
 CALL `mydb`.`_drop_index_if_exists`('mydb','FR0Scan','idx_FR0Scan_scanId');
 CALL `mydb`.`_drop_index_if_exists`('mydb','FR0Scan','idx_FR0Scan_station_created');
+CALL `mydb`.`_drop_index_if_exists`('mydb','FR0Scan','idx_FR0Scan_created_scan_station');
 CALL `mydb`.`_drop_index_if_exists`('mydb','CLScans','idx_CLScans_scanId');
 CALL `mydb`.`_drop_index_if_exists`('mydb','CLScans','idx_CLScans_station_created');
+CALL `mydb`.`_drop_index_if_exists`('mydb','CLScans','idx_CLScans_created_scan_station');
 CALL `mydb`.`_drop_index_if_exists`('mydb','ManualWarehouse','idx_ManualWarehouse_timestamp');
 CALL `mydb`.`_drop_index_if_exists`('mydb','FR0BulkHOTO','idx_FR0BulkHOTO_scanId_ts');
+CALL `mydb`.`_drop_index_if_exists`('mydb','FR0BulkHOTO','idx_FR0BulkHOTO_ts_scan_station');
 CALL `mydb`.`_drop_index_if_exists`('mydb','CourierHandover','idx_CourierHandover_partner_awb');
+CALL `mydb`.`_drop_index_if_exists`('mydb','CourierHandover','idx_CourierHandover_lastScan_awb');
 CALL `mydb`.`_drop_index_if_exists`('mydb','OperationsMetadata','idx_OperationsMetadata_location_id');
 CALL `mydb`.`_drop_index_if_exists`('mydb','scanned_barcode_inventory','idx_sbi_location_scanned');
 CALL `mydb`.`_drop_index_if_exists`('mydb','ndd_shipments','idx_ndd_created_at');
 CALL `mydb`.`_drop_index_if_exists`('mydb','ndd_shipments','idx_ndd_awb');
 
 DROP PROCEDURE IF EXISTS `mydb`.`_drop_index_if_exists`;
+
+
+-- =============================================================================
+-- OPTIONAL -- Remove the emergency SELECT runtime guard installed by
+-- 10_triage_dashboard_indexes.cjs. Review before use: unlimited analytical
+-- SELECTs caused the original query pile-up.
+-- =============================================================================
+-- RESET PERSIST IF EXISTS max_execution_time;
+-- SET GLOBAL max_execution_time = 0;
 
 
 -- =============================================================================

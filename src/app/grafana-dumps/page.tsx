@@ -5,6 +5,7 @@ import { FiDatabase, FiDownload } from 'react-icons/fi';
 import { Alert, Button, Card, CardBody, PageHeader, Spinner } from '@/components/ui';
 
 const DUMPS = [
+  ['end-cut', 'End Cut Events', 'Racer/MEI END CUT events — fixed rolling last 48 hours (IST)'],
   ['asrs-tote', 'ASRS Tote Dump', 'Complete ASRS inventory by PID and location'],
   ['blocked-inventory', 'Blocked Inventory', 'NXS1 non-zero blocked inventory'],
   ['dubai-inventory', 'Dubai Inventory', 'DXB1 available inventory'],
@@ -32,7 +33,16 @@ export default function GrafanaDumpsPage() {
   const download = async (id: string, label: string) => {
     setJob({ id, error: null });
     try {
-      const response = await fetch(`/api/grafana-dumps?id=${encodeURIComponent(id)}`);
+      const endpoint = id === 'end-cut'
+        ? '/api/grafana-dumps/end-cut'
+        : `/api/grafana-dumps?id=${encodeURIComponent(id)}`;
+      const response = await fetch(endpoint, { cache: 'no-store' });
+      if (response.status === 401) {
+        setJob(null);
+        const returnTo = `${window.location.pathname}${window.location.search}`;
+        window.location.assign(`/login?returnTo=${encodeURIComponent(returnTo)}`);
+        return;
+      }
       if (!response.ok) {
         const body = await response.json().catch(() => null);
         throw new Error(body?.error || `Dump failed with HTTP ${response.status}`);
@@ -42,8 +52,15 @@ export default function GrafanaDumpsPage() {
       const anchor = document.createElement('a');
       anchor.href = url;
       anchor.download = filenameFromDisposition(response.headers.get('content-disposition'), label);
-      anchor.click();
-      URL.revokeObjectURL(url);
+      document.body.appendChild(anchor);
+      try {
+        anchor.click();
+      } finally {
+        window.setTimeout(() => {
+          anchor.remove();
+          URL.revokeObjectURL(url);
+        }, 0);
+      }
       setJob(null);
     } catch (error) {
       setJob({ id, error: error instanceof Error ? error.message : 'Download failed' });
@@ -54,12 +71,12 @@ export default function GrafanaDumpsPage() {
     <div className="mx-auto max-w-5xl space-y-6">
       <PageHeader
         title="Grafana Dumps"
-        subtitle="Run heavy inventory queries and download the result directly as CSV"
+        subtitle="Run heavy source queries and download the result directly as CSV"
       />
 
       {job && !job.error && (
         <Card>
-          <CardBody className="space-y-3">
+          <CardBody className="space-y-3" role="status" aria-live="polite" aria-busy="true">
             <div className="flex items-center gap-3 text-sm font-semibold text-brand-700">
               <Spinner className="h-5 w-5" />
               Processing dump. Keep this page open; large queries may take several minutes.
@@ -71,7 +88,7 @@ export default function GrafanaDumpsPage() {
         </Card>
       )}
 
-      {job?.error && <Alert tone="error">{job.error}</Alert>}
+      {job?.error && <Alert tone="error" role="alert">{job.error}</Alert>}
 
       <div className="grid gap-4 md:grid-cols-2">
         {DUMPS.map(([id, label, description]) => {
@@ -92,6 +109,7 @@ export default function GrafanaDumpsPage() {
                   loading={running}
                   disabled={!!job && !job.error}
                   onClick={() => download(id, label.replace(/\s+/g, '_'))}
+                  aria-label={`Download ${label}`}
                   className="shrink-0"
                 >
                   {!running && <FiDownload className="h-4 w-4" />}

@@ -2,38 +2,40 @@
 // -----------------------------------------------------------------------------
 // 10_triage_dashboard_indexes.cjs
 // Emergency remediation for the runaway BI/dashboard analytics queries piling up
-// on mydb.PackingScan / mydb.DispatchScan (user 'Hero' @ 192.168.27.132).
+// on mydb.PackingScan / mydb.DispatchScan (user 'Hero' @ 192.168.27.132), plus
+// the less frequent timestamp-range CourierHandover dashboard burst.
 //
 // Root cause: those queries filter on `timestamp BETWEEN ...` (and GROUP BY
 // scanId/stationId). The existing indexes are (scanId) and (stationId, timestamp)
 // -- neither can seek on `timestamp` alone, so every query is a FULL TABLE SCAN.
 // With ~600 of them concurrent, the server saturates and they stack.
+// CourierHandover has the analogous issue on lastScan.
 //
 // Fix order (matches the operator decision: kill + one covering index per table):
 //   1. SET GLOBAL max_execution_time = 60s  -> no SELECT can run away again /
 //      pile up during the index-build window.
 //   2. KILL QUERY the piled-up dashboard statements -> frees I/O immediately
 //      (connections survive; the BI tool just re-fires on next refresh).
-//   3. CREATE the covering indexes (timestamp, scanId, stationId), online,
-//      idempotent -> re-fired queries become range-seek + covering scans.
+//   3. CREATE the timestamp-leading indexes online and idempotently -> re-fired
+//      queries become range/covering scans.
 //   4. EXPLAIN proof that the optimizer now picks the new index.
 //
 // Usage (from repo root, where .env lives):
 //   node database/mydb-optimization/10_triage_dashboard_indexes.cjs check     # dry-run: show backlog + index status, change nothing
 //   node database/mydb-optimization/10_triage_dashboard_indexes.cjs remediate # do steps 1-4
 //   node database/mydb-optimization/10_triage_dashboard_indexes.cjs explain   # just the EXPLAIN proof
+//   node database/mydb-optimization/10_triage_dashboard_indexes.cjs guard     # persist only the 60s SELECT cap
 // -----------------------------------------------------------------------------
-const fs = require('fs');
-const path = require('path');
 const mysql = require('mysql2/promise');
+const { loadEnvConfig } = require('@next/env');
 
-// ---- parse DATABASE_URL from .env (password may contain '@', so parse manually) ----
+// ---- parse the same effective DATABASE_URL as the Next.js application ----
+// .env.local must win over .env; the latter may hold an older operator credential.
 function loadDbUrl() {
-  const envPath = path.join(process.cwd(), '.env');
-  const txt = fs.readFileSync(envPath, 'utf8');
-  const line = txt.split(/\r?\n/).find((l) => l.startsWith('DATABASE_URL='));
-  if (!line) throw new Error('DATABASE_URL not found in .env');
-  let v = line.slice('DATABASE_URL='.length).trim().replace(/^["']|["']$/g, '');
+  loadEnvConfig(process.cwd(), process.env.NODE_ENV !== 'production');
+  let v = process.env.DATABASE_URL;
+  if (!v) throw new Error('DATABASE_URL is not configured');
+  v = v.trim().replace(/^["']|["']$/g, '');
   const raw = v.replace(/^mysql:\/\//, '');
   const at = raw.lastIndexOf('@');
   const cred = raw.slice(0, at);
@@ -44,7 +46,15 @@ function loadDbUrl() {
   const [hostport, rest = ''] = hostpart.split('/');
   const [host, port] = hostport.split(':');
   const database = rest.split('?')[0];
-  return { host, port: Number(port) || 3306, user, password, database };
+  // Prisma URLs percent-encode reserved credential characters; mysql2 expects
+  // the decoded values.
+  return {
+    host,
+    port: Number(port) || 3306,
+    user: decodeURIComponent(user),
+    password: decodeURIComponent(password),
+    database: decodeURIComponent(database),
+  };
 }
 
 const bt = (s) => '`' + s + '`';
@@ -53,6 +63,11 @@ const bt = (s) => '`' + s + '`';
 const NEW_INDEXES = [
   ['PackingScan',  'idx_PackingScan_ts_scan_station',  ['timestamp', 'scanId', 'stationId']],
   ['DispatchScan', 'idx_DispatchScan_ts_scan_station', ['timestamp', 'scanId', 'stationId']],
+  ['CourierHandover', 'idx_CourierHandover_lastScan_awb', ['lastScan', 'awb']],
+  ['FR0Scan', 'idx_FR0Scan_created_scan_station', ['createdAt', 'scanId', 'stationId']],
+  ['FR0BulkHOTO', 'idx_FR0BulkHOTO_ts_scan_station', ['timestamp', 'scanId', 'stationId']],
+  ['CLScans', 'idx_CLScans_created_scan_station', ['createdAt', 'scanId', 'stationId']],
+  ['BulkScan', 'idx_BulkScan_ts_scan_station', ['timestamp', 'scanId', 'stationId']],
 ];
 
 // Signatures that identify the runaway dashboard statements.
@@ -65,6 +80,7 @@ const PATTERNS = [
   'TotalScannedIDs',
   'AS Throughput',
 ];
+const BACKLOG_SECONDS = 5;
 
 async function indexExists(conn, db, table, name) {
   const [r] = await conn.query(
@@ -83,20 +99,29 @@ async function findBacklog(conn) {
        FROM information_schema.PROCESSLIST
       WHERE COMMAND = 'Query'
         AND ID <> CONNECTION_ID()
+        AND TIME >= ?
         AND (${like})
       ORDER BY TIME DESC`;
-  const [rows] = await conn.query(sql, PATTERNS.map((p) => `%${p}%`));
+  const [rows] = await conn.query(sql, [BACKLOG_SECONDS, ...PATTERNS.map((p) => `%${p}%`)]);
   return rows;
 }
 
 async function phaseCheck(conn, db) {
-  console.log('\n=== Covering-index status ===');
+  console.log('\n=== Timestamp-leading index status ===');
   for (const [t, name, cols] of NEW_INDEXES) {
     const ex = await indexExists(conn, db, t, name);
     console.log(`  [${ex ? 'EXISTS ' : 'MISSING'}] ${t}.${name} (${cols.join(', ')})`);
   }
   const [mx] = await conn.query("SELECT @@global.max_execution_time AS m");
   console.log(`\nglobal max_execution_time = ${mx[0].m} ms ${Number(mx[0].m) === 0 ? '(0 = unlimited!)' : ''}`);
+  try {
+    const [persisted] = await conn.query(
+      "SELECT VARIABLE_VALUE AS v FROM performance_schema.persisted_variables WHERE VARIABLE_NAME='max_execution_time'",
+    );
+    console.log(`persisted max_execution_time = ${persisted[0]?.v ?? '(not persisted)'}`);
+  } catch (e) {
+    console.log(`persisted max_execution_time = unavailable (${e.code || e.message})`);
+  }
 
   const backlog = await findBacklog(conn);
   console.log(`\n=== Runaway dashboard backlog: ${backlog.length} statement(s) ===`);
@@ -110,14 +135,23 @@ async function phaseCheck(conn, db) {
   return backlog;
 }
 
+async function phaseGuard(conn, guardMs = 60000) {
+  try {
+    await conn.query(`SET PERSIST max_execution_time = ${guardMs}`);
+    console.log(`STEP 1  max_execution_time set and persisted at ${guardMs} ms (read-only SELECT cap)`);
+  } catch (e) {
+    try {
+      await conn.query(`SET GLOBAL max_execution_time = ${guardMs}`);
+      console.log(`STEP 1  max_execution_time set globally at ${guardMs} ms but could not persist it (${e.code || e.message})`);
+    } catch (fallbackError) {
+      console.log(`STEP 1  could NOT set max_execution_time (${fallbackError.code || fallbackError.message}) -- needs SUPER/SYSTEM_VARIABLES_ADMIN. Continuing.`);
+    }
+  }
+}
+
 async function phaseRemediate(conn, db, guardMs = 60000) {
   // ---- step 1: runaway guard so nothing can pile up past `guardMs` again ----
-  try {
-    await conn.query(`SET GLOBAL max_execution_time = ${guardMs}`);
-    console.log(`STEP 1  global max_execution_time set to ${guardMs} ms (read-only SELECT cap)`);
-  } catch (e) {
-    console.log(`STEP 1  could NOT set max_execution_time (${e.code || e.message}) -- needs SUPER/SYSTEM_VARIABLES_ADMIN. Continuing.`);
-  }
+  await phaseGuard(conn, guardMs);
 
   // ---- step 2: kill the existing backlog (KILL QUERY: aborts the statement, keeps the connection) ----
   const backlog = await findBacklog(conn);
@@ -144,7 +178,7 @@ async function phaseRemediate(conn, db, guardMs = 60000) {
 }
 
 async function phaseExplain(conn, db) {
-  console.log('\nSTEP 4  EXPLAIN proof (key should be the new idx_*_ts_scan_station) ===');
+  console.log('\nSTEP 4  EXPLAIN proof (key should be a new timestamp-leading index) ===');
   const lo = "(NOW() - INTERVAL 1 DAY)", hi = "NOW()";
   const queries = [
     ['PackingScan total',      `SELECT COUNT(scanId) FROM ${bt(db)}.\`PackingScan\` WHERE \`timestamp\` BETWEEN ${lo} AND ${hi}`],
@@ -152,6 +186,11 @@ async function phaseExplain(conn, db) {
     ['PackingScan multi-stn',  `SELECT COUNT(*) FROM (SELECT \`scanId\` FROM ${bt(db)}.\`PackingScan\` WHERE \`timestamp\` BETWEEN ${lo} AND ${hi} GROUP BY \`scanId\` HAVING COUNT(DISTINCT \`stationId\`)>1) x`],
     ['PackingScan throughput', `SELECT \`stationId\`, COUNT(*) FROM ${bt(db)}.\`PackingScan\` WHERE \`timestamp\` BETWEEN ${lo} AND ${hi} GROUP BY \`stationId\``],
     ['DispatchScan total',     `SELECT COUNT(scanId) FROM ${bt(db)}.\`DispatchScan\` WHERE \`timestamp\` BETWEEN ${lo} AND ${hi}`],
+    ['Courier time range',     `SELECT \`awb\`, \`partner\`, \`lastScan\` FROM ${bt(db)}.\`CourierHandover\` WHERE \`lastScan\` BETWEEN ${lo} AND ${hi} ORDER BY \`lastScan\` ASC`],
+    ['FR0 total',              `SELECT COUNT(\`scanId\`) FROM ${bt(db)}.\`FR0Scan\` WHERE \`createdAt\` BETWEEN ${lo} AND ${hi}`],
+    ['FR0 Bulk HOTO total',    `SELECT COUNT(\`scanId\`) FROM ${bt(db)}.\`FR0BulkHOTO\` WHERE \`timestamp\` BETWEEN ${lo} AND ${hi}`],
+    ['CL/CLS total',           `SELECT COUNT(\`scanId\`) FROM ${bt(db)}.\`CLScans\` WHERE \`createdAt\` BETWEEN ${lo} AND ${hi}`],
+    ['Bulk total',             `SELECT COUNT(\`scanId\`) FROM ${bt(db)}.\`BulkScan\` WHERE \`timestamp\` BETWEEN ${lo} AND ${hi}`],
   ];
   for (const [label, sql] of queries) {
     try {
@@ -176,7 +215,8 @@ async function phaseExplain(conn, db) {
     if (phase === 'check') await phaseCheck(conn, cfg.database);
     else if (phase === 'remediate') await phaseRemediate(conn, cfg.database);
     else if (phase === 'explain') await phaseExplain(conn, cfg.database);
-    else throw new Error(`unknown phase: ${phase} (use check | remediate | explain)`);
+    else if (phase === 'guard') await phaseGuard(conn);
+    else throw new Error(`unknown phase: ${phase} (use check | remediate | explain | guard)`);
     console.log(`\nPhase '${phase}' complete.`);
   } finally {
     await conn.end();

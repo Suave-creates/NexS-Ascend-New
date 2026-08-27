@@ -29,6 +29,11 @@ export type ShippingMetadata = $Result.DefaultSelection<Prisma.$ShippingMetadata
  */
 export type PackingScan = $Result.DefaultSelection<Prisma.$PackingScanPayload>
 /**
+ * Model MarketplaceScan
+ * 
+ */
+export type MarketplaceScan = $Result.DefaultSelection<Prisma.$MarketplaceScanPayload>
+/**
  * Model DispatchScan
  * 
  */
@@ -103,6 +108,21 @@ export type ManualWarehouseSetUp = $Result.DefaultSelection<Prisma.$ManualWareho
  * 
  */
 export type ScannedBarcodeInventory = $Result.DefaultSelection<Prisma.$ScannedBarcodeInventoryPayload>
+/**
+ * Model PidHunterScan
+ * 
+ */
+export type PidHunterScan = $Result.DefaultSelection<Prisma.$PidHunterScanPayload>
+/**
+ * Model PidHunterTote
+ * 
+ */
+export type PidHunterTote = $Result.DefaultSelection<Prisma.$PidHunterTotePayload>
+/**
+ * Model PidHunterToteReservation
+ * 
+ */
+export type PidHunterToteReservation = $Result.DefaultSelection<Prisma.$PidHunterToteReservationPayload>
 /**
  * Model CLScan
  * 
@@ -292,6 +312,16 @@ export class PrismaClient<
   get packingScan(): Prisma.PackingScanDelegate<ExtArgs, ClientOptions>;
 
   /**
+   * `prisma.marketplaceScan`: Exposes CRUD operations for the **MarketplaceScan** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more MarketplaceScans
+    * const marketplaceScans = await prisma.marketplaceScan.findMany()
+    * ```
+    */
+  get marketplaceScan(): Prisma.MarketplaceScanDelegate<ExtArgs, ClientOptions>;
+
+  /**
    * `prisma.dispatchScan`: Exposes CRUD operations for the **DispatchScan** model.
     * Example usage:
     * ```ts
@@ -440,6 +470,36 @@ export class PrismaClient<
     * ```
     */
   get scannedBarcodeInventory(): Prisma.ScannedBarcodeInventoryDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.pidHunterScan`: Exposes CRUD operations for the **PidHunterScan** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more PidHunterScans
+    * const pidHunterScans = await prisma.pidHunterScan.findMany()
+    * ```
+    */
+  get pidHunterScan(): Prisma.PidHunterScanDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.pidHunterTote`: Exposes CRUD operations for the **PidHunterTote** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more PidHunterTotes
+    * const pidHunterTotes = await prisma.pidHunterTote.findMany()
+    * ```
+    */
+  get pidHunterTote(): Prisma.PidHunterToteDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.pidHunterToteReservation`: Exposes CRUD operations for the **PidHunterToteReservation** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more PidHunterToteReservations
+    * const pidHunterToteReservations = await prisma.pidHunterToteReservation.findMany()
+    * ```
+    */
+  get pidHunterToteReservation(): Prisma.PidHunterToteReservationDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.cLScan`: Exposes CRUD operations for the **CLScan** model.
@@ -913,6 +973,7 @@ export namespace Prisma {
     User: 'User',
     ShippingMetadata: 'ShippingMetadata',
     PackingScan: 'PackingScan',
+    MarketplaceScan: 'MarketplaceScan',
     DispatchScan: 'DispatchScan',
     OperationsMetadata: 'OperationsMetadata',
     MaintenanceShopIssue: 'MaintenanceShopIssue',
@@ -928,6 +989,9 @@ export namespace Prisma {
     FR0BulkHOTO: 'FR0BulkHOTO',
     ManualWarehouseSetUp: 'ManualWarehouseSetUp',
     ScannedBarcodeInventory: 'ScannedBarcodeInventory',
+    PidHunterScan: 'PidHunterScan',
+    PidHunterTote: 'PidHunterTote',
+    PidHunterToteReservation: 'PidHunterToteReservation',
     CLScan: 'CLScan',
     ScannedBarcodeInventoryTransfer: 'ScannedBarcodeInventoryTransfer',
     NddShipment: 'NddShipment'
@@ -949,7 +1013,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "shippingMetadata" | "packingScan" | "dispatchScan" | "operationsMetadata" | "maintenanceShopIssue" | "fastTrackScan" | "fR0Scan" | "bulkScan" | "manualWarehouse" | "eHSDeviation" | "courierHandover" | "metalFrameFittingScan" | "orderUpdateDashboardStudy" | "inventoryPID" | "fR0BulkHOTO" | "manualWarehouseSetUp" | "scannedBarcodeInventory" | "cLScan" | "scannedBarcodeInventoryTransfer" | "nddShipment"
+      modelProps: "user" | "shippingMetadata" | "packingScan" | "marketplaceScan" | "dispatchScan" | "operationsMetadata" | "maintenanceShopIssue" | "fastTrackScan" | "fR0Scan" | "bulkScan" | "manualWarehouse" | "eHSDeviation" | "courierHandover" | "metalFrameFittingScan" | "orderUpdateDashboardStudy" | "inventoryPID" | "fR0BulkHOTO" | "manualWarehouseSetUp" | "scannedBarcodeInventory" | "pidHunterScan" | "pidHunterTote" | "pidHunterToteReservation" | "cLScan" | "scannedBarcodeInventoryTransfer" | "nddShipment"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1148,6 +1212,72 @@ export namespace Prisma {
           count: {
             args: Prisma.PackingScanCountArgs<ExtArgs>
             result: $Utils.Optional<PackingScanCountAggregateOutputType> | number
+          }
+        }
+      }
+      MarketplaceScan: {
+        payload: Prisma.$MarketplaceScanPayload<ExtArgs>
+        fields: Prisma.MarketplaceScanFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.MarketplaceScanFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MarketplaceScanPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.MarketplaceScanFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MarketplaceScanPayload>
+          }
+          findFirst: {
+            args: Prisma.MarketplaceScanFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MarketplaceScanPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.MarketplaceScanFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MarketplaceScanPayload>
+          }
+          findMany: {
+            args: Prisma.MarketplaceScanFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MarketplaceScanPayload>[]
+          }
+          create: {
+            args: Prisma.MarketplaceScanCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MarketplaceScanPayload>
+          }
+          createMany: {
+            args: Prisma.MarketplaceScanCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          delete: {
+            args: Prisma.MarketplaceScanDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MarketplaceScanPayload>
+          }
+          update: {
+            args: Prisma.MarketplaceScanUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MarketplaceScanPayload>
+          }
+          deleteMany: {
+            args: Prisma.MarketplaceScanDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.MarketplaceScanUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.MarketplaceScanUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MarketplaceScanPayload>
+          }
+          aggregate: {
+            args: Prisma.MarketplaceScanAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateMarketplaceScan>
+          }
+          groupBy: {
+            args: Prisma.MarketplaceScanGroupByArgs<ExtArgs>
+            result: $Utils.Optional<MarketplaceScanGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.MarketplaceScanCountArgs<ExtArgs>
+            result: $Utils.Optional<MarketplaceScanCountAggregateOutputType> | number
           }
         }
       }
@@ -2141,6 +2271,204 @@ export namespace Prisma {
           }
         }
       }
+      PidHunterScan: {
+        payload: Prisma.$PidHunterScanPayload<ExtArgs>
+        fields: Prisma.PidHunterScanFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.PidHunterScanFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PidHunterScanPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.PidHunterScanFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PidHunterScanPayload>
+          }
+          findFirst: {
+            args: Prisma.PidHunterScanFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PidHunterScanPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.PidHunterScanFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PidHunterScanPayload>
+          }
+          findMany: {
+            args: Prisma.PidHunterScanFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PidHunterScanPayload>[]
+          }
+          create: {
+            args: Prisma.PidHunterScanCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PidHunterScanPayload>
+          }
+          createMany: {
+            args: Prisma.PidHunterScanCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          delete: {
+            args: Prisma.PidHunterScanDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PidHunterScanPayload>
+          }
+          update: {
+            args: Prisma.PidHunterScanUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PidHunterScanPayload>
+          }
+          deleteMany: {
+            args: Prisma.PidHunterScanDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.PidHunterScanUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.PidHunterScanUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PidHunterScanPayload>
+          }
+          aggregate: {
+            args: Prisma.PidHunterScanAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregatePidHunterScan>
+          }
+          groupBy: {
+            args: Prisma.PidHunterScanGroupByArgs<ExtArgs>
+            result: $Utils.Optional<PidHunterScanGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.PidHunterScanCountArgs<ExtArgs>
+            result: $Utils.Optional<PidHunterScanCountAggregateOutputType> | number
+          }
+        }
+      }
+      PidHunterTote: {
+        payload: Prisma.$PidHunterTotePayload<ExtArgs>
+        fields: Prisma.PidHunterToteFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.PidHunterToteFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PidHunterTotePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.PidHunterToteFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PidHunterTotePayload>
+          }
+          findFirst: {
+            args: Prisma.PidHunterToteFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PidHunterTotePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.PidHunterToteFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PidHunterTotePayload>
+          }
+          findMany: {
+            args: Prisma.PidHunterToteFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PidHunterTotePayload>[]
+          }
+          create: {
+            args: Prisma.PidHunterToteCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PidHunterTotePayload>
+          }
+          createMany: {
+            args: Prisma.PidHunterToteCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          delete: {
+            args: Prisma.PidHunterToteDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PidHunterTotePayload>
+          }
+          update: {
+            args: Prisma.PidHunterToteUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PidHunterTotePayload>
+          }
+          deleteMany: {
+            args: Prisma.PidHunterToteDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.PidHunterToteUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.PidHunterToteUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PidHunterTotePayload>
+          }
+          aggregate: {
+            args: Prisma.PidHunterToteAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregatePidHunterTote>
+          }
+          groupBy: {
+            args: Prisma.PidHunterToteGroupByArgs<ExtArgs>
+            result: $Utils.Optional<PidHunterToteGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.PidHunterToteCountArgs<ExtArgs>
+            result: $Utils.Optional<PidHunterToteCountAggregateOutputType> | number
+          }
+        }
+      }
+      PidHunterToteReservation: {
+        payload: Prisma.$PidHunterToteReservationPayload<ExtArgs>
+        fields: Prisma.PidHunterToteReservationFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.PidHunterToteReservationFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PidHunterToteReservationPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.PidHunterToteReservationFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PidHunterToteReservationPayload>
+          }
+          findFirst: {
+            args: Prisma.PidHunterToteReservationFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PidHunterToteReservationPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.PidHunterToteReservationFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PidHunterToteReservationPayload>
+          }
+          findMany: {
+            args: Prisma.PidHunterToteReservationFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PidHunterToteReservationPayload>[]
+          }
+          create: {
+            args: Prisma.PidHunterToteReservationCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PidHunterToteReservationPayload>
+          }
+          createMany: {
+            args: Prisma.PidHunterToteReservationCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          delete: {
+            args: Prisma.PidHunterToteReservationDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PidHunterToteReservationPayload>
+          }
+          update: {
+            args: Prisma.PidHunterToteReservationUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PidHunterToteReservationPayload>
+          }
+          deleteMany: {
+            args: Prisma.PidHunterToteReservationDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.PidHunterToteReservationUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.PidHunterToteReservationUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PidHunterToteReservationPayload>
+          }
+          aggregate: {
+            args: Prisma.PidHunterToteReservationAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregatePidHunterToteReservation>
+          }
+          groupBy: {
+            args: Prisma.PidHunterToteReservationGroupByArgs<ExtArgs>
+            result: $Utils.Optional<PidHunterToteReservationGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.PidHunterToteReservationCountArgs<ExtArgs>
+            result: $Utils.Optional<PidHunterToteReservationCountAggregateOutputType> | number
+          }
+        }
+      }
       CLScan: {
         payload: Prisma.$CLScanPayload<ExtArgs>
         fields: Prisma.CLScanFieldRefs
@@ -2426,6 +2754,7 @@ export namespace Prisma {
     user?: UserOmit
     shippingMetadata?: ShippingMetadataOmit
     packingScan?: PackingScanOmit
+    marketplaceScan?: MarketplaceScanOmit
     dispatchScan?: DispatchScanOmit
     operationsMetadata?: OperationsMetadataOmit
     maintenanceShopIssue?: MaintenanceShopIssueOmit
@@ -2441,6 +2770,9 @@ export namespace Prisma {
     fR0BulkHOTO?: FR0BulkHOTOOmit
     manualWarehouseSetUp?: ManualWarehouseSetUpOmit
     scannedBarcodeInventory?: ScannedBarcodeInventoryOmit
+    pidHunterScan?: PidHunterScanOmit
+    pidHunterTote?: PidHunterToteOmit
+    pidHunterToteReservation?: PidHunterToteReservationOmit
     cLScan?: CLScanOmit
     scannedBarcodeInventoryTransfer?: ScannedBarcodeInventoryTransferOmit
     nddShipment?: NddShipmentOmit
@@ -5250,6 +5582,922 @@ export namespace Prisma {
      * Omit specific fields from the PackingScan
      */
     omit?: PackingScanOmit<ExtArgs> | null
+  }
+
+
+  /**
+   * Model MarketplaceScan
+   */
+
+  export type AggregateMarketplaceScan = {
+    _count: MarketplaceScanCountAggregateOutputType | null
+    _avg: MarketplaceScanAvgAggregateOutputType | null
+    _sum: MarketplaceScanSumAggregateOutputType | null
+    _min: MarketplaceScanMinAggregateOutputType | null
+    _max: MarketplaceScanMaxAggregateOutputType | null
+  }
+
+  export type MarketplaceScanAvgAggregateOutputType = {
+    id: number | null
+  }
+
+  export type MarketplaceScanSumAggregateOutputType = {
+    id: number | null
+  }
+
+  export type MarketplaceScanMinAggregateOutputType = {
+    id: number | null
+    scanId: string | null
+    stationId: string | null
+    nexsId: string | null
+    timestamp: Date | null
+  }
+
+  export type MarketplaceScanMaxAggregateOutputType = {
+    id: number | null
+    scanId: string | null
+    stationId: string | null
+    nexsId: string | null
+    timestamp: Date | null
+  }
+
+  export type MarketplaceScanCountAggregateOutputType = {
+    id: number
+    scanId: number
+    stationId: number
+    nexsId: number
+    timestamp: number
+    _all: number
+  }
+
+
+  export type MarketplaceScanAvgAggregateInputType = {
+    id?: true
+  }
+
+  export type MarketplaceScanSumAggregateInputType = {
+    id?: true
+  }
+
+  export type MarketplaceScanMinAggregateInputType = {
+    id?: true
+    scanId?: true
+    stationId?: true
+    nexsId?: true
+    timestamp?: true
+  }
+
+  export type MarketplaceScanMaxAggregateInputType = {
+    id?: true
+    scanId?: true
+    stationId?: true
+    nexsId?: true
+    timestamp?: true
+  }
+
+  export type MarketplaceScanCountAggregateInputType = {
+    id?: true
+    scanId?: true
+    stationId?: true
+    nexsId?: true
+    timestamp?: true
+    _all?: true
+  }
+
+  export type MarketplaceScanAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which MarketplaceScan to aggregate.
+     */
+    where?: MarketplaceScanWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of MarketplaceScans to fetch.
+     */
+    orderBy?: MarketplaceScanOrderByWithRelationInput | MarketplaceScanOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: MarketplaceScanWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` MarketplaceScans from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` MarketplaceScans.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned MarketplaceScans
+    **/
+    _count?: true | MarketplaceScanCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: MarketplaceScanAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: MarketplaceScanSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: MarketplaceScanMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: MarketplaceScanMaxAggregateInputType
+  }
+
+  export type GetMarketplaceScanAggregateType<T extends MarketplaceScanAggregateArgs> = {
+        [P in keyof T & keyof AggregateMarketplaceScan]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateMarketplaceScan[P]>
+      : GetScalarType<T[P], AggregateMarketplaceScan[P]>
+  }
+
+
+
+
+  export type MarketplaceScanGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: MarketplaceScanWhereInput
+    orderBy?: MarketplaceScanOrderByWithAggregationInput | MarketplaceScanOrderByWithAggregationInput[]
+    by: MarketplaceScanScalarFieldEnum[] | MarketplaceScanScalarFieldEnum
+    having?: MarketplaceScanScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: MarketplaceScanCountAggregateInputType | true
+    _avg?: MarketplaceScanAvgAggregateInputType
+    _sum?: MarketplaceScanSumAggregateInputType
+    _min?: MarketplaceScanMinAggregateInputType
+    _max?: MarketplaceScanMaxAggregateInputType
+  }
+
+  export type MarketplaceScanGroupByOutputType = {
+    id: number
+    scanId: string
+    stationId: string
+    nexsId: string
+    timestamp: Date
+    _count: MarketplaceScanCountAggregateOutputType | null
+    _avg: MarketplaceScanAvgAggregateOutputType | null
+    _sum: MarketplaceScanSumAggregateOutputType | null
+    _min: MarketplaceScanMinAggregateOutputType | null
+    _max: MarketplaceScanMaxAggregateOutputType | null
+  }
+
+  type GetMarketplaceScanGroupByPayload<T extends MarketplaceScanGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<MarketplaceScanGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof MarketplaceScanGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], MarketplaceScanGroupByOutputType[P]>
+            : GetScalarType<T[P], MarketplaceScanGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type MarketplaceScanSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    scanId?: boolean
+    stationId?: boolean
+    nexsId?: boolean
+    timestamp?: boolean
+  }, ExtArgs["result"]["marketplaceScan"]>
+
+
+
+  export type MarketplaceScanSelectScalar = {
+    id?: boolean
+    scanId?: boolean
+    stationId?: boolean
+    nexsId?: boolean
+    timestamp?: boolean
+  }
+
+  export type MarketplaceScanOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "scanId" | "stationId" | "nexsId" | "timestamp", ExtArgs["result"]["marketplaceScan"]>
+
+  export type $MarketplaceScanPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "MarketplaceScan"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: number
+      scanId: string
+      stationId: string
+      nexsId: string
+      timestamp: Date
+    }, ExtArgs["result"]["marketplaceScan"]>
+    composites: {}
+  }
+
+  type MarketplaceScanGetPayload<S extends boolean | null | undefined | MarketplaceScanDefaultArgs> = $Result.GetResult<Prisma.$MarketplaceScanPayload, S>
+
+  type MarketplaceScanCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<MarketplaceScanFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: MarketplaceScanCountAggregateInputType | true
+    }
+
+  export interface MarketplaceScanDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['MarketplaceScan'], meta: { name: 'MarketplaceScan' } }
+    /**
+     * Find zero or one MarketplaceScan that matches the filter.
+     * @param {MarketplaceScanFindUniqueArgs} args - Arguments to find a MarketplaceScan
+     * @example
+     * // Get one MarketplaceScan
+     * const marketplaceScan = await prisma.marketplaceScan.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends MarketplaceScanFindUniqueArgs>(args: SelectSubset<T, MarketplaceScanFindUniqueArgs<ExtArgs>>): Prisma__MarketplaceScanClient<$Result.GetResult<Prisma.$MarketplaceScanPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one MarketplaceScan that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {MarketplaceScanFindUniqueOrThrowArgs} args - Arguments to find a MarketplaceScan
+     * @example
+     * // Get one MarketplaceScan
+     * const marketplaceScan = await prisma.marketplaceScan.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends MarketplaceScanFindUniqueOrThrowArgs>(args: SelectSubset<T, MarketplaceScanFindUniqueOrThrowArgs<ExtArgs>>): Prisma__MarketplaceScanClient<$Result.GetResult<Prisma.$MarketplaceScanPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first MarketplaceScan that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MarketplaceScanFindFirstArgs} args - Arguments to find a MarketplaceScan
+     * @example
+     * // Get one MarketplaceScan
+     * const marketplaceScan = await prisma.marketplaceScan.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends MarketplaceScanFindFirstArgs>(args?: SelectSubset<T, MarketplaceScanFindFirstArgs<ExtArgs>>): Prisma__MarketplaceScanClient<$Result.GetResult<Prisma.$MarketplaceScanPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first MarketplaceScan that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MarketplaceScanFindFirstOrThrowArgs} args - Arguments to find a MarketplaceScan
+     * @example
+     * // Get one MarketplaceScan
+     * const marketplaceScan = await prisma.marketplaceScan.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends MarketplaceScanFindFirstOrThrowArgs>(args?: SelectSubset<T, MarketplaceScanFindFirstOrThrowArgs<ExtArgs>>): Prisma__MarketplaceScanClient<$Result.GetResult<Prisma.$MarketplaceScanPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more MarketplaceScans that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MarketplaceScanFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all MarketplaceScans
+     * const marketplaceScans = await prisma.marketplaceScan.findMany()
+     * 
+     * // Get first 10 MarketplaceScans
+     * const marketplaceScans = await prisma.marketplaceScan.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const marketplaceScanWithIdOnly = await prisma.marketplaceScan.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends MarketplaceScanFindManyArgs>(args?: SelectSubset<T, MarketplaceScanFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MarketplaceScanPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a MarketplaceScan.
+     * @param {MarketplaceScanCreateArgs} args - Arguments to create a MarketplaceScan.
+     * @example
+     * // Create one MarketplaceScan
+     * const MarketplaceScan = await prisma.marketplaceScan.create({
+     *   data: {
+     *     // ... data to create a MarketplaceScan
+     *   }
+     * })
+     * 
+     */
+    create<T extends MarketplaceScanCreateArgs>(args: SelectSubset<T, MarketplaceScanCreateArgs<ExtArgs>>): Prisma__MarketplaceScanClient<$Result.GetResult<Prisma.$MarketplaceScanPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many MarketplaceScans.
+     * @param {MarketplaceScanCreateManyArgs} args - Arguments to create many MarketplaceScans.
+     * @example
+     * // Create many MarketplaceScans
+     * const marketplaceScan = await prisma.marketplaceScan.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends MarketplaceScanCreateManyArgs>(args?: SelectSubset<T, MarketplaceScanCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a MarketplaceScan.
+     * @param {MarketplaceScanDeleteArgs} args - Arguments to delete one MarketplaceScan.
+     * @example
+     * // Delete one MarketplaceScan
+     * const MarketplaceScan = await prisma.marketplaceScan.delete({
+     *   where: {
+     *     // ... filter to delete one MarketplaceScan
+     *   }
+     * })
+     * 
+     */
+    delete<T extends MarketplaceScanDeleteArgs>(args: SelectSubset<T, MarketplaceScanDeleteArgs<ExtArgs>>): Prisma__MarketplaceScanClient<$Result.GetResult<Prisma.$MarketplaceScanPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one MarketplaceScan.
+     * @param {MarketplaceScanUpdateArgs} args - Arguments to update one MarketplaceScan.
+     * @example
+     * // Update one MarketplaceScan
+     * const marketplaceScan = await prisma.marketplaceScan.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends MarketplaceScanUpdateArgs>(args: SelectSubset<T, MarketplaceScanUpdateArgs<ExtArgs>>): Prisma__MarketplaceScanClient<$Result.GetResult<Prisma.$MarketplaceScanPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more MarketplaceScans.
+     * @param {MarketplaceScanDeleteManyArgs} args - Arguments to filter MarketplaceScans to delete.
+     * @example
+     * // Delete a few MarketplaceScans
+     * const { count } = await prisma.marketplaceScan.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends MarketplaceScanDeleteManyArgs>(args?: SelectSubset<T, MarketplaceScanDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more MarketplaceScans.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MarketplaceScanUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many MarketplaceScans
+     * const marketplaceScan = await prisma.marketplaceScan.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends MarketplaceScanUpdateManyArgs>(args: SelectSubset<T, MarketplaceScanUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one MarketplaceScan.
+     * @param {MarketplaceScanUpsertArgs} args - Arguments to update or create a MarketplaceScan.
+     * @example
+     * // Update or create a MarketplaceScan
+     * const marketplaceScan = await prisma.marketplaceScan.upsert({
+     *   create: {
+     *     // ... data to create a MarketplaceScan
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the MarketplaceScan we want to update
+     *   }
+     * })
+     */
+    upsert<T extends MarketplaceScanUpsertArgs>(args: SelectSubset<T, MarketplaceScanUpsertArgs<ExtArgs>>): Prisma__MarketplaceScanClient<$Result.GetResult<Prisma.$MarketplaceScanPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of MarketplaceScans.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MarketplaceScanCountArgs} args - Arguments to filter MarketplaceScans to count.
+     * @example
+     * // Count the number of MarketplaceScans
+     * const count = await prisma.marketplaceScan.count({
+     *   where: {
+     *     // ... the filter for the MarketplaceScans we want to count
+     *   }
+     * })
+    **/
+    count<T extends MarketplaceScanCountArgs>(
+      args?: Subset<T, MarketplaceScanCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], MarketplaceScanCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a MarketplaceScan.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MarketplaceScanAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends MarketplaceScanAggregateArgs>(args: Subset<T, MarketplaceScanAggregateArgs>): Prisma.PrismaPromise<GetMarketplaceScanAggregateType<T>>
+
+    /**
+     * Group by MarketplaceScan.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MarketplaceScanGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends MarketplaceScanGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: MarketplaceScanGroupByArgs['orderBy'] }
+        : { orderBy?: MarketplaceScanGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, MarketplaceScanGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetMarketplaceScanGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the MarketplaceScan model
+   */
+  readonly fields: MarketplaceScanFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for MarketplaceScan.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__MarketplaceScanClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the MarketplaceScan model
+   */
+  interface MarketplaceScanFieldRefs {
+    readonly id: FieldRef<"MarketplaceScan", 'Int'>
+    readonly scanId: FieldRef<"MarketplaceScan", 'String'>
+    readonly stationId: FieldRef<"MarketplaceScan", 'String'>
+    readonly nexsId: FieldRef<"MarketplaceScan", 'String'>
+    readonly timestamp: FieldRef<"MarketplaceScan", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * MarketplaceScan findUnique
+   */
+  export type MarketplaceScanFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MarketplaceScan
+     */
+    select?: MarketplaceScanSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MarketplaceScan
+     */
+    omit?: MarketplaceScanOmit<ExtArgs> | null
+    /**
+     * Filter, which MarketplaceScan to fetch.
+     */
+    where: MarketplaceScanWhereUniqueInput
+  }
+
+  /**
+   * MarketplaceScan findUniqueOrThrow
+   */
+  export type MarketplaceScanFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MarketplaceScan
+     */
+    select?: MarketplaceScanSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MarketplaceScan
+     */
+    omit?: MarketplaceScanOmit<ExtArgs> | null
+    /**
+     * Filter, which MarketplaceScan to fetch.
+     */
+    where: MarketplaceScanWhereUniqueInput
+  }
+
+  /**
+   * MarketplaceScan findFirst
+   */
+  export type MarketplaceScanFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MarketplaceScan
+     */
+    select?: MarketplaceScanSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MarketplaceScan
+     */
+    omit?: MarketplaceScanOmit<ExtArgs> | null
+    /**
+     * Filter, which MarketplaceScan to fetch.
+     */
+    where?: MarketplaceScanWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of MarketplaceScans to fetch.
+     */
+    orderBy?: MarketplaceScanOrderByWithRelationInput | MarketplaceScanOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for MarketplaceScans.
+     */
+    cursor?: MarketplaceScanWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` MarketplaceScans from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` MarketplaceScans.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of MarketplaceScans.
+     */
+    distinct?: MarketplaceScanScalarFieldEnum | MarketplaceScanScalarFieldEnum[]
+  }
+
+  /**
+   * MarketplaceScan findFirstOrThrow
+   */
+  export type MarketplaceScanFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MarketplaceScan
+     */
+    select?: MarketplaceScanSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MarketplaceScan
+     */
+    omit?: MarketplaceScanOmit<ExtArgs> | null
+    /**
+     * Filter, which MarketplaceScan to fetch.
+     */
+    where?: MarketplaceScanWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of MarketplaceScans to fetch.
+     */
+    orderBy?: MarketplaceScanOrderByWithRelationInput | MarketplaceScanOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for MarketplaceScans.
+     */
+    cursor?: MarketplaceScanWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` MarketplaceScans from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` MarketplaceScans.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of MarketplaceScans.
+     */
+    distinct?: MarketplaceScanScalarFieldEnum | MarketplaceScanScalarFieldEnum[]
+  }
+
+  /**
+   * MarketplaceScan findMany
+   */
+  export type MarketplaceScanFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MarketplaceScan
+     */
+    select?: MarketplaceScanSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MarketplaceScan
+     */
+    omit?: MarketplaceScanOmit<ExtArgs> | null
+    /**
+     * Filter, which MarketplaceScans to fetch.
+     */
+    where?: MarketplaceScanWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of MarketplaceScans to fetch.
+     */
+    orderBy?: MarketplaceScanOrderByWithRelationInput | MarketplaceScanOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing MarketplaceScans.
+     */
+    cursor?: MarketplaceScanWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` MarketplaceScans from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` MarketplaceScans.
+     */
+    skip?: number
+    distinct?: MarketplaceScanScalarFieldEnum | MarketplaceScanScalarFieldEnum[]
+  }
+
+  /**
+   * MarketplaceScan create
+   */
+  export type MarketplaceScanCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MarketplaceScan
+     */
+    select?: MarketplaceScanSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MarketplaceScan
+     */
+    omit?: MarketplaceScanOmit<ExtArgs> | null
+    /**
+     * The data needed to create a MarketplaceScan.
+     */
+    data: XOR<MarketplaceScanCreateInput, MarketplaceScanUncheckedCreateInput>
+  }
+
+  /**
+   * MarketplaceScan createMany
+   */
+  export type MarketplaceScanCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many MarketplaceScans.
+     */
+    data: MarketplaceScanCreateManyInput | MarketplaceScanCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * MarketplaceScan update
+   */
+  export type MarketplaceScanUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MarketplaceScan
+     */
+    select?: MarketplaceScanSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MarketplaceScan
+     */
+    omit?: MarketplaceScanOmit<ExtArgs> | null
+    /**
+     * The data needed to update a MarketplaceScan.
+     */
+    data: XOR<MarketplaceScanUpdateInput, MarketplaceScanUncheckedUpdateInput>
+    /**
+     * Choose, which MarketplaceScan to update.
+     */
+    where: MarketplaceScanWhereUniqueInput
+  }
+
+  /**
+   * MarketplaceScan updateMany
+   */
+  export type MarketplaceScanUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update MarketplaceScans.
+     */
+    data: XOR<MarketplaceScanUpdateManyMutationInput, MarketplaceScanUncheckedUpdateManyInput>
+    /**
+     * Filter which MarketplaceScans to update
+     */
+    where?: MarketplaceScanWhereInput
+    /**
+     * Limit how many MarketplaceScans to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * MarketplaceScan upsert
+   */
+  export type MarketplaceScanUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MarketplaceScan
+     */
+    select?: MarketplaceScanSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MarketplaceScan
+     */
+    omit?: MarketplaceScanOmit<ExtArgs> | null
+    /**
+     * The filter to search for the MarketplaceScan to update in case it exists.
+     */
+    where: MarketplaceScanWhereUniqueInput
+    /**
+     * In case the MarketplaceScan found by the `where` argument doesn't exist, create a new MarketplaceScan with this data.
+     */
+    create: XOR<MarketplaceScanCreateInput, MarketplaceScanUncheckedCreateInput>
+    /**
+     * In case the MarketplaceScan was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<MarketplaceScanUpdateInput, MarketplaceScanUncheckedUpdateInput>
+  }
+
+  /**
+   * MarketplaceScan delete
+   */
+  export type MarketplaceScanDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MarketplaceScan
+     */
+    select?: MarketplaceScanSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MarketplaceScan
+     */
+    omit?: MarketplaceScanOmit<ExtArgs> | null
+    /**
+     * Filter which MarketplaceScan to delete.
+     */
+    where: MarketplaceScanWhereUniqueInput
+  }
+
+  /**
+   * MarketplaceScan deleteMany
+   */
+  export type MarketplaceScanDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which MarketplaceScans to delete
+     */
+    where?: MarketplaceScanWhereInput
+    /**
+     * Limit how many MarketplaceScans to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * MarketplaceScan without action
+   */
+  export type MarketplaceScanDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MarketplaceScan
+     */
+    select?: MarketplaceScanSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MarketplaceScan
+     */
+    omit?: MarketplaceScanOmit<ExtArgs> | null
   }
 
 
@@ -18491,10 +19739,14 @@ export namespace Prisma {
 
   export type ScannedBarcodeInventoryAvgAggregateOutputType = {
     id: number | null
+    toteNumber: number | null
+    partition: number | null
   }
 
   export type ScannedBarcodeInventorySumAggregateOutputType = {
     id: bigint | null
+    toteNumber: number | null
+    partition: number | null
   }
 
   export type ScannedBarcodeInventoryMinAggregateOutputType = {
@@ -18506,6 +19758,10 @@ export namespace Prisma {
     availability: string | null
     scanLocation: string | null
     nexsLocation: string | null
+    toteId: string | null
+    toteSimplified: string | null
+    toteNumber: number | null
+    partition: number | null
     scannedAt: Date | null
   }
 
@@ -18518,6 +19774,10 @@ export namespace Prisma {
     availability: string | null
     scanLocation: string | null
     nexsLocation: string | null
+    toteId: string | null
+    toteSimplified: string | null
+    toteNumber: number | null
+    partition: number | null
     scannedAt: Date | null
   }
 
@@ -18530,6 +19790,10 @@ export namespace Prisma {
     availability: number
     scanLocation: number
     nexsLocation: number
+    toteId: number
+    toteSimplified: number
+    toteNumber: number
+    partition: number
     scannedAt: number
     _all: number
   }
@@ -18537,10 +19801,14 @@ export namespace Prisma {
 
   export type ScannedBarcodeInventoryAvgAggregateInputType = {
     id?: true
+    toteNumber?: true
+    partition?: true
   }
 
   export type ScannedBarcodeInventorySumAggregateInputType = {
     id?: true
+    toteNumber?: true
+    partition?: true
   }
 
   export type ScannedBarcodeInventoryMinAggregateInputType = {
@@ -18552,6 +19820,10 @@ export namespace Prisma {
     availability?: true
     scanLocation?: true
     nexsLocation?: true
+    toteId?: true
+    toteSimplified?: true
+    toteNumber?: true
+    partition?: true
     scannedAt?: true
   }
 
@@ -18564,6 +19836,10 @@ export namespace Prisma {
     availability?: true
     scanLocation?: true
     nexsLocation?: true
+    toteId?: true
+    toteSimplified?: true
+    toteNumber?: true
+    partition?: true
     scannedAt?: true
   }
 
@@ -18576,6 +19852,10 @@ export namespace Prisma {
     availability?: true
     scanLocation?: true
     nexsLocation?: true
+    toteId?: true
+    toteSimplified?: true
+    toteNumber?: true
+    partition?: true
     scannedAt?: true
     _all?: true
   }
@@ -18675,6 +19955,10 @@ export namespace Prisma {
     availability: string | null
     scanLocation: string
     nexsLocation: string | null
+    toteId: string | null
+    toteSimplified: string | null
+    toteNumber: number | null
+    partition: number | null
     scannedAt: Date
     _count: ScannedBarcodeInventoryCountAggregateOutputType | null
     _avg: ScannedBarcodeInventoryAvgAggregateOutputType | null
@@ -18706,6 +19990,10 @@ export namespace Prisma {
     availability?: boolean
     scanLocation?: boolean
     nexsLocation?: boolean
+    toteId?: boolean
+    toteSimplified?: boolean
+    toteNumber?: boolean
+    partition?: boolean
     scannedAt?: boolean
   }, ExtArgs["result"]["scannedBarcodeInventory"]>
 
@@ -18720,10 +20008,14 @@ export namespace Prisma {
     availability?: boolean
     scanLocation?: boolean
     nexsLocation?: boolean
+    toteId?: boolean
+    toteSimplified?: boolean
+    toteNumber?: boolean
+    partition?: boolean
     scannedAt?: boolean
   }
 
-  export type ScannedBarcodeInventoryOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "pid" | "barcode" | "status" | "condition" | "availability" | "scanLocation" | "nexsLocation" | "scannedAt", ExtArgs["result"]["scannedBarcodeInventory"]>
+  export type ScannedBarcodeInventoryOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "pid" | "barcode" | "status" | "condition" | "availability" | "scanLocation" | "nexsLocation" | "toteId" | "toteSimplified" | "toteNumber" | "partition" | "scannedAt", ExtArgs["result"]["scannedBarcodeInventory"]>
 
   export type $ScannedBarcodeInventoryPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "ScannedBarcodeInventory"
@@ -18737,6 +20029,10 @@ export namespace Prisma {
       availability: string | null
       scanLocation: string
       nexsLocation: string | null
+      toteId: string | null
+      toteSimplified: string | null
+      toteNumber: number | null
+      partition: number | null
       scannedAt: Date
     }, ExtArgs["result"]["scannedBarcodeInventory"]>
     composites: {}
@@ -19115,6 +20411,10 @@ export namespace Prisma {
     readonly availability: FieldRef<"ScannedBarcodeInventory", 'String'>
     readonly scanLocation: FieldRef<"ScannedBarcodeInventory", 'String'>
     readonly nexsLocation: FieldRef<"ScannedBarcodeInventory", 'String'>
+    readonly toteId: FieldRef<"ScannedBarcodeInventory", 'String'>
+    readonly toteSimplified: FieldRef<"ScannedBarcodeInventory", 'String'>
+    readonly toteNumber: FieldRef<"ScannedBarcodeInventory", 'Int'>
+    readonly partition: FieldRef<"ScannedBarcodeInventory", 'Int'>
     readonly scannedAt: FieldRef<"ScannedBarcodeInventory", 'DateTime'>
   }
     
@@ -19434,6 +20734,2986 @@ export namespace Prisma {
      * Omit specific fields from the ScannedBarcodeInventory
      */
     omit?: ScannedBarcodeInventoryOmit<ExtArgs> | null
+  }
+
+
+  /**
+   * Model PidHunterScan
+   */
+
+  export type AggregatePidHunterScan = {
+    _count: PidHunterScanCountAggregateOutputType | null
+    _avg: PidHunterScanAvgAggregateOutputType | null
+    _sum: PidHunterScanSumAggregateOutputType | null
+    _min: PidHunterScanMinAggregateOutputType | null
+    _max: PidHunterScanMaxAggregateOutputType | null
+  }
+
+  export type PidHunterScanAvgAggregateOutputType = {
+    id: number | null
+    toteNumber: number | null
+    partition: number | null
+    totalOperations: number | null
+  }
+
+  export type PidHunterScanSumAggregateOutputType = {
+    id: bigint | null
+    toteNumber: number | null
+    partition: number | null
+    totalOperations: number | null
+  }
+
+  export type PidHunterScanMinAggregateOutputType = {
+    id: bigint | null
+    pid: string | null
+    barcode: string | null
+    status: string | null
+    condition: string | null
+    availability: string | null
+    nexsLocation: string | null
+    currentLocation: string | null
+    rawLocation: string | null
+    toteId: string | null
+    toteNumber: number | null
+    partition: number | null
+    bucket: string | null
+    binName: string | null
+    mode: string | null
+    operation: string | null
+    actionId: string | null
+    updatedAtNexs: string | null
+    totalOperations: number | null
+    rawScan: string | null
+    compacted: boolean | null
+    compactedFrom: string | null
+    sourceKey: string | null
+    scannedAt: Date | null
+    createdAt: Date | null
+  }
+
+  export type PidHunterScanMaxAggregateOutputType = {
+    id: bigint | null
+    pid: string | null
+    barcode: string | null
+    status: string | null
+    condition: string | null
+    availability: string | null
+    nexsLocation: string | null
+    currentLocation: string | null
+    rawLocation: string | null
+    toteId: string | null
+    toteNumber: number | null
+    partition: number | null
+    bucket: string | null
+    binName: string | null
+    mode: string | null
+    operation: string | null
+    actionId: string | null
+    updatedAtNexs: string | null
+    totalOperations: number | null
+    rawScan: string | null
+    compacted: boolean | null
+    compactedFrom: string | null
+    sourceKey: string | null
+    scannedAt: Date | null
+    createdAt: Date | null
+  }
+
+  export type PidHunterScanCountAggregateOutputType = {
+    id: number
+    pid: number
+    barcode: number
+    status: number
+    condition: number
+    availability: number
+    nexsLocation: number
+    currentLocation: number
+    rawLocation: number
+    toteId: number
+    toteNumber: number
+    partition: number
+    bucket: number
+    binName: number
+    mode: number
+    operation: number
+    actionId: number
+    updatedAtNexs: number
+    totalOperations: number
+    rawScan: number
+    compacted: number
+    compactedFrom: number
+    sourceKey: number
+    scannedAt: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type PidHunterScanAvgAggregateInputType = {
+    id?: true
+    toteNumber?: true
+    partition?: true
+    totalOperations?: true
+  }
+
+  export type PidHunterScanSumAggregateInputType = {
+    id?: true
+    toteNumber?: true
+    partition?: true
+    totalOperations?: true
+  }
+
+  export type PidHunterScanMinAggregateInputType = {
+    id?: true
+    pid?: true
+    barcode?: true
+    status?: true
+    condition?: true
+    availability?: true
+    nexsLocation?: true
+    currentLocation?: true
+    rawLocation?: true
+    toteId?: true
+    toteNumber?: true
+    partition?: true
+    bucket?: true
+    binName?: true
+    mode?: true
+    operation?: true
+    actionId?: true
+    updatedAtNexs?: true
+    totalOperations?: true
+    rawScan?: true
+    compacted?: true
+    compactedFrom?: true
+    sourceKey?: true
+    scannedAt?: true
+    createdAt?: true
+  }
+
+  export type PidHunterScanMaxAggregateInputType = {
+    id?: true
+    pid?: true
+    barcode?: true
+    status?: true
+    condition?: true
+    availability?: true
+    nexsLocation?: true
+    currentLocation?: true
+    rawLocation?: true
+    toteId?: true
+    toteNumber?: true
+    partition?: true
+    bucket?: true
+    binName?: true
+    mode?: true
+    operation?: true
+    actionId?: true
+    updatedAtNexs?: true
+    totalOperations?: true
+    rawScan?: true
+    compacted?: true
+    compactedFrom?: true
+    sourceKey?: true
+    scannedAt?: true
+    createdAt?: true
+  }
+
+  export type PidHunterScanCountAggregateInputType = {
+    id?: true
+    pid?: true
+    barcode?: true
+    status?: true
+    condition?: true
+    availability?: true
+    nexsLocation?: true
+    currentLocation?: true
+    rawLocation?: true
+    toteId?: true
+    toteNumber?: true
+    partition?: true
+    bucket?: true
+    binName?: true
+    mode?: true
+    operation?: true
+    actionId?: true
+    updatedAtNexs?: true
+    totalOperations?: true
+    rawScan?: true
+    compacted?: true
+    compactedFrom?: true
+    sourceKey?: true
+    scannedAt?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type PidHunterScanAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which PidHunterScan to aggregate.
+     */
+    where?: PidHunterScanWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PidHunterScans to fetch.
+     */
+    orderBy?: PidHunterScanOrderByWithRelationInput | PidHunterScanOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: PidHunterScanWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PidHunterScans from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PidHunterScans.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned PidHunterScans
+    **/
+    _count?: true | PidHunterScanCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: PidHunterScanAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: PidHunterScanSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: PidHunterScanMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: PidHunterScanMaxAggregateInputType
+  }
+
+  export type GetPidHunterScanAggregateType<T extends PidHunterScanAggregateArgs> = {
+        [P in keyof T & keyof AggregatePidHunterScan]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregatePidHunterScan[P]>
+      : GetScalarType<T[P], AggregatePidHunterScan[P]>
+  }
+
+
+
+
+  export type PidHunterScanGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: PidHunterScanWhereInput
+    orderBy?: PidHunterScanOrderByWithAggregationInput | PidHunterScanOrderByWithAggregationInput[]
+    by: PidHunterScanScalarFieldEnum[] | PidHunterScanScalarFieldEnum
+    having?: PidHunterScanScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: PidHunterScanCountAggregateInputType | true
+    _avg?: PidHunterScanAvgAggregateInputType
+    _sum?: PidHunterScanSumAggregateInputType
+    _min?: PidHunterScanMinAggregateInputType
+    _max?: PidHunterScanMaxAggregateInputType
+  }
+
+  export type PidHunterScanGroupByOutputType = {
+    id: bigint
+    pid: string
+    barcode: string
+    status: string | null
+    condition: string | null
+    availability: string | null
+    nexsLocation: string | null
+    currentLocation: string
+    rawLocation: string | null
+    toteId: string | null
+    toteNumber: number | null
+    partition: number | null
+    bucket: string
+    binName: string | null
+    mode: string
+    operation: string | null
+    actionId: string | null
+    updatedAtNexs: string | null
+    totalOperations: number | null
+    rawScan: string | null
+    compacted: boolean
+    compactedFrom: string | null
+    sourceKey: string | null
+    scannedAt: Date
+    createdAt: Date
+    _count: PidHunterScanCountAggregateOutputType | null
+    _avg: PidHunterScanAvgAggregateOutputType | null
+    _sum: PidHunterScanSumAggregateOutputType | null
+    _min: PidHunterScanMinAggregateOutputType | null
+    _max: PidHunterScanMaxAggregateOutputType | null
+  }
+
+  type GetPidHunterScanGroupByPayload<T extends PidHunterScanGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<PidHunterScanGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof PidHunterScanGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], PidHunterScanGroupByOutputType[P]>
+            : GetScalarType<T[P], PidHunterScanGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type PidHunterScanSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    pid?: boolean
+    barcode?: boolean
+    status?: boolean
+    condition?: boolean
+    availability?: boolean
+    nexsLocation?: boolean
+    currentLocation?: boolean
+    rawLocation?: boolean
+    toteId?: boolean
+    toteNumber?: boolean
+    partition?: boolean
+    bucket?: boolean
+    binName?: boolean
+    mode?: boolean
+    operation?: boolean
+    actionId?: boolean
+    updatedAtNexs?: boolean
+    totalOperations?: boolean
+    rawScan?: boolean
+    compacted?: boolean
+    compactedFrom?: boolean
+    sourceKey?: boolean
+    scannedAt?: boolean
+    createdAt?: boolean
+  }, ExtArgs["result"]["pidHunterScan"]>
+
+
+
+  export type PidHunterScanSelectScalar = {
+    id?: boolean
+    pid?: boolean
+    barcode?: boolean
+    status?: boolean
+    condition?: boolean
+    availability?: boolean
+    nexsLocation?: boolean
+    currentLocation?: boolean
+    rawLocation?: boolean
+    toteId?: boolean
+    toteNumber?: boolean
+    partition?: boolean
+    bucket?: boolean
+    binName?: boolean
+    mode?: boolean
+    operation?: boolean
+    actionId?: boolean
+    updatedAtNexs?: boolean
+    totalOperations?: boolean
+    rawScan?: boolean
+    compacted?: boolean
+    compactedFrom?: boolean
+    sourceKey?: boolean
+    scannedAt?: boolean
+    createdAt?: boolean
+  }
+
+  export type PidHunterScanOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "pid" | "barcode" | "status" | "condition" | "availability" | "nexsLocation" | "currentLocation" | "rawLocation" | "toteId" | "toteNumber" | "partition" | "bucket" | "binName" | "mode" | "operation" | "actionId" | "updatedAtNexs" | "totalOperations" | "rawScan" | "compacted" | "compactedFrom" | "sourceKey" | "scannedAt" | "createdAt", ExtArgs["result"]["pidHunterScan"]>
+
+  export type $PidHunterScanPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "PidHunterScan"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: bigint
+      pid: string
+      barcode: string
+      status: string | null
+      condition: string | null
+      availability: string | null
+      nexsLocation: string | null
+      currentLocation: string
+      rawLocation: string | null
+      toteId: string | null
+      toteNumber: number | null
+      partition: number | null
+      bucket: string
+      binName: string | null
+      mode: string
+      operation: string | null
+      actionId: string | null
+      updatedAtNexs: string | null
+      totalOperations: number | null
+      rawScan: string | null
+      compacted: boolean
+      compactedFrom: string | null
+      sourceKey: string | null
+      scannedAt: Date
+      createdAt: Date
+    }, ExtArgs["result"]["pidHunterScan"]>
+    composites: {}
+  }
+
+  type PidHunterScanGetPayload<S extends boolean | null | undefined | PidHunterScanDefaultArgs> = $Result.GetResult<Prisma.$PidHunterScanPayload, S>
+
+  type PidHunterScanCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<PidHunterScanFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: PidHunterScanCountAggregateInputType | true
+    }
+
+  export interface PidHunterScanDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['PidHunterScan'], meta: { name: 'PidHunterScan' } }
+    /**
+     * Find zero or one PidHunterScan that matches the filter.
+     * @param {PidHunterScanFindUniqueArgs} args - Arguments to find a PidHunterScan
+     * @example
+     * // Get one PidHunterScan
+     * const pidHunterScan = await prisma.pidHunterScan.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends PidHunterScanFindUniqueArgs>(args: SelectSubset<T, PidHunterScanFindUniqueArgs<ExtArgs>>): Prisma__PidHunterScanClient<$Result.GetResult<Prisma.$PidHunterScanPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one PidHunterScan that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {PidHunterScanFindUniqueOrThrowArgs} args - Arguments to find a PidHunterScan
+     * @example
+     * // Get one PidHunterScan
+     * const pidHunterScan = await prisma.pidHunterScan.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends PidHunterScanFindUniqueOrThrowArgs>(args: SelectSubset<T, PidHunterScanFindUniqueOrThrowArgs<ExtArgs>>): Prisma__PidHunterScanClient<$Result.GetResult<Prisma.$PidHunterScanPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first PidHunterScan that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PidHunterScanFindFirstArgs} args - Arguments to find a PidHunterScan
+     * @example
+     * // Get one PidHunterScan
+     * const pidHunterScan = await prisma.pidHunterScan.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends PidHunterScanFindFirstArgs>(args?: SelectSubset<T, PidHunterScanFindFirstArgs<ExtArgs>>): Prisma__PidHunterScanClient<$Result.GetResult<Prisma.$PidHunterScanPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first PidHunterScan that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PidHunterScanFindFirstOrThrowArgs} args - Arguments to find a PidHunterScan
+     * @example
+     * // Get one PidHunterScan
+     * const pidHunterScan = await prisma.pidHunterScan.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends PidHunterScanFindFirstOrThrowArgs>(args?: SelectSubset<T, PidHunterScanFindFirstOrThrowArgs<ExtArgs>>): Prisma__PidHunterScanClient<$Result.GetResult<Prisma.$PidHunterScanPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more PidHunterScans that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PidHunterScanFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all PidHunterScans
+     * const pidHunterScans = await prisma.pidHunterScan.findMany()
+     * 
+     * // Get first 10 PidHunterScans
+     * const pidHunterScans = await prisma.pidHunterScan.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const pidHunterScanWithIdOnly = await prisma.pidHunterScan.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends PidHunterScanFindManyArgs>(args?: SelectSubset<T, PidHunterScanFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PidHunterScanPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a PidHunterScan.
+     * @param {PidHunterScanCreateArgs} args - Arguments to create a PidHunterScan.
+     * @example
+     * // Create one PidHunterScan
+     * const PidHunterScan = await prisma.pidHunterScan.create({
+     *   data: {
+     *     // ... data to create a PidHunterScan
+     *   }
+     * })
+     * 
+     */
+    create<T extends PidHunterScanCreateArgs>(args: SelectSubset<T, PidHunterScanCreateArgs<ExtArgs>>): Prisma__PidHunterScanClient<$Result.GetResult<Prisma.$PidHunterScanPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many PidHunterScans.
+     * @param {PidHunterScanCreateManyArgs} args - Arguments to create many PidHunterScans.
+     * @example
+     * // Create many PidHunterScans
+     * const pidHunterScan = await prisma.pidHunterScan.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends PidHunterScanCreateManyArgs>(args?: SelectSubset<T, PidHunterScanCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a PidHunterScan.
+     * @param {PidHunterScanDeleteArgs} args - Arguments to delete one PidHunterScan.
+     * @example
+     * // Delete one PidHunterScan
+     * const PidHunterScan = await prisma.pidHunterScan.delete({
+     *   where: {
+     *     // ... filter to delete one PidHunterScan
+     *   }
+     * })
+     * 
+     */
+    delete<T extends PidHunterScanDeleteArgs>(args: SelectSubset<T, PidHunterScanDeleteArgs<ExtArgs>>): Prisma__PidHunterScanClient<$Result.GetResult<Prisma.$PidHunterScanPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one PidHunterScan.
+     * @param {PidHunterScanUpdateArgs} args - Arguments to update one PidHunterScan.
+     * @example
+     * // Update one PidHunterScan
+     * const pidHunterScan = await prisma.pidHunterScan.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends PidHunterScanUpdateArgs>(args: SelectSubset<T, PidHunterScanUpdateArgs<ExtArgs>>): Prisma__PidHunterScanClient<$Result.GetResult<Prisma.$PidHunterScanPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more PidHunterScans.
+     * @param {PidHunterScanDeleteManyArgs} args - Arguments to filter PidHunterScans to delete.
+     * @example
+     * // Delete a few PidHunterScans
+     * const { count } = await prisma.pidHunterScan.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends PidHunterScanDeleteManyArgs>(args?: SelectSubset<T, PidHunterScanDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more PidHunterScans.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PidHunterScanUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many PidHunterScans
+     * const pidHunterScan = await prisma.pidHunterScan.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends PidHunterScanUpdateManyArgs>(args: SelectSubset<T, PidHunterScanUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one PidHunterScan.
+     * @param {PidHunterScanUpsertArgs} args - Arguments to update or create a PidHunterScan.
+     * @example
+     * // Update or create a PidHunterScan
+     * const pidHunterScan = await prisma.pidHunterScan.upsert({
+     *   create: {
+     *     // ... data to create a PidHunterScan
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the PidHunterScan we want to update
+     *   }
+     * })
+     */
+    upsert<T extends PidHunterScanUpsertArgs>(args: SelectSubset<T, PidHunterScanUpsertArgs<ExtArgs>>): Prisma__PidHunterScanClient<$Result.GetResult<Prisma.$PidHunterScanPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of PidHunterScans.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PidHunterScanCountArgs} args - Arguments to filter PidHunterScans to count.
+     * @example
+     * // Count the number of PidHunterScans
+     * const count = await prisma.pidHunterScan.count({
+     *   where: {
+     *     // ... the filter for the PidHunterScans we want to count
+     *   }
+     * })
+    **/
+    count<T extends PidHunterScanCountArgs>(
+      args?: Subset<T, PidHunterScanCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], PidHunterScanCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a PidHunterScan.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PidHunterScanAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends PidHunterScanAggregateArgs>(args: Subset<T, PidHunterScanAggregateArgs>): Prisma.PrismaPromise<GetPidHunterScanAggregateType<T>>
+
+    /**
+     * Group by PidHunterScan.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PidHunterScanGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends PidHunterScanGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: PidHunterScanGroupByArgs['orderBy'] }
+        : { orderBy?: PidHunterScanGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, PidHunterScanGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetPidHunterScanGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the PidHunterScan model
+   */
+  readonly fields: PidHunterScanFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for PidHunterScan.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__PidHunterScanClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the PidHunterScan model
+   */
+  interface PidHunterScanFieldRefs {
+    readonly id: FieldRef<"PidHunterScan", 'BigInt'>
+    readonly pid: FieldRef<"PidHunterScan", 'String'>
+    readonly barcode: FieldRef<"PidHunterScan", 'String'>
+    readonly status: FieldRef<"PidHunterScan", 'String'>
+    readonly condition: FieldRef<"PidHunterScan", 'String'>
+    readonly availability: FieldRef<"PidHunterScan", 'String'>
+    readonly nexsLocation: FieldRef<"PidHunterScan", 'String'>
+    readonly currentLocation: FieldRef<"PidHunterScan", 'String'>
+    readonly rawLocation: FieldRef<"PidHunterScan", 'String'>
+    readonly toteId: FieldRef<"PidHunterScan", 'String'>
+    readonly toteNumber: FieldRef<"PidHunterScan", 'Int'>
+    readonly partition: FieldRef<"PidHunterScan", 'Int'>
+    readonly bucket: FieldRef<"PidHunterScan", 'String'>
+    readonly binName: FieldRef<"PidHunterScan", 'String'>
+    readonly mode: FieldRef<"PidHunterScan", 'String'>
+    readonly operation: FieldRef<"PidHunterScan", 'String'>
+    readonly actionId: FieldRef<"PidHunterScan", 'String'>
+    readonly updatedAtNexs: FieldRef<"PidHunterScan", 'String'>
+    readonly totalOperations: FieldRef<"PidHunterScan", 'Int'>
+    readonly rawScan: FieldRef<"PidHunterScan", 'String'>
+    readonly compacted: FieldRef<"PidHunterScan", 'Boolean'>
+    readonly compactedFrom: FieldRef<"PidHunterScan", 'String'>
+    readonly sourceKey: FieldRef<"PidHunterScan", 'String'>
+    readonly scannedAt: FieldRef<"PidHunterScan", 'DateTime'>
+    readonly createdAt: FieldRef<"PidHunterScan", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * PidHunterScan findUnique
+   */
+  export type PidHunterScanFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PidHunterScan
+     */
+    select?: PidHunterScanSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PidHunterScan
+     */
+    omit?: PidHunterScanOmit<ExtArgs> | null
+    /**
+     * Filter, which PidHunterScan to fetch.
+     */
+    where: PidHunterScanWhereUniqueInput
+  }
+
+  /**
+   * PidHunterScan findUniqueOrThrow
+   */
+  export type PidHunterScanFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PidHunterScan
+     */
+    select?: PidHunterScanSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PidHunterScan
+     */
+    omit?: PidHunterScanOmit<ExtArgs> | null
+    /**
+     * Filter, which PidHunterScan to fetch.
+     */
+    where: PidHunterScanWhereUniqueInput
+  }
+
+  /**
+   * PidHunterScan findFirst
+   */
+  export type PidHunterScanFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PidHunterScan
+     */
+    select?: PidHunterScanSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PidHunterScan
+     */
+    omit?: PidHunterScanOmit<ExtArgs> | null
+    /**
+     * Filter, which PidHunterScan to fetch.
+     */
+    where?: PidHunterScanWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PidHunterScans to fetch.
+     */
+    orderBy?: PidHunterScanOrderByWithRelationInput | PidHunterScanOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for PidHunterScans.
+     */
+    cursor?: PidHunterScanWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PidHunterScans from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PidHunterScans.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of PidHunterScans.
+     */
+    distinct?: PidHunterScanScalarFieldEnum | PidHunterScanScalarFieldEnum[]
+  }
+
+  /**
+   * PidHunterScan findFirstOrThrow
+   */
+  export type PidHunterScanFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PidHunterScan
+     */
+    select?: PidHunterScanSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PidHunterScan
+     */
+    omit?: PidHunterScanOmit<ExtArgs> | null
+    /**
+     * Filter, which PidHunterScan to fetch.
+     */
+    where?: PidHunterScanWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PidHunterScans to fetch.
+     */
+    orderBy?: PidHunterScanOrderByWithRelationInput | PidHunterScanOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for PidHunterScans.
+     */
+    cursor?: PidHunterScanWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PidHunterScans from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PidHunterScans.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of PidHunterScans.
+     */
+    distinct?: PidHunterScanScalarFieldEnum | PidHunterScanScalarFieldEnum[]
+  }
+
+  /**
+   * PidHunterScan findMany
+   */
+  export type PidHunterScanFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PidHunterScan
+     */
+    select?: PidHunterScanSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PidHunterScan
+     */
+    omit?: PidHunterScanOmit<ExtArgs> | null
+    /**
+     * Filter, which PidHunterScans to fetch.
+     */
+    where?: PidHunterScanWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PidHunterScans to fetch.
+     */
+    orderBy?: PidHunterScanOrderByWithRelationInput | PidHunterScanOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing PidHunterScans.
+     */
+    cursor?: PidHunterScanWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PidHunterScans from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PidHunterScans.
+     */
+    skip?: number
+    distinct?: PidHunterScanScalarFieldEnum | PidHunterScanScalarFieldEnum[]
+  }
+
+  /**
+   * PidHunterScan create
+   */
+  export type PidHunterScanCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PidHunterScan
+     */
+    select?: PidHunterScanSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PidHunterScan
+     */
+    omit?: PidHunterScanOmit<ExtArgs> | null
+    /**
+     * The data needed to create a PidHunterScan.
+     */
+    data: XOR<PidHunterScanCreateInput, PidHunterScanUncheckedCreateInput>
+  }
+
+  /**
+   * PidHunterScan createMany
+   */
+  export type PidHunterScanCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many PidHunterScans.
+     */
+    data: PidHunterScanCreateManyInput | PidHunterScanCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * PidHunterScan update
+   */
+  export type PidHunterScanUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PidHunterScan
+     */
+    select?: PidHunterScanSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PidHunterScan
+     */
+    omit?: PidHunterScanOmit<ExtArgs> | null
+    /**
+     * The data needed to update a PidHunterScan.
+     */
+    data: XOR<PidHunterScanUpdateInput, PidHunterScanUncheckedUpdateInput>
+    /**
+     * Choose, which PidHunterScan to update.
+     */
+    where: PidHunterScanWhereUniqueInput
+  }
+
+  /**
+   * PidHunterScan updateMany
+   */
+  export type PidHunterScanUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update PidHunterScans.
+     */
+    data: XOR<PidHunterScanUpdateManyMutationInput, PidHunterScanUncheckedUpdateManyInput>
+    /**
+     * Filter which PidHunterScans to update
+     */
+    where?: PidHunterScanWhereInput
+    /**
+     * Limit how many PidHunterScans to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * PidHunterScan upsert
+   */
+  export type PidHunterScanUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PidHunterScan
+     */
+    select?: PidHunterScanSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PidHunterScan
+     */
+    omit?: PidHunterScanOmit<ExtArgs> | null
+    /**
+     * The filter to search for the PidHunterScan to update in case it exists.
+     */
+    where: PidHunterScanWhereUniqueInput
+    /**
+     * In case the PidHunterScan found by the `where` argument doesn't exist, create a new PidHunterScan with this data.
+     */
+    create: XOR<PidHunterScanCreateInput, PidHunterScanUncheckedCreateInput>
+    /**
+     * In case the PidHunterScan was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<PidHunterScanUpdateInput, PidHunterScanUncheckedUpdateInput>
+  }
+
+  /**
+   * PidHunterScan delete
+   */
+  export type PidHunterScanDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PidHunterScan
+     */
+    select?: PidHunterScanSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PidHunterScan
+     */
+    omit?: PidHunterScanOmit<ExtArgs> | null
+    /**
+     * Filter which PidHunterScan to delete.
+     */
+    where: PidHunterScanWhereUniqueInput
+  }
+
+  /**
+   * PidHunterScan deleteMany
+   */
+  export type PidHunterScanDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which PidHunterScans to delete
+     */
+    where?: PidHunterScanWhereInput
+    /**
+     * Limit how many PidHunterScans to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * PidHunterScan without action
+   */
+  export type PidHunterScanDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PidHunterScan
+     */
+    select?: PidHunterScanSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PidHunterScan
+     */
+    omit?: PidHunterScanOmit<ExtArgs> | null
+  }
+
+
+  /**
+   * Model PidHunterTote
+   */
+
+  export type AggregatePidHunterTote = {
+    _count: PidHunterToteCountAggregateOutputType | null
+    _avg: PidHunterToteAvgAggregateOutputType | null
+    _sum: PidHunterToteSumAggregateOutputType | null
+    _min: PidHunterToteMinAggregateOutputType | null
+    _max: PidHunterToteMaxAggregateOutputType | null
+  }
+
+  export type PidHunterToteAvgAggregateOutputType = {
+    toteNumber: number | null
+  }
+
+  export type PidHunterToteSumAggregateOutputType = {
+    toteNumber: number | null
+  }
+
+  export type PidHunterToteMinAggregateOutputType = {
+    toteNumber: number | null
+    toteId: string | null
+    isFree: boolean | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type PidHunterToteMaxAggregateOutputType = {
+    toteNumber: number | null
+    toteId: string | null
+    isFree: boolean | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type PidHunterToteCountAggregateOutputType = {
+    toteNumber: number
+    toteId: number
+    isFree: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type PidHunterToteAvgAggregateInputType = {
+    toteNumber?: true
+  }
+
+  export type PidHunterToteSumAggregateInputType = {
+    toteNumber?: true
+  }
+
+  export type PidHunterToteMinAggregateInputType = {
+    toteNumber?: true
+    toteId?: true
+    isFree?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type PidHunterToteMaxAggregateInputType = {
+    toteNumber?: true
+    toteId?: true
+    isFree?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type PidHunterToteCountAggregateInputType = {
+    toteNumber?: true
+    toteId?: true
+    isFree?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type PidHunterToteAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which PidHunterTote to aggregate.
+     */
+    where?: PidHunterToteWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PidHunterTotes to fetch.
+     */
+    orderBy?: PidHunterToteOrderByWithRelationInput | PidHunterToteOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: PidHunterToteWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PidHunterTotes from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PidHunterTotes.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned PidHunterTotes
+    **/
+    _count?: true | PidHunterToteCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: PidHunterToteAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: PidHunterToteSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: PidHunterToteMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: PidHunterToteMaxAggregateInputType
+  }
+
+  export type GetPidHunterToteAggregateType<T extends PidHunterToteAggregateArgs> = {
+        [P in keyof T & keyof AggregatePidHunterTote]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregatePidHunterTote[P]>
+      : GetScalarType<T[P], AggregatePidHunterTote[P]>
+  }
+
+
+
+
+  export type PidHunterToteGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: PidHunterToteWhereInput
+    orderBy?: PidHunterToteOrderByWithAggregationInput | PidHunterToteOrderByWithAggregationInput[]
+    by: PidHunterToteScalarFieldEnum[] | PidHunterToteScalarFieldEnum
+    having?: PidHunterToteScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: PidHunterToteCountAggregateInputType | true
+    _avg?: PidHunterToteAvgAggregateInputType
+    _sum?: PidHunterToteSumAggregateInputType
+    _min?: PidHunterToteMinAggregateInputType
+    _max?: PidHunterToteMaxAggregateInputType
+  }
+
+  export type PidHunterToteGroupByOutputType = {
+    toteNumber: number
+    toteId: string
+    isFree: boolean
+    createdAt: Date
+    updatedAt: Date
+    _count: PidHunterToteCountAggregateOutputType | null
+    _avg: PidHunterToteAvgAggregateOutputType | null
+    _sum: PidHunterToteSumAggregateOutputType | null
+    _min: PidHunterToteMinAggregateOutputType | null
+    _max: PidHunterToteMaxAggregateOutputType | null
+  }
+
+  type GetPidHunterToteGroupByPayload<T extends PidHunterToteGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<PidHunterToteGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof PidHunterToteGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], PidHunterToteGroupByOutputType[P]>
+            : GetScalarType<T[P], PidHunterToteGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type PidHunterToteSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    toteNumber?: boolean
+    toteId?: boolean
+    isFree?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["pidHunterTote"]>
+
+
+
+  export type PidHunterToteSelectScalar = {
+    toteNumber?: boolean
+    toteId?: boolean
+    isFree?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type PidHunterToteOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"toteNumber" | "toteId" | "isFree" | "createdAt" | "updatedAt", ExtArgs["result"]["pidHunterTote"]>
+
+  export type $PidHunterTotePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "PidHunterTote"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      toteNumber: number
+      toteId: string
+      isFree: boolean
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["pidHunterTote"]>
+    composites: {}
+  }
+
+  type PidHunterToteGetPayload<S extends boolean | null | undefined | PidHunterToteDefaultArgs> = $Result.GetResult<Prisma.$PidHunterTotePayload, S>
+
+  type PidHunterToteCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<PidHunterToteFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: PidHunterToteCountAggregateInputType | true
+    }
+
+  export interface PidHunterToteDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['PidHunterTote'], meta: { name: 'PidHunterTote' } }
+    /**
+     * Find zero or one PidHunterTote that matches the filter.
+     * @param {PidHunterToteFindUniqueArgs} args - Arguments to find a PidHunterTote
+     * @example
+     * // Get one PidHunterTote
+     * const pidHunterTote = await prisma.pidHunterTote.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends PidHunterToteFindUniqueArgs>(args: SelectSubset<T, PidHunterToteFindUniqueArgs<ExtArgs>>): Prisma__PidHunterToteClient<$Result.GetResult<Prisma.$PidHunterTotePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one PidHunterTote that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {PidHunterToteFindUniqueOrThrowArgs} args - Arguments to find a PidHunterTote
+     * @example
+     * // Get one PidHunterTote
+     * const pidHunterTote = await prisma.pidHunterTote.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends PidHunterToteFindUniqueOrThrowArgs>(args: SelectSubset<T, PidHunterToteFindUniqueOrThrowArgs<ExtArgs>>): Prisma__PidHunterToteClient<$Result.GetResult<Prisma.$PidHunterTotePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first PidHunterTote that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PidHunterToteFindFirstArgs} args - Arguments to find a PidHunterTote
+     * @example
+     * // Get one PidHunterTote
+     * const pidHunterTote = await prisma.pidHunterTote.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends PidHunterToteFindFirstArgs>(args?: SelectSubset<T, PidHunterToteFindFirstArgs<ExtArgs>>): Prisma__PidHunterToteClient<$Result.GetResult<Prisma.$PidHunterTotePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first PidHunterTote that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PidHunterToteFindFirstOrThrowArgs} args - Arguments to find a PidHunterTote
+     * @example
+     * // Get one PidHunterTote
+     * const pidHunterTote = await prisma.pidHunterTote.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends PidHunterToteFindFirstOrThrowArgs>(args?: SelectSubset<T, PidHunterToteFindFirstOrThrowArgs<ExtArgs>>): Prisma__PidHunterToteClient<$Result.GetResult<Prisma.$PidHunterTotePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more PidHunterTotes that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PidHunterToteFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all PidHunterTotes
+     * const pidHunterTotes = await prisma.pidHunterTote.findMany()
+     * 
+     * // Get first 10 PidHunterTotes
+     * const pidHunterTotes = await prisma.pidHunterTote.findMany({ take: 10 })
+     * 
+     * // Only select the `toteNumber`
+     * const pidHunterToteWithToteNumberOnly = await prisma.pidHunterTote.findMany({ select: { toteNumber: true } })
+     * 
+     */
+    findMany<T extends PidHunterToteFindManyArgs>(args?: SelectSubset<T, PidHunterToteFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PidHunterTotePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a PidHunterTote.
+     * @param {PidHunterToteCreateArgs} args - Arguments to create a PidHunterTote.
+     * @example
+     * // Create one PidHunterTote
+     * const PidHunterTote = await prisma.pidHunterTote.create({
+     *   data: {
+     *     // ... data to create a PidHunterTote
+     *   }
+     * })
+     * 
+     */
+    create<T extends PidHunterToteCreateArgs>(args: SelectSubset<T, PidHunterToteCreateArgs<ExtArgs>>): Prisma__PidHunterToteClient<$Result.GetResult<Prisma.$PidHunterTotePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many PidHunterTotes.
+     * @param {PidHunterToteCreateManyArgs} args - Arguments to create many PidHunterTotes.
+     * @example
+     * // Create many PidHunterTotes
+     * const pidHunterTote = await prisma.pidHunterTote.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends PidHunterToteCreateManyArgs>(args?: SelectSubset<T, PidHunterToteCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a PidHunterTote.
+     * @param {PidHunterToteDeleteArgs} args - Arguments to delete one PidHunterTote.
+     * @example
+     * // Delete one PidHunterTote
+     * const PidHunterTote = await prisma.pidHunterTote.delete({
+     *   where: {
+     *     // ... filter to delete one PidHunterTote
+     *   }
+     * })
+     * 
+     */
+    delete<T extends PidHunterToteDeleteArgs>(args: SelectSubset<T, PidHunterToteDeleteArgs<ExtArgs>>): Prisma__PidHunterToteClient<$Result.GetResult<Prisma.$PidHunterTotePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one PidHunterTote.
+     * @param {PidHunterToteUpdateArgs} args - Arguments to update one PidHunterTote.
+     * @example
+     * // Update one PidHunterTote
+     * const pidHunterTote = await prisma.pidHunterTote.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends PidHunterToteUpdateArgs>(args: SelectSubset<T, PidHunterToteUpdateArgs<ExtArgs>>): Prisma__PidHunterToteClient<$Result.GetResult<Prisma.$PidHunterTotePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more PidHunterTotes.
+     * @param {PidHunterToteDeleteManyArgs} args - Arguments to filter PidHunterTotes to delete.
+     * @example
+     * // Delete a few PidHunterTotes
+     * const { count } = await prisma.pidHunterTote.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends PidHunterToteDeleteManyArgs>(args?: SelectSubset<T, PidHunterToteDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more PidHunterTotes.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PidHunterToteUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many PidHunterTotes
+     * const pidHunterTote = await prisma.pidHunterTote.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends PidHunterToteUpdateManyArgs>(args: SelectSubset<T, PidHunterToteUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one PidHunterTote.
+     * @param {PidHunterToteUpsertArgs} args - Arguments to update or create a PidHunterTote.
+     * @example
+     * // Update or create a PidHunterTote
+     * const pidHunterTote = await prisma.pidHunterTote.upsert({
+     *   create: {
+     *     // ... data to create a PidHunterTote
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the PidHunterTote we want to update
+     *   }
+     * })
+     */
+    upsert<T extends PidHunterToteUpsertArgs>(args: SelectSubset<T, PidHunterToteUpsertArgs<ExtArgs>>): Prisma__PidHunterToteClient<$Result.GetResult<Prisma.$PidHunterTotePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of PidHunterTotes.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PidHunterToteCountArgs} args - Arguments to filter PidHunterTotes to count.
+     * @example
+     * // Count the number of PidHunterTotes
+     * const count = await prisma.pidHunterTote.count({
+     *   where: {
+     *     // ... the filter for the PidHunterTotes we want to count
+     *   }
+     * })
+    **/
+    count<T extends PidHunterToteCountArgs>(
+      args?: Subset<T, PidHunterToteCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], PidHunterToteCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a PidHunterTote.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PidHunterToteAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends PidHunterToteAggregateArgs>(args: Subset<T, PidHunterToteAggregateArgs>): Prisma.PrismaPromise<GetPidHunterToteAggregateType<T>>
+
+    /**
+     * Group by PidHunterTote.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PidHunterToteGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends PidHunterToteGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: PidHunterToteGroupByArgs['orderBy'] }
+        : { orderBy?: PidHunterToteGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, PidHunterToteGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetPidHunterToteGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the PidHunterTote model
+   */
+  readonly fields: PidHunterToteFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for PidHunterTote.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__PidHunterToteClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the PidHunterTote model
+   */
+  interface PidHunterToteFieldRefs {
+    readonly toteNumber: FieldRef<"PidHunterTote", 'Int'>
+    readonly toteId: FieldRef<"PidHunterTote", 'String'>
+    readonly isFree: FieldRef<"PidHunterTote", 'Boolean'>
+    readonly createdAt: FieldRef<"PidHunterTote", 'DateTime'>
+    readonly updatedAt: FieldRef<"PidHunterTote", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * PidHunterTote findUnique
+   */
+  export type PidHunterToteFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PidHunterTote
+     */
+    select?: PidHunterToteSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PidHunterTote
+     */
+    omit?: PidHunterToteOmit<ExtArgs> | null
+    /**
+     * Filter, which PidHunterTote to fetch.
+     */
+    where: PidHunterToteWhereUniqueInput
+  }
+
+  /**
+   * PidHunterTote findUniqueOrThrow
+   */
+  export type PidHunterToteFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PidHunterTote
+     */
+    select?: PidHunterToteSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PidHunterTote
+     */
+    omit?: PidHunterToteOmit<ExtArgs> | null
+    /**
+     * Filter, which PidHunterTote to fetch.
+     */
+    where: PidHunterToteWhereUniqueInput
+  }
+
+  /**
+   * PidHunterTote findFirst
+   */
+  export type PidHunterToteFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PidHunterTote
+     */
+    select?: PidHunterToteSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PidHunterTote
+     */
+    omit?: PidHunterToteOmit<ExtArgs> | null
+    /**
+     * Filter, which PidHunterTote to fetch.
+     */
+    where?: PidHunterToteWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PidHunterTotes to fetch.
+     */
+    orderBy?: PidHunterToteOrderByWithRelationInput | PidHunterToteOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for PidHunterTotes.
+     */
+    cursor?: PidHunterToteWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PidHunterTotes from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PidHunterTotes.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of PidHunterTotes.
+     */
+    distinct?: PidHunterToteScalarFieldEnum | PidHunterToteScalarFieldEnum[]
+  }
+
+  /**
+   * PidHunterTote findFirstOrThrow
+   */
+  export type PidHunterToteFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PidHunterTote
+     */
+    select?: PidHunterToteSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PidHunterTote
+     */
+    omit?: PidHunterToteOmit<ExtArgs> | null
+    /**
+     * Filter, which PidHunterTote to fetch.
+     */
+    where?: PidHunterToteWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PidHunterTotes to fetch.
+     */
+    orderBy?: PidHunterToteOrderByWithRelationInput | PidHunterToteOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for PidHunterTotes.
+     */
+    cursor?: PidHunterToteWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PidHunterTotes from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PidHunterTotes.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of PidHunterTotes.
+     */
+    distinct?: PidHunterToteScalarFieldEnum | PidHunterToteScalarFieldEnum[]
+  }
+
+  /**
+   * PidHunterTote findMany
+   */
+  export type PidHunterToteFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PidHunterTote
+     */
+    select?: PidHunterToteSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PidHunterTote
+     */
+    omit?: PidHunterToteOmit<ExtArgs> | null
+    /**
+     * Filter, which PidHunterTotes to fetch.
+     */
+    where?: PidHunterToteWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PidHunterTotes to fetch.
+     */
+    orderBy?: PidHunterToteOrderByWithRelationInput | PidHunterToteOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing PidHunterTotes.
+     */
+    cursor?: PidHunterToteWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PidHunterTotes from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PidHunterTotes.
+     */
+    skip?: number
+    distinct?: PidHunterToteScalarFieldEnum | PidHunterToteScalarFieldEnum[]
+  }
+
+  /**
+   * PidHunterTote create
+   */
+  export type PidHunterToteCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PidHunterTote
+     */
+    select?: PidHunterToteSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PidHunterTote
+     */
+    omit?: PidHunterToteOmit<ExtArgs> | null
+    /**
+     * The data needed to create a PidHunterTote.
+     */
+    data: XOR<PidHunterToteCreateInput, PidHunterToteUncheckedCreateInput>
+  }
+
+  /**
+   * PidHunterTote createMany
+   */
+  export type PidHunterToteCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many PidHunterTotes.
+     */
+    data: PidHunterToteCreateManyInput | PidHunterToteCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * PidHunterTote update
+   */
+  export type PidHunterToteUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PidHunterTote
+     */
+    select?: PidHunterToteSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PidHunterTote
+     */
+    omit?: PidHunterToteOmit<ExtArgs> | null
+    /**
+     * The data needed to update a PidHunterTote.
+     */
+    data: XOR<PidHunterToteUpdateInput, PidHunterToteUncheckedUpdateInput>
+    /**
+     * Choose, which PidHunterTote to update.
+     */
+    where: PidHunterToteWhereUniqueInput
+  }
+
+  /**
+   * PidHunterTote updateMany
+   */
+  export type PidHunterToteUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update PidHunterTotes.
+     */
+    data: XOR<PidHunterToteUpdateManyMutationInput, PidHunterToteUncheckedUpdateManyInput>
+    /**
+     * Filter which PidHunterTotes to update
+     */
+    where?: PidHunterToteWhereInput
+    /**
+     * Limit how many PidHunterTotes to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * PidHunterTote upsert
+   */
+  export type PidHunterToteUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PidHunterTote
+     */
+    select?: PidHunterToteSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PidHunterTote
+     */
+    omit?: PidHunterToteOmit<ExtArgs> | null
+    /**
+     * The filter to search for the PidHunterTote to update in case it exists.
+     */
+    where: PidHunterToteWhereUniqueInput
+    /**
+     * In case the PidHunterTote found by the `where` argument doesn't exist, create a new PidHunterTote with this data.
+     */
+    create: XOR<PidHunterToteCreateInput, PidHunterToteUncheckedCreateInput>
+    /**
+     * In case the PidHunterTote was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<PidHunterToteUpdateInput, PidHunterToteUncheckedUpdateInput>
+  }
+
+  /**
+   * PidHunterTote delete
+   */
+  export type PidHunterToteDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PidHunterTote
+     */
+    select?: PidHunterToteSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PidHunterTote
+     */
+    omit?: PidHunterToteOmit<ExtArgs> | null
+    /**
+     * Filter which PidHunterTote to delete.
+     */
+    where: PidHunterToteWhereUniqueInput
+  }
+
+  /**
+   * PidHunterTote deleteMany
+   */
+  export type PidHunterToteDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which PidHunterTotes to delete
+     */
+    where?: PidHunterToteWhereInput
+    /**
+     * Limit how many PidHunterTotes to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * PidHunterTote without action
+   */
+  export type PidHunterToteDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PidHunterTote
+     */
+    select?: PidHunterToteSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PidHunterTote
+     */
+    omit?: PidHunterToteOmit<ExtArgs> | null
+  }
+
+
+  /**
+   * Model PidHunterToteReservation
+   */
+
+  export type AggregatePidHunterToteReservation = {
+    _count: PidHunterToteReservationCountAggregateOutputType | null
+    _avg: PidHunterToteReservationAvgAggregateOutputType | null
+    _sum: PidHunterToteReservationSumAggregateOutputType | null
+    _min: PidHunterToteReservationMinAggregateOutputType | null
+    _max: PidHunterToteReservationMaxAggregateOutputType | null
+  }
+
+  export type PidHunterToteReservationAvgAggregateOutputType = {
+    toteNumber: number | null
+  }
+
+  export type PidHunterToteReservationSumAggregateOutputType = {
+    toteNumber: number | null
+  }
+
+  export type PidHunterToteReservationMinAggregateOutputType = {
+    toteId: string | null
+    toteNumber: number | null
+    expiresAt: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type PidHunterToteReservationMaxAggregateOutputType = {
+    toteId: string | null
+    toteNumber: number | null
+    expiresAt: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type PidHunterToteReservationCountAggregateOutputType = {
+    toteId: number
+    toteNumber: number
+    expiresAt: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type PidHunterToteReservationAvgAggregateInputType = {
+    toteNumber?: true
+  }
+
+  export type PidHunterToteReservationSumAggregateInputType = {
+    toteNumber?: true
+  }
+
+  export type PidHunterToteReservationMinAggregateInputType = {
+    toteId?: true
+    toteNumber?: true
+    expiresAt?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type PidHunterToteReservationMaxAggregateInputType = {
+    toteId?: true
+    toteNumber?: true
+    expiresAt?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type PidHunterToteReservationCountAggregateInputType = {
+    toteId?: true
+    toteNumber?: true
+    expiresAt?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type PidHunterToteReservationAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which PidHunterToteReservation to aggregate.
+     */
+    where?: PidHunterToteReservationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PidHunterToteReservations to fetch.
+     */
+    orderBy?: PidHunterToteReservationOrderByWithRelationInput | PidHunterToteReservationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: PidHunterToteReservationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PidHunterToteReservations from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PidHunterToteReservations.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned PidHunterToteReservations
+    **/
+    _count?: true | PidHunterToteReservationCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: PidHunterToteReservationAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: PidHunterToteReservationSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: PidHunterToteReservationMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: PidHunterToteReservationMaxAggregateInputType
+  }
+
+  export type GetPidHunterToteReservationAggregateType<T extends PidHunterToteReservationAggregateArgs> = {
+        [P in keyof T & keyof AggregatePidHunterToteReservation]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregatePidHunterToteReservation[P]>
+      : GetScalarType<T[P], AggregatePidHunterToteReservation[P]>
+  }
+
+
+
+
+  export type PidHunterToteReservationGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: PidHunterToteReservationWhereInput
+    orderBy?: PidHunterToteReservationOrderByWithAggregationInput | PidHunterToteReservationOrderByWithAggregationInput[]
+    by: PidHunterToteReservationScalarFieldEnum[] | PidHunterToteReservationScalarFieldEnum
+    having?: PidHunterToteReservationScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: PidHunterToteReservationCountAggregateInputType | true
+    _avg?: PidHunterToteReservationAvgAggregateInputType
+    _sum?: PidHunterToteReservationSumAggregateInputType
+    _min?: PidHunterToteReservationMinAggregateInputType
+    _max?: PidHunterToteReservationMaxAggregateInputType
+  }
+
+  export type PidHunterToteReservationGroupByOutputType = {
+    toteId: string
+    toteNumber: number
+    expiresAt: Date
+    createdAt: Date
+    updatedAt: Date
+    _count: PidHunterToteReservationCountAggregateOutputType | null
+    _avg: PidHunterToteReservationAvgAggregateOutputType | null
+    _sum: PidHunterToteReservationSumAggregateOutputType | null
+    _min: PidHunterToteReservationMinAggregateOutputType | null
+    _max: PidHunterToteReservationMaxAggregateOutputType | null
+  }
+
+  type GetPidHunterToteReservationGroupByPayload<T extends PidHunterToteReservationGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<PidHunterToteReservationGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof PidHunterToteReservationGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], PidHunterToteReservationGroupByOutputType[P]>
+            : GetScalarType<T[P], PidHunterToteReservationGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type PidHunterToteReservationSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    toteId?: boolean
+    toteNumber?: boolean
+    expiresAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["pidHunterToteReservation"]>
+
+
+
+  export type PidHunterToteReservationSelectScalar = {
+    toteId?: boolean
+    toteNumber?: boolean
+    expiresAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type PidHunterToteReservationOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"toteId" | "toteNumber" | "expiresAt" | "createdAt" | "updatedAt", ExtArgs["result"]["pidHunterToteReservation"]>
+
+  export type $PidHunterToteReservationPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "PidHunterToteReservation"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      toteId: string
+      toteNumber: number
+      expiresAt: Date
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["pidHunterToteReservation"]>
+    composites: {}
+  }
+
+  type PidHunterToteReservationGetPayload<S extends boolean | null | undefined | PidHunterToteReservationDefaultArgs> = $Result.GetResult<Prisma.$PidHunterToteReservationPayload, S>
+
+  type PidHunterToteReservationCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<PidHunterToteReservationFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: PidHunterToteReservationCountAggregateInputType | true
+    }
+
+  export interface PidHunterToteReservationDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['PidHunterToteReservation'], meta: { name: 'PidHunterToteReservation' } }
+    /**
+     * Find zero or one PidHunterToteReservation that matches the filter.
+     * @param {PidHunterToteReservationFindUniqueArgs} args - Arguments to find a PidHunterToteReservation
+     * @example
+     * // Get one PidHunterToteReservation
+     * const pidHunterToteReservation = await prisma.pidHunterToteReservation.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends PidHunterToteReservationFindUniqueArgs>(args: SelectSubset<T, PidHunterToteReservationFindUniqueArgs<ExtArgs>>): Prisma__PidHunterToteReservationClient<$Result.GetResult<Prisma.$PidHunterToteReservationPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one PidHunterToteReservation that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {PidHunterToteReservationFindUniqueOrThrowArgs} args - Arguments to find a PidHunterToteReservation
+     * @example
+     * // Get one PidHunterToteReservation
+     * const pidHunterToteReservation = await prisma.pidHunterToteReservation.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends PidHunterToteReservationFindUniqueOrThrowArgs>(args: SelectSubset<T, PidHunterToteReservationFindUniqueOrThrowArgs<ExtArgs>>): Prisma__PidHunterToteReservationClient<$Result.GetResult<Prisma.$PidHunterToteReservationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first PidHunterToteReservation that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PidHunterToteReservationFindFirstArgs} args - Arguments to find a PidHunterToteReservation
+     * @example
+     * // Get one PidHunterToteReservation
+     * const pidHunterToteReservation = await prisma.pidHunterToteReservation.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends PidHunterToteReservationFindFirstArgs>(args?: SelectSubset<T, PidHunterToteReservationFindFirstArgs<ExtArgs>>): Prisma__PidHunterToteReservationClient<$Result.GetResult<Prisma.$PidHunterToteReservationPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first PidHunterToteReservation that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PidHunterToteReservationFindFirstOrThrowArgs} args - Arguments to find a PidHunterToteReservation
+     * @example
+     * // Get one PidHunterToteReservation
+     * const pidHunterToteReservation = await prisma.pidHunterToteReservation.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends PidHunterToteReservationFindFirstOrThrowArgs>(args?: SelectSubset<T, PidHunterToteReservationFindFirstOrThrowArgs<ExtArgs>>): Prisma__PidHunterToteReservationClient<$Result.GetResult<Prisma.$PidHunterToteReservationPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more PidHunterToteReservations that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PidHunterToteReservationFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all PidHunterToteReservations
+     * const pidHunterToteReservations = await prisma.pidHunterToteReservation.findMany()
+     * 
+     * // Get first 10 PidHunterToteReservations
+     * const pidHunterToteReservations = await prisma.pidHunterToteReservation.findMany({ take: 10 })
+     * 
+     * // Only select the `toteId`
+     * const pidHunterToteReservationWithToteIdOnly = await prisma.pidHunterToteReservation.findMany({ select: { toteId: true } })
+     * 
+     */
+    findMany<T extends PidHunterToteReservationFindManyArgs>(args?: SelectSubset<T, PidHunterToteReservationFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PidHunterToteReservationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a PidHunterToteReservation.
+     * @param {PidHunterToteReservationCreateArgs} args - Arguments to create a PidHunterToteReservation.
+     * @example
+     * // Create one PidHunterToteReservation
+     * const PidHunterToteReservation = await prisma.pidHunterToteReservation.create({
+     *   data: {
+     *     // ... data to create a PidHunterToteReservation
+     *   }
+     * })
+     * 
+     */
+    create<T extends PidHunterToteReservationCreateArgs>(args: SelectSubset<T, PidHunterToteReservationCreateArgs<ExtArgs>>): Prisma__PidHunterToteReservationClient<$Result.GetResult<Prisma.$PidHunterToteReservationPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many PidHunterToteReservations.
+     * @param {PidHunterToteReservationCreateManyArgs} args - Arguments to create many PidHunterToteReservations.
+     * @example
+     * // Create many PidHunterToteReservations
+     * const pidHunterToteReservation = await prisma.pidHunterToteReservation.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends PidHunterToteReservationCreateManyArgs>(args?: SelectSubset<T, PidHunterToteReservationCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a PidHunterToteReservation.
+     * @param {PidHunterToteReservationDeleteArgs} args - Arguments to delete one PidHunterToteReservation.
+     * @example
+     * // Delete one PidHunterToteReservation
+     * const PidHunterToteReservation = await prisma.pidHunterToteReservation.delete({
+     *   where: {
+     *     // ... filter to delete one PidHunterToteReservation
+     *   }
+     * })
+     * 
+     */
+    delete<T extends PidHunterToteReservationDeleteArgs>(args: SelectSubset<T, PidHunterToteReservationDeleteArgs<ExtArgs>>): Prisma__PidHunterToteReservationClient<$Result.GetResult<Prisma.$PidHunterToteReservationPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one PidHunterToteReservation.
+     * @param {PidHunterToteReservationUpdateArgs} args - Arguments to update one PidHunterToteReservation.
+     * @example
+     * // Update one PidHunterToteReservation
+     * const pidHunterToteReservation = await prisma.pidHunterToteReservation.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends PidHunterToteReservationUpdateArgs>(args: SelectSubset<T, PidHunterToteReservationUpdateArgs<ExtArgs>>): Prisma__PidHunterToteReservationClient<$Result.GetResult<Prisma.$PidHunterToteReservationPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more PidHunterToteReservations.
+     * @param {PidHunterToteReservationDeleteManyArgs} args - Arguments to filter PidHunterToteReservations to delete.
+     * @example
+     * // Delete a few PidHunterToteReservations
+     * const { count } = await prisma.pidHunterToteReservation.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends PidHunterToteReservationDeleteManyArgs>(args?: SelectSubset<T, PidHunterToteReservationDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more PidHunterToteReservations.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PidHunterToteReservationUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many PidHunterToteReservations
+     * const pidHunterToteReservation = await prisma.pidHunterToteReservation.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends PidHunterToteReservationUpdateManyArgs>(args: SelectSubset<T, PidHunterToteReservationUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one PidHunterToteReservation.
+     * @param {PidHunterToteReservationUpsertArgs} args - Arguments to update or create a PidHunterToteReservation.
+     * @example
+     * // Update or create a PidHunterToteReservation
+     * const pidHunterToteReservation = await prisma.pidHunterToteReservation.upsert({
+     *   create: {
+     *     // ... data to create a PidHunterToteReservation
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the PidHunterToteReservation we want to update
+     *   }
+     * })
+     */
+    upsert<T extends PidHunterToteReservationUpsertArgs>(args: SelectSubset<T, PidHunterToteReservationUpsertArgs<ExtArgs>>): Prisma__PidHunterToteReservationClient<$Result.GetResult<Prisma.$PidHunterToteReservationPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of PidHunterToteReservations.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PidHunterToteReservationCountArgs} args - Arguments to filter PidHunterToteReservations to count.
+     * @example
+     * // Count the number of PidHunterToteReservations
+     * const count = await prisma.pidHunterToteReservation.count({
+     *   where: {
+     *     // ... the filter for the PidHunterToteReservations we want to count
+     *   }
+     * })
+    **/
+    count<T extends PidHunterToteReservationCountArgs>(
+      args?: Subset<T, PidHunterToteReservationCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], PidHunterToteReservationCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a PidHunterToteReservation.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PidHunterToteReservationAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends PidHunterToteReservationAggregateArgs>(args: Subset<T, PidHunterToteReservationAggregateArgs>): Prisma.PrismaPromise<GetPidHunterToteReservationAggregateType<T>>
+
+    /**
+     * Group by PidHunterToteReservation.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PidHunterToteReservationGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends PidHunterToteReservationGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: PidHunterToteReservationGroupByArgs['orderBy'] }
+        : { orderBy?: PidHunterToteReservationGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, PidHunterToteReservationGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetPidHunterToteReservationGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the PidHunterToteReservation model
+   */
+  readonly fields: PidHunterToteReservationFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for PidHunterToteReservation.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__PidHunterToteReservationClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the PidHunterToteReservation model
+   */
+  interface PidHunterToteReservationFieldRefs {
+    readonly toteId: FieldRef<"PidHunterToteReservation", 'String'>
+    readonly toteNumber: FieldRef<"PidHunterToteReservation", 'Int'>
+    readonly expiresAt: FieldRef<"PidHunterToteReservation", 'DateTime'>
+    readonly createdAt: FieldRef<"PidHunterToteReservation", 'DateTime'>
+    readonly updatedAt: FieldRef<"PidHunterToteReservation", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * PidHunterToteReservation findUnique
+   */
+  export type PidHunterToteReservationFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PidHunterToteReservation
+     */
+    select?: PidHunterToteReservationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PidHunterToteReservation
+     */
+    omit?: PidHunterToteReservationOmit<ExtArgs> | null
+    /**
+     * Filter, which PidHunterToteReservation to fetch.
+     */
+    where: PidHunterToteReservationWhereUniqueInput
+  }
+
+  /**
+   * PidHunterToteReservation findUniqueOrThrow
+   */
+  export type PidHunterToteReservationFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PidHunterToteReservation
+     */
+    select?: PidHunterToteReservationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PidHunterToteReservation
+     */
+    omit?: PidHunterToteReservationOmit<ExtArgs> | null
+    /**
+     * Filter, which PidHunterToteReservation to fetch.
+     */
+    where: PidHunterToteReservationWhereUniqueInput
+  }
+
+  /**
+   * PidHunterToteReservation findFirst
+   */
+  export type PidHunterToteReservationFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PidHunterToteReservation
+     */
+    select?: PidHunterToteReservationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PidHunterToteReservation
+     */
+    omit?: PidHunterToteReservationOmit<ExtArgs> | null
+    /**
+     * Filter, which PidHunterToteReservation to fetch.
+     */
+    where?: PidHunterToteReservationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PidHunterToteReservations to fetch.
+     */
+    orderBy?: PidHunterToteReservationOrderByWithRelationInput | PidHunterToteReservationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for PidHunterToteReservations.
+     */
+    cursor?: PidHunterToteReservationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PidHunterToteReservations from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PidHunterToteReservations.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of PidHunterToteReservations.
+     */
+    distinct?: PidHunterToteReservationScalarFieldEnum | PidHunterToteReservationScalarFieldEnum[]
+  }
+
+  /**
+   * PidHunterToteReservation findFirstOrThrow
+   */
+  export type PidHunterToteReservationFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PidHunterToteReservation
+     */
+    select?: PidHunterToteReservationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PidHunterToteReservation
+     */
+    omit?: PidHunterToteReservationOmit<ExtArgs> | null
+    /**
+     * Filter, which PidHunterToteReservation to fetch.
+     */
+    where?: PidHunterToteReservationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PidHunterToteReservations to fetch.
+     */
+    orderBy?: PidHunterToteReservationOrderByWithRelationInput | PidHunterToteReservationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for PidHunterToteReservations.
+     */
+    cursor?: PidHunterToteReservationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PidHunterToteReservations from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PidHunterToteReservations.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of PidHunterToteReservations.
+     */
+    distinct?: PidHunterToteReservationScalarFieldEnum | PidHunterToteReservationScalarFieldEnum[]
+  }
+
+  /**
+   * PidHunterToteReservation findMany
+   */
+  export type PidHunterToteReservationFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PidHunterToteReservation
+     */
+    select?: PidHunterToteReservationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PidHunterToteReservation
+     */
+    omit?: PidHunterToteReservationOmit<ExtArgs> | null
+    /**
+     * Filter, which PidHunterToteReservations to fetch.
+     */
+    where?: PidHunterToteReservationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PidHunterToteReservations to fetch.
+     */
+    orderBy?: PidHunterToteReservationOrderByWithRelationInput | PidHunterToteReservationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing PidHunterToteReservations.
+     */
+    cursor?: PidHunterToteReservationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PidHunterToteReservations from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PidHunterToteReservations.
+     */
+    skip?: number
+    distinct?: PidHunterToteReservationScalarFieldEnum | PidHunterToteReservationScalarFieldEnum[]
+  }
+
+  /**
+   * PidHunterToteReservation create
+   */
+  export type PidHunterToteReservationCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PidHunterToteReservation
+     */
+    select?: PidHunterToteReservationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PidHunterToteReservation
+     */
+    omit?: PidHunterToteReservationOmit<ExtArgs> | null
+    /**
+     * The data needed to create a PidHunterToteReservation.
+     */
+    data: XOR<PidHunterToteReservationCreateInput, PidHunterToteReservationUncheckedCreateInput>
+  }
+
+  /**
+   * PidHunterToteReservation createMany
+   */
+  export type PidHunterToteReservationCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many PidHunterToteReservations.
+     */
+    data: PidHunterToteReservationCreateManyInput | PidHunterToteReservationCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * PidHunterToteReservation update
+   */
+  export type PidHunterToteReservationUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PidHunterToteReservation
+     */
+    select?: PidHunterToteReservationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PidHunterToteReservation
+     */
+    omit?: PidHunterToteReservationOmit<ExtArgs> | null
+    /**
+     * The data needed to update a PidHunterToteReservation.
+     */
+    data: XOR<PidHunterToteReservationUpdateInput, PidHunterToteReservationUncheckedUpdateInput>
+    /**
+     * Choose, which PidHunterToteReservation to update.
+     */
+    where: PidHunterToteReservationWhereUniqueInput
+  }
+
+  /**
+   * PidHunterToteReservation updateMany
+   */
+  export type PidHunterToteReservationUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update PidHunterToteReservations.
+     */
+    data: XOR<PidHunterToteReservationUpdateManyMutationInput, PidHunterToteReservationUncheckedUpdateManyInput>
+    /**
+     * Filter which PidHunterToteReservations to update
+     */
+    where?: PidHunterToteReservationWhereInput
+    /**
+     * Limit how many PidHunterToteReservations to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * PidHunterToteReservation upsert
+   */
+  export type PidHunterToteReservationUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PidHunterToteReservation
+     */
+    select?: PidHunterToteReservationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PidHunterToteReservation
+     */
+    omit?: PidHunterToteReservationOmit<ExtArgs> | null
+    /**
+     * The filter to search for the PidHunterToteReservation to update in case it exists.
+     */
+    where: PidHunterToteReservationWhereUniqueInput
+    /**
+     * In case the PidHunterToteReservation found by the `where` argument doesn't exist, create a new PidHunterToteReservation with this data.
+     */
+    create: XOR<PidHunterToteReservationCreateInput, PidHunterToteReservationUncheckedCreateInput>
+    /**
+     * In case the PidHunterToteReservation was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<PidHunterToteReservationUpdateInput, PidHunterToteReservationUncheckedUpdateInput>
+  }
+
+  /**
+   * PidHunterToteReservation delete
+   */
+  export type PidHunterToteReservationDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PidHunterToteReservation
+     */
+    select?: PidHunterToteReservationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PidHunterToteReservation
+     */
+    omit?: PidHunterToteReservationOmit<ExtArgs> | null
+    /**
+     * Filter which PidHunterToteReservation to delete.
+     */
+    where: PidHunterToteReservationWhereUniqueInput
+  }
+
+  /**
+   * PidHunterToteReservation deleteMany
+   */
+  export type PidHunterToteReservationDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which PidHunterToteReservations to delete
+     */
+    where?: PidHunterToteReservationWhereInput
+    /**
+     * Limit how many PidHunterToteReservations to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * PidHunterToteReservation without action
+   */
+  export type PidHunterToteReservationDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PidHunterToteReservation
+     */
+    select?: PidHunterToteReservationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PidHunterToteReservation
+     */
+    omit?: PidHunterToteReservationOmit<ExtArgs> | null
   }
 
 
@@ -20367,10 +24647,14 @@ export namespace Prisma {
 
   export type ScannedBarcodeInventoryTransferAvgAggregateOutputType = {
     id: number | null
+    toteNumber: number | null
+    partition: number | null
   }
 
   export type ScannedBarcodeInventoryTransferSumAggregateOutputType = {
     id: bigint | null
+    toteNumber: number | null
+    partition: number | null
   }
 
   export type ScannedBarcodeInventoryTransferMinAggregateOutputType = {
@@ -20382,6 +24666,11 @@ export namespace Prisma {
     availability: string | null
     scanLocation: string | null
     nexsLocation: string | null
+    toteId: string | null
+    toteSimplified: string | null
+    toteNumber: number | null
+    partition: number | null
+    handover: string | null
     scannedAt: Date | null
     injestedAt: Date | null
   }
@@ -20395,6 +24684,11 @@ export namespace Prisma {
     availability: string | null
     scanLocation: string | null
     nexsLocation: string | null
+    toteId: string | null
+    toteSimplified: string | null
+    toteNumber: number | null
+    partition: number | null
+    handover: string | null
     scannedAt: Date | null
     injestedAt: Date | null
   }
@@ -20408,6 +24702,11 @@ export namespace Prisma {
     availability: number
     scanLocation: number
     nexsLocation: number
+    toteId: number
+    toteSimplified: number
+    toteNumber: number
+    partition: number
+    handover: number
     scannedAt: number
     injestedAt: number
     _all: number
@@ -20416,10 +24715,14 @@ export namespace Prisma {
 
   export type ScannedBarcodeInventoryTransferAvgAggregateInputType = {
     id?: true
+    toteNumber?: true
+    partition?: true
   }
 
   export type ScannedBarcodeInventoryTransferSumAggregateInputType = {
     id?: true
+    toteNumber?: true
+    partition?: true
   }
 
   export type ScannedBarcodeInventoryTransferMinAggregateInputType = {
@@ -20431,6 +24734,11 @@ export namespace Prisma {
     availability?: true
     scanLocation?: true
     nexsLocation?: true
+    toteId?: true
+    toteSimplified?: true
+    toteNumber?: true
+    partition?: true
+    handover?: true
     scannedAt?: true
     injestedAt?: true
   }
@@ -20444,6 +24752,11 @@ export namespace Prisma {
     availability?: true
     scanLocation?: true
     nexsLocation?: true
+    toteId?: true
+    toteSimplified?: true
+    toteNumber?: true
+    partition?: true
+    handover?: true
     scannedAt?: true
     injestedAt?: true
   }
@@ -20457,6 +24770,11 @@ export namespace Prisma {
     availability?: true
     scanLocation?: true
     nexsLocation?: true
+    toteId?: true
+    toteSimplified?: true
+    toteNumber?: true
+    partition?: true
+    handover?: true
     scannedAt?: true
     injestedAt?: true
     _all?: true
@@ -20557,6 +24875,11 @@ export namespace Prisma {
     availability: string | null
     scanLocation: string
     nexsLocation: string | null
+    toteId: string | null
+    toteSimplified: string | null
+    toteNumber: number | null
+    partition: number | null
+    handover: string
     scannedAt: Date
     injestedAt: Date
     _count: ScannedBarcodeInventoryTransferCountAggregateOutputType | null
@@ -20589,6 +24912,11 @@ export namespace Prisma {
     availability?: boolean
     scanLocation?: boolean
     nexsLocation?: boolean
+    toteId?: boolean
+    toteSimplified?: boolean
+    toteNumber?: boolean
+    partition?: boolean
+    handover?: boolean
     scannedAt?: boolean
     injestedAt?: boolean
   }, ExtArgs["result"]["scannedBarcodeInventoryTransfer"]>
@@ -20604,11 +24932,16 @@ export namespace Prisma {
     availability?: boolean
     scanLocation?: boolean
     nexsLocation?: boolean
+    toteId?: boolean
+    toteSimplified?: boolean
+    toteNumber?: boolean
+    partition?: boolean
+    handover?: boolean
     scannedAt?: boolean
     injestedAt?: boolean
   }
 
-  export type ScannedBarcodeInventoryTransferOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "pid" | "barcode" | "status" | "condition" | "availability" | "scanLocation" | "nexsLocation" | "scannedAt" | "injestedAt", ExtArgs["result"]["scannedBarcodeInventoryTransfer"]>
+  export type ScannedBarcodeInventoryTransferOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "pid" | "barcode" | "status" | "condition" | "availability" | "scanLocation" | "nexsLocation" | "toteId" | "toteSimplified" | "toteNumber" | "partition" | "handover" | "scannedAt" | "injestedAt", ExtArgs["result"]["scannedBarcodeInventoryTransfer"]>
 
   export type $ScannedBarcodeInventoryTransferPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "ScannedBarcodeInventoryTransfer"
@@ -20622,6 +24955,11 @@ export namespace Prisma {
       availability: string | null
       scanLocation: string
       nexsLocation: string | null
+      toteId: string | null
+      toteSimplified: string | null
+      toteNumber: number | null
+      partition: number | null
+      handover: string
       scannedAt: Date
       injestedAt: Date
     }, ExtArgs["result"]["scannedBarcodeInventoryTransfer"]>
@@ -21001,6 +25339,11 @@ export namespace Prisma {
     readonly availability: FieldRef<"ScannedBarcodeInventoryTransfer", 'String'>
     readonly scanLocation: FieldRef<"ScannedBarcodeInventoryTransfer", 'String'>
     readonly nexsLocation: FieldRef<"ScannedBarcodeInventoryTransfer", 'String'>
+    readonly toteId: FieldRef<"ScannedBarcodeInventoryTransfer", 'String'>
+    readonly toteSimplified: FieldRef<"ScannedBarcodeInventoryTransfer", 'String'>
+    readonly toteNumber: FieldRef<"ScannedBarcodeInventoryTransfer", 'Int'>
+    readonly partition: FieldRef<"ScannedBarcodeInventoryTransfer", 'Int'>
+    readonly handover: FieldRef<"ScannedBarcodeInventoryTransfer", 'String'>
     readonly scannedAt: FieldRef<"ScannedBarcodeInventoryTransfer", 'DateTime'>
     readonly injestedAt: FieldRef<"ScannedBarcodeInventoryTransfer", 'DateTime'>
   }
@@ -22273,6 +26616,17 @@ export namespace Prisma {
   export type PackingScanScalarFieldEnum = (typeof PackingScanScalarFieldEnum)[keyof typeof PackingScanScalarFieldEnum]
 
 
+  export const MarketplaceScanScalarFieldEnum: {
+    id: 'id',
+    scanId: 'scanId',
+    stationId: 'stationId',
+    nexsId: 'nexsId',
+    timestamp: 'timestamp'
+  };
+
+  export type MarketplaceScanScalarFieldEnum = (typeof MarketplaceScanScalarFieldEnum)[keyof typeof MarketplaceScanScalarFieldEnum]
+
+
   export const DispatchScanScalarFieldEnum: {
     id: 'id',
     scanId: 'scanId',
@@ -22474,10 +26828,67 @@ export namespace Prisma {
     availability: 'availability',
     scanLocation: 'scanLocation',
     nexsLocation: 'nexsLocation',
+    toteId: 'toteId',
+    toteSimplified: 'toteSimplified',
+    toteNumber: 'toteNumber',
+    partition: 'partition',
     scannedAt: 'scannedAt'
   };
 
   export type ScannedBarcodeInventoryScalarFieldEnum = (typeof ScannedBarcodeInventoryScalarFieldEnum)[keyof typeof ScannedBarcodeInventoryScalarFieldEnum]
+
+
+  export const PidHunterScanScalarFieldEnum: {
+    id: 'id',
+    pid: 'pid',
+    barcode: 'barcode',
+    status: 'status',
+    condition: 'condition',
+    availability: 'availability',
+    nexsLocation: 'nexsLocation',
+    currentLocation: 'currentLocation',
+    rawLocation: 'rawLocation',
+    toteId: 'toteId',
+    toteNumber: 'toteNumber',
+    partition: 'partition',
+    bucket: 'bucket',
+    binName: 'binName',
+    mode: 'mode',
+    operation: 'operation',
+    actionId: 'actionId',
+    updatedAtNexs: 'updatedAtNexs',
+    totalOperations: 'totalOperations',
+    rawScan: 'rawScan',
+    compacted: 'compacted',
+    compactedFrom: 'compactedFrom',
+    sourceKey: 'sourceKey',
+    scannedAt: 'scannedAt',
+    createdAt: 'createdAt'
+  };
+
+  export type PidHunterScanScalarFieldEnum = (typeof PidHunterScanScalarFieldEnum)[keyof typeof PidHunterScanScalarFieldEnum]
+
+
+  export const PidHunterToteScalarFieldEnum: {
+    toteNumber: 'toteNumber',
+    toteId: 'toteId',
+    isFree: 'isFree',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type PidHunterToteScalarFieldEnum = (typeof PidHunterToteScalarFieldEnum)[keyof typeof PidHunterToteScalarFieldEnum]
+
+
+  export const PidHunterToteReservationScalarFieldEnum: {
+    toteId: 'toteId',
+    toteNumber: 'toteNumber',
+    expiresAt: 'expiresAt',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type PidHunterToteReservationScalarFieldEnum = (typeof PidHunterToteReservationScalarFieldEnum)[keyof typeof PidHunterToteReservationScalarFieldEnum]
 
 
   export const CLScanScalarFieldEnum: {
@@ -22500,6 +26911,11 @@ export namespace Prisma {
     availability: 'availability',
     scanLocation: 'scanLocation',
     nexsLocation: 'nexsLocation',
+    toteId: 'toteId',
+    toteSimplified: 'toteSimplified',
+    toteNumber: 'toteNumber',
+    partition: 'partition',
+    handover: 'handover',
     scannedAt: 'scannedAt',
     injestedAt: 'injestedAt'
   };
@@ -22548,6 +26964,15 @@ export namespace Prisma {
   };
 
   export type PackingScanOrderByRelevanceFieldEnum = (typeof PackingScanOrderByRelevanceFieldEnum)[keyof typeof PackingScanOrderByRelevanceFieldEnum]
+
+
+  export const MarketplaceScanOrderByRelevanceFieldEnum: {
+    scanId: 'scanId',
+    stationId: 'stationId',
+    nexsId: 'nexsId'
+  };
+
+  export type MarketplaceScanOrderByRelevanceFieldEnum = (typeof MarketplaceScanOrderByRelevanceFieldEnum)[keyof typeof MarketplaceScanOrderByRelevanceFieldEnum]
 
 
   export const DispatchScanOrderByRelevanceFieldEnum: {
@@ -22718,10 +27143,50 @@ export namespace Prisma {
     condition: 'condition',
     availability: 'availability',
     scanLocation: 'scanLocation',
-    nexsLocation: 'nexsLocation'
+    nexsLocation: 'nexsLocation',
+    toteId: 'toteId',
+    toteSimplified: 'toteSimplified'
   };
 
   export type ScannedBarcodeInventoryOrderByRelevanceFieldEnum = (typeof ScannedBarcodeInventoryOrderByRelevanceFieldEnum)[keyof typeof ScannedBarcodeInventoryOrderByRelevanceFieldEnum]
+
+
+  export const PidHunterScanOrderByRelevanceFieldEnum: {
+    pid: 'pid',
+    barcode: 'barcode',
+    status: 'status',
+    condition: 'condition',
+    availability: 'availability',
+    nexsLocation: 'nexsLocation',
+    currentLocation: 'currentLocation',
+    rawLocation: 'rawLocation',
+    toteId: 'toteId',
+    bucket: 'bucket',
+    binName: 'binName',
+    mode: 'mode',
+    operation: 'operation',
+    actionId: 'actionId',
+    updatedAtNexs: 'updatedAtNexs',
+    rawScan: 'rawScan',
+    compactedFrom: 'compactedFrom',
+    sourceKey: 'sourceKey'
+  };
+
+  export type PidHunterScanOrderByRelevanceFieldEnum = (typeof PidHunterScanOrderByRelevanceFieldEnum)[keyof typeof PidHunterScanOrderByRelevanceFieldEnum]
+
+
+  export const PidHunterToteOrderByRelevanceFieldEnum: {
+    toteId: 'toteId'
+  };
+
+  export type PidHunterToteOrderByRelevanceFieldEnum = (typeof PidHunterToteOrderByRelevanceFieldEnum)[keyof typeof PidHunterToteOrderByRelevanceFieldEnum]
+
+
+  export const PidHunterToteReservationOrderByRelevanceFieldEnum: {
+    toteId: 'toteId'
+  };
+
+  export type PidHunterToteReservationOrderByRelevanceFieldEnum = (typeof PidHunterToteReservationOrderByRelevanceFieldEnum)[keyof typeof PidHunterToteReservationOrderByRelevanceFieldEnum]
 
 
   export const CLScanOrderByRelevanceFieldEnum: {
@@ -22740,7 +27205,10 @@ export namespace Prisma {
     condition: 'condition',
     availability: 'availability',
     scanLocation: 'scanLocation',
-    nexsLocation: 'nexsLocation'
+    nexsLocation: 'nexsLocation',
+    toteId: 'toteId',
+    toteSimplified: 'toteSimplified',
+    handover: 'handover'
   };
 
   export type ScannedBarcodeInventoryTransferOrderByRelevanceFieldEnum = (typeof ScannedBarcodeInventoryTransferOrderByRelevanceFieldEnum)[keyof typeof ScannedBarcodeInventoryTransferOrderByRelevanceFieldEnum]
@@ -22958,6 +27426,61 @@ export namespace Prisma {
     stationId?: StringWithAggregatesFilter<"PackingScan"> | string
     nexsId?: StringWithAggregatesFilter<"PackingScan"> | string
     timestamp?: DateTimeWithAggregatesFilter<"PackingScan"> | Date | string
+  }
+
+  export type MarketplaceScanWhereInput = {
+    AND?: MarketplaceScanWhereInput | MarketplaceScanWhereInput[]
+    OR?: MarketplaceScanWhereInput[]
+    NOT?: MarketplaceScanWhereInput | MarketplaceScanWhereInput[]
+    id?: IntFilter<"MarketplaceScan"> | number
+    scanId?: StringFilter<"MarketplaceScan"> | string
+    stationId?: StringFilter<"MarketplaceScan"> | string
+    nexsId?: StringFilter<"MarketplaceScan"> | string
+    timestamp?: DateTimeFilter<"MarketplaceScan"> | Date | string
+  }
+
+  export type MarketplaceScanOrderByWithRelationInput = {
+    id?: SortOrder
+    scanId?: SortOrder
+    stationId?: SortOrder
+    nexsId?: SortOrder
+    timestamp?: SortOrder
+    _relevance?: MarketplaceScanOrderByRelevanceInput
+  }
+
+  export type MarketplaceScanWhereUniqueInput = Prisma.AtLeast<{
+    id?: number
+    AND?: MarketplaceScanWhereInput | MarketplaceScanWhereInput[]
+    OR?: MarketplaceScanWhereInput[]
+    NOT?: MarketplaceScanWhereInput | MarketplaceScanWhereInput[]
+    scanId?: StringFilter<"MarketplaceScan"> | string
+    stationId?: StringFilter<"MarketplaceScan"> | string
+    nexsId?: StringFilter<"MarketplaceScan"> | string
+    timestamp?: DateTimeFilter<"MarketplaceScan"> | Date | string
+  }, "id">
+
+  export type MarketplaceScanOrderByWithAggregationInput = {
+    id?: SortOrder
+    scanId?: SortOrder
+    stationId?: SortOrder
+    nexsId?: SortOrder
+    timestamp?: SortOrder
+    _count?: MarketplaceScanCountOrderByAggregateInput
+    _avg?: MarketplaceScanAvgOrderByAggregateInput
+    _max?: MarketplaceScanMaxOrderByAggregateInput
+    _min?: MarketplaceScanMinOrderByAggregateInput
+    _sum?: MarketplaceScanSumOrderByAggregateInput
+  }
+
+  export type MarketplaceScanScalarWhereWithAggregatesInput = {
+    AND?: MarketplaceScanScalarWhereWithAggregatesInput | MarketplaceScanScalarWhereWithAggregatesInput[]
+    OR?: MarketplaceScanScalarWhereWithAggregatesInput[]
+    NOT?: MarketplaceScanScalarWhereWithAggregatesInput | MarketplaceScanScalarWhereWithAggregatesInput[]
+    id?: IntWithAggregatesFilter<"MarketplaceScan"> | number
+    scanId?: StringWithAggregatesFilter<"MarketplaceScan"> | string
+    stationId?: StringWithAggregatesFilter<"MarketplaceScan"> | string
+    nexsId?: StringWithAggregatesFilter<"MarketplaceScan"> | string
+    timestamp?: DateTimeWithAggregatesFilter<"MarketplaceScan"> | Date | string
   }
 
   export type DispatchScanWhereInput = {
@@ -23930,6 +28453,10 @@ export namespace Prisma {
     availability?: StringNullableFilter<"ScannedBarcodeInventory"> | string | null
     scanLocation?: StringFilter<"ScannedBarcodeInventory"> | string
     nexsLocation?: StringNullableFilter<"ScannedBarcodeInventory"> | string | null
+    toteId?: StringNullableFilter<"ScannedBarcodeInventory"> | string | null
+    toteSimplified?: StringNullableFilter<"ScannedBarcodeInventory"> | string | null
+    toteNumber?: IntNullableFilter<"ScannedBarcodeInventory"> | number | null
+    partition?: IntNullableFilter<"ScannedBarcodeInventory"> | number | null
     scannedAt?: DateTimeFilter<"ScannedBarcodeInventory"> | Date | string
   }
 
@@ -23942,6 +28469,10 @@ export namespace Prisma {
     availability?: SortOrderInput | SortOrder
     scanLocation?: SortOrder
     nexsLocation?: SortOrderInput | SortOrder
+    toteId?: SortOrderInput | SortOrder
+    toteSimplified?: SortOrderInput | SortOrder
+    toteNumber?: SortOrderInput | SortOrder
+    partition?: SortOrderInput | SortOrder
     scannedAt?: SortOrder
     _relevance?: ScannedBarcodeInventoryOrderByRelevanceInput
   }
@@ -23959,6 +28490,10 @@ export namespace Prisma {
     availability?: StringNullableFilter<"ScannedBarcodeInventory"> | string | null
     scanLocation?: StringFilter<"ScannedBarcodeInventory"> | string
     nexsLocation?: StringNullableFilter<"ScannedBarcodeInventory"> | string | null
+    toteId?: StringNullableFilter<"ScannedBarcodeInventory"> | string | null
+    toteSimplified?: StringNullableFilter<"ScannedBarcodeInventory"> | string | null
+    toteNumber?: IntNullableFilter<"ScannedBarcodeInventory"> | number | null
+    partition?: IntNullableFilter<"ScannedBarcodeInventory"> | number | null
     scannedAt?: DateTimeFilter<"ScannedBarcodeInventory"> | Date | string
   }, "id" | "uniq_barcode_scan">
 
@@ -23971,6 +28506,10 @@ export namespace Prisma {
     availability?: SortOrderInput | SortOrder
     scanLocation?: SortOrder
     nexsLocation?: SortOrderInput | SortOrder
+    toteId?: SortOrderInput | SortOrder
+    toteSimplified?: SortOrderInput | SortOrder
+    toteNumber?: SortOrderInput | SortOrder
+    partition?: SortOrderInput | SortOrder
     scannedAt?: SortOrder
     _count?: ScannedBarcodeInventoryCountOrderByAggregateInput
     _avg?: ScannedBarcodeInventoryAvgOrderByAggregateInput
@@ -23991,7 +28530,276 @@ export namespace Prisma {
     availability?: StringNullableWithAggregatesFilter<"ScannedBarcodeInventory"> | string | null
     scanLocation?: StringWithAggregatesFilter<"ScannedBarcodeInventory"> | string
     nexsLocation?: StringNullableWithAggregatesFilter<"ScannedBarcodeInventory"> | string | null
+    toteId?: StringNullableWithAggregatesFilter<"ScannedBarcodeInventory"> | string | null
+    toteSimplified?: StringNullableWithAggregatesFilter<"ScannedBarcodeInventory"> | string | null
+    toteNumber?: IntNullableWithAggregatesFilter<"ScannedBarcodeInventory"> | number | null
+    partition?: IntNullableWithAggregatesFilter<"ScannedBarcodeInventory"> | number | null
     scannedAt?: DateTimeWithAggregatesFilter<"ScannedBarcodeInventory"> | Date | string
+  }
+
+  export type PidHunterScanWhereInput = {
+    AND?: PidHunterScanWhereInput | PidHunterScanWhereInput[]
+    OR?: PidHunterScanWhereInput[]
+    NOT?: PidHunterScanWhereInput | PidHunterScanWhereInput[]
+    id?: BigIntFilter<"PidHunterScan"> | bigint | number
+    pid?: StringFilter<"PidHunterScan"> | string
+    barcode?: StringFilter<"PidHunterScan"> | string
+    status?: StringNullableFilter<"PidHunterScan"> | string | null
+    condition?: StringNullableFilter<"PidHunterScan"> | string | null
+    availability?: StringNullableFilter<"PidHunterScan"> | string | null
+    nexsLocation?: StringNullableFilter<"PidHunterScan"> | string | null
+    currentLocation?: StringFilter<"PidHunterScan"> | string
+    rawLocation?: StringNullableFilter<"PidHunterScan"> | string | null
+    toteId?: StringNullableFilter<"PidHunterScan"> | string | null
+    toteNumber?: IntNullableFilter<"PidHunterScan"> | number | null
+    partition?: IntNullableFilter<"PidHunterScan"> | number | null
+    bucket?: StringFilter<"PidHunterScan"> | string
+    binName?: StringNullableFilter<"PidHunterScan"> | string | null
+    mode?: StringFilter<"PidHunterScan"> | string
+    operation?: StringNullableFilter<"PidHunterScan"> | string | null
+    actionId?: StringNullableFilter<"PidHunterScan"> | string | null
+    updatedAtNexs?: StringNullableFilter<"PidHunterScan"> | string | null
+    totalOperations?: IntNullableFilter<"PidHunterScan"> | number | null
+    rawScan?: StringNullableFilter<"PidHunterScan"> | string | null
+    compacted?: BoolFilter<"PidHunterScan"> | boolean
+    compactedFrom?: StringNullableFilter<"PidHunterScan"> | string | null
+    sourceKey?: StringNullableFilter<"PidHunterScan"> | string | null
+    scannedAt?: DateTimeFilter<"PidHunterScan"> | Date | string
+    createdAt?: DateTimeFilter<"PidHunterScan"> | Date | string
+  }
+
+  export type PidHunterScanOrderByWithRelationInput = {
+    id?: SortOrder
+    pid?: SortOrder
+    barcode?: SortOrder
+    status?: SortOrderInput | SortOrder
+    condition?: SortOrderInput | SortOrder
+    availability?: SortOrderInput | SortOrder
+    nexsLocation?: SortOrderInput | SortOrder
+    currentLocation?: SortOrder
+    rawLocation?: SortOrderInput | SortOrder
+    toteId?: SortOrderInput | SortOrder
+    toteNumber?: SortOrderInput | SortOrder
+    partition?: SortOrderInput | SortOrder
+    bucket?: SortOrder
+    binName?: SortOrderInput | SortOrder
+    mode?: SortOrder
+    operation?: SortOrderInput | SortOrder
+    actionId?: SortOrderInput | SortOrder
+    updatedAtNexs?: SortOrderInput | SortOrder
+    totalOperations?: SortOrderInput | SortOrder
+    rawScan?: SortOrderInput | SortOrder
+    compacted?: SortOrder
+    compactedFrom?: SortOrderInput | SortOrder
+    sourceKey?: SortOrderInput | SortOrder
+    scannedAt?: SortOrder
+    createdAt?: SortOrder
+    _relevance?: PidHunterScanOrderByRelevanceInput
+  }
+
+  export type PidHunterScanWhereUniqueInput = Prisma.AtLeast<{
+    id?: bigint | number
+    sourceKey?: string
+    AND?: PidHunterScanWhereInput | PidHunterScanWhereInput[]
+    OR?: PidHunterScanWhereInput[]
+    NOT?: PidHunterScanWhereInput | PidHunterScanWhereInput[]
+    pid?: StringFilter<"PidHunterScan"> | string
+    barcode?: StringFilter<"PidHunterScan"> | string
+    status?: StringNullableFilter<"PidHunterScan"> | string | null
+    condition?: StringNullableFilter<"PidHunterScan"> | string | null
+    availability?: StringNullableFilter<"PidHunterScan"> | string | null
+    nexsLocation?: StringNullableFilter<"PidHunterScan"> | string | null
+    currentLocation?: StringFilter<"PidHunterScan"> | string
+    rawLocation?: StringNullableFilter<"PidHunterScan"> | string | null
+    toteId?: StringNullableFilter<"PidHunterScan"> | string | null
+    toteNumber?: IntNullableFilter<"PidHunterScan"> | number | null
+    partition?: IntNullableFilter<"PidHunterScan"> | number | null
+    bucket?: StringFilter<"PidHunterScan"> | string
+    binName?: StringNullableFilter<"PidHunterScan"> | string | null
+    mode?: StringFilter<"PidHunterScan"> | string
+    operation?: StringNullableFilter<"PidHunterScan"> | string | null
+    actionId?: StringNullableFilter<"PidHunterScan"> | string | null
+    updatedAtNexs?: StringNullableFilter<"PidHunterScan"> | string | null
+    totalOperations?: IntNullableFilter<"PidHunterScan"> | number | null
+    rawScan?: StringNullableFilter<"PidHunterScan"> | string | null
+    compacted?: BoolFilter<"PidHunterScan"> | boolean
+    compactedFrom?: StringNullableFilter<"PidHunterScan"> | string | null
+    scannedAt?: DateTimeFilter<"PidHunterScan"> | Date | string
+    createdAt?: DateTimeFilter<"PidHunterScan"> | Date | string
+  }, "id" | "sourceKey">
+
+  export type PidHunterScanOrderByWithAggregationInput = {
+    id?: SortOrder
+    pid?: SortOrder
+    barcode?: SortOrder
+    status?: SortOrderInput | SortOrder
+    condition?: SortOrderInput | SortOrder
+    availability?: SortOrderInput | SortOrder
+    nexsLocation?: SortOrderInput | SortOrder
+    currentLocation?: SortOrder
+    rawLocation?: SortOrderInput | SortOrder
+    toteId?: SortOrderInput | SortOrder
+    toteNumber?: SortOrderInput | SortOrder
+    partition?: SortOrderInput | SortOrder
+    bucket?: SortOrder
+    binName?: SortOrderInput | SortOrder
+    mode?: SortOrder
+    operation?: SortOrderInput | SortOrder
+    actionId?: SortOrderInput | SortOrder
+    updatedAtNexs?: SortOrderInput | SortOrder
+    totalOperations?: SortOrderInput | SortOrder
+    rawScan?: SortOrderInput | SortOrder
+    compacted?: SortOrder
+    compactedFrom?: SortOrderInput | SortOrder
+    sourceKey?: SortOrderInput | SortOrder
+    scannedAt?: SortOrder
+    createdAt?: SortOrder
+    _count?: PidHunterScanCountOrderByAggregateInput
+    _avg?: PidHunterScanAvgOrderByAggregateInput
+    _max?: PidHunterScanMaxOrderByAggregateInput
+    _min?: PidHunterScanMinOrderByAggregateInput
+    _sum?: PidHunterScanSumOrderByAggregateInput
+  }
+
+  export type PidHunterScanScalarWhereWithAggregatesInput = {
+    AND?: PidHunterScanScalarWhereWithAggregatesInput | PidHunterScanScalarWhereWithAggregatesInput[]
+    OR?: PidHunterScanScalarWhereWithAggregatesInput[]
+    NOT?: PidHunterScanScalarWhereWithAggregatesInput | PidHunterScanScalarWhereWithAggregatesInput[]
+    id?: BigIntWithAggregatesFilter<"PidHunterScan"> | bigint | number
+    pid?: StringWithAggregatesFilter<"PidHunterScan"> | string
+    barcode?: StringWithAggregatesFilter<"PidHunterScan"> | string
+    status?: StringNullableWithAggregatesFilter<"PidHunterScan"> | string | null
+    condition?: StringNullableWithAggregatesFilter<"PidHunterScan"> | string | null
+    availability?: StringNullableWithAggregatesFilter<"PidHunterScan"> | string | null
+    nexsLocation?: StringNullableWithAggregatesFilter<"PidHunterScan"> | string | null
+    currentLocation?: StringWithAggregatesFilter<"PidHunterScan"> | string
+    rawLocation?: StringNullableWithAggregatesFilter<"PidHunterScan"> | string | null
+    toteId?: StringNullableWithAggregatesFilter<"PidHunterScan"> | string | null
+    toteNumber?: IntNullableWithAggregatesFilter<"PidHunterScan"> | number | null
+    partition?: IntNullableWithAggregatesFilter<"PidHunterScan"> | number | null
+    bucket?: StringWithAggregatesFilter<"PidHunterScan"> | string
+    binName?: StringNullableWithAggregatesFilter<"PidHunterScan"> | string | null
+    mode?: StringWithAggregatesFilter<"PidHunterScan"> | string
+    operation?: StringNullableWithAggregatesFilter<"PidHunterScan"> | string | null
+    actionId?: StringNullableWithAggregatesFilter<"PidHunterScan"> | string | null
+    updatedAtNexs?: StringNullableWithAggregatesFilter<"PidHunterScan"> | string | null
+    totalOperations?: IntNullableWithAggregatesFilter<"PidHunterScan"> | number | null
+    rawScan?: StringNullableWithAggregatesFilter<"PidHunterScan"> | string | null
+    compacted?: BoolWithAggregatesFilter<"PidHunterScan"> | boolean
+    compactedFrom?: StringNullableWithAggregatesFilter<"PidHunterScan"> | string | null
+    sourceKey?: StringNullableWithAggregatesFilter<"PidHunterScan"> | string | null
+    scannedAt?: DateTimeWithAggregatesFilter<"PidHunterScan"> | Date | string
+    createdAt?: DateTimeWithAggregatesFilter<"PidHunterScan"> | Date | string
+  }
+
+  export type PidHunterToteWhereInput = {
+    AND?: PidHunterToteWhereInput | PidHunterToteWhereInput[]
+    OR?: PidHunterToteWhereInput[]
+    NOT?: PidHunterToteWhereInput | PidHunterToteWhereInput[]
+    toteNumber?: IntFilter<"PidHunterTote"> | number
+    toteId?: StringFilter<"PidHunterTote"> | string
+    isFree?: BoolFilter<"PidHunterTote"> | boolean
+    createdAt?: DateTimeFilter<"PidHunterTote"> | Date | string
+    updatedAt?: DateTimeFilter<"PidHunterTote"> | Date | string
+  }
+
+  export type PidHunterToteOrderByWithRelationInput = {
+    toteNumber?: SortOrder
+    toteId?: SortOrder
+    isFree?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _relevance?: PidHunterToteOrderByRelevanceInput
+  }
+
+  export type PidHunterToteWhereUniqueInput = Prisma.AtLeast<{
+    toteNumber?: number
+    toteId?: string
+    AND?: PidHunterToteWhereInput | PidHunterToteWhereInput[]
+    OR?: PidHunterToteWhereInput[]
+    NOT?: PidHunterToteWhereInput | PidHunterToteWhereInput[]
+    isFree?: BoolFilter<"PidHunterTote"> | boolean
+    createdAt?: DateTimeFilter<"PidHunterTote"> | Date | string
+    updatedAt?: DateTimeFilter<"PidHunterTote"> | Date | string
+  }, "toteNumber" | "toteId">
+
+  export type PidHunterToteOrderByWithAggregationInput = {
+    toteNumber?: SortOrder
+    toteId?: SortOrder
+    isFree?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: PidHunterToteCountOrderByAggregateInput
+    _avg?: PidHunterToteAvgOrderByAggregateInput
+    _max?: PidHunterToteMaxOrderByAggregateInput
+    _min?: PidHunterToteMinOrderByAggregateInput
+    _sum?: PidHunterToteSumOrderByAggregateInput
+  }
+
+  export type PidHunterToteScalarWhereWithAggregatesInput = {
+    AND?: PidHunterToteScalarWhereWithAggregatesInput | PidHunterToteScalarWhereWithAggregatesInput[]
+    OR?: PidHunterToteScalarWhereWithAggregatesInput[]
+    NOT?: PidHunterToteScalarWhereWithAggregatesInput | PidHunterToteScalarWhereWithAggregatesInput[]
+    toteNumber?: IntWithAggregatesFilter<"PidHunterTote"> | number
+    toteId?: StringWithAggregatesFilter<"PidHunterTote"> | string
+    isFree?: BoolWithAggregatesFilter<"PidHunterTote"> | boolean
+    createdAt?: DateTimeWithAggregatesFilter<"PidHunterTote"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"PidHunterTote"> | Date | string
+  }
+
+  export type PidHunterToteReservationWhereInput = {
+    AND?: PidHunterToteReservationWhereInput | PidHunterToteReservationWhereInput[]
+    OR?: PidHunterToteReservationWhereInput[]
+    NOT?: PidHunterToteReservationWhereInput | PidHunterToteReservationWhereInput[]
+    toteId?: StringFilter<"PidHunterToteReservation"> | string
+    toteNumber?: IntFilter<"PidHunterToteReservation"> | number
+    expiresAt?: DateTimeFilter<"PidHunterToteReservation"> | Date | string
+    createdAt?: DateTimeFilter<"PidHunterToteReservation"> | Date | string
+    updatedAt?: DateTimeFilter<"PidHunterToteReservation"> | Date | string
+  }
+
+  export type PidHunterToteReservationOrderByWithRelationInput = {
+    toteId?: SortOrder
+    toteNumber?: SortOrder
+    expiresAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _relevance?: PidHunterToteReservationOrderByRelevanceInput
+  }
+
+  export type PidHunterToteReservationWhereUniqueInput = Prisma.AtLeast<{
+    toteId?: string
+    toteNumber?: number
+    AND?: PidHunterToteReservationWhereInput | PidHunterToteReservationWhereInput[]
+    OR?: PidHunterToteReservationWhereInput[]
+    NOT?: PidHunterToteReservationWhereInput | PidHunterToteReservationWhereInput[]
+    expiresAt?: DateTimeFilter<"PidHunterToteReservation"> | Date | string
+    createdAt?: DateTimeFilter<"PidHunterToteReservation"> | Date | string
+    updatedAt?: DateTimeFilter<"PidHunterToteReservation"> | Date | string
+  }, "toteId" | "toteNumber">
+
+  export type PidHunterToteReservationOrderByWithAggregationInput = {
+    toteId?: SortOrder
+    toteNumber?: SortOrder
+    expiresAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: PidHunterToteReservationCountOrderByAggregateInput
+    _avg?: PidHunterToteReservationAvgOrderByAggregateInput
+    _max?: PidHunterToteReservationMaxOrderByAggregateInput
+    _min?: PidHunterToteReservationMinOrderByAggregateInput
+    _sum?: PidHunterToteReservationSumOrderByAggregateInput
+  }
+
+  export type PidHunterToteReservationScalarWhereWithAggregatesInput = {
+    AND?: PidHunterToteReservationScalarWhereWithAggregatesInput | PidHunterToteReservationScalarWhereWithAggregatesInput[]
+    OR?: PidHunterToteReservationScalarWhereWithAggregatesInput[]
+    NOT?: PidHunterToteReservationScalarWhereWithAggregatesInput | PidHunterToteReservationScalarWhereWithAggregatesInput[]
+    toteId?: StringWithAggregatesFilter<"PidHunterToteReservation"> | string
+    toteNumber?: IntWithAggregatesFilter<"PidHunterToteReservation"> | number
+    expiresAt?: DateTimeWithAggregatesFilter<"PidHunterToteReservation"> | Date | string
+    createdAt?: DateTimeWithAggregatesFilter<"PidHunterToteReservation"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"PidHunterToteReservation"> | Date | string
   }
 
   export type CLScanWhereInput = {
@@ -24061,6 +28869,11 @@ export namespace Prisma {
     availability?: StringNullableFilter<"ScannedBarcodeInventoryTransfer"> | string | null
     scanLocation?: StringFilter<"ScannedBarcodeInventoryTransfer"> | string
     nexsLocation?: StringNullableFilter<"ScannedBarcodeInventoryTransfer"> | string | null
+    toteId?: StringNullableFilter<"ScannedBarcodeInventoryTransfer"> | string | null
+    toteSimplified?: StringNullableFilter<"ScannedBarcodeInventoryTransfer"> | string | null
+    toteNumber?: IntNullableFilter<"ScannedBarcodeInventoryTransfer"> | number | null
+    partition?: IntNullableFilter<"ScannedBarcodeInventoryTransfer"> | number | null
+    handover?: StringFilter<"ScannedBarcodeInventoryTransfer"> | string
     scannedAt?: DateTimeFilter<"ScannedBarcodeInventoryTransfer"> | Date | string
     injestedAt?: DateTimeFilter<"ScannedBarcodeInventoryTransfer"> | Date | string
   }
@@ -24074,6 +28887,11 @@ export namespace Prisma {
     availability?: SortOrderInput | SortOrder
     scanLocation?: SortOrder
     nexsLocation?: SortOrderInput | SortOrder
+    toteId?: SortOrderInput | SortOrder
+    toteSimplified?: SortOrderInput | SortOrder
+    toteNumber?: SortOrderInput | SortOrder
+    partition?: SortOrderInput | SortOrder
+    handover?: SortOrder
     scannedAt?: SortOrder
     injestedAt?: SortOrder
     _relevance?: ScannedBarcodeInventoryTransferOrderByRelevanceInput
@@ -24092,6 +28910,11 @@ export namespace Prisma {
     availability?: StringNullableFilter<"ScannedBarcodeInventoryTransfer"> | string | null
     scanLocation?: StringFilter<"ScannedBarcodeInventoryTransfer"> | string
     nexsLocation?: StringNullableFilter<"ScannedBarcodeInventoryTransfer"> | string | null
+    toteId?: StringNullableFilter<"ScannedBarcodeInventoryTransfer"> | string | null
+    toteSimplified?: StringNullableFilter<"ScannedBarcodeInventoryTransfer"> | string | null
+    toteNumber?: IntNullableFilter<"ScannedBarcodeInventoryTransfer"> | number | null
+    partition?: IntNullableFilter<"ScannedBarcodeInventoryTransfer"> | number | null
+    handover?: StringFilter<"ScannedBarcodeInventoryTransfer"> | string
     scannedAt?: DateTimeFilter<"ScannedBarcodeInventoryTransfer"> | Date | string
     injestedAt?: DateTimeFilter<"ScannedBarcodeInventoryTransfer"> | Date | string
   }, "id" | "uniq_barcode_scan">
@@ -24105,6 +28928,11 @@ export namespace Prisma {
     availability?: SortOrderInput | SortOrder
     scanLocation?: SortOrder
     nexsLocation?: SortOrderInput | SortOrder
+    toteId?: SortOrderInput | SortOrder
+    toteSimplified?: SortOrderInput | SortOrder
+    toteNumber?: SortOrderInput | SortOrder
+    partition?: SortOrderInput | SortOrder
+    handover?: SortOrder
     scannedAt?: SortOrder
     injestedAt?: SortOrder
     _count?: ScannedBarcodeInventoryTransferCountOrderByAggregateInput
@@ -24126,6 +28954,11 @@ export namespace Prisma {
     availability?: StringNullableWithAggregatesFilter<"ScannedBarcodeInventoryTransfer"> | string | null
     scanLocation?: StringWithAggregatesFilter<"ScannedBarcodeInventoryTransfer"> | string
     nexsLocation?: StringNullableWithAggregatesFilter<"ScannedBarcodeInventoryTransfer"> | string | null
+    toteId?: StringNullableWithAggregatesFilter<"ScannedBarcodeInventoryTransfer"> | string | null
+    toteSimplified?: StringNullableWithAggregatesFilter<"ScannedBarcodeInventoryTransfer"> | string | null
+    toteNumber?: IntNullableWithAggregatesFilter<"ScannedBarcodeInventoryTransfer"> | number | null
+    partition?: IntNullableWithAggregatesFilter<"ScannedBarcodeInventoryTransfer"> | number | null
+    handover?: StringWithAggregatesFilter<"ScannedBarcodeInventoryTransfer"> | string
     scannedAt?: DateTimeWithAggregatesFilter<"ScannedBarcodeInventoryTransfer"> | Date | string
     injestedAt?: DateTimeWithAggregatesFilter<"ScannedBarcodeInventoryTransfer"> | Date | string
   }
@@ -24311,6 +29144,59 @@ export namespace Prisma {
   }
 
   export type PackingScanUncheckedUpdateManyInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    scanId?: StringFieldUpdateOperationsInput | string
+    stationId?: StringFieldUpdateOperationsInput | string
+    nexsId?: StringFieldUpdateOperationsInput | string
+    timestamp?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type MarketplaceScanCreateInput = {
+    scanId: string
+    stationId: string
+    nexsId: string
+    timestamp?: Date | string
+  }
+
+  export type MarketplaceScanUncheckedCreateInput = {
+    id?: number
+    scanId: string
+    stationId: string
+    nexsId: string
+    timestamp?: Date | string
+  }
+
+  export type MarketplaceScanUpdateInput = {
+    scanId?: StringFieldUpdateOperationsInput | string
+    stationId?: StringFieldUpdateOperationsInput | string
+    nexsId?: StringFieldUpdateOperationsInput | string
+    timestamp?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type MarketplaceScanUncheckedUpdateInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    scanId?: StringFieldUpdateOperationsInput | string
+    stationId?: StringFieldUpdateOperationsInput | string
+    nexsId?: StringFieldUpdateOperationsInput | string
+    timestamp?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type MarketplaceScanCreateManyInput = {
+    id?: number
+    scanId: string
+    stationId: string
+    nexsId: string
+    timestamp?: Date | string
+  }
+
+  export type MarketplaceScanUpdateManyMutationInput = {
+    scanId?: StringFieldUpdateOperationsInput | string
+    stationId?: StringFieldUpdateOperationsInput | string
+    nexsId?: StringFieldUpdateOperationsInput | string
+    timestamp?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type MarketplaceScanUncheckedUpdateManyInput = {
     id?: IntFieldUpdateOperationsInput | number
     scanId?: StringFieldUpdateOperationsInput | string
     stationId?: StringFieldUpdateOperationsInput | string
@@ -25338,6 +30224,10 @@ export namespace Prisma {
     availability?: string | null
     scanLocation: string
     nexsLocation?: string | null
+    toteId?: string | null
+    toteSimplified?: string | null
+    toteNumber?: number | null
+    partition?: number | null
     scannedAt?: Date | string
   }
 
@@ -25350,6 +30240,10 @@ export namespace Prisma {
     availability?: string | null
     scanLocation: string
     nexsLocation?: string | null
+    toteId?: string | null
+    toteSimplified?: string | null
+    toteNumber?: number | null
+    partition?: number | null
     scannedAt?: Date | string
   }
 
@@ -25362,6 +30256,10 @@ export namespace Prisma {
     availability?: NullableStringFieldUpdateOperationsInput | string | null
     scanLocation?: StringFieldUpdateOperationsInput | string
     nexsLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    toteId?: NullableStringFieldUpdateOperationsInput | string | null
+    toteSimplified?: NullableStringFieldUpdateOperationsInput | string | null
+    toteNumber?: NullableIntFieldUpdateOperationsInput | number | null
+    partition?: NullableIntFieldUpdateOperationsInput | number | null
     scannedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -25374,6 +30272,10 @@ export namespace Prisma {
     availability?: NullableStringFieldUpdateOperationsInput | string | null
     scanLocation?: StringFieldUpdateOperationsInput | string
     nexsLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    toteId?: NullableStringFieldUpdateOperationsInput | string | null
+    toteSimplified?: NullableStringFieldUpdateOperationsInput | string | null
+    toteNumber?: NullableIntFieldUpdateOperationsInput | number | null
+    partition?: NullableIntFieldUpdateOperationsInput | number | null
     scannedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -25386,6 +30288,10 @@ export namespace Prisma {
     availability?: string | null
     scanLocation: string
     nexsLocation?: string | null
+    toteId?: string | null
+    toteSimplified?: string | null
+    toteNumber?: number | null
+    partition?: number | null
     scannedAt?: Date | string
   }
 
@@ -25398,6 +30304,10 @@ export namespace Prisma {
     availability?: NullableStringFieldUpdateOperationsInput | string | null
     scanLocation?: StringFieldUpdateOperationsInput | string
     nexsLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    toteId?: NullableStringFieldUpdateOperationsInput | string | null
+    toteSimplified?: NullableStringFieldUpdateOperationsInput | string | null
+    toteNumber?: NullableIntFieldUpdateOperationsInput | number | null
+    partition?: NullableIntFieldUpdateOperationsInput | number | null
     scannedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -25410,7 +30320,319 @@ export namespace Prisma {
     availability?: NullableStringFieldUpdateOperationsInput | string | null
     scanLocation?: StringFieldUpdateOperationsInput | string
     nexsLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    toteId?: NullableStringFieldUpdateOperationsInput | string | null
+    toteSimplified?: NullableStringFieldUpdateOperationsInput | string | null
+    toteNumber?: NullableIntFieldUpdateOperationsInput | number | null
+    partition?: NullableIntFieldUpdateOperationsInput | number | null
     scannedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PidHunterScanCreateInput = {
+    id?: bigint | number
+    pid: string
+    barcode: string
+    status?: string | null
+    condition?: string | null
+    availability?: string | null
+    nexsLocation?: string | null
+    currentLocation: string
+    rawLocation?: string | null
+    toteId?: string | null
+    toteNumber?: number | null
+    partition?: number | null
+    bucket: string
+    binName?: string | null
+    mode: string
+    operation?: string | null
+    actionId?: string | null
+    updatedAtNexs?: string | null
+    totalOperations?: number | null
+    rawScan?: string | null
+    compacted?: boolean
+    compactedFrom?: string | null
+    sourceKey?: string | null
+    scannedAt?: Date | string
+    createdAt?: Date | string
+  }
+
+  export type PidHunterScanUncheckedCreateInput = {
+    id?: bigint | number
+    pid: string
+    barcode: string
+    status?: string | null
+    condition?: string | null
+    availability?: string | null
+    nexsLocation?: string | null
+    currentLocation: string
+    rawLocation?: string | null
+    toteId?: string | null
+    toteNumber?: number | null
+    partition?: number | null
+    bucket: string
+    binName?: string | null
+    mode: string
+    operation?: string | null
+    actionId?: string | null
+    updatedAtNexs?: string | null
+    totalOperations?: number | null
+    rawScan?: string | null
+    compacted?: boolean
+    compactedFrom?: string | null
+    sourceKey?: string | null
+    scannedAt?: Date | string
+    createdAt?: Date | string
+  }
+
+  export type PidHunterScanUpdateInput = {
+    id?: BigIntFieldUpdateOperationsInput | bigint | number
+    pid?: StringFieldUpdateOperationsInput | string
+    barcode?: StringFieldUpdateOperationsInput | string
+    status?: NullableStringFieldUpdateOperationsInput | string | null
+    condition?: NullableStringFieldUpdateOperationsInput | string | null
+    availability?: NullableStringFieldUpdateOperationsInput | string | null
+    nexsLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    currentLocation?: StringFieldUpdateOperationsInput | string
+    rawLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    toteId?: NullableStringFieldUpdateOperationsInput | string | null
+    toteNumber?: NullableIntFieldUpdateOperationsInput | number | null
+    partition?: NullableIntFieldUpdateOperationsInput | number | null
+    bucket?: StringFieldUpdateOperationsInput | string
+    binName?: NullableStringFieldUpdateOperationsInput | string | null
+    mode?: StringFieldUpdateOperationsInput | string
+    operation?: NullableStringFieldUpdateOperationsInput | string | null
+    actionId?: NullableStringFieldUpdateOperationsInput | string | null
+    updatedAtNexs?: NullableStringFieldUpdateOperationsInput | string | null
+    totalOperations?: NullableIntFieldUpdateOperationsInput | number | null
+    rawScan?: NullableStringFieldUpdateOperationsInput | string | null
+    compacted?: BoolFieldUpdateOperationsInput | boolean
+    compactedFrom?: NullableStringFieldUpdateOperationsInput | string | null
+    sourceKey?: NullableStringFieldUpdateOperationsInput | string | null
+    scannedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PidHunterScanUncheckedUpdateInput = {
+    id?: BigIntFieldUpdateOperationsInput | bigint | number
+    pid?: StringFieldUpdateOperationsInput | string
+    barcode?: StringFieldUpdateOperationsInput | string
+    status?: NullableStringFieldUpdateOperationsInput | string | null
+    condition?: NullableStringFieldUpdateOperationsInput | string | null
+    availability?: NullableStringFieldUpdateOperationsInput | string | null
+    nexsLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    currentLocation?: StringFieldUpdateOperationsInput | string
+    rawLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    toteId?: NullableStringFieldUpdateOperationsInput | string | null
+    toteNumber?: NullableIntFieldUpdateOperationsInput | number | null
+    partition?: NullableIntFieldUpdateOperationsInput | number | null
+    bucket?: StringFieldUpdateOperationsInput | string
+    binName?: NullableStringFieldUpdateOperationsInput | string | null
+    mode?: StringFieldUpdateOperationsInput | string
+    operation?: NullableStringFieldUpdateOperationsInput | string | null
+    actionId?: NullableStringFieldUpdateOperationsInput | string | null
+    updatedAtNexs?: NullableStringFieldUpdateOperationsInput | string | null
+    totalOperations?: NullableIntFieldUpdateOperationsInput | number | null
+    rawScan?: NullableStringFieldUpdateOperationsInput | string | null
+    compacted?: BoolFieldUpdateOperationsInput | boolean
+    compactedFrom?: NullableStringFieldUpdateOperationsInput | string | null
+    sourceKey?: NullableStringFieldUpdateOperationsInput | string | null
+    scannedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PidHunterScanCreateManyInput = {
+    id?: bigint | number
+    pid: string
+    barcode: string
+    status?: string | null
+    condition?: string | null
+    availability?: string | null
+    nexsLocation?: string | null
+    currentLocation: string
+    rawLocation?: string | null
+    toteId?: string | null
+    toteNumber?: number | null
+    partition?: number | null
+    bucket: string
+    binName?: string | null
+    mode: string
+    operation?: string | null
+    actionId?: string | null
+    updatedAtNexs?: string | null
+    totalOperations?: number | null
+    rawScan?: string | null
+    compacted?: boolean
+    compactedFrom?: string | null
+    sourceKey?: string | null
+    scannedAt?: Date | string
+    createdAt?: Date | string
+  }
+
+  export type PidHunterScanUpdateManyMutationInput = {
+    id?: BigIntFieldUpdateOperationsInput | bigint | number
+    pid?: StringFieldUpdateOperationsInput | string
+    barcode?: StringFieldUpdateOperationsInput | string
+    status?: NullableStringFieldUpdateOperationsInput | string | null
+    condition?: NullableStringFieldUpdateOperationsInput | string | null
+    availability?: NullableStringFieldUpdateOperationsInput | string | null
+    nexsLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    currentLocation?: StringFieldUpdateOperationsInput | string
+    rawLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    toteId?: NullableStringFieldUpdateOperationsInput | string | null
+    toteNumber?: NullableIntFieldUpdateOperationsInput | number | null
+    partition?: NullableIntFieldUpdateOperationsInput | number | null
+    bucket?: StringFieldUpdateOperationsInput | string
+    binName?: NullableStringFieldUpdateOperationsInput | string | null
+    mode?: StringFieldUpdateOperationsInput | string
+    operation?: NullableStringFieldUpdateOperationsInput | string | null
+    actionId?: NullableStringFieldUpdateOperationsInput | string | null
+    updatedAtNexs?: NullableStringFieldUpdateOperationsInput | string | null
+    totalOperations?: NullableIntFieldUpdateOperationsInput | number | null
+    rawScan?: NullableStringFieldUpdateOperationsInput | string | null
+    compacted?: BoolFieldUpdateOperationsInput | boolean
+    compactedFrom?: NullableStringFieldUpdateOperationsInput | string | null
+    sourceKey?: NullableStringFieldUpdateOperationsInput | string | null
+    scannedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PidHunterScanUncheckedUpdateManyInput = {
+    id?: BigIntFieldUpdateOperationsInput | bigint | number
+    pid?: StringFieldUpdateOperationsInput | string
+    barcode?: StringFieldUpdateOperationsInput | string
+    status?: NullableStringFieldUpdateOperationsInput | string | null
+    condition?: NullableStringFieldUpdateOperationsInput | string | null
+    availability?: NullableStringFieldUpdateOperationsInput | string | null
+    nexsLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    currentLocation?: StringFieldUpdateOperationsInput | string
+    rawLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    toteId?: NullableStringFieldUpdateOperationsInput | string | null
+    toteNumber?: NullableIntFieldUpdateOperationsInput | number | null
+    partition?: NullableIntFieldUpdateOperationsInput | number | null
+    bucket?: StringFieldUpdateOperationsInput | string
+    binName?: NullableStringFieldUpdateOperationsInput | string | null
+    mode?: StringFieldUpdateOperationsInput | string
+    operation?: NullableStringFieldUpdateOperationsInput | string | null
+    actionId?: NullableStringFieldUpdateOperationsInput | string | null
+    updatedAtNexs?: NullableStringFieldUpdateOperationsInput | string | null
+    totalOperations?: NullableIntFieldUpdateOperationsInput | number | null
+    rawScan?: NullableStringFieldUpdateOperationsInput | string | null
+    compacted?: BoolFieldUpdateOperationsInput | boolean
+    compactedFrom?: NullableStringFieldUpdateOperationsInput | string | null
+    sourceKey?: NullableStringFieldUpdateOperationsInput | string | null
+    scannedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PidHunterToteCreateInput = {
+    toteNumber: number
+    toteId: string
+    isFree?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type PidHunterToteUncheckedCreateInput = {
+    toteNumber: number
+    toteId: string
+    isFree?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type PidHunterToteUpdateInput = {
+    toteNumber?: IntFieldUpdateOperationsInput | number
+    toteId?: StringFieldUpdateOperationsInput | string
+    isFree?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PidHunterToteUncheckedUpdateInput = {
+    toteNumber?: IntFieldUpdateOperationsInput | number
+    toteId?: StringFieldUpdateOperationsInput | string
+    isFree?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PidHunterToteCreateManyInput = {
+    toteNumber: number
+    toteId: string
+    isFree?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type PidHunterToteUpdateManyMutationInput = {
+    toteNumber?: IntFieldUpdateOperationsInput | number
+    toteId?: StringFieldUpdateOperationsInput | string
+    isFree?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PidHunterToteUncheckedUpdateManyInput = {
+    toteNumber?: IntFieldUpdateOperationsInput | number
+    toteId?: StringFieldUpdateOperationsInput | string
+    isFree?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PidHunterToteReservationCreateInput = {
+    toteId: string
+    toteNumber: number
+    expiresAt: Date | string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type PidHunterToteReservationUncheckedCreateInput = {
+    toteId: string
+    toteNumber: number
+    expiresAt: Date | string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type PidHunterToteReservationUpdateInput = {
+    toteId?: StringFieldUpdateOperationsInput | string
+    toteNumber?: IntFieldUpdateOperationsInput | number
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PidHunterToteReservationUncheckedUpdateInput = {
+    toteId?: StringFieldUpdateOperationsInput | string
+    toteNumber?: IntFieldUpdateOperationsInput | number
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PidHunterToteReservationCreateManyInput = {
+    toteId: string
+    toteNumber: number
+    expiresAt: Date | string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type PidHunterToteReservationUpdateManyMutationInput = {
+    toteId?: StringFieldUpdateOperationsInput | string
+    toteNumber?: IntFieldUpdateOperationsInput | number
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PidHunterToteReservationUncheckedUpdateManyInput = {
+    toteId?: StringFieldUpdateOperationsInput | string
+    toteNumber?: IntFieldUpdateOperationsInput | number
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type CLScanCreateInput = {
@@ -25475,6 +30697,11 @@ export namespace Prisma {
     availability?: string | null
     scanLocation: string
     nexsLocation?: string | null
+    toteId?: string | null
+    toteSimplified?: string | null
+    toteNumber?: number | null
+    partition?: number | null
+    handover?: string
     scannedAt?: Date | string
     injestedAt?: Date | string
   }
@@ -25488,6 +30715,11 @@ export namespace Prisma {
     availability?: string | null
     scanLocation: string
     nexsLocation?: string | null
+    toteId?: string | null
+    toteSimplified?: string | null
+    toteNumber?: number | null
+    partition?: number | null
+    handover?: string
     scannedAt?: Date | string
     injestedAt?: Date | string
   }
@@ -25501,6 +30733,11 @@ export namespace Prisma {
     availability?: NullableStringFieldUpdateOperationsInput | string | null
     scanLocation?: StringFieldUpdateOperationsInput | string
     nexsLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    toteId?: NullableStringFieldUpdateOperationsInput | string | null
+    toteSimplified?: NullableStringFieldUpdateOperationsInput | string | null
+    toteNumber?: NullableIntFieldUpdateOperationsInput | number | null
+    partition?: NullableIntFieldUpdateOperationsInput | number | null
+    handover?: StringFieldUpdateOperationsInput | string
     scannedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     injestedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -25514,6 +30751,11 @@ export namespace Prisma {
     availability?: NullableStringFieldUpdateOperationsInput | string | null
     scanLocation?: StringFieldUpdateOperationsInput | string
     nexsLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    toteId?: NullableStringFieldUpdateOperationsInput | string | null
+    toteSimplified?: NullableStringFieldUpdateOperationsInput | string | null
+    toteNumber?: NullableIntFieldUpdateOperationsInput | number | null
+    partition?: NullableIntFieldUpdateOperationsInput | number | null
+    handover?: StringFieldUpdateOperationsInput | string
     scannedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     injestedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -25527,6 +30769,11 @@ export namespace Prisma {
     availability?: string | null
     scanLocation: string
     nexsLocation?: string | null
+    toteId?: string | null
+    toteSimplified?: string | null
+    toteNumber?: number | null
+    partition?: number | null
+    handover?: string
     scannedAt?: Date | string
     injestedAt?: Date | string
   }
@@ -25540,6 +30787,11 @@ export namespace Prisma {
     availability?: NullableStringFieldUpdateOperationsInput | string | null
     scanLocation?: StringFieldUpdateOperationsInput | string
     nexsLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    toteId?: NullableStringFieldUpdateOperationsInput | string | null
+    toteSimplified?: NullableStringFieldUpdateOperationsInput | string | null
+    toteNumber?: NullableIntFieldUpdateOperationsInput | number | null
+    partition?: NullableIntFieldUpdateOperationsInput | number | null
+    handover?: StringFieldUpdateOperationsInput | string
     scannedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     injestedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -25553,6 +30805,11 @@ export namespace Prisma {
     availability?: NullableStringFieldUpdateOperationsInput | string | null
     scanLocation?: StringFieldUpdateOperationsInput | string
     nexsLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    toteId?: NullableStringFieldUpdateOperationsInput | string | null
+    toteSimplified?: NullableStringFieldUpdateOperationsInput | string | null
+    toteNumber?: NullableIntFieldUpdateOperationsInput | number | null
+    partition?: NullableIntFieldUpdateOperationsInput | number | null
+    handover?: StringFieldUpdateOperationsInput | string
     scannedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     injestedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -25790,6 +31047,44 @@ export namespace Prisma {
   }
 
   export type PackingScanSumOrderByAggregateInput = {
+    id?: SortOrder
+  }
+
+  export type MarketplaceScanOrderByRelevanceInput = {
+    fields: MarketplaceScanOrderByRelevanceFieldEnum | MarketplaceScanOrderByRelevanceFieldEnum[]
+    sort: SortOrder
+    search: string
+  }
+
+  export type MarketplaceScanCountOrderByAggregateInput = {
+    id?: SortOrder
+    scanId?: SortOrder
+    stationId?: SortOrder
+    nexsId?: SortOrder
+    timestamp?: SortOrder
+  }
+
+  export type MarketplaceScanAvgOrderByAggregateInput = {
+    id?: SortOrder
+  }
+
+  export type MarketplaceScanMaxOrderByAggregateInput = {
+    id?: SortOrder
+    scanId?: SortOrder
+    stationId?: SortOrder
+    nexsId?: SortOrder
+    timestamp?: SortOrder
+  }
+
+  export type MarketplaceScanMinOrderByAggregateInput = {
+    id?: SortOrder
+    scanId?: SortOrder
+    stationId?: SortOrder
+    nexsId?: SortOrder
+    timestamp?: SortOrder
+  }
+
+  export type MarketplaceScanSumOrderByAggregateInput = {
     id?: SortOrder
   }
 
@@ -26613,11 +31908,17 @@ export namespace Prisma {
     availability?: SortOrder
     scanLocation?: SortOrder
     nexsLocation?: SortOrder
+    toteId?: SortOrder
+    toteSimplified?: SortOrder
+    toteNumber?: SortOrder
+    partition?: SortOrder
     scannedAt?: SortOrder
   }
 
   export type ScannedBarcodeInventoryAvgOrderByAggregateInput = {
     id?: SortOrder
+    toteNumber?: SortOrder
+    partition?: SortOrder
   }
 
   export type ScannedBarcodeInventoryMaxOrderByAggregateInput = {
@@ -26629,6 +31930,10 @@ export namespace Prisma {
     availability?: SortOrder
     scanLocation?: SortOrder
     nexsLocation?: SortOrder
+    toteId?: SortOrder
+    toteSimplified?: SortOrder
+    toteNumber?: SortOrder
+    partition?: SortOrder
     scannedAt?: SortOrder
   }
 
@@ -26641,11 +31946,17 @@ export namespace Prisma {
     availability?: SortOrder
     scanLocation?: SortOrder
     nexsLocation?: SortOrder
+    toteId?: SortOrder
+    toteSimplified?: SortOrder
+    toteNumber?: SortOrder
+    partition?: SortOrder
     scannedAt?: SortOrder
   }
 
   export type ScannedBarcodeInventorySumOrderByAggregateInput = {
     id?: SortOrder
+    toteNumber?: SortOrder
+    partition?: SortOrder
   }
 
   export type BigIntWithAggregatesFilter<$PrismaModel = never> = {
@@ -26662,6 +31973,186 @@ export namespace Prisma {
     _sum?: NestedBigIntFilter<$PrismaModel>
     _min?: NestedBigIntFilter<$PrismaModel>
     _max?: NestedBigIntFilter<$PrismaModel>
+  }
+
+  export type PidHunterScanOrderByRelevanceInput = {
+    fields: PidHunterScanOrderByRelevanceFieldEnum | PidHunterScanOrderByRelevanceFieldEnum[]
+    sort: SortOrder
+    search: string
+  }
+
+  export type PidHunterScanCountOrderByAggregateInput = {
+    id?: SortOrder
+    pid?: SortOrder
+    barcode?: SortOrder
+    status?: SortOrder
+    condition?: SortOrder
+    availability?: SortOrder
+    nexsLocation?: SortOrder
+    currentLocation?: SortOrder
+    rawLocation?: SortOrder
+    toteId?: SortOrder
+    toteNumber?: SortOrder
+    partition?: SortOrder
+    bucket?: SortOrder
+    binName?: SortOrder
+    mode?: SortOrder
+    operation?: SortOrder
+    actionId?: SortOrder
+    updatedAtNexs?: SortOrder
+    totalOperations?: SortOrder
+    rawScan?: SortOrder
+    compacted?: SortOrder
+    compactedFrom?: SortOrder
+    sourceKey?: SortOrder
+    scannedAt?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type PidHunterScanAvgOrderByAggregateInput = {
+    id?: SortOrder
+    toteNumber?: SortOrder
+    partition?: SortOrder
+    totalOperations?: SortOrder
+  }
+
+  export type PidHunterScanMaxOrderByAggregateInput = {
+    id?: SortOrder
+    pid?: SortOrder
+    barcode?: SortOrder
+    status?: SortOrder
+    condition?: SortOrder
+    availability?: SortOrder
+    nexsLocation?: SortOrder
+    currentLocation?: SortOrder
+    rawLocation?: SortOrder
+    toteId?: SortOrder
+    toteNumber?: SortOrder
+    partition?: SortOrder
+    bucket?: SortOrder
+    binName?: SortOrder
+    mode?: SortOrder
+    operation?: SortOrder
+    actionId?: SortOrder
+    updatedAtNexs?: SortOrder
+    totalOperations?: SortOrder
+    rawScan?: SortOrder
+    compacted?: SortOrder
+    compactedFrom?: SortOrder
+    sourceKey?: SortOrder
+    scannedAt?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type PidHunterScanMinOrderByAggregateInput = {
+    id?: SortOrder
+    pid?: SortOrder
+    barcode?: SortOrder
+    status?: SortOrder
+    condition?: SortOrder
+    availability?: SortOrder
+    nexsLocation?: SortOrder
+    currentLocation?: SortOrder
+    rawLocation?: SortOrder
+    toteId?: SortOrder
+    toteNumber?: SortOrder
+    partition?: SortOrder
+    bucket?: SortOrder
+    binName?: SortOrder
+    mode?: SortOrder
+    operation?: SortOrder
+    actionId?: SortOrder
+    updatedAtNexs?: SortOrder
+    totalOperations?: SortOrder
+    rawScan?: SortOrder
+    compacted?: SortOrder
+    compactedFrom?: SortOrder
+    sourceKey?: SortOrder
+    scannedAt?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type PidHunterScanSumOrderByAggregateInput = {
+    id?: SortOrder
+    toteNumber?: SortOrder
+    partition?: SortOrder
+    totalOperations?: SortOrder
+  }
+
+  export type PidHunterToteOrderByRelevanceInput = {
+    fields: PidHunterToteOrderByRelevanceFieldEnum | PidHunterToteOrderByRelevanceFieldEnum[]
+    sort: SortOrder
+    search: string
+  }
+
+  export type PidHunterToteCountOrderByAggregateInput = {
+    toteNumber?: SortOrder
+    toteId?: SortOrder
+    isFree?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type PidHunterToteAvgOrderByAggregateInput = {
+    toteNumber?: SortOrder
+  }
+
+  export type PidHunterToteMaxOrderByAggregateInput = {
+    toteNumber?: SortOrder
+    toteId?: SortOrder
+    isFree?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type PidHunterToteMinOrderByAggregateInput = {
+    toteNumber?: SortOrder
+    toteId?: SortOrder
+    isFree?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type PidHunterToteSumOrderByAggregateInput = {
+    toteNumber?: SortOrder
+  }
+
+  export type PidHunterToteReservationOrderByRelevanceInput = {
+    fields: PidHunterToteReservationOrderByRelevanceFieldEnum | PidHunterToteReservationOrderByRelevanceFieldEnum[]
+    sort: SortOrder
+    search: string
+  }
+
+  export type PidHunterToteReservationCountOrderByAggregateInput = {
+    toteId?: SortOrder
+    toteNumber?: SortOrder
+    expiresAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type PidHunterToteReservationAvgOrderByAggregateInput = {
+    toteNumber?: SortOrder
+  }
+
+  export type PidHunterToteReservationMaxOrderByAggregateInput = {
+    toteId?: SortOrder
+    toteNumber?: SortOrder
+    expiresAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type PidHunterToteReservationMinOrderByAggregateInput = {
+    toteId?: SortOrder
+    toteNumber?: SortOrder
+    expiresAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type PidHunterToteReservationSumOrderByAggregateInput = {
+    toteNumber?: SortOrder
   }
 
   export type CLScanOrderByRelevanceInput = {
@@ -26722,12 +32213,19 @@ export namespace Prisma {
     availability?: SortOrder
     scanLocation?: SortOrder
     nexsLocation?: SortOrder
+    toteId?: SortOrder
+    toteSimplified?: SortOrder
+    toteNumber?: SortOrder
+    partition?: SortOrder
+    handover?: SortOrder
     scannedAt?: SortOrder
     injestedAt?: SortOrder
   }
 
   export type ScannedBarcodeInventoryTransferAvgOrderByAggregateInput = {
     id?: SortOrder
+    toteNumber?: SortOrder
+    partition?: SortOrder
   }
 
   export type ScannedBarcodeInventoryTransferMaxOrderByAggregateInput = {
@@ -26739,6 +32237,11 @@ export namespace Prisma {
     availability?: SortOrder
     scanLocation?: SortOrder
     nexsLocation?: SortOrder
+    toteId?: SortOrder
+    toteSimplified?: SortOrder
+    toteNumber?: SortOrder
+    partition?: SortOrder
+    handover?: SortOrder
     scannedAt?: SortOrder
     injestedAt?: SortOrder
   }
@@ -26752,12 +32255,19 @@ export namespace Prisma {
     availability?: SortOrder
     scanLocation?: SortOrder
     nexsLocation?: SortOrder
+    toteId?: SortOrder
+    toteSimplified?: SortOrder
+    toteNumber?: SortOrder
+    partition?: SortOrder
+    handover?: SortOrder
     scannedAt?: SortOrder
     injestedAt?: SortOrder
   }
 
   export type ScannedBarcodeInventoryTransferSumOrderByAggregateInput = {
     id?: SortOrder
+    toteNumber?: SortOrder
+    partition?: SortOrder
   }
 
   export type EnumNddShipmentTypeFilter<$PrismaModel = never> = {

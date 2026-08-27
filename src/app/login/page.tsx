@@ -22,7 +22,15 @@ export default function LoginPage() {
 
     if (res.ok) {
       // Login succeeded—send user to dashboard
-      router.push('/dashboard');
+      const requestedPath = new URLSearchParams(window.location.search).get('returnTo');
+      let returnTo = '/';
+      if (requestedPath?.startsWith('/') && !requestedPath.includes('\\')) {
+        const destination = new URL(requestedPath, window.location.origin);
+        if (destination.origin === window.location.origin) {
+          returnTo = `${destination.pathname}${destination.search}${destination.hash}`;
+        }
+      }
+      router.push(returnTo);
     } else {
       // Login failed—show error message
       const data = await res.json();

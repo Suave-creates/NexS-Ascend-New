@@ -11,5 +11,14 @@ loadEnvConfig(projectRoot, false);
 process.env.NODE_ENV = 'production';
 process.env.PORT ||= '3069';
 process.env.HOSTNAME ||= '0.0.0.0';
+// Keep credential material outside `.next/standalone`. Local production runs
+// use the project-native resource mounts just like Docker; explicit deployment
+// paths still take precedence.
+process.env.NEXS_RESOURCE_ROOT ||= path.join(projectRoot, 'src', 'utils', 'resources');
+process.env.BQ_TOKEN_PATH ||= path.join(
+  process.env.NEXS_RESOURCE_ROOT,
+  'bigquery',
+  'token.json',
+);
 
 require('../.next/standalone/server.js');

@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { normalizeMetalFrameQcStationId } from '@/lib/metalFrameQcStations';
 import { prismaMetalFrame as prisma } from '@/utils/prismaMetalFrame';
 
 // Barcode format: 3 alphabets + 9 digits  e.g.  ABC123456789
@@ -40,7 +41,7 @@ export async function POST(req: Request) {
     const body = await req.json();
     const barcode: string = (body.barcode ?? '').trim().toUpperCase();
     const qcPerson: string = (body.qcPerson ?? '').trim();
-    const qcStation: string = (body.qcStation ?? '').trim();
+    const qcStation = normalizeMetalFrameQcStationId(body.qcStation);
     const status: string = (body.status ?? '').trim().toUpperCase(); // PASS | FAIL
     const reason: string | null = body.reason ? String(body.reason).trim() : null;
 
@@ -54,7 +55,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'QC Person is not set.' }, { status: 400 });
     }
     if (!qcStation) {
-      return NextResponse.json({ error: 'QC Station / Line is not set.' }, { status: 400 });
+      return NextResponse.json({ error: 'Select a valid Station ID.' }, { status: 400 });
     }
     if (status !== 'PASS' && status !== 'FAIL') {
       return NextResponse.json({ error: 'Status must be PASS or FAIL.' }, { status: 400 });

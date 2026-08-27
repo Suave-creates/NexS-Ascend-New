@@ -563,6 +563,11 @@ export default function FQCPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ fitting_id: fid.trim() }),
       });
+      if (res.status === 401) {
+        const returnTo = `${window.location.pathname}${window.location.search}`;
+        window.location.assign(`/login?returnTo=${encodeURIComponent(returnTo)}`);
+        return;
+      }
       const json = await res.json();
       if (!res.ok || !json.success) {
         setFetchError(json.error ?? `No record found for Fitting ID: ${fid}`);
@@ -738,6 +743,11 @@ export default function FQCPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
+      if (res.status === 401) {
+        const returnTo = `${window.location.pathname}${window.location.search}`;
+        window.location.assign(`/login?returnTo=${encodeURIComponent(returnTo)}`);
+        return;
+      }
       const data = await res.json();
       if (!res.ok || !data.success) {
         if (forced?.auto) console.warn("Auto-pass submit failed:", data.error);
